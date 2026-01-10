@@ -1,6 +1,6 @@
 // src/components/wallet/QuickActions.tsx
 import { Link } from "react-router-dom";
-import { Wifi, Smartphone, Tv, FileText, ChevronRight } from "lucide-react";
+import { Wifi, Smartphone, Tv, FileText, ChevronRight, Users } from "lucide-react";
 
 export default function QuickActions() {
     const actions = [
@@ -27,6 +27,12 @@ export default function QuickActions() {
             description: "WAEC, NECO, JAMB, NBAIS",
             icon: <FileText className="w-5 h-5 text-sky-600" />,
             to: "/buy/pin",
+        },
+        {
+            name: "Refer & Earn",
+            description: "Invite friends",
+            icon: <Users className="w-5 h-5 text-sky-600" />,
+            to: "/referral",
         },
     ];
 

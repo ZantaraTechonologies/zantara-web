@@ -54,14 +54,19 @@ export default function BuyExamPinPage() {
         try {
             // Backend returns { message, pin } (no explicit ref in body) :contentReference[oaicite:3]{index=3}
             const payload = { variation_code: VARIATION_MAP[exam], amount: total, quantity: Number(qty || 0), phone: to234(phone) };
-            const res = await API.post("/services/pin", payload);
+            const res = await API.post("/services/purchase-pin", payload);
             setServerMsg(res?.data?.message || "PIN purchased successfully.");
             setServerType("success");
 
-            // We don't get ref back; point to transactions page (you could also return ref from backend)
-            const href = `/dashboard/transactions`;
-            setReceiptHref(href);
-            if (AUTO_REDIRECT_RECEIPT) navigate(href);
+            // Display PIN if returned
+            if (res?.data?.pin) {
+                setReceiptHref(res.data.pin); // Use this state to show PIN in the alert box
+            } else {
+                // We don't get ref back; point to transactions page (you could also return ref from backend)
+                const href = `/dashboard/transactions`;
+                setReceiptHref(href);
+                if (AUTO_REDIRECT_RECEIPT) navigate(href);
+            }
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.response?.data?.error || err?.message || "PIN purchase failed";
             setServerMsg(msg);
@@ -78,11 +83,16 @@ export default function BuyExamPinPage() {
             <form className="grid gap-4" onSubmit={onSubmit}>
                 {serverMsg && (
                     <div className={"rounded-xl border p-3 sm:p-4 " + (serverType === "success" ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800")}>
-                        {serverMsg}
+                        <p className="font-medium">{serverMsg}</p>
+                        {serverType === "success" && receiptHref && !receiptHref.includes("dashboard") && (
+                            <div className="mt-2 p-2 bg-white rounded border border-green-200 text-center font-mono text-lg tracking-wider select-all">
+                                {receiptHref}
+                            </div>
+                        )}
                     </div>
                 )}
 
-                <div className="grid sm:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                     <Row label="Exam">
                         <Select value={exam} onChange={(e) => { setExam(e.target.value as any); setServerMsg(null); setServerType(null); }}>
                             {EXAMS.map((x) => (<option key={x} value={x}>{x}</option>))}
@@ -91,10 +101,6 @@ export default function BuyExamPinPage() {
 
                     <Row label="Quantity">
                         <Input inputMode="numeric" placeholder="e.g., 2" value={qty} onChange={(e: any) => { setQty(e.target.value ? Number(e.target.value) : ""); setServerMsg(null); setServerType(null); }} />
-                    </Row>
-
-                    <Row label="Delivery Email (optional)">
-                        <Input type="email" placeholder="name@example.com" value={email} onChange={(e: any) => { setEmail(e.target.value); setServerMsg(null); setServerType(null); }} />
                     </Row>
                 </div>
 
@@ -112,7 +118,7 @@ export default function BuyExamPinPage() {
                         />
                         {showPhoneErr && <p className="mt-1 text-sm text-red-600">Please enter a valid Nigerian mobile number.</p>}
 
-                        {receiptHref && serverType === "success" && (
+                        {receiptHref && serverType === "success" && receiptHref.includes("dashboard") && (
                             <div className="mt-2 text-right">
                                 <a href={receiptHref} className="text-sm font-medium text-blue-600 hover:underline">View receipt →</a>
                             </div>

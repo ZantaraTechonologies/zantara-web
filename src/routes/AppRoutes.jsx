@@ -18,6 +18,7 @@ import BuyCablePage from "../pages/buy/BuyCablePage";
 import BuyExamPinPage from "../pages/buy/BuyExamPinPage";
 import UserTransactionsPage from '../pages/transactions/Transactions';
 import PaystackReturn from '../pages/wallet/PaystackReturn';
+import ReferralPage from '../pages/dashboard/Referral';
 
 // ADMIN layout/pages you already have
 import AdminLayout from '../components/admin/AdminLayout';
@@ -136,6 +137,7 @@ export default function AppRoutes() {
                 </Route>
 
                 <Route path="/wallet-page" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
+                <Route path="/referral" element={<ProtectedRoute><ReferralPage /></ProtectedRoute>} />
                 <Route path="/paystack/return" element={<ProtectedRoute><PaystackReturn /></ProtectedRoute>} />
 
                 {/* ---------- ADMIN Protected ---------- */}

@@ -4,6 +4,7 @@ import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
 import API from "../../api/axios";
 import { useWallet } from "../../hooks/useWallet";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const AUTO_REDIRECT_RECEIPT = false;
 
@@ -34,6 +35,7 @@ const PLANS: Record<(typeof NETWORKS)[number], { id: string; name: string; price
 
 export default function BuyDataPage() {
     const { data: wallet } = useWallet();
+    const { user } = useAuth(); // Get user for role check
     const navigate = useNavigate();
 
     const [network, setNetwork] = useState<(typeof NETWORKS)[number]>("MTN");
@@ -50,7 +52,13 @@ export default function BuyDataPage() {
     const showPhoneErr = phoneTouched && !phoneOk;
 
     const plan = useMemo(() => PLANS[network].find((p) => p.id === planId) ?? PLANS[network][0], [network, planId]);
-    const amount = plan?.price ?? 0;
+
+    // Agent Pricing Logic
+    const isAgent = user?.roles?.includes('reseller') || user?.roles?.includes('agent');
+    const basePrice = plan?.price ?? 0;
+    const discount = isAgent ? basePrice * 0.05 : 0; // 5% discount
+    const amount = basePrice - discount;
+
     const insufficient = (wallet?.balance ?? 0) < amount;
 
     async function onSubmit(e: FormEvent) {
@@ -138,7 +146,8 @@ export default function BuyDataPage() {
                         >
                             {PLANS[network].map((p) => (
                                 <option key={p.id} value={p.id}>
-                                    {p.name} — ₦{p.price}
+                                    {p.name} — ₦{isAgent ? (p.price * 0.95).toLocaleString() : p.price}
+                                    {isAgent && ` (Agent)`}
                                 </option>
                             ))}
                         </Select>
@@ -176,7 +185,8 @@ export default function BuyDataPage() {
 
                 <div className="flex items-center justify-between pt-2">
                     <div className="text-sm text-slate-600">
-                        Total: <span className="font-bold text-slate-900">₦{amount}</span>
+                        Total: <span className="font-bold text-slate-900">₦{amount.toLocaleString()}</span>
+                        {isAgent && <span className="ml-2 text-xs text-green-600 line-through">₦{basePrice.toLocaleString()}</span>}
                     </div>
                     <SubmitButton loading={loading} disabled={loading || insufficient || !plan || !phoneOk}>
                         {insufficient ? "Insufficient Balance" : "Buy Data"}

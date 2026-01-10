@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://vtu-backend-xdmg.onrender.com',
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: true, // if you still see 502, temporarily try secure:false to test TLS issues
         // rewrite: (path) => path, // not needed, keep /api prefix for the backend

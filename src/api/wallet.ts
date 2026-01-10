@@ -1,6 +1,7 @@
 import API from "./axios";
 
 export type WalletBalance = {
+    balance: number;
     available: number;
     frozen: number;
     currency?: string;
