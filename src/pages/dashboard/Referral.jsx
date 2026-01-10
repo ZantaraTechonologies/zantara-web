@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth'; // Adjust path as needed
-// import api from '../../api/axios'; // Assuming you have an axios instance, or use fetch
+import api from '../../api/axios';
 
 export default function Referral() {
-    // const { user } = useAuth();
     const [stats, setStats] = useState({
         earnings: 0,
         count: 0,
@@ -18,24 +17,17 @@ export default function Referral() {
 
     const fetchReferralData = async () => {
         try {
-            // Mocking data for now as backend might not have dedicated referral stats endpoint besides profile
-            // Replace with actual API calls
-            // const res = await api.get('/auth/profile');
-            // setStats({ ...stats, code: res.data.myReferralCode, earnings: res.data.totalReferralBonus });
-
-            // Simulating fetch
-            const BASE = import.meta.env.VITE_API_URL || '/api';
-            const res = await fetch(`${BASE}/auth/profile`, { credentials: 'include' });
-            const data = await res.json();
+            const { data } = await api.get('/auth/me');
 
             setStats({
                 earnings: data.totalReferralBonus || 0,
-                count: 0, // Backend doesn't return count yet, would need new endpoint
+                count: 0, // Backend doesn't return count yet
                 code: data.myReferralCode || '------',
-                history: [] // Populate if endpoint exists
+                history: []
             });
         } catch (error) {
             console.error("Failed to fetch referral data", error);
+            setStats(prev => ({ ...prev, code: 'ERROR' }));
         } finally {
             setLoading(false);
         }

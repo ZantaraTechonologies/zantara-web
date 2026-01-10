@@ -299,20 +299,40 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ open, onClose, onSucc
 
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-3 pt-2">
+                        {status === "pending" && (
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    // Manual check trigger
+                                    try {
+                                        const { data } = await API.get(`/wallet/verify?reference=${reference}`);
+                                        if (data.status === 'success') {
+                                            setStatus("success");
+                                            onSuccess?.(Number(amount), reference);
+                                        } else {
+                                            alert(`Status: ${data.status}`);
+                                        }
+                                    } catch (e) { alert('Check failed'); }
+                                }}
+                                className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-blue-700 hover:bg-blue-100"
+                            >
+                                Check Status
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={closeAndReset}
                             className="rounded-lg border border-blue-200 bg-white px-4 py-2 text-blue-700 hover:bg-blue-50 focus:outline-none"
-                            disabled={isBusy}
+                            disabled={isBusy && status !== "pending"} // Allow cancel during pending if needed, or keep disabled. Actually allow cancel.
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isBusy}
-                            className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            className={`rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 ${status === 'pending' ? 'hidden' : ''}`}
                         >
-                            {isSubmitting ? "Starting…" : status === "pending" ? "Processing…" : "Proceed to Paystack"}
+                            {isSubmitting ? "Starting…" : "Proceed to Paystack"}
                         </button>
                     </div>
                 </form>
