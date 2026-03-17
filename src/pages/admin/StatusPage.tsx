@@ -2,7 +2,7 @@
 // src/pages/admin/StatusPage.tsx (quick smoke test)
 // ---------------------------------------------
 import React, { useEffect, useState } from "react";
-import API from "../../api/axios";
+import API from "../../services/api/apiClient";
 
 export function StatusPage() {
     const [msg, setMsg] = useState("…");

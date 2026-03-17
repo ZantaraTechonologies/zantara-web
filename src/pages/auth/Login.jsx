@@ -5,9 +5,10 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClipLoader } from "react-spinners";
 import { Eye, EyeOff } from "lucide-react";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { useAuthContext } from "../../context/AuthContext"; // updated hook import
+import Navbar from "../../components/navigation/Navbar";
+import Footer from "../../components/common/Footer";
+import AuthLayout from "../../layouts/auth/AuthLayout";
+import { useAuthContext } from "../../services/auth/authContext";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -57,75 +58,72 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <Navbar />
+        <AuthLayout>
+            <form onSubmit={handleSubmit} className="bg-white px-8 py-8 rounded-2xl shadow-xl w-full">
+                <h2 className="text-3xl font-black mb-8 text-center text-slate-900">Sign In</h2>
 
-            <div className="flex items-center justify-center bg-gray-100 flex-grow">
-                <form onSubmit={handleSubmit} className="bg-white px-8 py-4 rounded-lg shadow-md w-full max-w-md">
-                    <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
-
-                    {error && (
-                        <p className="mb-4 p-4 text-sm text-white bg-red-500 rounded-md shadow-md">
-                            {error}
-                        </p>
-                    )}
-
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 text-gray-600">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your email"
-                            required
-                        />
+                {error && (
+                    <div className="mb-6 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl">
+                        {error}
                     </div>
+                )}
 
-                    <div className="mb-6 relative">
-                        <label className="block text-sm font-medium mb-1 text-gray-600">Password</label>
-                        <input
-                            type={isPasswordVisible ? "text" : "password"}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your password"
-                            required
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                            className="absolute right-3 top-11 transform -translate-y-1/2 text-gray-500"
-                        >
-                            {isPasswordVisible ? <EyeOff /> : <Eye />}
-                        </button>
-                    </div>
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold mb-1.5 text-slate-700">Email Address</label>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50"
+                        placeholder="john@example.com"
+                        required
+                    />
+                </div>
 
+                <div className="mb-8 relative">
+                    <label className="block text-sm font-semibold mb-1.5 text-slate-700">Password</label>
+                    <input
+                        type={isPasswordVisible ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50"
+                        placeholder="••••••••"
+                        required
+                    />
                     <button
-                        type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        disabled={isLoading}
+                        type="button"
+                        onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                        className="absolute right-4 top-11 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     >
-                        {isLoading ? (
-                            <div className="flex justify-center">
-                                <ClipLoader size={20} />
-                            </div>
-                        ) : (
-                            "Sign In"
-                        )}
+                        {isPasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
+                    <div className="mt-2 text-right">
+                        <a href="/forgot-password" size="sm" className="text-sm font-medium text-sky-600 hover:underline">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
 
-                    <p className="mt-4 text-sm text-center text-gray-600">
-                        Don&apos;t have an account?{" "}
-                        <a href="/register" className="text-blue-500 hover:underline">Register</a>
-                    </p>
-                </form>
+                <button
+                    type="submit"
+                    className="w-full bg-sky-600 text-white py-3.5 rounded-xl font-bold hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 disabled:opacity-50"
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <div className="flex justify-center">
+                            <ClipLoader size={20} color="#fff" />
+                        </div>
+                    ) : (
+                        "Login to Dashboard"
+                    )}
+                </button>
 
-                <ToastContainer />
-            </div>
-
-            <Footer />
-        </div>
+                <p className="mt-8 text-center text-slate-600">
+                    Don't have an account?{" "}
+                    <a href="/register" className="font-bold text-sky-600 hover:text-sky-700">Create Account</a>
+                </p>
+            </form>
+        </AuthLayout>
     );
 };
 

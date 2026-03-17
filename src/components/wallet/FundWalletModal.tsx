@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import API from "../../api/axios";
+import API from "../../services/api/apiClient";
 
 /**
  * FundWalletModal (updated)

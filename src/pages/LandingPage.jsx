@@ -6,8 +6,8 @@ import airtelLogo from "../assets/airtel.png";
 import gloLogo from "../assets/glo.png";
 import nineMobileLogo from "../assets/9mobile.png";
 
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Navbar from "../components/navigation/Navbar";
+import Footer from "../components/common/Footer";
 
 const networks = [
     { key: "mtn", name: "MTN", logo: mtnLogo },

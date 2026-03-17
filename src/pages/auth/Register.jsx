@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // IMPORTANT: use the axios instance that has withCredentials: true
-import API from "../../api/axios";
-import { toast, ToastContainer } from "react-toastify";
+import API from "../../services/api/apiClient";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClipLoader } from "react-spinners";
 import { Eye, EyeOff } from "lucide-react";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import AuthLayout from "../../layouts/auth/AuthLayout";
 
 const phoneRegex = /^(?:\+234|0)(\d{10})$/;
 
@@ -81,101 +80,101 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <Navbar />
+        <AuthLayout>
+            <form onSubmit={handleSubmit} className="bg-white px-8 py-8 rounded-2xl shadow-xl w-full">
+                <h2 className="text-3xl font-black mb-8 text-center text-slate-900">Create Account</h2>
 
-            <div className="flex items-center justify-center bg-gray-100 flex-grow py-2">
-                <form onSubmit={handleSubmit} className="bg-white px-8 py-4 rounded shadow-md w-full max-w-md">
-                    <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Register</h2>
+                {error && (
+                    <div className="mb-6 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl">
+                        {error}
+                    </div>
+                )}
 
-                    {error && (
-                        <p className="mb-4 p-4 text-sm text-white bg-red-500 rounded-md shadow-md">
-                            {error}
-                        </p>
-                    )}
-
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 text-gray-600">Name</label>
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-semibold mb-1.5 text-slate-700">Full Name</label>
                         <input
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded px-3 py-2"
-                            placeholder="Enter your fullname"
+                            className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50"
+                            placeholder="John Doe"
                             required
                         />
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 text-gray-600">Email</label>
+                    <div>
+                        <label className="block text-sm font-semibold mb-1.5 text-slate-700">Email Address</label>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded px-3 py-2"
-                            placeholder="Enter your email"
+                            className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50"
+                            placeholder="john@example.com"
                             required
                         />
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 text-gray-600">Phone</label>
+                    <div>
+                        <label className="block text-sm font-semibold mb-1.5 text-slate-700">Phone Number</label>
                         <input
                             type="text"
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded px-3 py-2"
-                            placeholder="Enter your phone number"
+                            className={`w-full border ${phoneError ? 'border-red-300 focus:ring-red-200' : 'border-slate-200 focus:ring-sky-500'} rounded-xl px-4 py-3 focus:outline-none bg-slate-50 transition-all`}
+                            placeholder="08100000000"
                             required
                         />
-                        {phoneError && <p className="text-red-600 text-sm">{phoneError}</p>}
+                        {phoneError && <p className="mt-1 text-red-600 text-xs font-medium">{phoneError}</p>}
                     </div>
 
-                    <div className="mb-2 relative">
-                        <label className="block text-sm font-medium mb-1 text-gray-600">Password</label>
+                    <div className="relative">
+                        <label className="block text-sm font-semibold mb-1.5 text-slate-700">Password</label>
                         <input
                             type={isPasswordVisible ? "text" : "password"}
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your password"
+                            className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50"
+                            placeholder="••••••••"
                             required
                         />
                         <button
                             type="button"
                             onClick={() => setIsPasswordVisible((v) => !v)}
-                            className="absolute right-3 top-11 transform -translate-y-1/2 text-gray-500"
+                            className="absolute right-4 top-11 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                         >
-                            {isPasswordVisible ? <EyeOff /> : <Eye />}
+                            {isPasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                     </div>
 
-                    <div className="mb-4 flex items-center">
+                    <div className="flex items-start items-center gap-3 pt-2">
                         <input
                             type="checkbox"
                             id="terms"
                             checked={isChecked}
                             onChange={() => setIsChecked(!isChecked)}
-                            className="h-4 w-4 text-sky-600 rounded"
+                            className="h-5 w-5 text-sky-600 rounded-lg border-slate-300 focus:ring-sky-400 cursor-pointer"
                         />
                         <label
                             htmlFor="terms"
-                            className={`ml-2 text-sm ${!isChecked ? "text-red-600" : "text-gray-600"}`}
+                            className={`text-xs ${!isChecked ? "text-red-600" : "text-slate-600"} cursor-pointer leading-tight`}
                         >
                             I agree to the{" "}
-                            <a href="/terms-and-conditions" className="text-sky-600">Terms and Conditions</a>{" "}
-                            and{" "}
-                            <a href="/privacy-policy" className="text-sky-600">Privacy Policy</a>.
+                            <a href="/terms-and-conditions" className="text-sky-600 font-bold hover:underline">Terms</a>{" "}
+                            &{" "}
+                            <a href="/privacy-policy" className="text-sky-600 font-bold hover:underline">Privacy Policy</a>
                         </label>
                     </div>
+                </div>
 
+                <div className="mt-8">
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="w-full bg-sky-600 text-white py-3.5 rounded-xl font-bold hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 disabled:opacity-50"
                         disabled={isLoading}
                     >
                         {isLoading ? (
@@ -183,21 +182,17 @@ const Register = () => {
                                 <ClipLoader size={20} color="#fff" />
                             </div>
                         ) : (
-                            "Sign Up"
+                            "Create My Account"
                         )}
                     </button>
+                </div>
 
-                    <p className="mt-4 text-sm text-center text-gray-600">
-                        Already have an account?{" "}
-                        <a href="/login" className="text-blue-500 hover:underline">Login</a>
-                    </p>
-                </form>
-
-                <ToastContainer />
-            </div>
-
-            <Footer />
-        </div>
+                <p className="mt-8 text-center text-slate-600">
+                    Already have an account?{" "}
+                    <a href="/login" className="font-bold text-sky-600 hover:text-sky-700">Log In</a>
+                </p>
+            </form>
+        </AuthLayout>
     );
 };
 

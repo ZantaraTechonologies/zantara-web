@@ -1,7 +1,7 @@
 // src/hooks/useWallet.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getWalletBalance, initPaystackServer } from "../api/wallet";
-import { getMyTransactionLogs } from "../api/transactions";
+import { WalletBalance, getWalletBalance, initPaystackServer } from "../services/wallet/walletService";
+import { getMyTransactionLogs } from "../services/transactions/transactionService";
 
 /** ---- Types (adjust/extend as needed) ---- */
 export type Tx = {

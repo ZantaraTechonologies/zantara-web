@@ -1,7 +1,7 @@
 // src/pages/admin/AdminLogout.tsx (optional tiny page)
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../../api/axios";
+import API from "../../services/api/apiClient";
 
 export default function AdminLogout() {
     const nav = useNavigate();
