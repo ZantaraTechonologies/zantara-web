@@ -67,7 +67,7 @@ const UserWalletPage: React.FC = () => {
     ];
 
     return (
-        <div className="p-4 sm:p-5 lg:p-8 space-y-8 animate-in fade-in duration-700 font-['Inter',_sans-serif]">
+        <div className="p-4 sm:p-5 lg:p-8 space-y-8 animate-in fade-in duration-700 font-sans">
             {/* Funded Toast */}
             {fundedStatus && (
                 <div className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-sm shadow-lg ${

@@ -3,16 +3,16 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth/authStore';
 
 const ProtectedRoute = ({ children }) => {
-    const { user, isAuthenticated, loading, fetchMe } = useAuthStore();
+    const { user, isAuthenticated, loading, isInitialized, fetchMe } = useAuthStore();
     const location = useLocation();
 
     React.useEffect(() => {
-        if (isAuthenticated && !user) {
+        if (!isInitialized) {
             fetchMe();
         }
-    }, [isAuthenticated, user, fetchMe]);
+    }, [isInitialized, fetchMe]);
 
-    if (loading) {
+    if (loading || !isInitialized) {
         return (
             <div className="flex items-center justify-center h-screen bg-slate-50">
                 <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>

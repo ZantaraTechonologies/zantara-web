@@ -5,17 +5,18 @@ export const useAuthStore = create((set, get) => ({
     user: null,
     token: localStorage.getItem('token') || null,
     isAuthenticated: !!localStorage.getItem('token'),
-    loading: !!localStorage.getItem('token'),
+    loading: true,
+    isInitialized: false,
     error: null,
 
     setAuth: (user, token) => {
         if (token) localStorage.setItem('token', token);
-        set({ user, token, isAuthenticated: !!token, loading: false, error: null });
+        set({ user, token, isAuthenticated: true, loading: false, isInitialized: true, error: null });
     },
 
     clearAuth: () => {
         localStorage.removeItem('token');
-        set({ user: null, token: null, isAuthenticated: false, loading: false, error: null });
+        set({ user: null, token: null, isAuthenticated: false, loading: false, isInitialized: true, error: null });
     },
 
     fetchMe: async () => {
@@ -23,14 +24,14 @@ export const useAuthStore = create((set, get) => ({
         try {
             const data = await authService.getMe();
             if (data.ok && data.user) {
-                set({ user: data.user, isAuthenticated: true, loading: false });
+                set({ user: data.user, isAuthenticated: true, loading: false, isInitialized: true });
             } else {
                 get().clearAuth();
             }
         } catch (error) {
             get().clearAuth();
         } finally {
-            set({ loading: false });
+            set({ loading: false, isInitialized: true });
         }
     },
 

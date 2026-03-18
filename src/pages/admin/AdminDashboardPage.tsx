@@ -46,7 +46,7 @@ const AdminDashboardPage: React.FC = () => {
     ];
 
     return (
-        <div className="bg-slate-950 min-h-screen font-['Inter',_sans-serif] text-slate-300">
+        <div className="bg-slate-950 min-h-screen font-sans text-slate-300">
             {/* System Status Banner Simulation */}
             <div className="bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-[0.3em] py-2 text-center flex items-center justify-center gap-2">
                 <div className="w-1.5 h-1.5 bg-slate-950 rounded-full animate-ping"></div>

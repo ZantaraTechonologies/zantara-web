@@ -27,7 +27,7 @@ const UserForgotPasswordPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col font-['Inter',_sans-serif]">
+        <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
             {/* Header */}
             <header className="w-full h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 sm:px-12">
                 <div className="flex items-center gap-2">

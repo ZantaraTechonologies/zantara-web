@@ -59,7 +59,7 @@ const UserRegisterPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-['Inter',_sans-serif]">
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
             {/* Header / Logo */}
             <div className="mb-8 flex items-center gap-2">
                 <div className="w-8 h-8 bg-emerald-400 rounded-lg flex items-center justify-center shadow-sm">

@@ -98,7 +98,7 @@ export default function ZantaraLanding() {
     const [activeNet, setActiveNet] = useState(networks[0].key);
 
     return (
-        <div className="min-h-screen bg-white text-slate-800 font-['Inter',_sans-serif]">
+        <div className="min-h-screen bg-white text-slate-800 font-sans">
             {/* NAV */}
             <Navbar />
 

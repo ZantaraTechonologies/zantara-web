@@ -40,7 +40,7 @@ export default function PaystackReturn() {
     }, [search, navigate, fetchBalance]);
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-['Inter',_sans-serif]">
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-sans">
             <div className="flex flex-col items-center gap-6">
                 <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
                 <div className="text-center">

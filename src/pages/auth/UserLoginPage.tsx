@@ -39,7 +39,7 @@ const UserLoginPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-white font-['Inter',_sans-serif]">
+        <div className="min-h-screen flex bg-white font-sans">
             {/* Left Side - Branding */}
             <div className="hidden lg:flex w-1/2 bg-slate-950 relative flex-col justify-between p-16 overflow-hidden">
                 {/* Background Pattern/Gradient */}

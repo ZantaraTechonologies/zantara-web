@@ -65,7 +65,7 @@ const UserFundWalletPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 sm:p-5 lg:p-8 space-y-8 animate-in slide-in-from-bottom-8 duration-700 font-['Inter',_sans-serif]">
+        <div className="max-w-4xl mx-auto p-4 sm:p-5 lg:p-8 space-y-8 animate-in slide-in-from-bottom-8 duration-700 font-sans">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <button onClick={() => navigate(-1)} className="p-3 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">

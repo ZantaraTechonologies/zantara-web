@@ -46,7 +46,7 @@ const UserDashboardPage: React.FC = () => {
     ];
 
     return (
-        <div className="p-2 sm:p-6 lg:p-10 font-['Inter',_sans-serif]">
+        <div className="p-2 sm:p-6 lg:p-10 font-sans">
             {/* Top Toolbar Simulation (Inside Layout usually, but adding for completeness if needed) */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
                 <div>
