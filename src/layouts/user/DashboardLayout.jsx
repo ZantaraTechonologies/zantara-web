@@ -11,7 +11,8 @@ import {
     X, 
     Bell,
     ChevronRight,
-    Search
+    Search,
+    Zap
 } from 'lucide-react';
 import Navbar from '../../components/navigation/Navbar';
 
