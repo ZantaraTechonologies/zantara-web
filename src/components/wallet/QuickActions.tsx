@@ -6,32 +6,32 @@ export default function QuickActions() {
     const actions = [
         {
             name: "Buy Data",
-            description: "MTN, Airtel, Glo, 9mobile",
-            icon: <Wifi className="w-5 h-5 text-sky-600" />,
+            description: "Data Bundles",
+            icon: <Wifi className="w-5 h-5 text-emerald-500" />,
             to: "/buy/data",
         },
         {
             name: "Buy Airtime",
-            description: "All networks supported",
-            icon: <Smartphone className="w-5 h-5 text-sky-600" />,
+            description: "Talk Time",
+            icon: <Smartphone className="w-5 h-5 text-emerald-500" />,
             to: "/buy/airtime",
         },
         {
             name: "Cable TV",
-            description: "DSTV, GOtv, Startimes",
-            icon: <Tv className="w-5 h-5 text-sky-600" />,
+            description: "Entertainment",
+            icon: <Tv className="w-5 h-5 text-emerald-500" />,
             to: "/buy/cable",
         },
         {
             name: "Exam PINs",
-            description: "WAEC, NECO, JAMB, NBAIS",
-            icon: <FileText className="w-5 h-5 text-sky-600" />,
+            description: "Education",
+            icon: <FileText className="w-5 h-5 text-emerald-500" />,
             to: "/buy/pin",
         },
         {
             name: "Refer & Earn",
-            description: "Invite friends",
-            icon: <Users className="w-5 h-5 text-sky-600" />,
+            description: "Grow Network",
+            icon: <Users className="w-5 h-5 text-emerald-500" />,
             to: "/referral",
         },
     ];
@@ -45,17 +45,17 @@ export default function QuickActions() {
                         <Link
                             key={action.name}
                             to={action.to}
-                            className="group rounded-xl border border-slate-200 bg-white p-4 hover:border-sky-300 hover:shadow transition"
+                            className="group rounded-[1.5rem] border border-slate-50 bg-white p-5 hover:border-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/5 transition-all"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center transition-transform group-hover:scale-110">
                                     {action.icon}
                                 </div>
-                                <div>
-                                    <div className="font-semibold text-slate-900">{action.name}</div>
-                                    <div className="text-xs text-slate-500">{action.description}</div>
+                                <div className="flex-1">
+                                    <div className="font-bold text-slate-900 tracking-tight">{action.name}</div>
+                                    <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">{action.description}</div>
                                 </div>
-                                <ChevronRight className="ml-auto w-4 h-4 text-slate-400 group-hover:text-sky-600" />
+                                <ChevronRight className="w-4 h-4 text-slate-200 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
                             </div>
                         </Link>
                     ))}

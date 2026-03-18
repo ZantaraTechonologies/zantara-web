@@ -33,5 +33,15 @@ export default function PaystackReturn() {
         if (reference) finish();
     }, [search, navigate]);
 
-    return <div style={{ padding: 24 }}>Finalizing payment…</div>;
+    return (
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-['Inter',_sans-serif]">
+            <div className="flex flex-col items-center gap-6">
+                <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="text-center">
+                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Finalizing Payment</h2>
+                    <p className="text-slate-500 font-medium mt-2 italic">Securing your transaction with Zantara Shield...</p>
+                </div>
+            </div>
+        </div>
+    );
 }

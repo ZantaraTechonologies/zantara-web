@@ -103,19 +103,20 @@ export default function BuyDataPage() {
     }
 
     const phoneInputClass =
-        "w-full rounded-xl px-3 py-2 outline-none transition ring-0 " +
-        (showPhoneErr ? "border border-red-500 focus:ring-2 focus:ring-red-500" : "border border-slate-300 focus:ring-2 focus:ring-blue-500");
+        "w-full rounded-xl px-4 py-3 outline-none transition ring-0 " +
+        (showPhoneErr ? "border border-red-500 focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50" : "border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50");
 
     return (
         <PurchaseLayout title="Buy Data" subtitle="Choose network, pick a plan, and confirm purchase.">
-            <form className="grid gap-4" onSubmit={onSubmit}>
+            <form className="grid gap-6" onSubmit={onSubmit}>
                 {serverMsg && (
-                    <div className={"rounded-xl border p-3 sm:p-4 " + (serverType === "success" ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800")}>
+                    <div className={"rounded-2xl border p-4 sm:p-5 font-medium text-sm flex items-center gap-3 " + (serverType === "success" ? "bg-emerald-50 border-emerald-100 text-emerald-800" : "bg-red-50 border-red-100 text-red-800")}>
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${serverType === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
                         {serverMsg}
                     </div>
                 )}
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-6">
                     <Row label="Network">
                         <Select
                             value={network}
@@ -174,9 +175,10 @@ export default function BuyDataPage() {
 
                         {/* Receipt link (right-aligned, shows after success) */}
                         {receiptHref && serverType === "success" && (
-                            <div className="mt-2 text-right">
-                                <a href={receiptHref} className="text-sm font-medium text-blue-600 hover:underline">
-                                    View receipt →
+                            <div className="mt-3 text-right">
+                                <a href={receiptHref} className="text-xs font-black uppercase tracking-widest text-emerald-500 hover:text-emerald-600 flex items-center justify-end gap-1 group">
+                                    View Receipt
+                                    <span className="group-hover:translate-x-0.5 transition-transform">→</span>
                                 </a>
                             </div>
                         )}

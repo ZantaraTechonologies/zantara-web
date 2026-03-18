@@ -6,12 +6,18 @@ import Footer from '../../components/common/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const AuthLayout = ({ children }) => {
+const AuthLayout = ({ children, title, subtitle }) => {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-slate-50">
             <Navbar />
-            <main className="flex-grow flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-                <div className="w-full max-w-md">
+            <main className="flex-grow flex items-center justify-center py-20 px-6 sm:px-10">
+                <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
+                    {(title || subtitle) && (
+                        <div className="text-center space-y-2 mb-2">
+                            {title && <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{title}</h1>}
+                            {subtitle && <p className="text-slate-500 font-medium">{subtitle}</p>}
+                        </div>
+                    )}
                     {children || <Outlet />}
                 </div>
             </main>

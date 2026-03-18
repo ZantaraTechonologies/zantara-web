@@ -27,7 +27,7 @@ export default function WalletPage() {
         </div>
         <button 
           onClick={() => setFundOpen(true)}
-          className="bg-sky-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 flex items-center justify-center gap-2"
+          className="bg-emerald-400 text-slate-950 px-6 py-3 rounded-2xl font-bold hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
         >
           <span>Fund Wallet</span>
         </button>
@@ -41,13 +41,13 @@ export default function WalletPage() {
         
         <div className="space-y-8">
           <QuickActions />
-          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4">Support</h3>
-            <p className="text-sm text-slate-600 mb-4">Need help with a transaction? Our team is available 24/7.</p>
+          <div className="bg-white rounded-3xl p-8 border border-slate-50 shadow-sm">
+            <h3 className="font-bold text-slate-900 mb-4">Priority Support</h3>
+            <p className="text-sm text-slate-500 font-medium mb-6">Need help with a transaction or bill? Our Zantara support team is available 24/7.</p>
             <a 
-              href={(import.meta as any).env.VITE_WHATSAPP_SUPPORT_URL} 
+              href={import.meta.env.VITE_WHATSAPP_SUPPORT_URL} 
               target="_blank" 
-              className="w-full inline-flex items-center justify-center py-3 bg-slate-50 text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-colors"
+              className="w-full inline-flex items-center justify-center py-4 bg-slate-950 text-white font-bold rounded-xl hover:bg-slate-900 transition-all shadow-sm"
             >
               Contact Support
             </a>

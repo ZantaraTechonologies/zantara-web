@@ -12,23 +12,23 @@ export default function ReceiptModal({ tx, onClose }: { tx: TxLog & { _orig?: an
             <div className="absolute inset-x-0 top-16 mx-auto w-[92%] max-w-2xl">
                 <div className="rounded-2xl shadow-lg border border-slate-200 bg-white">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                        <h4 className="font-semibold text-slate-800">Receipt</h4>
+                        <h4 className="font-bold text-slate-900 uppercase tracking-tight">Transaction Receipt</h4>
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => downloadReceiptHTML(tx)}
-                                className="text-xs px-3 py-1 rounded-full border border-slate-300 bg-white hover:bg-slate-100"
+                                className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all"
                             >
-                                Download (HTML)
+                                HTML
                             </button>
                             <button
                                 onClick={() => printReceipt(tx)}
-                                className="text-xs px-3 py-1 rounded-full border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-700"
+                                className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-500 transition-all"
                             >
-                                Print / Save PDF
+                                PDF
                             </button>
                             <button
                                 onClick={onClose}
-                                className="text-xs px-3 py-1 rounded-full border border-slate-300 bg-white hover:bg-slate-100"
+                                className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all"
                             >
                                 Close
                             </button>

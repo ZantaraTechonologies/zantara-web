@@ -149,14 +149,14 @@ export default function TransactionsList({
         URL.revokeObjectURL(url);
     };
 
-    // -------- UI shell (keeps your blue vibe, stays responsive in page container) --------
+    // -------- UI shell (Zantara Emerald Theme) --------
     const shellCls =
-        "my-6 w-full rounded-2xl border border-sky-200 bg-gradient-to-b from-sky-50 to-sky-100 shadow-md";
+        "w-full rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden";
 
     const skeleton = (
-        <div className="space-y-3">
+        <div className="space-y-4 p-4">
             {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="animate-pulse h-16 rounded-xl bg-white/60" />
+                <div key={i} className="animate-pulse h-16 rounded-2xl bg-slate-50" />
             ))}
         </div>
     );
@@ -164,11 +164,11 @@ export default function TransactionsList({
     if (error) {
         return (
             <section className={shellCls}>
-                <header className="px-4 sm:px-5 py-3 border-b border-sky-200 bg-sky-100/70 rounded-t-2xl">
-                    <h3 className="font-semibold text-sky-900">Recent Transactions</h3>
+                <header className="px-6 py-4 border-b border-slate-50 bg-slate-50/50">
+                    <h3 className="font-bold text-slate-800">Recent Transactions</h3>
                 </header>
-                <div className="p-4 sm:p-5">
-                    <p className="text-sm text-rose-600">Failed to load transactions.</p>
+                <div className="p-6">
+                    <p className="text-sm text-red-600 font-medium">Failed to load transactions. Please check your connection.</p>
                 </div>
             </section>
         );
@@ -177,26 +177,26 @@ export default function TransactionsList({
     return (
         <section className={shellCls}>
             {/* Header */}
-            <header className="px-4 sm:px-5 py-3 border-b border-sky-200 bg-sky-100/70 rounded-t-2xl">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <h3 className="font-semibold text-sky-900">Recent Transactions</h3>
+            <header className="px-6 py-5 border-b border-slate-50 bg-slate-50/30">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <h3 className="font-bold text-slate-900">Transaction History</h3>
 
                     {/* Controls: search + status + export */}
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <div className="flex items-center gap-2">
                             <input
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                className="h-9 w-64 max-w-full rounded-lg border border-sky-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-sky-400"
-                                placeholder="Search ref, status, type, amount..."
+                                className="h-10 w-64 max-w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
+                                placeholder="Ref, status, type..."
                             />
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as any)}
-                                className="h-9 rounded-lg border border-sky-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-sky-400"
-                                title="Filter by status"
+                                className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-bold text-slate-700"
+                                title="Filter"
                             >
-                                <option value="all">All</option>
+                                <option value="all">All Status</option>
                                 <option value="success">Success</option>
                                 <option value="pending">Pending</option>
                                 <option value="failed">Failed</option>
@@ -206,36 +206,36 @@ export default function TransactionsList({
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={downloadCSV}
-                                className="h-9 rounded-lg bg-sky-600 px-3 text-sm font-semibold text-white hover:bg-sky-700"
-                                title="Download filtered results as CSV"
+                                className="h-10 rounded-xl bg-slate-900 px-5 text-xs font-black uppercase tracking-widest text-white hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-sm"
                             >
-                                Save CSV
+                                Export CSV
                             </button>
-                            {query || statusFilter !== "all" ? (
+                            {(query || statusFilter !== "all") && (
                                 <button
                                     onClick={() => {
                                         setQuery("");
                                         setStatusFilter("all");
                                     }}
-                                    className="h-9 rounded-lg border border-sky-300 bg-white px-3 text-sm hover:bg-sky-50"
-                                    title="Clear filters"
+                                    className="h-10 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all"
                                 >
                                     Clear
                                 </button>
-                            ) : null}
+                            )}
                         </div>
                     </div>
                 </div>
             </header>
 
             {/* Body */}
-            <div className="p-2 sm:p-3">
+            <div className="p-2 sm:p-4">
                 {isLoading ? (
                     skeleton
                 ) : filteredItems.length === 0 ? (
-                    <p className="text-sm text-sky-900/70 px-3 py-2">No transactions match your filters.</p>
+                    <div className="py-20 text-center">
+                        <p className="text-slate-400 font-medium tracking-tight">No transactions found matching your criteria.</p>
+                    </div>
                 ) : (
-                    <ul className="divide-y divide-sky-200">
+                    <ul className="divide-y divide-slate-50">
                         {filteredItems.map((tx) => {
                             const isActive =
                                 !!highlightRef &&

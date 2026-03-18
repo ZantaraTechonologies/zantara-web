@@ -6,33 +6,33 @@ export default function NotFound() {
         <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6 py-12">
             <div className="text-center space-y-8 animate-in fade-in zoom-in duration-500">
                 <div className="relative inline-block">
-                    <div className="absolute inset-0 bg-sky-200 blur-3xl opacity-30 rounded-full scale-150 animate-pulse" />
-                    <div className="relative bg-white rounded-full p-8 shadow-xl shadow-sky-100 border border-slate-100">
-                        <Search className="w-16 h-16 text-sky-500" />
+                    <div className="absolute inset-0 bg-emerald-200 blur-3xl opacity-30 rounded-full scale-150 animate-pulse" />
+                    <div className="relative bg-white rounded-full p-8 shadow-xl shadow-emerald-100 border border-slate-50">
+                        <Search className="w-16 h-16 text-emerald-500" />
                     </div>
                 </div>
 
-                <div className="max-w-md mx-auto space-y-3">
-                    <h1 className="text-8xl font-black text-slate-200 leading-none">404</h1>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Page not found</h2>
+                <div className="max-w-md mx-auto space-y-4">
+                    <h1 className="text-9xl font-black text-slate-100 leading-none tracking-tighter">404</h1>
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Trace Failed</h2>
                     <p className="text-slate-500 font-medium leading-relaxed">
-                        The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+                        The requested resource at this endpoint is non-existent. Our scanners couldn't find anything here.
                     </p>
                 </div>
 
-                <div className="pt-4 flex items-center justify-center gap-4 flex-col sm:flex-row">
+                <div className="pt-6 flex items-center justify-center gap-4 flex-col sm:flex-row">
                     <Link
                         to="/"
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-sky-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-sky-700 transition-all shadow-lg shadow-sky-100 active:scale-95"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-950 text-white px-10 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-2xl shadow-slate-200 active:scale-95"
                     >
                         <Home className="w-4 h-4" />
-                        <span>Go back home</span>
+                        <span>Back Home</span>
                     </Link>
                     <button
                         onClick={() => window.history.back()}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-2xl font-bold hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-slate-900 border border-slate-100 px-10 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-slate-50 transition-all active:scale-95"
                     >
-                        <span>Previous page</span>
+                        <span>Recall Last</span>
                     </button>
                 </div>
 

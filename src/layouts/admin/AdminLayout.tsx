@@ -56,19 +56,19 @@ export default function AdminLayout() {
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Desktop Sidebar */}
-                <aside className="hidden lg:flex w-72 bg-white border-r border-slate-200 flex-col sticky top-16 h-[calc(100vh-64px)]">
-                    <div className="p-6">
-                        <div className="bg-blue-50 rounded-2xl p-4 mb-6">
-                            <div className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Admin Console</div>
-                            <div className="text-slate-900 font-bold truncate">VTU Administrator</div>
-                            <div className="text-slate-500 text-xs truncate">System Management</div>
+                <aside className="hidden lg:flex w-72 bg-slate-950 border-r border-white/5 flex-col sticky top-20 h-[calc(100vh-80px)]">
+                    <div className="p-8">
+                        <div className="bg-white/5 rounded-[2rem] p-6 mb-8 border border-white/5">
+                            <div className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] mb-2">Institutional</div>
+                            <div className="text-white font-black truncate text-sm">Zantara Admin</div>
+                            <div className="text-slate-500 text-[11px] font-bold truncate mt-1">Operator: ROOT</div>
                         </div>
 
-                        <nav className="space-y-1">
+                        <nav className="space-y-2 overflow-y-auto max-h-[calc(100vh-320px)] custom-scrollbar">
                             {menuItems.map((item, idx) => {
                                 if (item.type === "header") {
                                     return (
-                                        <div key={idx} className="px-4 py-3 mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                        <div key={idx} className="px-5 py-3 mt-6 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">
                                             {item.label}
                                         </div>
                                     );
@@ -81,38 +81,38 @@ export default function AdminLayout() {
                                         key={path}
                                         to={path}
                                         className={({ isActive }) =>
-                                            `flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${
+                                            `flex items-center justify-between px-5 py-3.5 rounded-2xl transition-all group ${
                                                 isActive
-                                                    ? "bg-blue-600 text-white shadow-lg shadow-blue-100"
-                                                    : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                                                    ? "bg-emerald-500 text-slate-950 shadow-xl shadow-emerald-500/20"
+                                                    : "text-slate-400 hover:bg-white/5 hover:text-emerald-400"
                                             }`
                                         }
                                     >
                                         <div className="flex items-center gap-3">
-                                            {Icon && <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"}`} />}
-                                            <span className="font-semibold text-sm">{item.label}</span>
+                                            {Icon && <Icon className={`w-5 h-5 ${isActive ? "text-slate-950" : "text-slate-500 group-hover:text-emerald-400"}`} />}
+                                            <span className="font-bold text-sm tracking-tight">{item.label}</span>
                                         </div>
-                                        {isActive && <ChevronRight className="w-4 h-4" />}
+                                        {isActive && <ChevronRight className="w-4 h-4 opacity-50" />}
                                     </NavLink>
                                 );
                             })}
                         </nav>
                     </div>
 
-                    <div className="mt-auto p-6 border-t border-slate-100">
+                    <div className="mt-auto p-8 border-t border-white/5">
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-red-500 font-semibold rounded-xl hover:bg-red-50 transition-colors group"
+                            className="flex items-center gap-3 w-full px-5 py-4 text-slate-500 font-bold text-sm rounded-2xl hover:bg-red-500/10 hover:text-red-400 transition-all group"
                         >
-                            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            <span>Sign Out</span>
+                            <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                            <span>Terminate Session</span>
                         </button>
                     </div>
                 </aside>
 
                 {/* Main Content Area */}
-                <main className="flex-1 min-w-0 overflow-y-auto bg-slate-50/50">
-                    <div className="max-w-7xl mx-auto p-4 md:p-8">
+                <main className="flex-1 min-w-0 overflow-y-auto bg-slate-950">
+                    <div className="max-w-7xl mx-auto p-6 md:p-10">
                         <Outlet />
                     </div>
                 </main>

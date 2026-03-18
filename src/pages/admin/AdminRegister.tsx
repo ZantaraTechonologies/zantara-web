@@ -104,112 +104,112 @@ export default function AdminRegister() {
 
     return (
         <AuthLayout title="Create Admin" subtitle="Set up a new admin account">
-            <form onSubmit={onSubmit} className="bg-white px-8 py-4 rounded-2xl shadow-sm w-full max-w-md border border-slate-200">
-                <h2 className="text-2xl font-bold mb-6 text-center text-slate-800">Create Admin</h2>
+            <form onSubmit={onSubmit} className="bg-white px-10 py-10 rounded-[2.5rem] shadow-2xl shadow-slate-100 w-full max-w-md border border-slate-50">
+                <h2 className="text-3xl font-black mb-8 text-center text-slate-900 tracking-tight uppercase">Admin Provision</h2>
 
                 {error && (
-                    <p className="mb-4 p-4 text-sm text-red-600 bg-red-50 rounded-lg shadow-sm border border-red-200">
+                    <div className="mb-6 p-4 text-xs font-bold text-red-600 bg-red-50 rounded-2xl border border-red-100 animate-in fade-in slide-in-from-top-2">
                         {error}
-                    </p>
+                    </div>
                 )}
 
                 {/* Name */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1 text-slate-700">Name</label>
+                <div className="mb-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Identity Name</label>
                     <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                        placeholder="Enter full name"
+                        className="w-full border border-slate-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold placeholder:text-slate-200 transition-all"
+                        placeholder="John Doe"
                         required
                     />
                 </div>
 
                 {/* Email */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1 text-slate-700">Email</label>
+                <div className="mb-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Network Email</label>
                     <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                        placeholder="Enter email"
+                        className="w-full border border-slate-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold placeholder:text-slate-200 transition-all"
+                        placeholder="admin@zantara.com"
                         required
                     />
                 </div>
 
                 {/* Phone */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1 text-slate-700">Phone</label>
+                <div className="mb-6">
+                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Verification Phone</label>
                     <input
                         type="text"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                        placeholder="0XXXXXXXXXX or +234XXXXXXXXXX"
+                        className="w-full border border-slate-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold placeholder:text-slate-200 transition-all"
+                        placeholder="080XXXXXXXX"
                         required
                     />
-                    {phoneError && <p className="text-red-600 text-sm mt-1">{phoneError}</p>}
+                    {phoneError && <p className="text-red-500 text-[10px] font-bold mt-2 uppercase tracking-tight">{phoneError}</p>}
                 </div>
 
                 {/* Password (with eye toggle) */}
-                <div className="mb-4 relative">
-                    <label className="block text-sm font-medium mb-1 text-slate-700">Password</label>
+                <div className="mb-6 relative">
+                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Security Phrase</label>
                     <input
                         type={isPasswordVisible ? "text" : "password"}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full border border-slate-300 rounded-xl px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter password"
+                        className="w-full border border-slate-100 rounded-2xl px-5 py-4 pr-14 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 font-bold placeholder:text-slate-200 transition-all"
+                        placeholder="••••••••"
                         required
                     />
                     <button
                         type="button"
                         onClick={() => setIsPasswordVisible((v) => !v)}
-                        className="absolute right-3 top-[34px] text-slate-500"
+                        className="absolute right-5 top-[42px] text-slate-300 hover:text-emerald-500 transition-colors"
                         aria-label={isPasswordVisible ? "Hide password" : "Show password"}
                     >
-                        {isPasswordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                        {isPasswordVisible ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                 </div>
 
                 {/* Terms & policies */}
-                <div className="mb-4 flex items-center">
+                <div className="mb-8 flex items-start gap-3">
                     <input
                         type="checkbox"
                         id="terms"
                         checked={isChecked}
                         onChange={() => setIsChecked(!isChecked)}
-                        className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                        className="h-5 w-5 text-emerald-500 rounded-lg border-slate-200 focus:ring-emerald-500/20 mt-0.5"
                     />
                     <label
                         htmlFor="terms"
-                        className={`ml-2 text-sm ${!isChecked ? "text-red-600" : "text-slate-600"}`}
+                        className={`text-[11px] font-medium leading-relaxed ${!isChecked ? "text-red-500" : "text-slate-500"}`}
                     >
-                        I agree to the{" "}
-                        <Link to="/terms" className="text-blue-600 underline">Terms and Conditions</Link>{" "}
+                        I acknowledge the level of authority granted and agree to the{" "}
+                        <Link to="/terms" className="text-emerald-600 font-bold hover:underline">Security Protocols</Link>{" "}
                         and{" "}
-                        <Link to="/privacy" className="text-blue-600 underline">Privacy Policy</Link>.
+                        <Link to="/privacy" className="text-emerald-600 font-bold hover:underline">Privacy Code</Link>.
                     </label>
                 </div>
 
-                <div className="mb-6">
-                    <label className="block text-sm font-medium mb-2 text-slate-700">Roles</label>
-                    <div className="flex gap-3 flex-wrap">
+                <div className="mb-8">
+                    <label className="block text-[10px] font-black uppercase tracking-widest mb-4 text-slate-400 text-center">Authorization Level</label>
+                    <div className="flex gap-4 justify-center">
                         {ROLE_OPTIONS.map((r) => (
-                            <label key={r} className="inline-flex items-center gap-2 cursor-pointer">
+                            <label key={r} className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer ${roles.includes(r) ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-white border-slate-100 text-slate-400'}`}>
                                 <input
                                     type="checkbox"
                                     checked={roles.includes(r)}
                                     onChange={() => toggleRole(r)}
-                                    className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+                                    className="hidden"
                                 />
-                                <span className="text-sm text-slate-700 capitalize">{r}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">{r}</span>
                             </label>
                         ))}
                     </div>
@@ -218,21 +218,21 @@ export default function AdminRegister() {
                 {/* Submit */}
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60"
+                    className="w-full bg-slate-950 hover:bg-emerald-500 text-white hover:text-slate-950 py-5 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-2xl shadow-slate-100 disabled:opacity-60"
                     disabled={isLoading}
                 >
                     {isLoading ? (
                         <div className="flex justify-center">
-                            <ClipLoader size={20} color="#fff" />
+                            <ClipLoader size={20} color="currentColor" />
                         </div>
                     ) : (
-                        "Create Admin Account"
+                        "Authorize Admin"
                     )}
                 </button>
 
-                <p className="mt-4 text-sm text-center text-slate-600">
-                    Already have an admin account?{" "}
-                    <Link to="/admin/login" className="text-blue-600 hover:underline">Sign in</Link>
+                <p className="mt-8 text-[11px] font-bold text-center text-slate-400 uppercase tracking-widest">
+                    Existing operative?{" "}
+                    <Link to="/admin/login" className="text-emerald-600 hover:underline">Sign in here</Link>
                 </p>
             </form>
         </AuthLayout>

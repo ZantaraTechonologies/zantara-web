@@ -16,28 +16,28 @@ function WalletCard({ onFund }: Props, ref: React.Ref<WalletCardHandle>) {
     return (
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
             {/* Header */}
-            <div className="flex items-center justify-between p-5 pb-0">
+            <div className="flex items-center justify-between p-6 pb-0">
                 <h3 className="text-lg font-bold text-slate-900">Wallet</h3>
                 <button
                     onClick={() => fetchBalance()}
-                    className="text-sm font-medium text-sky-700 hover:text-sky-800 underline underline-offset-4 disabled:opacity-50"
+                    className="text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-700 underline underline-offset-8 disabled:opacity-50"
                     disabled={loading}
                 >
-                    {loading ? "Refreshing…" : "Refresh"}
+                    {loading ? "Syncing…" : "Sync"}
                 </button>
             </div>
 
             {/* Body */}
-            <div className="p-5">
+            <div className="p-6">
                 {loading ? (
                     <div className="mt-2">
-                        <div className="h-16 rounded-xl bg-slate-100 animate-pulse" />
+                        <div className="h-16 rounded-[1.5rem] bg-slate-50 animate-pulse" />
                     </div>
                 ) : (
                     <div className="mt-2">
-                        <div className="rounded-xl p-4 bg-sky-50 border border-sky-100">
-                            <div className="text-xs text-sky-700/80">Available Balance</div>
-                            <div className="text-2xl font-extrabold text-slate-900">
+                        <div className="rounded-[1.5rem] p-6 bg-emerald-50 border border-emerald-100/50">
+                            <div className="text-[10px] font-black uppercase tracking-widest text-emerald-800/60 mb-1">Available Liquid</div>
+                            <div className="text-4xl font-black text-slate-900 tracking-tighter">
                                 {currency}{" "}
                                 {balance.toLocaleString()}
                             </div>
@@ -46,12 +46,12 @@ function WalletCard({ onFund }: Props, ref: React.Ref<WalletCardHandle>) {
                 )}
 
                 {/* Actions */}
-                <div className="mt-4 flex gap-3">
+                <div className="mt-6 flex gap-3">
                     <button
                         onClick={onFund}
-                        className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow-sm"
+                        className="w-full py-4 rounded-[1.5rem] bg-slate-950 hover:bg-emerald-500 text-white hover:text-slate-950 font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-slate-100"
                     >
-                        Fund Wallet
+                        Deposit Funds
                     </button>
                 </div>
 

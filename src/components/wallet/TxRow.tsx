@@ -21,9 +21,9 @@ export default function TxRow({
     return (
         <li
             className={
-                "py-4 px-4 transition rounded-xl " +
-                "hover:bg-white/60 " +
-                (isActive ? "ring-2 ring-sky-500/60 bg-white/70" : "")
+                "py-5 px-6 transition rounded-2xl " +
+                "hover:bg-slate-50 " +
+                (isActive ? "ring-2 ring-emerald-500/20 bg-emerald-50/30" : "")
             }
         >
             <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
@@ -43,19 +43,18 @@ export default function TxRow({
                         </div>
                     )}
 
-                    <div className="mt-2 flex gap-2">
+                    <div className="mt-3 flex gap-2">
                         <button
                             onClick={() => onView(tx)}
-                            className="text-xs px-3 py-1 rounded-full border border-slate-300 bg-white hover:bg-slate-100"
+                            className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all"
                         >
-                            View receipt
+                            Details
                         </button>
                         <button
                             onClick={() => printReceipt(tx)}
-                            className="text-xs px-3 py-1 rounded-full border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-700"
-                            title="Open system print dialog (choose 'Save as PDF')"
+                            className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-500 transition-all shadow-md shadow-emerald-500/10"
                         >
-                            Print / Save PDF
+                            PDF Receipt
                         </button>
                     </div>
                 </div>

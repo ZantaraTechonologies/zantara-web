@@ -149,37 +149,68 @@ export default function TransactionsPage() {
     const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold">Transactions</h1>
-                <div className="flex items-center gap-2">
-                    <button onClick={exportCSV} className="px-3 py-2 bg-slate-900 text-white rounded-xl text-sm">Export CSV</button>
-                    <button onClick={resetFilters} className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">Reset</button>
+        <div className="space-y-10 animate-in fade-in duration-500">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Transaction Audit</h1>
+                    <p className="text-slate-500 font-medium mt-1">L3 Ledger: Comprehensive system settlement logs</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={exportCSV} 
+                        className="px-6 py-3.5 bg-slate-950 text-white hover:bg-emerald-500 hover:text-slate-950 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-slate-200 active:scale-95"
+                    >
+                        Export Data
+                    </button>
+                    <button 
+                        onClick={resetFilters} 
+                        className="px-6 py-3.5 bg-white border border-slate-100 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all active:scale-95"
+                    >
+                        Reset Trace
+                    </button>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
-                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search (user/ref)" className="px-3 py-2 rounded-xl border border-slate-200" />
-                <select value={status} onChange={(e) => setStatus(e.target.value)} className="px-3 py-2 rounded-xl border border-slate-200">
-                    <option value="">Status</option>
-                    <option value="success">Success</option>
-                    <option value="pending">Pending</option>
-                    <option value="failed">Failed</option>
-                </select>
-                <select value={service} onChange={(e) => setService(e.target.value)} className="px-3 py-2 rounded-xl border border-slate-200">
-                    <option value="">Service</option>
-                    <option value="airtime">Airtime</option>
-                    <option value="data">Data</option>
-                    <option value="electricity">Electricity</option>
-                    <option value="cable">Cable</option>
-                    <option value="pins">Exam PINs</option>
-                </select>
-                <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="px-3 py-2 rounded-xl border border-slate-200" />
-                <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="px-3 py-2 rounded-xl border border-slate-200" />
-                <div className="flex gap-2">
-                    <input type="number" inputMode="decimal" placeholder="Min" value={minAmt} onChange={(e) => setMinAmt(e.target.value)} className="px-3 py-2 rounded-xl border border-slate-200 w-1/2" />
-                    <input type="number" inputMode="decimal" placeholder="Max" value={maxAmt} onChange={(e) => setMaxAmt(e.target.value)} className="px-3 py-2 rounded-xl border border-slate-200 w-1/2" />
+            <div className="bg-white border border-slate-50 rounded-[2.5rem] p-8 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Search Nodes</label>
+                    <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="User / Ref..." className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all" />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Status Protocol</label>
+                    <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all appearance-none bg-white">
+                        <option value="">All Statuses</option>
+                        <option value="success">Success</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Service Type</label>
+                    <select value={service} onChange={(e) => setService(e.target.value)} className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all appearance-none bg-white">
+                        <option value="">All Services</option>
+                        <option value="airtime">Airtime</option>
+                        <option value="data">Data</option>
+                        <option value="electricity">Electricity</option>
+                        <option value="cable">Cable</option>
+                        <option value="pins">Exam PINs</option>
+                    </select>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Origin Date</label>
+                    <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all" />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Terminal Date</label>
+                    <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all" />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Capital Range</label>
+                    <div className="flex gap-2">
+                        <input type="number" inputMode="decimal" placeholder="Min" value={minAmt} onChange={(e) => setMinAmt(e.target.value)} className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all" />
+                        <input type="number" inputMode="decimal" placeholder="Max" value={maxAmt} onChange={(e) => setMaxAmt(e.target.value)} className="w-full px-5 py-4 rounded-2xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all" />
+                    </div>
                 </div>
             </div>
 
@@ -187,15 +218,15 @@ export default function TransactionsPage() {
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-sm">
-                        <thead className="bg-slate-100 text-slate-700">
+                        <thead className="bg-slate-50 text-slate-400">
                             <tr>
-                                <th className="text-left px-4 py-3">Date</th>
-                                <th className="text-left px-4 py-3">User</th>
-                                <th className="text-left px-4 py-3">Service</th>
-                                <th className="text-right px-4 py-3">Amount</th>
-                                <th className="text-left px-4 py-3">Status</th>
-                                <th className="text-left px-4 py-3">Reference</th>
-                                <th className="text-right px-4 py-3">Actions</th>
+                                <th className="text-left px-5 py-5 text-[10px] font-black uppercase tracking-widest">Date</th>
+                                <th className="text-left px-5 py-5 text-[10px] font-black uppercase tracking-widest">Client</th>
+                                <th className="text-left px-5 py-5 text-[10px] font-black uppercase tracking-widest">Protocol</th>
+                                <th className="text-right px-5 py-5 text-[10px] font-black uppercase tracking-widest">Amount</th>
+                                <th className="text-left px-5 py-5 text-[10px] font-black uppercase tracking-widest">Status</th>
+                                <th className="text-left px-5 py-5 text-[10px] font-black uppercase tracking-widest">Reference</th>
+                                <th className="text-right px-5 py-5 text-[10px] font-black uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -214,18 +245,18 @@ export default function TransactionsPage() {
                                     ? r.user
                                     : (r.user?.email ?? r.user?.name ?? r.user?._id ?? r.userId ?? "");
                                 return (
-                                    <tr key={r._id} className="border-t border-slate-100">
-                                        <td className="px-4 py-3 text-slate-700">{new Date(r.createdAt).toLocaleString()}</td>
-                                        <td className="px-4 py-3 text-slate-700">{userText}</td>
-                                        <td className="px-4 py-3 text-slate-700 capitalize">{r.service ?? "—"}</td>
-                                        <td className="px-4 py-3 text-right font-semibold text-slate-900">{currency(r.amount)}</td>
-                                        <td className="px-4 py-3"><StatusTag status={r.status} /></td>
-                                        <td className="px-4 py-3 text-slate-700">{r.reference ?? "—"}</td>
-                                        <td className="px-4 py-3 text-right">
+                                    <tr key={r._id} className="border-t border-slate-50 group hover:bg-slate-50 transition-colors">
+                                        <td className="px-5 py-5 text-slate-500 font-medium whitespace-nowrap">{new Date(r.createdAt).toLocaleString()}</td>
+                                        <td className="px-5 py-5 text-slate-900 font-bold">{userText}</td>
+                                        <td className="px-5 py-5 text-slate-500 font-black uppercase text-[10px] tracking-widest">{r.service ?? "—"}</td>
+                                        <td className="px-5 py-5 text-right font-black text-slate-900">{currency(r.amount)}</td>
+                                        <td className="px-5 py-5"><StatusTag status={r.status} /></td>
+                                        <td className="px-5 py-5 text-slate-400 font-mono text-xs">{r.reference ?? "—"}</td>
+                                        <td className="px-5 py-5 text-right">
                                             <div className="flex items-center gap-2 justify-end">
-                                                <button onClick={() => alert(JSON.stringify(r, null, 2))} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg">Details</button>
-                                                <button onClick={() => recheck(r.reference)} disabled={!r.reference || (r as any).__checking} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg disabled:opacity-50">
-                                                    {(r as any).__checking ? "Checking…" : "Re-check"}
+                                                <button onClick={() => alert(JSON.stringify(r, null, 2))} className="px-4 py-2 bg-white border border-slate-100 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">Details</button>
+                                                <button onClick={() => recheck(r.reference)} disabled={!r.reference || (r as any).__checking} className="px-4 py-2 bg-slate-950 text-white rounded-xl font-bold text-xs disabled:opacity-50 hover:bg-emerald-500 hover:text-slate-950 transition-all">
+                                                    {(r as any).__checking ? "Checking…" : "Trace"}
                                                 </button>
                                             </div>
                                         </td>
