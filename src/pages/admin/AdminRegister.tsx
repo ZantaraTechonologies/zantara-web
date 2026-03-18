@@ -104,8 +104,8 @@ export default function AdminRegister() {
 
     return (
         <AuthLayout title="Create Admin" subtitle="Set up a new admin account">
-            <form onSubmit={onSubmit} className="bg-white px-10 py-10 rounded-[2.5rem] shadow-2xl shadow-slate-100 w-full max-w-md border border-slate-50">
-                <h2 className="text-3xl font-black mb-8 text-center text-slate-900 tracking-tight uppercase">Admin Provision</h2>
+            <form onSubmit={onSubmit} className="bg-white px-8 py-10 rounded-3xl shadow-xl shadow-slate-100 w-full max-w-md border border-slate-50">
+                <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 tracking-tight uppercase">Admin Provision</h2>
 
                 {error && (
                     <div className="mb-6 p-4 text-xs font-bold text-red-600 bg-red-50 rounded-2xl border border-red-100 animate-in fade-in slide-in-from-top-2">
@@ -115,7 +115,7 @@ export default function AdminRegister() {
 
                 {/* Name */}
                 <div className="mb-6">
-                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Identity Name</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-slate-400">Identity Name</label>
                     <input
                         type="text"
                         name="name"
@@ -129,7 +129,7 @@ export default function AdminRegister() {
 
                 {/* Email */}
                 <div className="mb-6">
-                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Network Email</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-slate-400">Network Email</label>
                     <input
                         type="email"
                         name="email"
@@ -143,7 +143,7 @@ export default function AdminRegister() {
 
                 {/* Phone */}
                 <div className="mb-6">
-                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Verification Phone</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-slate-400">Verification Phone</label>
                     <input
                         type="text"
                         name="phone"
@@ -158,7 +158,7 @@ export default function AdminRegister() {
 
                 {/* Password (with eye toggle) */}
                 <div className="mb-6 relative">
-                    <label className="block text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">Security Phrase</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-2 text-slate-400">Security Phrase</label>
                     <input
                         type={isPasswordVisible ? "text" : "password"}
                         name="password"
@@ -199,7 +199,7 @@ export default function AdminRegister() {
                 </div>
 
                 <div className="mb-8">
-                    <label className="block text-[10px] font-black uppercase tracking-widest mb-4 text-slate-400 text-center">Authorization Level</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest mb-4 text-slate-400 text-center">Authorization Level</label>
                     <div className="flex gap-4 justify-center">
                         {ROLE_OPTIONS.map((r) => (
                             <label key={r} className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer ${roles.includes(r) ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-white border-slate-100 text-slate-400'}`}>
@@ -209,7 +209,7 @@ export default function AdminRegister() {
                                     onChange={() => toggleRole(r)}
                                     className="hidden"
                                 />
-                                <span className="text-[10px] font-black uppercase tracking-widest">{r}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest">{r}</span>
                             </label>
                         ))}
                     </div>
@@ -218,7 +218,7 @@ export default function AdminRegister() {
                 {/* Submit */}
                 <button
                     type="submit"
-                    className="w-full bg-slate-950 hover:bg-emerald-500 text-white hover:text-slate-950 py-5 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-2xl shadow-slate-100 disabled:opacity-60"
+                    className="w-full bg-slate-950 hover:bg-emerald-500 text-white hover:text-slate-950 py-4 rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-xl shadow-slate-100 disabled:opacity-60"
                     disabled={isLoading}
                 >
                     {isLoading ? (

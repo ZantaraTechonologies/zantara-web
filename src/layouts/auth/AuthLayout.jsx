@@ -14,7 +14,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
                 <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
                     {(title || subtitle) && (
                         <div className="text-center space-y-2 mb-2">
-                            {title && <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">{title}</h1>}
+                            {title && <h1 className="text-3xl font-bold text-slate-900 tracking-tight uppercase">{title}</h1>}
                             {subtitle && <p className="text-slate-500 font-medium">{subtitle}</p>}
                         </div>
                     )}

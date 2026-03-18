@@ -36,10 +36,10 @@ export default function DashboardLayout() {
             <div className="flex flex-1 overflow-hidden">
                 {/* Desktop Sidebar */}
                 <aside className="hidden lg:flex w-72 bg-white border-r border-slate-100 flex-col sticky top-20 h-[calc(100vh-80px)]">
-                    <div className="p-8">
-                        <div className="bg-emerald-50 rounded-[2rem] p-6 mb-8 border border-emerald-100/50">
+                    <div className="p-6">
+                        <div className="bg-emerald-50 rounded-[2rem] p-4 mb-6 border border-emerald-100/50">
                             <div className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">User Account</div>
-                            <div className="text-slate-900 font-black truncate text-sm">{user?.name || 'Zantara User'}</div>
+                            <div className="text-slate-900 font-bold truncate text-sm">{user?.name || 'Zantara User'}</div>
                             <div className="text-slate-400 text-[11px] font-bold truncate mt-1">{user?.email || ''}</div>
                         </div>
 
@@ -52,7 +52,7 @@ export default function DashboardLayout() {
                                         key={item.path}
                                         to={item.path}
                                         className={({ isActive }) =>
-                                            `flex items-center justify-between px-5 py-3.5 rounded-2xl transition-all group ${
+                                            `flex items-center justify-between px-4 py-3 rounded-2xl transition-all group ${
                                                 isActive 
                                                 ? "bg-slate-950 text-emerald-400 shadow-xl shadow-slate-950/20" 
                                                 : "text-slate-500 hover:bg-slate-50 hover:text-emerald-600"
@@ -61,7 +61,7 @@ export default function DashboardLayout() {
                                     >
                                         <div className="flex items-center gap-3">
                                             <Icon className={`w-5 h-5 ${isActive ? "text-emerald-400" : "text-slate-400 group-hover:text-emerald-600"}`} />
-                                            <span className="font-bold text-sm tracking-tight">{item.label}</span>
+                                            <span className="font-semibold text-sm tracking-tight">{item.label}</span>
                                         </div>
                                         {isActive && <ChevronRight className="w-4 h-4 opacity-50" />}
                                     </NavLink>
@@ -70,10 +70,10 @@ export default function DashboardLayout() {
                         </nav>
                     </div>
 
-                    <div className="mt-auto p-8 border-t border-slate-50">
+                    <div className="mt-auto p-6 border-t border-slate-50">
                         <button
                             onClick={logout}
-                            className="flex items-center gap-3 w-full px-5 py-4 text-slate-400 font-bold text-sm rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all group"
+                            className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 font-bold text-sm rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all group"
                         >
                             <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                             <span>Sign Out</span>
@@ -83,7 +83,7 @@ export default function DashboardLayout() {
 
                 {/* Main Content Area */}
                 <main className="flex-1 min-w-0 overflow-y-auto bg-slate-50/30">
-                    <div className="max-w-7xl mx-auto p-6 md:p-10">
+                    <div className="max-w-7xl mx-auto p-5 md:p-8">
                         <Outlet />
                     </div>
                 </main>

@@ -53,11 +53,11 @@ const AdminDashboardPage: React.FC = () => {
                 ALL SYSTEMS OPERATIONAL: ZANTARA CLOUD INFRASTRUCTURE HEALTHY
             </div>
 
-            <div className="p-4 sm:p-8 lg:p-10 space-y-10">
+            <div className="p-4 sm:p-6 lg:p-8 space-y-6">
                 {/* Header Row */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-black text-white tracking-tight uppercase">Command Center</h1>
+                        <h1 className="text-2xl font-bold text-white tracking-tight">Command Center</h1>
                         <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">L3 Access: Verified System Administrator</p>
                     </div>
                     
@@ -72,13 +72,13 @@ const AdminDashboardPage: React.FC = () => {
                 {/* KPI Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                     {kpis.map((kpi, i) => (
-                        <div key={i} className={`bg-white/5 border p-6 rounded-3xl shadow-sm space-y-4 hover:border-emerald-500/30 transition-all group ${kpi.critical ? 'border-red-500/20 bg-red-500/5' : 'border-white/5'}`}>
+                        <div key={i} className={`bg-white/5 border p-5 rounded-2xl shadow-sm space-y-3 hover:border-emerald-500/30 transition-all group ${kpi.critical ? 'border-red-500/20 bg-red-500/5' : 'border-white/5'}`}>
                             <div className="flex justify-between items-start">
-                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{kpi.label}</span>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{kpi.label}</span>
                                 {kpi.alert && <AlertCircle className="text-orange-500 w-4 h-4 animate-bounce" />}
                             </div>
                             <div className="flex items-baseline gap-2">
-                                <span className={`text-2xl font-black tracking-tight ${kpi.critical ? 'text-red-500' : 'text-white'}`}>{kpi.value}</span>
+                                <span className={`text-xl font-bold tracking-tight ${kpi.critical ? 'text-red-500' : 'text-white'}`}>{kpi.value}</span>
                                 <span className={`text-[11px] font-black ${kpi.trendUp ? 'text-emerald-500' : kpi.critical ? 'text-red-500' : 'text-orange-500'}`}>
                                     {kpi.trend}
                                 </span>
@@ -88,12 +88,12 @@ const AdminDashboardPage: React.FC = () => {
                 </div>
 
                 {/* Main Content Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {/* Left Side - Charts and Tables */}
-                    <div className="lg:col-span-8 space-y-8">
+                    <div className="lg:col-span-8 space-y-6">
                         {/* Transaction Volume Placeholder */}
-                        <div className="bg-white/5 border border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-                            <div className="flex items-center justify-between mb-10">
+                        <div className="bg-white/5 border border-white/5 rounded-2xl p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-6">
                                 <div>
                                     <h3 className="text-xl font-bold text-white">Transaction Volume</h3>
                                     <p className="text-sm text-slate-500 font-medium">Weekly performance overview</p>
@@ -127,8 +127,8 @@ const AdminDashboardPage: React.FC = () => {
                         </div>
 
                         {/* Critical Monitoring */}
-                        <div className="bg-white/5 border border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-                            <div className="flex items-center justify-between mb-8">
+                        <div className="bg-white/5 border border-white/5 rounded-2xl p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-4">
                                     <h3 className="text-xl font-bold text-white">Critical Monitoring</h3>
                                     <span className="bg-red-500/10 text-red-500 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-red-500/20">
@@ -145,31 +145,31 @@ const AdminDashboardPage: React.FC = () => {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-white/5">
-                                            <th className="text-left py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Event Context</th>
-                                            <th className="text-left py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Associated Entity</th>
-                                            <th className="text-left py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Timestamp</th>
-                                            <th className="text-left py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Risk Status</th>
-                                            <th className="text-right py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Operation</th>
+                                            <th className="text-left py-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Event Context</th>
+                                            <th className="text-left py-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Associated Entity</th>
+                                            <th className="text-left py-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Timestamp</th>
+                                            <th className="text-left py-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Risk Status</th>
+                                            <th className="text-right py-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Operation</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
                                         {criticalMonitoring.map((row, i) => (
                                             <tr key={i} className="group hover:bg-white/5 transition-colors">
-                                                <td className="py-5">
+                                                <td className="py-3.5">
                                                     <div className="flex items-center gap-3">
                                                         <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-orange-400' : 'bg-red-500'}`}></div>
                                                         <span className="text-sm font-bold text-slate-300">{row.event}</span>
                                                     </div>
                                                 </td>
-                                                <td className="py-5 font-mono text-xs text-slate-500">{row.entity}</td>
-                                                <td className="py-5 text-xs text-slate-500 font-medium">{row.time}</td>
-                                                <td className="py-5">
-                                                    <span className={`${row.statusColor} text-[10px] font-black px-3 py-1 rounded-lg tracking-widest opacity-80`}>
+                                                <td className="py-3.5 font-mono text-xs text-slate-500">{row.entity}</td>
+                                                <td className="py-3.5 text-xs text-slate-500 font-medium">{row.time}</td>
+                                                <td className="py-3.5">
+                                                    <span className={`${row.statusColor} text-[10px] font-bold px-3 py-1 rounded-lg tracking-widest opacity-80`}>
                                                         {row.status}
                                                     </span>
                                                 </td>
-                                                <td className="py-5 text-right">
-                                                    <button className="bg-emerald-500 text-slate-950 text-[10px] font-black px-5 py-2.5 rounded-xl hover:bg-emerald-400 transition-all shadow-sm">
+                                                <td className="py-3.5 text-right">
+                                                    <button className="bg-emerald-500 text-slate-950 text-[10px] font-bold px-4 py-2 rounded-xl hover:bg-emerald-400 transition-all shadow-sm">
                                                         {i === 0 ? 'Investigate' : 'Unlock/Verify'}
                                                     </button>
                                                 </td>
@@ -182,40 +182,40 @@ const AdminDashboardPage: React.FC = () => {
                     </div>
 
                     {/* Right Side - Tools and Feed */}
-                    <div className="lg:col-span-4 space-y-8">
+                    <div className="lg:col-span-4 space-y-6">
                         {/* Admin Toolbox */}
-                        <div className="bg-white/5 border border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-                            <h3 className="text-xl font-bold text-white mb-8">Admin Toolbox</h3>
-                            <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white/5 border border-white/5 rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-xl font-bold text-white mb-5">Admin Toolbox</h3>
+                            <div className="grid grid-cols-2 gap-3">
                                 {toolbox.map((tool, i) => (
-                                    <button key={i} className={`flex flex-col items-center justify-center gap-4 border p-6 rounded-3xl transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group bg-white/5 border-white/5`}>
+                                    <button key={i} className={`flex flex-col items-center justify-center gap-3 border p-4 rounded-2xl transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group bg-white/5 border-white/5`}>
                                         <div className={`${tool.color} transition-transform group-hover:scale-110 opacity-80 group-hover:opacity-100`}>
-                                            <tool.icon size={28} />
+                                            <tool.icon size={22} />
                                         </div>
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{tool.name}</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{tool.name}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
                         {/* Activity Stream */}
-                        <div className="bg-white/5 border border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-                            <h3 className="text-xl font-bold text-white mb-8">Activity Stream</h3>
-                            <div className="space-y-8">
+                        <div className="bg-white/5 border border-white/5 rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-xl font-bold text-white mb-5">Activity Stream</h3>
+                            <div className="space-y-5">
                                 {activityStream.map((item, i) => (
-                                    <div key={i} className="flex gap-4 group">
+                                    <div key={i} className="flex gap-3 group">
                                         <div className="relative">
-                                            <div className={`w-12 h-12 bg-white/5 ${item.color} rounded-2xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 opacity-80 group-hover:opacity-100`}>
-                                                <item.icon size={22} />
+                                            <div className={`w-9 h-9 bg-white/5 ${item.color} rounded-xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 opacity-80 group-hover:opacity-100 shrink-0`}>
+                                                <item.icon size={16} />
                                             </div>
                                             {i !== activityStream.length - 1 && (
-                                                <div className="absolute top-12 bottom-[-32px] left-1/2 w-px bg-white/5 -translate-x-1/2"></div>
+                                                <div className="absolute top-9 bottom-[-20px] left-1/2 w-px bg-white/5 -translate-x-1/2"></div>
                                             )}
                                         </div>
-                                        <div className="space-y-1">
+                                        <div className="space-y-0.5">
                                             <h4 className="font-bold text-slate-200 text-sm">{item.event}</h4>
-                                            <p className="text-xs text-slate-500 font-medium leading-relaxed">{item.detail}</p>
-                                            <p className="text-[10px] font-black text-slate-600 tracking-widest">{item.time}</p>
+                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{item.detail}</p>
+                                            <p className="text-[10px] font-bold text-slate-600 tracking-widest">{item.time}</p>
                                         </div>
                                     </div>
                                 ))}

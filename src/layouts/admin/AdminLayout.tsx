@@ -57,11 +57,11 @@ export default function AdminLayout() {
             <div className="flex flex-1 overflow-hidden">
                 {/* Desktop Sidebar */}
                 <aside className="hidden lg:flex w-72 bg-slate-950 border-r border-white/5 flex-col sticky top-20 h-[calc(100vh-80px)]">
-                    <div className="p-8">
-                        <div className="bg-white/5 rounded-[2rem] p-6 mb-8 border border-white/5">
-                            <div className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] mb-2">Institutional</div>
-                            <div className="text-white font-black truncate text-sm">Zantara Admin</div>
-                            <div className="text-slate-500 text-[11px] font-bold truncate mt-1">Operator: ROOT</div>
+                    <div className="p-6">
+                        <div className="bg-white/5 rounded-xl p-4 mb-5 border border-white/5">
+                            <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em] mb-2">Institutional</div>
+                            <div className="text-white font-bold truncate text-sm">Zantara Admin</div>
+                            <div className="text-slate-500 text-[11px] font-semibold truncate mt-1">Operator: ROOT</div>
                         </div>
 
                         <nav className="space-y-2 overflow-y-auto max-h-[calc(100vh-320px)] custom-scrollbar">
@@ -81,7 +81,7 @@ export default function AdminLayout() {
                                         key={path}
                                         to={path}
                                         className={({ isActive }) =>
-                                            `flex items-center justify-between px-5 py-3.5 rounded-2xl transition-all group ${
+                                            `flex items-center justify-between px-4 py-3 rounded-2xl transition-all group ${
                                                 isActive
                                                     ? "bg-emerald-500 text-slate-950 shadow-xl shadow-emerald-500/20"
                                                     : "text-slate-400 hover:bg-white/5 hover:text-emerald-400"
@@ -90,7 +90,7 @@ export default function AdminLayout() {
                                     >
                                         <div className="flex items-center gap-3">
                                             {Icon && <Icon className={`w-5 h-5 ${isActive ? "text-slate-950" : "text-slate-500 group-hover:text-emerald-400"}`} />}
-                                            <span className="font-bold text-sm tracking-tight">{item.label}</span>
+                                            <span className="font-semibold text-sm tracking-tight">{item.label}</span>
                                         </div>
                                         {isActive && <ChevronRight className="w-4 h-4 opacity-50" />}
                                     </NavLink>
@@ -99,10 +99,10 @@ export default function AdminLayout() {
                         </nav>
                     </div>
 
-                    <div className="mt-auto p-8 border-t border-white/5">
+                    <div className="mt-auto p-6 border-t border-white/5">
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-3 w-full px-5 py-4 text-slate-500 font-bold text-sm rounded-2xl hover:bg-red-500/10 hover:text-red-400 transition-all group"
+                            className="flex items-center gap-3 w-full px-4 py-3 text-slate-500 font-bold text-sm rounded-2xl hover:bg-red-500/10 hover:text-red-400 transition-all group"
                         >
                             <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                             <span>Terminate Session</span>
@@ -112,7 +112,7 @@ export default function AdminLayout() {
 
                 {/* Main Content Area */}
                 <main className="flex-1 min-w-0 overflow-y-auto bg-slate-950">
-                    <div className="max-w-7xl mx-auto p-6 md:p-10">
+                    <div className="max-w-7xl mx-auto p-5 md:p-7">
                         <Outlet />
                     </div>
                 </main>
