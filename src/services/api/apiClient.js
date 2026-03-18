@@ -10,4 +10,17 @@ API.interceptors.request.use((config) => {
     return config;
 });
 
+API.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            // We could also trigger a store clear here, 
+            // but removing token ensures subsequent ProtectedRoute checks fail.
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default API;

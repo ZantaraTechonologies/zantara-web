@@ -18,15 +18,24 @@ import {
     ShieldAlert
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
+import { useWalletStore } from '../../store/wallet/walletStore';
+import { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const UserDashboardPage: React.FC = () => {
     const { user } = useAuthStore();
+    const { balance, currency, fetchBalance } = useWalletStore();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        fetchBalance();
+    }, []);
 
     const quickActions = [
-        { name: 'Buy Airtime', icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        { name: 'Buy Data', icon: Wifi, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        { name: 'Pay Bills', icon: Tv, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        { name: 'Fund Wallet', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+        { name: 'Buy Airtime', icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/buy/airtime' },
+        { name: 'Buy Data', icon: Wifi, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/buy/data' },
+        { name: 'Pay Bills', icon: Tv, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/buy/cable' },
+        { name: 'Fund Wallet', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/wallet/fund' },
     ];
 
     const activities = [
@@ -46,11 +55,11 @@ const UserDashboardPage: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 bg-white border border-slate-100 px-6 py-3 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
+                    <button onClick={() => navigate('/app/transactions')} className="flex items-center gap-2 bg-white border border-slate-100 px-6 py-3 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
                         <Clock size={18} />
                         <span>Transactions</span>
                     </button>
-                    <button className="flex items-center gap-2 bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-extrabold transition-all shadow-lg shadow-emerald-500/20">
+                    <button onClick={() => navigate('/app/wallet/fund')} className="flex items-center gap-2 bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl font-extrabold transition-all shadow-lg shadow-emerald-500/20">
                         <Plus size={18} />
                         <span>Fund Wallet</span>
                     </button>
@@ -62,15 +71,17 @@ const UserDashboardPage: React.FC = () => {
                 {/* Left Column - Main Stats */}
                 <div className="xl:col-span-8 space-y-8">
                     {/* Hero Balance Card */}
-                    <div className="relative bg-teal-950 rounded-[2.5rem] p-10 overflow-hidden min-h-[320px] flex flex-col justify-between shadow-2xl shadow-emerald-950/20">
+                    <Link to="/app/wallet" className="relative bg-teal-950 rounded-[2.5rem] p-10 overflow-hidden min-h-[320px] flex flex-col justify-between shadow-2xl shadow-emerald-950/20 group block">
                         {/* Abstract Background Design */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-900/40 rounded-full blur-3xl -ml-16 -mb-16"></div>
                         
                         <div className="relative z-10 flex justify-between items-start">
                             <div className="space-y-1">
                                 <span className="text-emerald-400/80 font-bold uppercase tracking-[0.2em] text-[10px]">Total Wallet Balance</span>
-                                <h2 className="text-6xl font-black text-white tracking-tighter">₦150,000.00</h2>
+                                <h2 className="text-6xl font-black text-white tracking-tighter">
+                                    {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </h2>
                             </div>
                             <div className="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/10">
                                 <Wallet className="text-emerald-400 w-6 h-6" />
@@ -90,14 +101,14 @@ const UserDashboardPage: React.FC = () => {
                                 <p className="text-white font-bold">₦25,000.00 <span className="text-white/40 font-medium">(Today)</span></p>
                             </div>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Quick Actions Header */}
                     <div className="pt-4">
                         <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Actions</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             {quickActions.map((action, i) => (
-                                <button key={i} className="bg-white border border-slate-50 p-6 rounded-3xl flex flex-col items-center gap-4 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all group">
+                                <button key={i} onClick={() => navigate(action.path)} className="bg-white border border-slate-50 p-6 rounded-3xl flex flex-col items-center gap-4 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all group">
                                     <div className={`${action.bg} ${action.color} p-4 rounded-2xl group-hover:scale-110 transition-transform`}>
                                         <action.icon size={24} strokeWidth={2.5} />
                                     </div>

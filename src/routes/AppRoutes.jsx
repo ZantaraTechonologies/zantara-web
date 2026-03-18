@@ -20,7 +20,11 @@ import UserForgotPasswordPage from '../pages/auth/UserForgotPasswordPage';
 // User Pages
 import DashboardLayout from '../layouts/user/DashboardLayout';
 import UserDashboardPage from '../pages/user/UserDashboardPage';
-import WalletPage from '../pages/user/WalletPage';
+import UserWalletPage from '../pages/user/UserWalletPage';
+import UserFundWalletPage from '../pages/user/UserFundWalletPage';
+import UserWithdrawPage from '../pages/user/UserWithdrawPage';
+import UserLinkedAccountsPage from '../pages/user/UserLinkedAccountsPage';
+import UserVirtualAccountPage from '../pages/user/UserVirtualAccountPage';
 import BuyDataPage from "../pages/user/BuyDataPage";
 import BuyAirtimePage from "../pages/user/BuyAirtimePage";
 import BuyCablePage from "../pages/user/BuyCablePage";
@@ -71,7 +75,14 @@ export default function AppRoutes() {
                 >
                     <Route index element={<UserDashboardPage />} />
                     <Route path="dashboard" element={<Navigate to="/app" replace />} />
-                    <Route path="wallet" element={<WalletPage />} />
+                    
+                    {/* Wallet Ecosystem (Batch 2) */}
+                    <Route path="wallet" element={<UserWalletPage />} />
+                    <Route path="wallet/fund" element={<UserFundWalletPage />} />
+                    <Route path="wallet/withdraw" element={<UserWithdrawPage />} />
+                    <Route path="wallet/linked-accounts" element={<UserLinkedAccountsPage />} />
+                    <Route path="wallet/virtual-account" element={<UserVirtualAccountPage />} />
+
                     <Route path="buy/data" element={<BuyDataPage />} />
                     <Route path="buy/airtime" element={<BuyAirtimePage />} />
                     <Route path="buy/cable" element={<BuyCablePage />} />
