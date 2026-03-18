@@ -1,19 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
     Wallet, 
     ArrowUpRight, 
-    ArrowDownLeft, 
     CreditCard, 
     Building2, 
-    Clock, 
     ChevronRight,
     Plus,
     Info,
     History,
-    Lock
+    Lock,
+    CheckCircle2,
+    XCircle
 } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useMyTransactions } from '../../hooks/useWallet';
 
 const UserWalletPage: React.FC = () => {
     const { 
@@ -26,8 +27,33 @@ const UserWalletPage: React.FC = () => {
         virtualAccount,
         fetchLinkedAccounts,
         linkedAccounts,
-        loading 
     } = useWalletStore();
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [fundedStatus, setFundedStatus] = useState<'success' | 'failed' | null>(() => {
+        const f = searchParams.get('funded');
+        if (f === '1') return 'success';
+        if (f === '0') return 'failed';
+        return null;
+    });
+
+    // Remove ?funded param from URL after reading it
+    useEffect(() => {
+        if (searchParams.has('funded')) {
+            searchParams.delete('funded');
+            setSearchParams(searchParams, { replace: true });
+        }
+    }, []);
+
+    // Auto-dismiss toast after 5 seconds
+    useEffect(() => {
+        if (!fundedStatus) return;
+        const t = setTimeout(() => setFundedStatus(null), 5000);
+        return () => clearTimeout(t);
+    }, [fundedStatus]);
+
+    const { data: txData } = useMyTransactions({ limit: 3 });
+    const recentTxs = txData?.items ?? [];
 
     useEffect(() => {
         fetchBalance();
@@ -42,6 +68,24 @@ const UserWalletPage: React.FC = () => {
 
     return (
         <div className="p-4 sm:p-8 lg:p-12 space-y-10 animate-in fade-in duration-700">
+            {/* Funded Toast */}
+            {fundedStatus && (
+                <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl font-bold text-sm shadow-lg ${
+                    fundedStatus === 'success'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-red-50 text-red-700 border border-red-200'
+                }`}>
+                    {fundedStatus === 'success'
+                        ? <CheckCircle2 size={20} className="shrink-0" />
+                        : <XCircle size={20} className="shrink-0" />}
+                    <span>
+                        {fundedStatus === 'success'
+                            ? 'Payment successful — your wallet has been credited!'
+                            : 'Payment could not be verified. If funds were deducted, contact support.'}
+                    </span>
+                    <button onClick={() => setFundedStatus(null)} className="ml-auto text-current opacity-50 hover:opacity-100">×</button>
+                </div>
+            )}
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
@@ -127,23 +171,36 @@ const UserWalletPage: React.FC = () => {
                         </div>
 
                         <div className="space-y-6">
-                            {[1, 2, 3].map((_, i) => (
-                                <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-2xl transition-colors group cursor-pointer">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                            <CreditCard size={20} />
+                            {recentTxs.length > 0 ? (
+                                recentTxs.map((tx, i) => {
+                                    const isCredit = (tx.type === 'wallet_fund') || (tx.amount > 0);
+                                    return (
+                                        <div key={tx.id ?? i} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-2xl transition-colors group cursor-pointer">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                                                    <CreditCard size={20} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-slate-900 text-sm">{tx.service || tx.type || 'Transaction'}</h4>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                                        Zantara • {new Date(tx.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className={`font-black text-sm ${isCredit ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                    {isCredit ? '+' : '-'}₦{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                </p>
+                                                <p className="text-[9px] text-slate-400 font-bold tracking-widest">{(tx.status || 'DONE').toUpperCase()}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className="font-bold text-slate-900 text-sm">Wallet Funding</h4>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Paystack • 2h ago</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-emerald-500 font-black text-sm">+₦10,000.00</p>
-                                        <p className="text-[9px] text-slate-400 font-bold tracking-widest">SUCCESS</p>
-                                    </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="text-center py-8 border-2 border-dashed border-slate-50 rounded-2xl">
+                                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">No transactions yet</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { 
     getWalletBalance, 
-    initPaystackServer, 
     getVirtualAccount, 
     getLinkedAccounts, 
     addLinkedAccount, 
@@ -20,7 +19,7 @@ export const useWalletStore = create((set, get) => ({
 
     fetchBalance: async () => {
         try {
-            const data = await walletService.getWalletBalance();
+            const data = await getWalletBalance();
             set({ 
                 balance: data.available, // Available for spending
                 totalBalance: data.balance, // Total including frozen
@@ -34,7 +33,7 @@ export const useWalletStore = create((set, get) => ({
 
     fetchVirtualAccount: async () => {
         try {
-            const data = await walletService.getVirtualAccount();
+            const data = await getVirtualAccount();
             set({ virtualAccount: data });
         } catch (error) {
             console.error('Failed to fetch virtual account:', error);

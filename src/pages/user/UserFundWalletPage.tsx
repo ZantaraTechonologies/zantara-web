@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import walletService from '../../services/wallet/walletService';
+import * as walletService from '../../services/wallet/walletService';
 
 const UserFundWalletPage: React.FC = () => {
     const navigate = useNavigate();
