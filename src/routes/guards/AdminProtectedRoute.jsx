@@ -1,40 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuthStore } from '../../store/auth/authStore';
 
 const AdminProtectedRoute = () => {
-    const [state, setState] = useState('loading'); // 'loading' | 'ok' | 'unauth' | 'forbidden'
+    const { user, isAuthenticated, loading, fetchMe } = useAuthStore();
 
     useEffect(() => {
-        let alive = true;
-        const BASE = import.meta.env.VITE_API_URL || '/api';
-        (async () => {
-            try {
-                const res = await fetch(`${BASE}/admin/auth/me`, { credentials: 'include' });
-                if (!alive) return;
-                if (res.status === 401) { setState('unauth'); return; }
-                if (res.status === 403) { setState('forbidden'); return; }
-                const data = await res.json();
-                const roles = Array.isArray(data?.roles) ? data.roles : [];
-                setState(roles.includes('admin') || roles.includes('superAdmin') ? 'ok' : 'forbidden');
-            } catch {
-                if (!alive) return;
-                setState('unauth');
-            }
-        })();
-        return () => { alive = false; };
-    }, []);
+        if (isAuthenticated && !user) {
+            fetchMe();
+        }
+    }, [isAuthenticated, user, fetchMe]);
 
-    if (state === 'loading') {
+    if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen bg-gray-50">
-                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="flex items-center justify-center h-screen bg-slate-50">
+                <div className="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
-    if (state === 'unauth') return <Navigate to="/admin/login" replace />;
-    if (state === 'forbidden') {
+
+    if (!isAuthenticated) {
+        return <Navigate to="/admin/login" replace />;
+    }
+
+    const roles = Array.isArray(user?.roles) ? user.roles : [];
+    const isAdmin = roles.includes('admin') || roles.includes('superAdmin');
+
+    if (!isAdmin) {
         return <Navigate to="/not-authorized" replace />;
     }
+
     return <Outlet />;
 };
 

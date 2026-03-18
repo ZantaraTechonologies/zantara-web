@@ -1,5 +1,5 @@
 // src/components/wallet/receipt.ts
-import type { Tx } from "../../hooks/useWallet";
+import type { TxLog } from "../../services/transactions/transactionService";
 
 /** Brand config — edit these to your real values */
 export const BRAND = {
@@ -13,7 +13,7 @@ export const BRAND = {
   logoUrl: "../../assets/DT_logo1.png",
 };
 
-export function buildReceiptHTML(tx: Tx & { _orig?: any }) {
+export function buildReceiptHTML(tx: TxLog & { _orig?: any }) {
   const paidAt =
     tx._orig?.response?.paid_at ??
     tx._orig?.response?.paidAt ??
@@ -103,7 +103,7 @@ export function buildReceiptHTML(tx: Tx & { _orig?: any }) {
 </html>`;
 }
 
-export function downloadReceiptHTML(tx: Tx & { _orig?: any }) {
+export function downloadReceiptHTML(tx: TxLog & { _orig?: any }) {
   const html = buildReceiptHTML(tx);
   const blob = new Blob([html], { type: "text/html" });
   const url = URL.createObjectURL(blob);
@@ -116,7 +116,7 @@ export function downloadReceiptHTML(tx: Tx & { _orig?: any }) {
   URL.revokeObjectURL(url);
 }
 
-export function printReceipt(tx: Tx & { _orig?: any }) {
+export function printReceipt(tx: TxLog & { _orig?: any }) {
   const html = buildReceiptHTML(tx);
   const iframe = document.createElement("iframe");
   iframe.style.position = "fixed";

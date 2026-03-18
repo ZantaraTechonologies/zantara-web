@@ -1,38 +1,24 @@
 // src/pages/admin/AdminLogin.tsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import API from "../../services/api/apiClient";
-import AuthLayout from "../../layouts/auth/AuthLayout";
 import { Eye, EyeOff } from "lucide-react";
+import AuthLayout from "../../layouts/auth/AuthLayout";
+import { useAuthStore } from "../../store/auth/authStore";
 
 export default function AdminLogin() {
     const nav = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [err, setErr] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
     const [showPw, setShowPw] = useState(false);
+    const { login, error: storeError, loading } = useAuthStore();
 
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
-        setErr(null);
-        setLoading(true);
         try {
-            await API.post("/auth/login", { email, password });
-            // Prefer a guaranteed route. If your app uses /admin/dashboard, change it here.
+            await login({ email, password });
             nav("/admin/status");
         } catch (e: any) {
-            const status = e?.response?.status;
-            const msg =
-                e?.response?.data?.message ??
-                (status === 401
-                    ? "Invalid credentials."
-                    : status === 403
-                        ? "You’re signed in but not allowed to access the admin console."
-                        : "Login failed. Please try again.");
-            setErr(msg);
-        } finally {
-            setLoading(false);
+            // Error is handled by the store
         }
     }
 
@@ -42,9 +28,9 @@ export default function AdminLogin() {
                 <h1 className="text-2xl font-bold mb-1">Admin Sign In</h1>
                 <p className="text-sm text-slate-600 mb-6">Access the admin console</p>
 
-                {err && (
+                {storeError && (
                     <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
-                        {err}
+                        {storeError}
                     </div>
                 )}
 

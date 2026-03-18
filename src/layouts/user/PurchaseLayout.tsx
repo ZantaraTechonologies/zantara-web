@@ -2,16 +2,13 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { useWallet } from "../../hooks/useWallet";
-
+import { useWalletStore } from "../../store/wallet/walletStore";
 export default function PurchaseLayout({
     title,
     subtitle,
     children,
 }: { title: string; subtitle?: string; children: ReactNode }) {
-    const { data, isLoading, refetch, isFetching } = useWallet();
-    const balance = data?.balance ?? 0;
-    const currency = data?.currency ?? "NGNM";
+    const { balance, currency, loading, fetchBalance } = useWalletStore();
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 max-w-4xl mx-auto">
@@ -29,15 +26,15 @@ export default function PurchaseLayout({
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Balance</span>
                         <button
-                            onClick={() => refetch()}
+                            onClick={() => fetchBalance()}
                             className="text-[10px] font-black uppercase tracking-tighter text-sky-600 hover:text-sky-700 bg-sky-50 px-2 py-0.5 rounded-lg transition-all"
-                            disabled={isFetching}
+                            disabled={loading}
                         >
-                            {isFetching ? "Refreshing..." : "Sync"}
+                            {loading ? "Refreshing..." : "Sync"}
                         </button>
                     </div>
                     <div className="text-2xl font-black text-slate-900">
-                        {currency} {isLoading ? "—" : balance.toLocaleString()}
+                        {currency} {loading ? "—" : balance.toLocaleString()}
                     </div>
                 </div>
             </header>

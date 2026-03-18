@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthStore } from '../../store/auth/authStore';
 import { 
     LayoutDashboard, 
     Wallet, 
@@ -16,7 +16,7 @@ import {
 import Navbar from '../../components/navigation/Navbar';
 
 export default function DashboardLayout() {
-    const { logout, user } = useAuth();
+    const { logout, user } = useAuthStore();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const location = useLocation();
 

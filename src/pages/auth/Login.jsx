@@ -8,7 +8,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
 import Footer from "../../components/common/Footer";
 import AuthLayout from "../../layouts/auth/AuthLayout";
-import { useAuthContext } from "../../services/auth/authContext";
+import { useAuthStore } from "../../store/auth/authStore";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ const Login = () => {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const { login } = useAuthContext();
+    const { login } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/wallet-page";

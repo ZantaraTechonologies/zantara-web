@@ -1,12 +1,12 @@
 // src/components/Navbar.jsx
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuthStore } from "../../store/auth/authStore";
 import { PhoneCall, LockIcon, LogOut, Menu, X, LayoutDashboard } from "lucide-react";
-import Logo from "../../assets/DT_logo_tranparent.png";
+import Logo from "../../assets/app_store_icon.png";
 
 export default function Navbar() {
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, logout } = useAuthStore();
     const [open, setOpen] = useState(false);
 
     const linkBase =
@@ -54,7 +54,7 @@ export default function Navbar() {
                             <>
                                 {/* Support (AUTH-ONLY) */}
                                 <a
-                                    href="https://wa.me/2348146149773"
+                                    href={import.meta.env.VITE_WHATSAPP_SUPPORT_URL}
                                     target="_blank"
                                     rel="noreferrer"
                                     className={`${btnBase} border border-white/50 text-white hover:bg-sky-700`}
@@ -141,7 +141,7 @@ export default function Navbar() {
 
                         <div className="pt-2 flex flex-col gap-2">
                             <a
-                                href="https://wa.me/2348146149773"
+                                href={import.meta.env.VITE_WHATSAPP_SUPPORT_URL}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-white/40 px-4 py-2 text-white hover:bg-sky-600"

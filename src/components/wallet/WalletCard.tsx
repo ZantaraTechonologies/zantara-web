@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle } from "react";
-import { useWallet } from "../../hooks/useWallet";
+import { useWalletStore } from "../../store/wallet/walletStore";
 
 type Props = {
     onFund: () => void;
@@ -9,9 +9,9 @@ type Props = {
 export type WalletCardHandle = { refresh: () => void };
 
 function WalletCard({ onFund }: Props, ref: React.Ref<WalletCardHandle>) {
-    const { data, isLoading, refetch, isFetching } = useWallet();
+    const { balance, currency, loading, fetchBalance } = useWalletStore();
 
-    useImperativeHandle(ref, () => ({ refresh: () => refetch() }), [refetch]);
+    useImperativeHandle(ref, () => ({ refresh: () => fetchBalance() }), [fetchBalance]);
 
     return (
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -19,17 +19,17 @@ function WalletCard({ onFund }: Props, ref: React.Ref<WalletCardHandle>) {
             <div className="flex items-center justify-between p-5 pb-0">
                 <h3 className="text-lg font-bold text-slate-900">Wallet</h3>
                 <button
-                    onClick={() => refetch()}
+                    onClick={() => fetchBalance()}
                     className="text-sm font-medium text-sky-700 hover:text-sky-800 underline underline-offset-4 disabled:opacity-50"
-                    disabled={isFetching}
+                    disabled={loading}
                 >
-                    {isFetching ? "Refreshing…" : "Refresh"}
+                    {loading ? "Refreshing…" : "Refresh"}
                 </button>
             </div>
 
             {/* Body */}
             <div className="p-5">
-                {isLoading ? (
+                {loading ? (
                     <div className="mt-2">
                         <div className="h-16 rounded-xl bg-slate-100 animate-pulse" />
                     </div>
@@ -38,8 +38,8 @@ function WalletCard({ onFund }: Props, ref: React.Ref<WalletCardHandle>) {
                         <div className="rounded-xl p-4 bg-sky-50 border border-sky-100">
                             <div className="text-xs text-sky-700/80">Available Balance</div>
                             <div className="text-2xl font-extrabold text-slate-900">
-                                {(data?.currency ?? "NGN")}{" "}
-                                {(data?.balance ?? 0).toLocaleString()}
+                                {currency}{" "}
+                                {balance.toLocaleString()}
                             </div>
                         </div>
                     </div>

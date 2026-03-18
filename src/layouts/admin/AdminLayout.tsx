@@ -9,7 +9,12 @@ import {
     Link as LinkIcon,
     Activity,
     LogOut,
-    ChevronRight
+    ChevronRight,
+    BadgeDollarSign,
+    BarChart3,
+    History,
+    Receipt,
+    LucideIcon
 } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
 
@@ -23,7 +28,14 @@ export default function AdminLayout() {
         navigate("/admin/login");
     };
 
-    const menuItems = [
+    interface MenuItem {
+        path?: string;
+        label: string;
+        icon?: LucideIcon;
+        type?: "header";
+    }
+
+    const menuItems: MenuItem[] = [
         { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
         { path: "/admin/transactions", label: "Transactions", icon: ListOrdered },
         { path: "/admin/withdrawals", label: "Withdrawals", icon: Banknote },
@@ -31,6 +43,11 @@ export default function AdminLayout() {
         { path: "/admin/services", label: "Services Ops", icon: Settings },
         { path: "/admin/payments", label: "Payments/Webhooks", icon: LinkIcon },
         { path: "/admin/status", label: "System Status", icon: Activity },
+        { type: "header", label: "Business & Finance" },
+        { path: "/admin/business/overview", label: "Business Overview", icon: BadgeDollarSign },
+        { path: "/admin/business/cost-ledger", label: "Cost Ledger", icon: Receipt },
+        { path: "/admin/business/expenses", label: "Expenses", icon: History },
+        { path: "/admin/business/profit", label: "Profit Analytics", icon: BarChart3 },
     ];
 
     return (
@@ -48,13 +65,21 @@ export default function AdminLayout() {
                         </div>
 
                         <nav className="space-y-1">
-                            {menuItems.map((item) => {
-                                const Icon = item.icon;
-                                const isActive = location.pathname.startsWith(item.path);
+                            {menuItems.map((item, idx) => {
+                                if (item.type === "header") {
+                                    return (
+                                        <div key={idx} className="px-4 py-3 mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                            {item.label}
+                                        </div>
+                                    );
+                                }
+                                const Icon = item.icon!;
+                                const path = item.path!;
+                                const isActive = location.pathname.startsWith(path);
                                 return (
                                     <NavLink
-                                        key={item.path}
-                                        to={item.path}
+                                        key={path}
+                                        to={path}
                                         className={({ isActive }) =>
                                             `flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${
                                                 isActive
@@ -64,7 +89,7 @@ export default function AdminLayout() {
                                         }
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"}`} />
+                                            {Icon && <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-400 group-hover:text-blue-600"}`} />}
                                             <span className="font-semibold text-sm">{item.label}</span>
                                         </div>
                                         {isActive && <ChevronRight className="w-4 h-4" />}

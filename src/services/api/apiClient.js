@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'https://vtu-app-production.up.railway.app/api',
+    baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
 });
 
 API.interceptors.request.use((config) => {

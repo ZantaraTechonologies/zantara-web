@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
 import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
-import { useWallet } from "../../hooks/useWallet";
+import { useWalletStore } from "../../store/wallet/walletStore";
 import { useNavigate } from "react-router-dom";
 
 const AUTO_REDIRECT_RECEIPT = false;
@@ -18,7 +18,7 @@ const isValidNgMobile = (v: string) => /^234[789]\d{9}$/.test(to234(v));
 const NETWORKS = ["MTN", "Airtel", "Glo", "9mobile"] as const;
 
 export default function BuyAirtimePage() {
-    const { data: wallet } = useWallet();
+    const { balance } = useWalletStore();
     const navigate = useNavigate();
 
     const [network, setNetwork] = useState<(typeof NETWORKS)[number]>("MTN");
@@ -35,7 +35,7 @@ export default function BuyAirtimePage() {
     const showPhoneErr = phoneTouched && !phoneOk;
 
     const total = Number(amount || 0);
-    const insufficient = ((wallet as any)?.balance ?? 0) < total || total <= 0;
+    const insufficient = balance < total || total <= 0;
 
     async function onSubmit(e: FormEvent) {
         e.preventDefault();

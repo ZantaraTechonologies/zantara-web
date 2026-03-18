@@ -1,8 +1,8 @@
 // src/components/wallet/ReceiptModal.tsx
-import type { Tx } from "../../hooks/useWallet";
+import type { TxLog } from "../../services/transactions/transactionService";
 import { buildReceiptHTML, downloadReceiptHTML, printReceipt } from "./receipt";
 
-export default function ReceiptModal({ tx, onClose }: { tx: Tx & { _orig?: any }; onClose: () => void }) {
+export default function ReceiptModal({ tx, onClose }: { tx: TxLog & { _orig?: any }; onClose: () => void }) {
     const html = buildReceiptHTML(tx);
 
     return (

@@ -2,9 +2,9 @@ import { FormEvent, useMemo, useState } from "react";
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
 import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
-import { useWallet } from "../../hooks/useWallet";
+import { useWalletStore } from "../../store/wallet/walletStore";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuthStore } from "../../store/auth/authStore";
 
 const AUTO_REDIRECT_RECEIPT = false;
 
@@ -34,8 +34,8 @@ const PLANS: Record<(typeof NETWORKS)[number], { id: string; name: string; price
 };
 
 export default function BuyDataPage() {
-    const { data: wallet } = useWallet();
-    const { user } = useAuth(); // Get user for role check
+    const { balance } = useWalletStore();
+    const { user } = useAuthStore(); // Get user for role check
     const navigate = useNavigate();
 
     const [network, setNetwork] = useState<(typeof NETWORKS)[number]>("MTN");
@@ -59,7 +59,7 @@ export default function BuyDataPage() {
     const discount = isAgent ? basePrice * 0.05 : 0; // 5% discount
     const amount = basePrice - discount;
 
-    const insufficient = ((wallet as any)?.balance ?? 0) < amount;
+    const insufficient = balance < amount;
 
     async function onSubmit(e: FormEvent) {
         e.preventDefault();

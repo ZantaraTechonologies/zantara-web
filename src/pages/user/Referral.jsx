@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthStore } from '../../store/auth/authStore';
 import api from "../../services/api/apiClient";
 import { Users } from 'lucide-react';
 

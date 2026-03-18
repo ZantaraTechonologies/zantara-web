@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Tx } from "../../hooks/useWallet";
+import type { TxLog } from "../../services/transactions/transactionService";
 import { useMyTransactions } from "../../hooks/useWallet";
 import TxRow from "../../components/wallet/TxRow";
 import ReceiptModal from "../../components/wallet/ReceiptModal";
@@ -16,8 +16,8 @@ export default function TransactionsList({
     const { data, isLoading, error } = useMyTransactions({ limit });
 
     // -------- Normalize incoming data shape --------
-    const items: (Tx & { _orig?: any })[] = Array.isArray(data?.items)
-        ? (data!.items as (Tx & { _orig?: any })[])
+    const items: (TxLog & { _orig?: any })[] = Array.isArray(data?.items)
+        ? (data!.items as (TxLog & { _orig?: any })[])
         : Array.isArray((data as any)?.data)
             ? (data as any).data
             : Array.isArray(data as any)
@@ -107,7 +107,7 @@ export default function TransactionsList({
         );
     }, [highlightRef, sortedItems]);
 
-    const [selected, setSelected] = useState<(Tx & { _orig?: any }) | null>(active || null);
+    const [selected, setSelected] = useState<(TxLog & { _orig?: any }) | null>(active || null);
 
     // -------- Export to CSV (Excel-friendly) --------
     const downloadCSV = () => {

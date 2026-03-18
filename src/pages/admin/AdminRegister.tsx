@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { ClipLoader } from "react-spinners";
 import { Eye, EyeOff } from "lucide-react";
 import AuthLayout from "../../layouts/auth/AuthLayout";
+import { useAuthStore } from "../../store/auth/authStore";
+import * as authService from "../../services/auth/authService";
 
 // Mirror user's phone validation/normalization (Nigeria)
 const phoneRegex = /^(?:\+234|0)(\d{10})$/;
@@ -33,6 +35,7 @@ export default function AdminRegister() {
     const [isChecked, setIsChecked] = useState<boolean>(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { setAuth } = useAuthStore();
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = e.target;
@@ -75,11 +78,12 @@ export default function AdminRegister() {
         try {
             // Send to admin endpoint with roles
             const payload = { ...formData, phone: normalizedPhone, roles };
-            const res = await API.post("/auth/register", payload);
+            const res = await authService.register(payload);
 
             // If backend sets cookie and returns user, navigate to admin area
-            if (res.data?.ok && res.data?.user) {
-                toast.success("Admin created successfully! Redirecting…", { position: "top-center" });
+            if (res.token || res.user || res.ok) {
+                toast.success("Admin created successfully! Welcome 👋", { position: "top-center" });
+                if (res.user && res.token) setAuth(res.user, res.token);
                 nav("/admin/status");
                 return;
             }

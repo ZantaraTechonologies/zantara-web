@@ -1,12 +1,18 @@
-// src/routes/adminRoutes.tsx (or integrate into your main router file)
 import { createBrowserRouter } from "react-router-dom";
-import RequireAccess from "../components/admin/RequireAccess";
-import AdminLayout from "../components/admin/AdminLayout";           // path may be "@/layouts/AdminLayout"
+import RequireAccess from "./guards/RequireAccess";
+import AdminLayout from "../layouts/admin/AdminLayout";
 import AdminLogin from "../pages/admin/AdminLogin";
 import AdminRegister from "../pages/admin/AdminRegister";
 import { StatusPage } from "../pages/admin/StatusPage";
 import TransactionsPage from "../pages/admin/TransactionsPage";
-// import other admin pages...
+import BusinessOverview from "../features/business/pages/BusinessOverview";
+import BusinessWallet from "../features/business/pages/BusinessWallet";
+import BusinessCostLedger from "../features/business/pages/BusinessCostLedger";
+import BusinessExpenses from "../features/business/pages/BusinessExpenses";
+import BusinessProfitAnalytics from "../features/business/pages/BusinessProfitAnalytics";
+import BusinessSettlement from "../features/business/pages/BusinessSettlement";
+import BusinessCashFlow from "../features/business/pages/BusinessCashFlow";
+import BusinessRefundsLosses from "../features/business/pages/BusinessRefundsLosses";
 
 export const router = createBrowserRouter([
   // Public admin auth pages
@@ -24,7 +30,14 @@ export const router = createBrowserRouter([
           { path: "dashboard", element: <StatusPage /> },      // sample
           { path: "status", element: <StatusPage /> },
           { path: "transactions", element: <TransactionsPage /> },
-          // ...other admin pages
+          { path: "business/overview", element: <BusinessOverview /> },
+          { path: "business/wallets", element: <BusinessWallet /> },
+          { path: "business/cost-ledger", element: <BusinessCostLedger /> },
+          { path: "business/expenses", element: <BusinessExpenses /> },
+          { path: "business/profit", element: <BusinessProfitAnalytics /> },
+          { path: "business/settlements", element: <BusinessSettlement /> },
+          { path: "business/cashflow", element: <BusinessCashFlow /> },
+          { path: "business/refunds", element: <BusinessRefundsLosses /> },
         ],
       },
     ],

@@ -2,7 +2,7 @@ import { FormEvent, useMemo, useState } from "react";
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
 import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
-import { useWallet } from "../../hooks/useWallet";
+import { useWalletStore } from "../../store/wallet/walletStore";
 import { useNavigate } from "react-router-dom";
 
 const AUTO_REDIRECT_RECEIPT = false;
@@ -24,7 +24,7 @@ const PACKAGES: Record<(typeof PROVIDERS)[number], { code: string; name: string;
 };
 
 export default function BuyCablePage() {
-    const { data: wallet } = useWallet();
+    const { balance } = useWalletStore();
     const navigate = useNavigate();
 
     const [provider, setProvider] = useState<(typeof PROVIDERS)[number]>("DSTV");
@@ -42,7 +42,7 @@ export default function BuyCablePage() {
 
     const pack = useMemo(() => PACKAGES[provider].find((p) => p.code === packageCode) ?? PACKAGES[provider][0], [provider, packageCode]);
     const amount = pack?.price ?? 0;
-    const insufficient = ((wallet as any)?.balance ?? 0) < amount;
+    const insufficient = balance < amount;
 
     async function onSubmit(e: FormEvent) {
         e.preventDefault();

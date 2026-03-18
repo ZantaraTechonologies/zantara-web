@@ -2,7 +2,7 @@ import { FormEvent, useMemo, useState } from "react";
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
 import { Row, Select, SubmitButton, Input } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
-import { useWallet } from "../../hooks/useWallet";
+import { useWalletStore } from "../../store/wallet/walletStore";
 import { useNavigate } from "react-router-dom";
 
 const AUTO_REDIRECT_RECEIPT = false;
@@ -22,7 +22,7 @@ const PRICES: Record<(typeof EXAMS)[number], number> = { WAEC: 7200, NECO: 6200,
 const VARIATION_MAP: Record<(typeof EXAMS)[number], string> = { WAEC: "waec-pin", NECO: "neco-pin", JAMB: "jamb-pin", NBAIS: "nbais-pin" };
 
 export default function BuyExamPinPage() {
-    const { data: wallet } = useWallet();
+    const { balance } = useWalletStore();
     const navigate = useNavigate();
 
     const [exam, setExam] = useState<(typeof EXAMS)[number]>("WAEC");
@@ -41,7 +41,7 @@ export default function BuyExamPinPage() {
 
     const unit = PRICES[exam];
     const total = useMemo(() => (Number(qty || 0) * unit) || 0, [qty, unit]);
-    const insufficient = ((wallet as any)?.balance ?? 0) < total || total <= 0;
+    const insufficient = balance < total || total <= 0;
 
     async function onSubmit(e: FormEvent) {
         e.preventDefault();

@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// IMPORTANT: use the axios instance that has withCredentials: true
-import API from "../../services/api/apiClient";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { ClipLoader } from "react-spinners";
-import { Eye, EyeOff } from "lucide-react";
 import AuthLayout from "../../layouts/auth/AuthLayout";
+import { useAuthStore } from "../../store/auth/authStore";
+import * as authService from "../../services/auth/authService";
 
 const phoneRegex = /^(?:\+234|0)(\d{10})$/;
 
@@ -17,6 +13,7 @@ const Register = () => {
     const [isChecked, setIsChecked] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const { setAuth } = useAuthStore();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -55,13 +52,13 @@ const Register = () => {
         try {
             // Send registration
             const payload = { ...formData, phone: normalizedPhone };
-            const res = await API.post("/auth/register", payload);
+            const res = await authService.register(payload);
 
-            // If backend auto-logs in by setting cookie on register:
-            if (res.data?.ok && res.data?.user) {
+            // If backend auto-logs in:
+            if (res.token || res.user || res.ok) {
                 toast.success("Registration successful! Welcome 👋", { position: "top-center" });
-                // Optionally fetch /auth/me here if you keep user state in context
-                navigate("/dashboard");
+                if (res.user && res.token) setAuth(res.user, res.token);
+                navigate("/app/wallet");
                 return;
             }
 

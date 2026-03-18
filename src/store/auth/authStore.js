@@ -5,7 +5,7 @@ export const useAuthStore = create((set, get) => ({
     user: null,
     token: localStorage.getItem('token') || null,
     isAuthenticated: !!localStorage.getItem('token'),
-    loading: true,
+    loading: !!localStorage.getItem('token'),
     error: null,
 
     setAuth: (user, token) => {
@@ -38,7 +38,7 @@ export const useAuthStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const data = await authService.login(credentials);
-            if (data.ok) {
+            if (data.token || data.user || data.ok) {
                 const { user, token } = data;
                 get().setAuth(user, token);
                 return data;

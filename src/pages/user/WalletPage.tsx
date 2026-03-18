@@ -44,7 +44,7 @@ export default function WalletPage() {
           <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
             <h3 className="font-bold text-slate-900 mb-4">Support</h3>
             <p className="text-sm text-slate-600 mb-4">Need help with a transaction? Our team is available 24/7.</p>
-            <a href="https://wa.me/2348146149773" target="_blank" className="w-full inline-flex items-center justify-center py-3 bg-slate-50 text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-colors">
+            <a href={import.meta.env.VITE_WHATSAPP_SUPPORT_URL} target="_blank" className="w-full inline-flex items-center justify-center py-3 bg-slate-50 text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-colors">
               Contact Support
             </a>
           </div>

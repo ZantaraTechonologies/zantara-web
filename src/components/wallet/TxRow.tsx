@@ -1,5 +1,5 @@
 // src/components/wallet/TxRow.tsx
-import type { Tx } from "../../hooks/useWallet";
+import type { TxLog } from "../../services/transactions/transactionService";
 import { printReceipt } from "./receipt";
 
 export default function TxRow({
@@ -7,9 +7,9 @@ export default function TxRow({
     isActive,
     onView,
 }: {
-    tx: Tx & { _orig?: any };
+    tx: TxLog & { _orig?: any };
     isActive: boolean;
-    onView: (tx: Tx & { _orig?: any }) => void;
+    onView: (tx: TxLog & { _orig?: any }) => void;
 }) {
     const amountColor =
         tx.status === "success"

@@ -6,6 +6,8 @@ export type TxLog = {
     type: "wallet_fund" | "airtime" | "data" | "electricity" | "cable" | "exam_pin" | string;
     status: "pending" | "success" | "failed";
     amount: number;
+    costPrice?: number;
+    profit?: number;
     service?: string;
     currency?: string;
     createdAt: string;
@@ -39,6 +41,8 @@ export async function getMyTransactionLogs(params?: {
         type: (x.type === "funding" ? "wallet_fund" : x.type) as TxLog["type"],
         status: x.status,
         amount: x.amount, // already NGN units in your DB
+        costPrice: x.costPrice,
+        profit: x.profit ?? (x.amount && x.costPrice ? x.amount - x.costPrice : undefined),
         service: x.service ?? x.response?.channel ?? undefined,
         currency: x.response?.currency ?? "NGN",
         createdAt: x.createdAt ?? x.response?.createdAt ?? x.response?.transaction_date,
