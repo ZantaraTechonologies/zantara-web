@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuthStore } from "../../store/auth/authStore";
-import { PhoneCall, LockIcon, LogOut, Menu, X, LayoutDashboard } from "lucide-react";
+import { PhoneCall, Lock, LogOut, Menu, X, LayoutDashboard } from "lucide-react";
 import Logo from "../../assets/app_store_icon.png";
 
 export default function Navbar() {
@@ -76,7 +76,7 @@ export default function Navbar() {
                                 to="/login"
                                 className={`${btnBase} bg-white text-sky-600 font-semibold hover:bg-slate-100`}
                             >
-                                <LockIcon className="w-4 h-4" />
+                            <Lock className="w-4 h-4" />
                                 Login
                             </Link>
                         )}
