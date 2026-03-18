@@ -76,8 +76,8 @@ const AdminLoginPage: React.FC = () => {
 
                     <div className="p-8 sm:p-12">
                         <div className="flex flex-col items-center mb-10">
-                            <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 border border-slate-700 shadow-inner group-hover:border-emerald-500/50 transition-colors">
-                                <Cpu className="text-emerald-400 w-8 h-8 animate-pulse" />
+                            <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 border border-slate-700 shadow-inner group-hover:border-emerald-500/50 transition-colors p-3">
+                                <img src="/app_store_icon.png" alt="Zantara Logo" className="w-full h-full object-contain filter brightness-110" />
                             </div>
                             <h1 className="text-2xl font-bold text-white mb-2 uppercase tracking-tighter">Zantara Control</h1>
                             <div className="flex items-center gap-2 text-emerald-400/60 text-[10px] font-bold tracking-[0.3em] uppercase">

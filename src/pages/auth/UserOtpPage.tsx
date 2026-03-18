@@ -68,10 +68,8 @@ const UserOtpPage: React.FC = () => {
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
             {/* Header */}
             <header className="w-full h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 sm:px-12">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-emerald-400 rounded-lg flex items-center justify-center">
-                        <div className="w-4 h-4 border-2 border-slate-900 rounded-sm"></div>
-                    </div>
+                <div className="flex items-center gap-3">
+                    <img src="/app_store_icon.png" alt="Zantara Logo" className="w-8 h-8 rounded-lg" />
                     <span className="text-xl font-bold text-slate-900 tracking-tight uppercase">Zantara</span>
                 </div>
                 <div className="flex items-center gap-4">
@@ -101,7 +99,7 @@ const UserOtpPage: React.FC = () => {
                             {otp.map((digit, idx) => (
                                 <input
                                     key={idx}
-                                    ref={(el) => (inputRefs.current[idx] = el)}
+                                    ref={(el) => { inputRefs.current[idx] = el; }}
                                     type="text"
                                     inputMode="numeric"
                                     maxLength={1}

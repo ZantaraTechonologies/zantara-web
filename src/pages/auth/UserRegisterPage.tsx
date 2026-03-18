@@ -61,10 +61,8 @@ const UserRegisterPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
             {/* Header / Logo */}
-            <div className="mb-8 flex items-center gap-2">
-                <div className="w-8 h-8 bg-emerald-400 rounded-lg flex items-center justify-center shadow-sm">
-                    <div className="w-4 h-4 border-2 border-slate-900 rounded-sm"></div>
-                </div>
+            <div className="mb-8 flex items-center gap-3">
+                <img src="/app_store_icon.png" alt="Zantara Logo" className="w-8 h-8 rounded-lg shadow-sm" />
                 <span className="text-xl font-bold text-slate-900 tracking-tight uppercase">Zantara</span>
             </div>
 

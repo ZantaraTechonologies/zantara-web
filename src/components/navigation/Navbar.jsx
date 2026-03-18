@@ -16,10 +16,8 @@ export default function Navbar() {
             <div className="mx-auto max-w-7xl w-full px-6 sm:px-12">
                 <div className="flex items-center justify-between gap-8">
                     {/* Brand */}
-                    <Link to="/" className="flex items-center gap-2 group">
-                        <div className="w-8 h-8 bg-emerald-400 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                            <div className="w-4 h-4 border-2 border-slate-950 rounded-sm"></div>
-                        </div>
+                    <Link to="/" className="flex items-center gap-3">
+                        <img src="/app_store_icon.png" alt="Zantara Logo" className="w-8 h-8 rounded-lg shadow-lg" />
                         <span className="text-xl font-bold text-slate-900 tracking-tight uppercase">Zantara</span>
                     </Link>
 

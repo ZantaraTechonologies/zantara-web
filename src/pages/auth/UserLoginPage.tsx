@@ -52,10 +52,8 @@ const UserLoginPage: React.FC = () => {
                 }}></div>
 
                 <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-12">
-                        <div className="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                            <div className="w-5 h-5 border-2 border-slate-950 rounded-md"></div>
-                        </div>
+                    <div className="flex items-center gap-3 mb-12">
+                        <img src="/app_store_icon.png" alt="Zantara Logo" className="w-10 h-10 rounded-xl shadow-lg" />
                         <span className="text-2xl font-bold text-white tracking-tight">Zantara</span>
                     </div>
 
@@ -97,10 +95,8 @@ const UserLoginPage: React.FC = () => {
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 md:p-16">
                 <div className="w-full max-w-md">
                     <div className="mb-8 lg:hidden">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 bg-emerald-400 rounded-lg flex items-center justify-center">
-                                <div className="w-4 h-4 border-2 border-slate-950 rounded-sm"></div>
-                            </div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <img src="/app_store_icon.png" alt="Zantara Logo" className="w-8 h-8 rounded-lg" />
                             <span className="text-xl font-bold text-slate-900 tracking-tight">Zantara</span>
                         </div>
                     </div>
