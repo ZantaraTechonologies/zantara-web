@@ -10,8 +10,12 @@ export const useAuthStore = create((set, get) => ({
     error: null,
 
     setAuth: (user, token) => {
-        if (token) localStorage.setItem('token', token);
-        set({ user, token, isAuthenticated: true, loading: false, isInitialized: true, error: null });
+        const activeToken = token || user?.token || localStorage.getItem('token');
+        if (activeToken) {
+            localStorage.setItem('token', activeToken);
+        }
+        console.log("setAuth: Session active", { user: user?.email, hasToken: !!activeToken });
+        set({ user, token: activeToken, isAuthenticated: !!activeToken, loading: false, isInitialized: true, error: null });
     },
 
     clearAuth: () => {
@@ -20,15 +24,26 @@ export const useAuthStore = create((set, get) => ({
     },
 
     fetchMe: async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            set({ loading: false, isInitialized: true, isAuthenticated: false });
+            return;
+        }
+
         set({ loading: true });
         try {
             const data = await authService.getMe();
-            if (data.ok && data.user) {
-                set({ user: data.user, isAuthenticated: true, loading: false, isInitialized: true });
+            // Loosening the check: if data exists and looks like a user or has a user field
+            const user = data.user || (data.id ? data : null);
+            
+            if (user) {
+                set({ user, isAuthenticated: true, loading: false, isInitialized: true });
             } else {
+                console.warn("fetchMe: No user data returned", data);
                 get().clearAuth();
             }
         } catch (error) {
+            console.error("fetchMe: Request failed", error);
             get().clearAuth();
         } finally {
             set({ loading: false, isInitialized: true });
@@ -39,15 +54,43 @@ export const useAuthStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const data = await authService.login(credentials);
-            if (data.token || data.user || data.ok) {
-                const { user, token } = data;
+            console.log("login: Response received", data);
+            
+            const token = data.token || data.accessToken || data.access_token || data.data?.token;
+            const user = data.user || data.data?.user || (data.id ? data : null);
+
+            if (token || user) {
                 get().setAuth(user, token);
                 return data;
             } else {
-                throw new Error(data.message || 'Login failed');
+                throw new Error(data.message || 'Login failed: No user or token in response');
             }
         } catch (error) {
             const msg = error.response?.data?.message || error.message || 'Login failed';
+            set({ error: msg, loading: false });
+            throw error;
+        }
+    },
+
+    register: async (userData) => {
+        set({ loading: true, error: null });
+        try {
+            const data = await authService.register(userData);
+            console.log("register: Response received", data);
+            
+            const token = data.token || data.accessToken || data.access_token || data.data?.token;
+            const user = data.user || data.data?.user || (data.id ? data : null);
+
+            if (token || user) {
+                get().setAuth(user, token);
+                return data;
+            } else {
+                // If the API returns success but no immediate session, that's fine too (e.g. redirect to OTP)
+                set({ loading: false });
+                return data;
+            }
+        } catch (error) {
+            const msg = error.response?.data?.message || error.message || 'Registration failed';
             set({ error: msg, loading: false });
             throw error;
         }
