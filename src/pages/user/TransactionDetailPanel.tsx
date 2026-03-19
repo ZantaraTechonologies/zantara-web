@@ -11,7 +11,8 @@ import {
     Copy,
     Building2,
     Zap,
-    History
+    History,
+    ShieldCheck
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
@@ -42,14 +43,14 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] -mr-32 -mt-32"></div>
                 
                 {/* Header */}
-                <div className="relative z-10 px-8 py-10 flex items-center justify-between border-b border-slate-50">
+                <div className="relative z-10 px-8 py-6 flex items-center justify-between border-b border-slate-50">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-800">
-                            <History size={24} />
+                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-800">
+                            <History size={20} />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Ledger Trace</h2>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Metadata Retrieval Active</p>
+                            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Ledger Trace</h2>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-[9px]">Metadata Retrieval Active</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors">
@@ -58,18 +59,18 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                 </div>
 
                 {/* Content */}
-                <div className="relative z-10 flex-1 overflow-y-auto px-8 py-12 space-y-12">
+                <div className="relative z-10 flex-1 overflow-y-auto px-8 py-8 space-y-10">
                     {/* Amount Block */}
-                    <div className="text-center space-y-6">
-                        <div className={`w-24 h-24 mx-auto rounded-[2.5rem] flex items-center justify-center ${isCredit ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
-                            {isCredit ? <ArrowDownLeft size={48} strokeWidth={2.5} /> : <ArrowUpRight size={48} strokeWidth={2.5} />}
+                    <div className="text-center space-y-4">
+                        <div className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center ${isCredit ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
+                            {isCredit ? <ArrowDownLeft size={40} strokeWidth={2.5} /> : <ArrowUpRight size={40} strokeWidth={2.5} />}
                         </div>
-                        <div className="space-y-2">
-                            <h3 className={`text-5xl font-black tracking-tighter ${isCredit ? 'text-emerald-500' : 'text-slate-900'}`}>
+                        <div className="space-y-1">
+                            <h3 className={`text-4xl font-extrabold tracking-tighter ${isCredit ? 'text-emerald-500' : 'text-slate-900'}`}>
                                 {isCredit ? '+' : ''}₦{Number(transaction.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </h3>
                             <div className="flex justify-center">
-                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${statusColors[transaction.status] || statusColors.PENDING}`}>
+                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${statusColors[transaction.status] || statusColors.PENDING}`}>
                                     {transaction.status || 'PENDING'}
                                 </span>
                             </div>
@@ -77,30 +78,30 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                     </div>
 
                     {/* Metadata Grid */}
-                    <div className="bg-slate-50/50 rounded-[2.5rem] p-10 space-y-8 border border-white">
-                        <div className="grid grid-cols-2 gap-y-10">
+                    <div className="bg-slate-50/50 rounded-2xl p-6 md:p-8 space-y-6 border border-white">
+                        <div className="grid grid-cols-2 gap-y-8">
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Type</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Protocol Type</p>
                                 <p className="font-bold text-slate-900">{transaction.service || 'Wallet Funding'}</p>
                             </div>
                             <div className="space-y-1 text-right">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gateway</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gateway</p>
                                 <p className="font-bold text-slate-900">{transaction.gateway || 'Paystack / Wema'}</p>
                             </div>
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Origin Date</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Origin Date</p>
                                 <p className="font-bold text-slate-900">{new Date(transaction.createdAt).toLocaleDateString()}</p>
                             </div>
                             <div className="space-y-1 text-right">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Origin Time</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Origin Time</p>
                                 <p className="font-bold text-slate-900">{new Date(transaction.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
                         </div>
 
-                        <div className="pt-8 border-t border-slate-100 space-y-3">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaction Reference</p>
-                            <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 group">
-                                <p className="font-mono text-xs font-black text-slate-900 tracking-wider truncate mr-4">
+                        <div className="pt-6 border-t border-slate-100 space-y-3">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transaction Reference</p>
+                            <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 group">
+                                <p className="font-mono text-xs font-bold text-slate-900 tracking-wider truncate mr-4">
                                     {transaction.reference || 'ZTR-NODE-2024-X920'}
                                 </p>
                                 <button onClick={() => copyRef(transaction.reference)} className="text-emerald-500 hover:text-emerald-600 transition-colors">
@@ -111,10 +112,10 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                     </div>
 
                     {/* Footer Info */}
-                    <div className="flex items-start gap-4 p-6 bg-slate-950 rounded-[2rem] text-slate-400">
-                        <ShieldCheck size={20} className="text-emerald-400 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-4 p-5 bg-slate-950 rounded-2xl text-slate-400">
+                        <ShieldCheck size={18} className="text-emerald-400 shrink-0 mt-0.5" />
                         <div className="space-y-1">
-                            <h4 className="font-black text-[10px] uppercase tracking-widest text-white">Cryptographic Proof</h4>
+                            <h4 className="font-bold text-[10px] uppercase tracking-widest text-white">Cryptographic Proof</h4>
                             <p className="text-[10px] font-medium leading-relaxed">
                                 This transaction has been verified against Zantara's distributed ledger. Use the reference above for support inquiries.
                             </p>
@@ -123,13 +124,13 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                 </div>
 
                 {/* Actions Footer */}
-                <div className="relative z-10 px-8 py-10 border-t border-slate-50 flex gap-4">
-                    <button className="flex-1 inline-flex items-center justify-center gap-2 bg-white border border-slate-100 py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] text-slate-900 hover:bg-slate-50 transition-all">
-                        <Share2 size={16} />
+                <div className="relative z-10 px-8 py-6 border-t border-slate-50 flex gap-3">
+                    <button className="flex-1 inline-flex items-center justify-center gap-2 bg-white border border-slate-100 py-3.5 rounded-xl font-bold uppercase tracking-widest text-[10px] text-slate-900 hover:bg-slate-50 transition-all">
+                        <Share2 size={14} />
                         <span>Share Proof</span>
                     </button>
-                    <button className="flex-[2] inline-flex items-center justify-center gap-2 bg-slate-950 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200">
-                        <Download size={16} />
+                    <button className="flex-[2] inline-flex items-center justify-center gap-2 bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200">
+                        <Download size={14} />
                         <span>Download Statement</span>
                     </button>
                 </div>

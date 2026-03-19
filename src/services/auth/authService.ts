@@ -8,6 +8,8 @@ export interface User {
     roles: string[];
     totalReferralBonus?: number;
     myReferralCode?: string;
+    hasPIN?: boolean;
+    kycStatus?: 'none' | 'pending' | 'verified' | 'rejected';
 }
 
 export interface AuthResponse {

@@ -67,7 +67,7 @@ const UserWalletPage: React.FC = () => {
     ];
 
     return (
-        <div className="p-4 sm:p-5 lg:p-8 space-y-8 animate-in fade-in duration-700 font-sans">
+        <div className="p-4 sm:p-5 lg:p-6 space-y-6 animate-in fade-in duration-700 font-sans">
             {/* Funded Toast */}
             {fundedStatus && (
                 <div className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-sm shadow-lg ${
@@ -89,15 +89,15 @@ const UserWalletPage: React.FC = () => {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-1">My Wallet</h1>
-                    <p className="text-slate-500 font-medium">Manage your funds and financial ecosystem.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">My Wallet</h1>
+                    <p className="text-slate-500 font-medium text-sm">Manage your funds and financial ecosystem.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link to="/app/wallet/withdraw" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-slate-100 px-5 py-3 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
+                    <Link to="/app/wallet/withdraw" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-slate-100 px-5 py-2.5 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm text-sm">
                         <ArrowUpRight size={18} />
                         <span>Withdraw</span>
                     </Link>
-                    <Link to="/app/wallet/fund" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-5 py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20">
+                    <Link to="/app/wallet/fund" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 text-sm">
                         <Plus size={18} />
                         <span>Fund Wallet</span>
                     </Link>
@@ -108,19 +108,19 @@ const UserWalletPage: React.FC = () => {
                 {/* Left Side: Balance & Stats */}
                 <div className="lg:col-span-8 space-y-6">
                     {/* Main Balance Card */}
-                    <div className="relative bg-slate-950 rounded-3xl p-8 overflow-hidden shadow-2xl shadow-slate-900/20 group">
+                    <div className="relative bg-slate-950 rounded-2xl p-6 overflow-hidden shadow-2xl shadow-slate-900/20 group">
                         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-800/20 rounded-full blur-[80px] -ml-24 -mb-24"></div>
                         
-                        <div className="relative z-10 space-y-8">
+                        <div className="relative z-10 space-y-6">
                             <div className="flex justify-between items-start">
                                 <div className="space-y-2">
                                     <p className="text-emerald-400/60 font-bold uppercase tracking-[0.2em] text-[10px]">Available Capital</p>
-                                    <h2 className="text-5xl sm:text-6xl font-black text-white tracking-tighter">
+                                    <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tighter">
                                         {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </h2>
                                 </div>
-                                <div className="bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 backdrop-blur-sm">
+                                <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 backdrop-blur-sm">
                                     <Wallet className="text-emerald-400 w-6 h-6" />
                                 </div>
                             </div>
@@ -145,13 +145,13 @@ const UserWalletPage: React.FC = () => {
                         {stats.map((stat, i) => {
                             const Icon = stat.icon;
                             return (
-                                <div key={i} className="bg-white border border-slate-50 p-6 rounded-[2rem] flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+                                <div key={i} className="bg-white border border-slate-50 p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
                                     <div className="space-y-1">
                                         <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">{stat.label}</p>
-                                        <h3 className="text-xl font-bold text-slate-900">{stat.amount}</h3>
+                                        <h3 className="text-lg font-bold text-slate-900">{stat.amount}</h3>
                                     </div>
-                                    <div className={`${stat.bg} ${stat.color} p-3 rounded-2xl`}>
-                                        <Icon size={20} />
+                                    <div className={`${stat.bg} ${stat.color} p-2.5 rounded-xl`}>
+                                        <Icon size={18} />
                                     </div>
                                 </div>
                             );
@@ -159,7 +159,7 @@ const UserWalletPage: React.FC = () => {
                     </div>
 
                     {/* Recent Transactions Preview */}
-                    <div className="bg-white border border-slate-50 rounded-[2rem] p-6 space-y-6 shadow-sm">
+                    <div className="bg-white border border-slate-50 rounded-2xl p-6 space-y-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <History className="text-emerald-500" size={20} />
@@ -208,7 +208,7 @@ const UserWalletPage: React.FC = () => {
                 {/* Right Side: Virtual Account & Linked Banks */}
                 <div className="lg:col-span-4 space-y-6">
                     {/* Virtual Account Detail */}
-                    <div className="bg-emerald-50 rounded-[2rem] p-6 space-y-6 border border-emerald-100/50">
+                    <div className="bg-emerald-50 rounded-2xl p-6 space-y-6 border border-emerald-100/50">
                         <div className="space-y-1">
                             <p className="text-emerald-600 font-bold uppercase tracking-widest text-[10px]">Virtual Funding Node</p>
                             <h3 className="text-xl font-bold text-slate-900">Direct Transfer</h3>
@@ -244,7 +244,7 @@ const UserWalletPage: React.FC = () => {
                     </div>
 
                     {/* Linked Bank Accounts */}
-                    <div className="bg-white border border-slate-50 rounded-[2rem] p-6 space-y-6 shadow-sm">
+                    <div className="bg-white border border-slate-50 rounded-2xl p-6 space-y-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <h3 className="font-bold text-slate-900 flex items-center gap-2">
                                 <Building2 className="text-emerald-500" size={18} />

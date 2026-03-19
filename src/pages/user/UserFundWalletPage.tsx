@@ -65,7 +65,7 @@ const UserFundWalletPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 sm:p-5 lg:p-8 space-y-8 animate-in slide-in-from-bottom-8 duration-700 font-sans">
+        <div className="max-w-4xl mx-auto p-4 sm:p-5 lg:p-6 space-y-6 animate-in slide-in-from-bottom-8 duration-700 font-sans">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <button onClick={() => navigate(-1)} className="p-3 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
@@ -109,7 +109,7 @@ const UserFundWalletPage: React.FC = () => {
                             <button 
                                 key={val}
                                 onClick={() => setAmount(val)}
-                                className="bg-white border border-slate-50 py-4 rounded-xl font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all text-sm"
+                                className="bg-white border border-slate-50 py-3 rounded-xl font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all text-sm"
                             >
                                 +₦{Number(val).toLocaleString()}
                             </button>
@@ -119,7 +119,7 @@ const UserFundWalletPage: React.FC = () => {
                     <button 
                         disabled={!amount || Number(amount) <= 0}
                         onClick={() => setStep(2)}
-                        className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
+                        className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
                     >
                         Continue to Method
                     </button>
@@ -136,8 +136,8 @@ const UserFundWalletPage: React.FC = () => {
                                 className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group ${method === m.id ? 'border-emerald-400 bg-emerald-50/50 shadow-xl shadow-emerald-500/10' : 'border-slate-50 bg-white hover:border-slate-100'}`}
                             >
                                 <div className="flex items-center gap-5 text-left">
-                                    <div className={`p-4 rounded-xl transition-colors ${method === m.id ? 'bg-emerald-400 text-slate-950' : 'bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500'}`}>
-                                        <m.icon size={24} strokeWidth={2.5} />
+                                    <div className={`p-3 rounded-xl transition-colors ${method === m.id ? 'bg-emerald-400 text-slate-950' : 'bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500'}`}>
+                                        <m.icon size={22} strokeWidth={2.5} />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ const UserFundWalletPage: React.FC = () => {
                         <button 
                             disabled={!method}
                             onClick={handleContinue}
-                            className="flex-[2] bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
+                            className="flex-[2] bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
                         >
                             Confirm Selection
                         </button>
@@ -173,7 +173,7 @@ const UserFundWalletPage: React.FC = () => {
             )}
 
             {step === 3 && (
-                <div className="bg-white border border-slate-50 rounded-3xl p-8 sm:p-10 space-y-8 shadow-sm text-center">
+                <div className="bg-white border border-slate-50 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm text-center">
                     <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto animate-bounce">
                         <Smartphone size={32} />
                     </div>
@@ -194,7 +194,7 @@ const UserFundWalletPage: React.FC = () => {
                         <button 
                             disabled={loadingPayment}
                             onClick={handlePayment}
-                            className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-50"
+                            className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-50"
                         >
                             {loadingPayment ? 'Redirecting...' : 'Continue to Payment'}
                         </button>

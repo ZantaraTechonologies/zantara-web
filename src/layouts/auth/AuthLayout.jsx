@@ -10,7 +10,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
     return (
         <div className="min-h-screen flex flex-col bg-slate-50">
             <Navbar />
-            <main className="flex-grow flex items-center justify-center py-20 px-6 sm:px-10">
+            <main className="flex-grow flex items-center justify-center py-12 px-6 sm:px-10">
                 <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
                     {(title || subtitle) && (
                         <div className="text-center space-y-2 mb-2">

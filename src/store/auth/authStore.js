@@ -34,7 +34,7 @@ export const useAuthStore = create((set, get) => ({
         try {
             const data = await authService.getMe();
             // Loosening the check: if data exists and looks like a user or has a user field
-            const user = data.user || (data.id ? data : null);
+            const user = data.user || (data.id || data._id ? data : null);
             
             if (user) {
                 set({ user, isAuthenticated: true, loading: false, isInitialized: true });
@@ -57,7 +57,7 @@ export const useAuthStore = create((set, get) => ({
             console.log("login: Response received", data);
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
-            const user = data.user || data.data?.user || (data.id ? data : null);
+            const user = data.user || data.data?.user || (data.id || data._id ? data : null);
 
             if (token || user) {
                 get().setAuth(user, token);
@@ -79,7 +79,7 @@ export const useAuthStore = create((set, get) => ({
             console.log("register: Response received", data);
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
-            const user = data.user || data.data?.user || (data.id ? data : null);
+            const user = data.user || data.data?.user || (data.id || data._id ? data : null);
 
             if (token || user) {
                 get().setAuth(user, token);
@@ -108,5 +108,6 @@ export const useAuthStore = create((set, get) => ({
 
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
+    setUser: (user) => set({ user }),
 }));
 

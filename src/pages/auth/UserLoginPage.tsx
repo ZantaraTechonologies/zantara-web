@@ -41,7 +41,7 @@ const UserLoginPage: React.FC = () => {
     return (
         <div className="min-h-screen flex bg-white font-sans">
             {/* Left Side - Branding */}
-            <div className="hidden lg:flex w-1/2 bg-slate-950 relative flex-col justify-between p-16 overflow-hidden">
+            <div className="hidden lg:flex w-1/2 bg-slate-950 relative flex-col justify-between p-12 overflow-hidden">
                 {/* Background Pattern/Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 opacity-90"></div>
 
@@ -92,7 +92,7 @@ const UserLoginPage: React.FC = () => {
             </div>
 
             {/* Right Side - Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 md:p-16">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-10">
                 <div className="w-full max-w-md">
                     <div className="mb-8 lg:hidden">
                         <div className="flex items-center gap-3 mb-4">
@@ -102,8 +102,8 @@ const UserLoginPage: React.FC = () => {
                     </div>
 
                     <div className="mb-8">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back</h2>
-                        <p className="text-slate-500 font-medium">Enter your credentials to access your Zantara account</p>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome back</h2>
+                        <p className="text-slate-500 font-medium text-sm">Enter your credentials to access your Zantara account</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-6">
@@ -169,7 +169,7 @@ const UserLoginPage: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-extrabold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:active:scale-100"
+                            className="w-full bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-bold py-3 px-6 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:active:scale-100"
                         >
                             {isLoading ? (
                                 <div className="w-6 h-6 border-4 border-slate-950/20 border-t-slate-950 rounded-full animate-spin"></div>

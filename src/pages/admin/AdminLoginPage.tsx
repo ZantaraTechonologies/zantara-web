@@ -74,7 +74,7 @@ const AdminLoginPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="p-8 sm:p-12">
+                    <div className="p-6 sm:p-10">
                         <div className="flex flex-col items-center mb-10">
                             <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 border border-slate-700 shadow-inner group-hover:border-emerald-500/50 transition-colors p-3">
                                 <img src="/app_store_icon.png" alt="Zantara Logo" className="w-full h-full object-contain filter brightness-110" />
@@ -131,7 +131,7 @@ const AdminLoginPage: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full mt-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs disabled:opacity-50"
+                                className="w-full mt-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs disabled:opacity-50"
                             >
                                 {isLoading ? (
                                     <span className="flex items-center gap-2">

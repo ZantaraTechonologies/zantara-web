@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-    Wallet, 
-    Zap, 
-    Wifi, 
-    Tv, 
-    GraduationCap, 
+import {
+    Wallet,
+    Zap,
+    Wifi,
+    Tv,
+    GraduationCap,
     ChevronRight,
     ArrowUpRight,
     Search,
@@ -32,9 +32,11 @@ const UserDashboardPage: React.FC = () => {
     }, []);
 
     const quickActions = [
-        { name: 'Buy Airtime', icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/buy/airtime' },
-        { name: 'Buy Data', icon: Wifi, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/buy/data' },
-        { name: 'Pay Bills', icon: Tv, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/buy/cable' },
+        { name: 'Airtime', icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/airtime' },
+        { name: 'Data', icon: Wifi, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/data' },
+        { name: 'Electricity', icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/electricity' },
+        { name: 'Cable TV', icon: Tv, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/cable' },
+        { name: 'Education', icon: GraduationCap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/exam-pins' },
         { name: 'Fund Wallet', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/wallet/fund' },
     ];
 
@@ -46,14 +48,14 @@ const UserDashboardPage: React.FC = () => {
     ];
 
     return (
-        <div className="p-2 sm:p-6 lg:p-10 font-sans">
+        <div className="p-4 sm:p-6 font-sans">
             {/* Top Toolbar Simulation (Inside Layout usually, but adding for completeness if needed) */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Dashboard</h1>
                     <p className="text-slate-500 font-medium">Hello {user?.name || 'Alex'}, manage your wallet and bills with ease.</p>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate('/app/transactions')} className="flex items-center gap-2 bg-white border border-slate-100 px-5 py-2.5 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
                         <Clock size={16} />
@@ -71,15 +73,15 @@ const UserDashboardPage: React.FC = () => {
                 {/* Left Column - Main Stats */}
                 <div className="xl:col-span-8 space-y-6">
                     {/* Hero Balance Card */}
-                    <Link to="/app/wallet" className="relative bg-teal-950 rounded-3xl p-8 overflow-hidden min-h-[260px] flex flex-col justify-between shadow-2xl shadow-emerald-950/20 group block">
+                    <Link to="/app/wallet" className="relative bg-teal-950 rounded-2xl p-6 overflow-hidden min-h-[220px] flex flex-col justify-between shadow-2xl shadow-emerald-950/20 group block">
                         {/* Abstract Background Design */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-900/40 rounded-full blur-3xl -ml-16 -mb-16"></div>
-                        
+
                         <div className="relative z-10 flex justify-between items-start">
                             <div className="space-y-1">
-                                <span className="text-emerald-400/80 font-bold uppercase tracking-[0.2em] text-[10px]">Total Wallet Balance</span>
-                                <h2 className="text-5xl font-black text-white tracking-tighter">
+                                <span className="text-emerald-400/80 font-bold uppercase tracking-[0.2em] text-[9px]">Total Wallet Balance</span>
+                                <h2 className="text-4xl font-extrabold text-white tracking-tighter">
                                     {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </h2>
                             </div>
@@ -144,17 +146,17 @@ const UserDashboardPage: React.FC = () => {
                 {/* Right Column - Secondary Stats & Activity */}
                 <div className="xl:col-span-4 space-y-6">
                     {/* Referral Earnings Card */}
-                    <div className="bg-emerald-400 rounded-[2rem] p-8 relative overflow-hidden group shadow-xl shadow-emerald-500/20">
+                    <div className="bg-emerald-400 rounded-2xl p-6 relative overflow-hidden group shadow-xl shadow-emerald-500/20">
                         {/* Background Decoration */}
                         <div className="absolute bottom-0 right-0 p-8 opacity-20 group-hover:scale-110 transition-transform duration-500">
                             <div className="w-24 h-24 bg-slate-950 rounded-full blur-2xl"></div>
                         </div>
-                        
+
                         <div className="relative z-10 space-y-6">
                             <div className="space-y-1">
                                 <span className="text-slate-950/60 font-bold uppercase tracking-[0.2em] text-[10px]">Referral Earnings</span>
-                                <h3 className="text-3xl font-bold text-slate-950 tracking-tight">₦12,450.00</h3>
-                                <div className="flex items-center gap-1 text-[11px] font-extrabold text-slate-800/80">
+                                <h3 className="text-2xl font-bold text-slate-950 tracking-tight">₦12,450.00</h3>
+                                <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800/80">
                                     <ArrowUpRight size={14} />
                                     <span>+₦3,000 this week</span>
                                 </div>
@@ -166,7 +168,7 @@ const UserDashboardPage: React.FC = () => {
                     </div>
 
                     {/* Recent Activity */}
-                    <div className="bg-white rounded-[2rem] border border-slate-50 p-6 shadow-sm">
+                    <div className="bg-white rounded-2xl border border-slate-50 p-6 shadow-sm">
                         <div className="flex items-center justify-between mb-5">
                             <h3 className="font-bold text-slate-900">Recent Activity</h3>
                             <button className="text-emerald-500 font-bold text-xs uppercase tracking-widest hover:text-emerald-600 transition-colors">
@@ -187,7 +189,7 @@ const UserDashboardPage: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="text-right space-y-0.5">
-                                        <p className={`font-black text-sm ${item.color}`}>{item.amount}</p>
+                                        <p className={`font-bold text-sm ${item.color}`}>{item.amount}</p>
                                         <p className="text-[9px] text-slate-400 font-bold tracking-widest">{item.status}</p>
                                     </div>
                                 </div>
@@ -201,7 +203,7 @@ const UserDashboardPage: React.FC = () => {
                     </div>
 
                     {/* Referral Link Card */}
-                    <div className="bg-slate-950 rounded-[2rem] p-6 text-white">
+                    <div className="bg-slate-950 rounded-2xl p-6 text-white">
                         <div className="flex items-center justify-between mb-6">
                             <div className="space-y-1">
                                 <h4 className="font-bold text-lg leading-tight tracking-tight">Invite & Earn</h4>

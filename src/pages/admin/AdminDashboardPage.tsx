@@ -48,7 +48,7 @@ const AdminDashboardPage: React.FC = () => {
     return (
         <div className="bg-slate-950 min-h-screen font-sans text-slate-300">
             {/* System Status Banner Simulation */}
-            <div className="bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-[0.3em] py-2 text-center flex items-center justify-center gap-2">
+            <div className="bg-emerald-500 text-slate-950 text-[10px] font-bold uppercase tracking-[0.3em] py-2 text-center flex items-center justify-center gap-2">
                 <div className="w-1.5 h-1.5 bg-slate-950 rounded-full animate-ping"></div>
                 ALL SYSTEMS OPERATIONAL: ZANTARA CLOUD INFRASTRUCTURE HEALTHY
             </div>
@@ -79,7 +79,7 @@ const AdminDashboardPage: React.FC = () => {
                             </div>
                             <div className="flex items-baseline gap-2">
                                 <span className={`text-xl font-bold tracking-tight ${kpi.critical ? 'text-red-500' : 'text-white'}`}>{kpi.value}</span>
-                                <span className={`text-[11px] font-black ${kpi.trendUp ? 'text-emerald-500' : kpi.critical ? 'text-red-500' : 'text-orange-500'}`}>
+                                <span className={`text-[11px] font-bold ${kpi.trendUp ? 'text-emerald-500' : kpi.critical ? 'text-red-500' : 'text-orange-500'}`}>
                                     {kpi.trend}
                                 </span>
                             </div>
@@ -131,7 +131,7 @@ const AdminDashboardPage: React.FC = () => {
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-4">
                                     <h3 className="text-xl font-bold text-white">Critical Monitoring</h3>
-                                    <span className="bg-red-500/10 text-red-500 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-red-500/20">
+                                    <span className="bg-red-500/10 text-red-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-red-500/20">
                                         2 Action Items
                                     </span>
                                 </div>

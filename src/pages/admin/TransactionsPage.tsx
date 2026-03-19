@@ -26,7 +26,7 @@ function StatusTag({ status }: { status: Txn["status"] }) {
         failed: "bg-rose-100 text-rose-700",
     } as const;
     return (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${map[status]}`}>{status}</span>
+        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${map[status]}`}>{status}</span>
     );
 }
 
@@ -158,13 +158,13 @@ export default function TransactionsPage() {
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={exportCSV} 
-                        className="px-5 py-2.5 bg-slate-950 text-white hover:bg-emerald-500 hover:text-slate-950 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-slate-200 active:scale-95"
+                        className="px-5 py-2 bg-slate-950 text-white hover:bg-emerald-500 hover:text-slate-950 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-slate-200 active:scale-95"
                     >
                         Export Data
                     </button>
                     <button 
                         onClick={resetFilters} 
-                        className="px-5 py-2.5 bg-white border border-slate-100 text-slate-900 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all active:scale-95"
+                        className="px-5 py-2 bg-white border border-slate-100 text-slate-900 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all active:scale-95"
                     >
                         Reset Filters
                     </button>
@@ -220,13 +220,13 @@ export default function TransactionsPage() {
                     <table className="min-w-full text-sm">
                         <thead className="bg-slate-50 text-slate-400">
                             <tr>
-                                <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest">Date</th>
-                                <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest">Client</th>
-                                <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest">Protocol</th>
-                                <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-widest">Amount</th>
-                                <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest">Status</th>
-                                <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest">Reference</th>
-                                <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-widest">Actions</th>
+                                <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Date</th>
+                                <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Client</th>
+                                <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Protocol</th>
+                                <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Amount</th>
+                                <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Status</th>
+                                <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Reference</th>
+                                <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -246,16 +246,16 @@ export default function TransactionsPage() {
                                     : (r.user?.email ?? r.user?.name ?? r.user?._id ?? r.userId ?? "");
                                 return (
                                     <tr key={r._id} className="group hover:bg-slate-50 transition-colors">
-                                        <td className="px-4 py-3 text-slate-500 font-medium whitespace-nowrap">{new Date(r.createdAt).toLocaleString()}</td>
-                                        <td className="px-4 py-3 text-slate-900 font-bold">{userText}</td>
-                                        <td className="px-4 py-3 text-slate-500 font-bold uppercase text-[10px] tracking-widest">{r.service ?? "—"}</td>
-                                        <td className="px-4 py-3 text-right font-bold text-slate-900">{currency(r.amount)}</td>
-                                        <td className="px-4 py-3"><StatusTag status={r.status} /></td>
-                                        <td className="px-4 py-3 text-slate-400 font-mono text-xs">{r.reference ?? "—"}</td>
-                                        <td className="px-4 py-3 text-right">
+                                        <td className="px-4 py-2.5 text-slate-500 font-medium whitespace-nowrap">{new Date(r.createdAt).toLocaleString()}</td>
+                                        <td className="px-4 py-2.5 text-slate-900 font-semibold">{userText}</td>
+                                        <td className="px-4 py-2.5 text-slate-500 font-bold uppercase text-[10px] tracking-widest">{r.service ?? "—"}</td>
+                                        <td className="px-4 py-2.5 text-right font-bold text-slate-900">{currency(r.amount)}</td>
+                                        <td className="px-4 py-2.5"><StatusTag status={r.status} /></td>
+                                        <td className="px-4 py-2.5 text-slate-400 font-mono text-xs">{r.reference ?? "—"}</td>
+                                        <td className="px-4 py-2.5 text-right">
                                             <div className="flex items-center gap-2 justify-end">
-                                                <button onClick={() => alert(JSON.stringify(r, null, 2))} className="px-4 py-2 bg-white border border-slate-100 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">Details</button>
-                                                <button onClick={() => recheck(r.reference)} disabled={!r.reference || (r as any).__checking} className="px-4 py-2 bg-slate-950 text-white rounded-xl font-bold text-xs disabled:opacity-50 hover:bg-emerald-500 hover:text-slate-950 transition-all">
+                                                <button onClick={() => alert(JSON.stringify(r, null, 2))} className="px-3 py-1.5 bg-white border border-slate-100 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-all">Details</button>
+                                                <button onClick={() => recheck(r.reference)} disabled={!r.reference || (r as any).__checking} className="px-3 py-1.5 bg-slate-950 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider disabled:opacity-50 hover:bg-emerald-500 hover:text-slate-950 transition-all">
                                                     {(r as any).__checking ? "Checking…" : "Trace"}
                                                 </button>
                                             </div>

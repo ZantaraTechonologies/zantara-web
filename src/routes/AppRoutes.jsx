@@ -25,13 +25,23 @@ import UserFundWalletPage from '../pages/user/UserFundWalletPage';
 import UserWithdrawPage from '../pages/user/UserWithdrawPage';
 import UserLinkedAccountsPage from '../pages/user/UserLinkedAccountsPage';
 import UserVirtualAccountPage from '../pages/user/UserVirtualAccountPage';
-import BuyDataPage from "../pages/user/BuyDataPage";
-import BuyAirtimePage from "../pages/user/BuyAirtimePage";
-import BuyCablePage from "../pages/user/BuyCablePage";
-import BuyExamPinPage from "../pages/user/BuyExamPinPage";
+import UserBuyDataPage from "../pages/user/UserBuyDataPage";
+import UserBuyAirtimePage from "../pages/user/UserBuyAirtimePage";
+import UserBuyElectricityPage from "../pages/user/UserBuyElectricityPage";
+import UserBuyCablePage from "../pages/user/UserBuyCablePage";
+import UserBuyExamPinPage from "../pages/user/UserBuyExamPinPage";
+import TransactionStatusPage from "../pages/user/TransactionStatusPage";
 import UserTransactionsPage from '../pages/user/Transactions';
 import PaystackReturn from '../pages/user/PaystackReturn';
 import ReferralPage from '../pages/user/Referral';
+import UserProfilePage from '../pages/user/UserProfilePage';
+import UserPersonalInfoPage from '../pages/user/UserPersonalInfoPage';
+import UserSecuritySettingsPage from '../pages/user/UserSecuritySettingsPage';
+import UserPinSetupPage from '../pages/user/UserPinSetupPage';
+import UserChangePasswordPage from '../pages/user/UserChangePasswordPage';
+import KYCLevelsPage from '../pages/user/KYCLevelsPage';
+import KYCUploadPage from '../pages/user/KYCUploadPage';
+import KYCStatusPage from '../pages/user/KYCStatusPage';
 
 // Admin Pages
 import AdminLayout from '../layouts/admin/AdminLayout';
@@ -83,16 +93,32 @@ export default function AppRoutes() {
                     <Route path="wallet/linked-accounts" element={<UserLinkedAccountsPage />} />
                     <Route path="wallet/virtual-account" element={<UserVirtualAccountPage />} />
 
-                    <Route path="buy/data" element={<BuyDataPage />} />
-                    <Route path="buy/airtime" element={<BuyAirtimePage />} />
-                    <Route path="buy/cable" element={<BuyCablePage />} />
-                    <Route path="buy/pin" element={<BuyExamPinPage />} />
+                    {/* Services Ecosystem (Batch 3) */}
+                    <Route path="services/data" element={<UserBuyDataPage />} />
+                    <Route path="services/airtime" element={<UserBuyAirtimePage />} />
+                    <Route path="services/electricity" element={<UserBuyElectricityPage />} />
+                    <Route path="services/cable" element={<UserBuyCablePage />} />
+                    <Route path="services/exam-pins" element={<UserBuyExamPinPage />} />
+                    <Route path="services/status" element={<TransactionStatusPage />} />
+
                     <Route path="transactions" element={<UserTransactionsPage />} />
                     <Route path="referral" element={<ReferralPage />} />
+
+                    {/* Profile & Security (Batch 4) */}
+                    <Route path="profile" element={<UserProfilePage />} />
+                    <Route path="profile/personal" element={<UserPersonalInfoPage />} />
+                    <Route path="profile/security" element={<UserSecuritySettingsPage />} />
+                    <Route path="profile/security/password" element={<UserChangePasswordPage />} />
+                    <Route path="profile/security/pin" element={<UserPinSetupPage />} />
+
+                    {/* KYC System (Batch 4) */}
+                    <Route path="kyc" element={<KYCLevelsPage />} />
+                    <Route path="kyc/upload" element={<KYCUploadPage />} />
+                    <Route path="kyc/status" element={<KYCStatusPage />} />
                 </Route>
 
-                {/* Legacy /buy redirect to /app/buy */}
-                <Route path="/buy/*" element={<Navigate to="/app/buy" replace />} />
+                {/* Legacy redirects */}
+                <Route path="/buy/*" element={<Navigate to="/app/services/data" replace />} />
                 <Route path="/wallet-page" element={<Navigate to="/app/wallet" replace />} />
                 <Route path="/referral" element={<Navigate to="/app/referral" replace />} />
                 <Route path="/paystack/return" element={<ProtectedRoute><PaystackReturn /></ProtectedRoute>} />

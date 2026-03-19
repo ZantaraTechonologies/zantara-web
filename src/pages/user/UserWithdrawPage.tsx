@@ -65,44 +65,44 @@ const UserWithdrawPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 sm:p-8 lg:p-12 space-y-12 animate-in slide-in-from-bottom-8 duration-700">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-in slide-in-from-bottom-8 duration-700">
             {/* Header */}
             <div className="flex items-center gap-6">
                 <button onClick={() => navigate(-1)} className="p-4 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors shadow-sm">
                     <ArrowLeft size={20} className="text-slate-900" />
                 </button>
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Withdraw Funds</h1>
-                    <p className="text-slate-500 font-medium">Liquidate your Zantara capital to local bank.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Withdraw Funds</h1>
+                    <p className="text-slate-500 font-medium text-sm">Liquidate your Zantara capital to local bank.</p>
                 </div>
             </div>
 
             {step === 1 && (
-                <div className="space-y-10">
+                <div className="space-y-8">
                     {/* Balance Preview */}
-                    <div className="bg-slate-950 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
+                    <div className="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
                         <div className="relative z-10 space-y-1">
-                            <p className="text-emerald-400 font-black uppercase tracking-[0.2em] text-[10px]">Settlement Balance</p>
-                            <h2 className="text-4xl font-black tracking-tighter">{currency} {balance?.toLocaleString()}</h2>
+                            <p className="text-emerald-400 font-bold uppercase tracking-[0.2em] text-[10px]">Settlement Balance</p>
+                            <h2 className="text-3xl font-bold tracking-tighter">{currency} {balance?.toLocaleString()}</h2>
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-2">Withdrawal Amount (₦)</label>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 ml-2">Withdrawal Amount (₦)</label>
                         <input 
                             type="number" 
                             placeholder="0.00"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="w-full bg-white border-2 border-slate-50 rounded-[2rem] p-8 text-4xl font-black text-slate-900 focus:border-red-400 outline-none transition-all placeholder:text-slate-100"
+                            className="w-full bg-white border-2 border-slate-50 rounded-2xl p-6 text-3xl font-bold text-slate-900 focus:border-red-400 outline-none transition-all placeholder:text-slate-100"
                         />
                     </div>
 
                     <div className="space-y-6">
-                        <div className="flex items-center justify-between mb-4 px-2">
-                            <h3 className="font-black text-slate-900 uppercase tracking-widest text-xs">Destination Hub</h3>
-                            <button onClick={() => navigate('/app/wallet/linked-accounts')} className="text-emerald-500 font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
+                        <div className="flex items-center justify-between mb-2 px-2">
+                            <h3 className="font-bold text-slate-900 uppercase tracking-widest text-xs">Destination Hub</h3>
+                            <button onClick={() => navigate('/app/wallet/linked-accounts')} className="text-emerald-500 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2">
                                 <Plus size={14} />
                                 <span>Add New Bank</span>
                             </button>
@@ -114,15 +114,15 @@ const UserWithdrawPage: React.FC = () => {
                                     <button 
                                         key={acc._id}
                                         onClick={() => setSelectedBank(acc._id)}
-                                        className={`flex items-center justify-between p-6 rounded-3xl border-2 transition-all group ${selectedBank === acc._id ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-50 bg-white hover:border-slate-100'}`}
+                                        className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all group ${selectedBank === acc._id ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-50 bg-white hover:border-slate-100'}`}
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${selectedBank === acc._id ? 'bg-emerald-400 text-slate-950' : 'bg-slate-50 text-slate-400'}`}>
                                                 <Building2 size={24} />
                                             </div>
                                             <div className="text-left">
-                                                <p className="font-black text-slate-900 text-sm">{acc.bankName}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">{acc.accountName} • {acc.accountNumber.replace(/.(?=.{4})/g, '*')}</p>
+                                                <p className="font-bold text-slate-900 text-sm">{acc.bankName}</p>
+                                                <p className="text-[10px] text-slate-400 font-medium tracking-widest uppercase">{acc.accountName} • {acc.accountNumber.replace(/.(?=.{4})/g, '*')}</p>
                                             </div>
                                         </div>
                                         {selectedBank === acc._id && <CheckCircle2 className="text-emerald-500" size={20} />}
@@ -143,7 +143,7 @@ const UserWithdrawPage: React.FC = () => {
                     <button 
                         disabled={!amount || !selectedBank || Number(amount) <= 0 || Number(amount) > balance}
                         onClick={() => setStep(2)}
-                        className="w-full bg-slate-950 text-white py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-red-500 hover:text-white transition-all shadow-2xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
+                        className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-2xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
                     >
                         {Number(amount) > balance ? 'Insufficient Capital' : 'Initiate Settlement'}
                     </button>
@@ -151,14 +151,14 @@ const UserWithdrawPage: React.FC = () => {
             )}
 
             {step === 2 && (
-                <div className="max-w-md mx-auto bg-white border border-slate-50 rounded-[3rem] p-10 sm:p-14 space-y-12 shadow-sm text-center">
-                    <div className="w-20 h-20 bg-slate-900 rounded-[2rem] flex items-center justify-center text-emerald-400 mx-auto">
-                        <Lock size={32} />
+                <div className="max-w-md mx-auto bg-white border border-slate-50 rounded-2xl p-8 sm:p-10 space-y-8 shadow-sm text-center">
+                    <div className="w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center text-emerald-400 mx-auto">
+                        <Lock size={28} />
                     </div>
                     
-                    <div className="space-y-4">
-                        <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Secure Authorization</h2>
-                        <p className="text-slate-500 font-medium">Enter your 4-digit security PIN to authorize the ₦{Number(amount).toLocaleString()} withdrawal.</p>
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Secure Authorization</h2>
+                        <p className="text-slate-500 font-medium text-sm">Enter your 4-digit security PIN to authorize the ₦{Number(amount).toLocaleString()} withdrawal.</p>
                     </div>
 
                     <div className="flex justify-center gap-4">
@@ -170,7 +170,7 @@ const UserWithdrawPage: React.FC = () => {
                                 maxLength={1}
                                 value={p}
                                 onChange={(e) => handlePinChange(i, e.target.value)}
-                                className="w-16 h-20 bg-slate-50 border-2 border-slate-50 rounded-2xl text-center text-2xl font-black text-slate-900 focus:border-emerald-400 outline-none transition-all"
+                                className="w-14 h-16 bg-slate-50 border-2 border-slate-50 rounded-xl text-center text-2xl font-bold text-slate-900 focus:border-emerald-400 outline-none transition-all"
                             />
                         ))}
                     </div>
@@ -179,7 +179,7 @@ const UserWithdrawPage: React.FC = () => {
                         <button 
                             disabled={pin.some(p => !p) || submitting}
                             onClick={handleWithdraw}
-                            className="w-full bg-emerald-400 text-slate-950 py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-500/10 disabled:opacity-30"
+                            className="w-full bg-emerald-400 text-slate-950 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-500/10 disabled:opacity-30"
                         >
                             {submitting ? 'Authorizing...' : 'Authorize & Send'}
                         </button>
@@ -194,14 +194,14 @@ const UserWithdrawPage: React.FC = () => {
             )}
 
             {step === 3 && (
-                <div className="max-w-md mx-auto bg-white border border-slate-50 rounded-[3rem] p-10 sm:p-14 space-y-12 shadow-sm text-center">
-                    <div className="w-24 h-24 bg-emerald-50 rounded-[2.5rem] flex items-center justify-center text-emerald-500 mx-auto">
-                        <CheckCircle2 size={48} />
+                <div className="max-w-md mx-auto bg-white border border-slate-50 rounded-2xl p-8 sm:p-10 space-y-8 shadow-sm text-center">
+                    <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto">
+                        <CheckCircle2 size={40} />
                     </div>
                     
-                    <div className="space-y-4">
-                        <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Withdrawal Sent</h2>
-                        <p className="text-slate-500 font-medium">Your request for ₦{Number(amount).toLocaleString()} is being processed. Funds should hit your account within 2-24 hours.</p>
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Withdrawal Sent</h2>
+                        <p className="text-slate-500 font-medium text-sm">Your request for ₦{Number(amount).toLocaleString()} is being processed. Funds should hit your account within 2-24 hours.</p>
                     </div>
 
                     <div className="bg-slate-50 p-6 rounded-3xl space-y-3">
@@ -215,10 +215,10 @@ const UserWithdrawPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="pt-6">
+                    <div className="pt-4">
                         <button 
                             onClick={() => navigate('/app/wallet')}
-                            className="w-full bg-slate-950 text-white py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-2xl shadow-slate-200"
+                            className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200"
                         >
                             Return to Wallet
                         </button>

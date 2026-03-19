@@ -82,20 +82,20 @@ const UserOtpPage: React.FC = () => {
 
             {/* Content Body */}
             <main className="flex-grow flex items-center justify-center p-6">
-                <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl shadow-slate-200/50 p-8 sm:p-12 border border-slate-100 text-center">
+                <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 sm:p-10 border border-slate-100 text-center">
                     <div className="mb-8 flex justify-center">
                         <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center">
                             <ShieldCheck className="text-emerald-500 w-8 h-8" />
                         </div>
                     </div>
 
-                    <h1 className="text-3xl font-extrabold text-slate-900 mb-3">Verify your identity</h1>
-                    <p className="text-slate-500 font-medium mb-10 max-w-sm mx-auto">
+                    <h1 className="text-2xl font-bold text-slate-900 mb-2">Verify your identity</h1>
+                    <p className="text-slate-500 font-medium mb-8 max-w-sm mx-auto text-sm">
                         Enter the 6-digit code sent to your email
                     </p>
 
-                    <form onSubmit={handleVerify} className="space-y-10">
-                        <div className="flex justify-between gap-2 sm:gap-4 max-w-xs mx-auto">
+                    <form onSubmit={handleVerify} className="space-y-8">
+                        <div className="flex justify-between gap-2 sm:gap-4 max-w-xs mx-auto mb-2">
                             {otp.map((digit, idx) => (
                                 <input
                                     key={idx}
@@ -114,7 +114,7 @@ const UserOtpPage: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-extrabold py-4 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:active:scale-100"
+                            className="w-full bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:active:scale-100"
                         >
                             {isLoading ? (
                                 <div className="w-6 h-6 border-4 border-slate-950/20 border-t-slate-950 rounded-full animate-spin"></div>
