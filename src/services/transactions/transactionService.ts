@@ -58,3 +58,27 @@ export async function getMyTransactionLogs(params?: {
 
     return { items, total, page, limit };
 }
+
+export async function getTransactionById(id: string): Promise<TxLog | null> {
+    try {
+        const res = await API.get(`/transaction-logs/${id}`);
+        const x = res?.data;
+        if (!x) return null;
+
+        return {
+            id: x._id ?? x.id,
+            refId: x.refId,
+            type: (x.type === "funding" ? "wallet_fund" : x.type) as TxLog["type"],
+            status: x.status,
+            amount: x.amount,
+            costPrice: x.costPrice,
+            profit: x.profit ?? (x.amount && x.costPrice ? x.amount - x.costPrice : undefined),
+            service: x.service ?? x.response?.channel ?? undefined,
+            currency: x.response?.currency ?? "NGN",
+            createdAt: x.createdAt ?? x.response?.createdAt ?? x.response?.transaction_date,
+        };
+    } catch (err) {
+        console.error("Failed to fetch transaction details", err);
+        return null;
+    }
+}

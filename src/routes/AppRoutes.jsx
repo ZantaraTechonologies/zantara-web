@@ -31,7 +31,6 @@ import UserBuyElectricityPage from "../pages/user/UserBuyElectricityPage";
 import UserBuyCablePage from "../pages/user/UserBuyCablePage";
 import UserBuyExamPinPage from "../pages/user/UserBuyExamPinPage";
 import TransactionStatusPage from "../pages/user/TransactionStatusPage";
-import UserTransactionsPage from '../pages/user/Transactions';
 import PaystackReturn from '../pages/user/PaystackReturn';
 import ReferralPage from '../pages/user/Referral';
 import UserProfilePage from '../pages/user/UserProfilePage';
@@ -42,6 +41,9 @@ import UserChangePasswordPage from '../pages/user/UserChangePasswordPage';
 import KYCLevelsPage from '../pages/user/KYCLevelsPage';
 import KYCUploadPage from '../pages/user/KYCUploadPage';
 import KYCStatusPage from '../pages/user/KYCStatusPage';
+import UserTransactionsPage from '../pages/user/UserTransactionsPage';
+import TransactionDetailsPage from '../pages/user/TransactionDetailsPage';
+import ReceiptPage from '../pages/user/ReceiptPage';
 
 // Admin Pages
 import AdminLayout from '../layouts/admin/AdminLayout';
@@ -102,6 +104,8 @@ export default function AppRoutes() {
                     <Route path="services/status" element={<TransactionStatusPage />} />
 
                     <Route path="transactions" element={<UserTransactionsPage />} />
+                    <Route path="transactions/:id" element={<TransactionDetailsPage />} />
+                    <Route path="transactions/:id/receipt" element={<ReceiptPage />} />
                     <Route path="referral" element={<ReferralPage />} />
 
                     {/* Profile & Security (Batch 4) */}

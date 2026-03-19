@@ -1,7 +1,7 @@
 // src/hooks/useWallet.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { WalletBalance, getWalletBalance, initPaystackServer } from "../services/wallet/walletService";
-import { getMyTransactionLogs } from "../services/transactions/transactionService";
+import { getMyTransactionLogs, getTransactionById } from "../services/transactions/transactionService";
 
 import type { TxLog } from "../services/transactions/transactionService";
 
@@ -37,6 +37,17 @@ export function useMyTransactions(params?: {
         },
         refetchOnWindowFocus: false,
         staleTime: 15_000,
+    });
+}
+
+/** ---- Single transaction details ---- */
+export function useTransactionDetails(id: string | undefined) {
+    return useQuery<TxLog | null>({
+        queryKey: ["txlog", id],
+        queryFn: () => id ? getTransactionById(id) : Promise.resolve(null),
+        enabled: !!id,
+        refetchOnWindowFocus: false,
+        staleTime: 60_000,
     });
 }
 
