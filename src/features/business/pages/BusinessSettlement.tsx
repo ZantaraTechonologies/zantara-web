@@ -13,7 +13,7 @@ import { useBusinessStore } from '../store/businessStore';
 import { ListSkeleton } from '../../../components/feedback/Skeletons';
 
 const BusinessSettlement: React.FC = () => {
-    const { settlements, loading, fetchSettlements } = useBusinessStore();
+    const { settlements, summary, loading, fetchSettlements } = useBusinessStore();
 
     useEffect(() => {
         fetchSettlements();
@@ -48,11 +48,11 @@ const BusinessSettlement: React.FC = () => {
                         <ShieldCheck size={48} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Unsettled Balance</p>
-                        <h3 className="text-3xl font-bold text-white mt-1">₦84,200.00</h3>
+                        <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Reserved Payouts</p>
+                        <h3 className="text-3xl font-bold text-white mt-1">{formatCurrency(summary.reservedPayouts || 0)}</h3>
                         <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 w-fit px-3 py-1.5 rounded-full uppercase tracking-widest">
                             <Clock size={12} />
-                            Due in 48h
+                            Platform Liquidity
                         </div>
                     </div>
                 </div>
@@ -67,11 +67,11 @@ const BusinessSettlement: React.FC = () => {
                         <thead>
                             <tr className="bg-white/[0.01]">
                                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Provider</th>
-                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Statement Period</th>
-                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Our Record</th>
-                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Provider Record</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Transaction Ref</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Cost Price</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Profit</th>
                                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Action</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Meta</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -86,21 +86,21 @@ const BusinessSettlement: React.FC = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                settlements.map((s) => (
-                                    <tr key={s.id} className="hover:bg-white/5 transition-colors group text-[13px]">
+                                (settlements || []).map((s: any) => (
+                                    <tr key={s._id} className="hover:bg-white/5 transition-colors group text-[13px]">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                                                <span className="font-bold text-white">{s.provider}</span>
+                                                <span className="font-bold text-white uppercase tracking-widest text-[11px]">{s.provider || 'N/A'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 text-slate-500 text-[11px] font-bold uppercase tracking-wider">Current Period (30d)</td>
-                                        <td className="px-6 py-5 font-bold text-slate-300">{formatCurrency(s.amount)}</td>
-                                        <td className="px-6 py-5 font-bold text-slate-300">{formatCurrency(s.amount)}</td>
+                                        <td className="px-6 py-5 text-slate-500 text-[11px] font-bold uppercase tracking-wider">{s.transactionId || '---'}</td>
+                                        <td className="px-6 py-5 font-bold text-slate-300">{formatCurrency(s.costPrice)}</td>
+                                        <td className="px-6 py-5 font-bold text-emerald-500">{formatCurrency(s.profit)}</td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-1.5 text-emerald-500 font-bold text-[10px] uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/10 w-fit">
                                                 <CheckCircle size={12} />
-                                                Matched
+                                                {s.status}
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-right">

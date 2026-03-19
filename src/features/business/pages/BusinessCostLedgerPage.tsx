@@ -13,7 +13,7 @@ import {
     CheckCircle2,
     Database
 } from 'lucide-react';
-import * as businessService from '../../../services/admin/businessService';
+import businessService from '../services/businessService';
 import { ListSkeleton } from '../../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
 
@@ -30,7 +30,7 @@ const BusinessCostLedgerPage: React.FC = () => {
     const loadLedger = async () => {
         setLoading(true);
         try {
-            const data = await businessService.fetchCostLedger({ page, search });
+            const data = await businessService.getCostLedger();
             setLedger(data.items || data || []);
         } catch (err) {
             toast.error("Failed to load cost ledger");
@@ -43,7 +43,7 @@ const BusinessCostLedgerPage: React.FC = () => {
         return new Intl.NumberFormat('en-NG', {
             style: 'currency',
             currency: 'NGN',
-        }).format(val);
+        }).format(val || 0);
     };
 
     return (
@@ -99,27 +99,27 @@ const BusinessCostLedgerPage: React.FC = () => {
                                 <tr key={i} className="group hover:bg-white/5 transition-colors text-[13px]">
                                     <td className="px-6 py-4">
                                         <div className="space-y-0.5">
-                                            <p className="font-bold text-slate-200">{item.description || 'Service Payout'}</p>
-                                            <p className="text-[10px] font-mono text-slate-500 uppercase">{item.reference}</p>
+                                            <p className="font-bold text-slate-200">{item.type} {item.service}</p>
+                                            <p className="text-[10px] font-mono text-slate-500 uppercase">{item.transactionId}</p>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">{item.channel || 'VTU_GATEWAY'}</span>
-                                        <p className="text-[10px] text-slate-600 font-bold mt-1 uppercase">{item.date}</p>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">{item.provider || 'System'}</span>
+                                        <p className="text-[10px] text-slate-600 font-bold mt-1 uppercase">{new Date(item.createdAt).toLocaleDateString()}</p>
                                     </td>
-                                    <td className="px-6 py-4 font-medium text-slate-400">{formatCurrency(item.cost)}</td>
-                                    <td className="px-6 py-4 font-bold text-white">{formatCurrency(item.revenue)}</td>
+                                    <td className="px-6 py-4 font-medium text-slate-400">{formatCurrency(item.costPrice)}</td>
+                                    <td className="px-6 py-4 font-bold text-white">{formatCurrency(item.amount)}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-1 text-emerald-500 font-bold">
                                             <ArrowUpRight size={14} />
                                             {formatCurrency(item.profit)}
                                         </div>
-                                        <p className="text-[10px] text-slate-600 font-bold uppercase">Margin: {Math.round((item.profit / item.revenue) * 100)}%</p>
+                                        <p className="text-[10px] text-slate-600 font-bold uppercase">Margin: {item.amount ? Math.round((item.profit / item.amount) * 100) : 0}%</p>
                                     </td>
                                     <td className="px-6 py-4 text-right font-bold text-[10px] text-emerald-500/80 uppercase tracking-widest">
                                         <div className="flex items-center justify-end gap-1.5">
                                             <CheckCircle2 size={12} />
-                                            Settled
+                                            {item.status}
                                         </div>
                                     </td>
                                 </tr>

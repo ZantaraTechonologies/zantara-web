@@ -25,8 +25,11 @@ const BusinessProfitAnalytics: React.FC = () => {
         return new Intl.NumberFormat('en-NG', {
             style: 'currency',
             currency: 'NGN',
-        }).format(val);
+        }).format(val || 0);
     };
+
+    const marginPercentage = summary.totalRevenue ? Math.round((summary.grossProfit / summary.totalRevenue) * 100) : 0;
+    const efficiencyIndex = summary.totalRevenue ? (summary.netProfit / summary.totalRevenue).toFixed(2) : '0.00';
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -49,17 +52,17 @@ const BusinessProfitAnalytics: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-3 gap-6">
                 <div className="bg-white/5 border border-white/5 rounded-3xl p-8 space-y-4 group">
                     <div className="flex items-center justify-between">
                         <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
                             <TrendingUp size={20} />
                         </div>
-                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-1 rounded border border-emerald-500/10 uppercase tracking-widest">+2.4%</span>
+                        <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 px-2 py-1 rounded border border-emerald-500/10 uppercase tracking-widest">+12%</span>
                     </div>
                     <div>
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Aggregate Margin</p>
-                        <h3 className="text-3xl font-bold text-white tracking-tighter">14.8%</h3>
+                        <h3 className="text-3xl font-bold text-white tracking-tighter">{marginPercentage}%</h3>
                     </div>
                 </div>
 
@@ -71,7 +74,7 @@ const BusinessProfitAnalytics: React.FC = () => {
                     </div>
                     <div>
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Top Yield Node</p>
-                        <h3 className="text-3xl font-bold text-white tracking-tighter italic">MTN DATA</h3>
+                        <h3 className="text-3xl font-bold text-white tracking-tighter italic">VTU FLOW</h3>
                     </div>
                 </div>
 
@@ -83,7 +86,7 @@ const BusinessProfitAnalytics: React.FC = () => {
                     </div>
                     <div>
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Efficiency index</p>
-                        <h3 className="text-3xl font-bold text-white tracking-tighter">0.94</h3>
+                        <h3 className="text-3xl font-bold text-white tracking-tighter">{efficiencyIndex}</h3>
                     </div>
                 </div>
             </div>

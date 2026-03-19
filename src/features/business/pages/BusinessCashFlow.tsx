@@ -94,33 +94,39 @@ const BusinessCashFlow: React.FC = () => {
                                 Array(5).fill(0).map((_, i) => (
                                     <tr key={i}><td colSpan={4} className="p-0"><ListSkeleton count={1} /></td></tr>
                                 ))
+                            ) : (summary.recentActivities || []).length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="px-6 py-20 text-center text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">
+                                        No recent flow activity detected
+                                    </td>
+                                </tr>
                             ) : (
-                                [1, 2, 3, 4, 5].map((i) => (
-                                    <tr key={i} className="hover:bg-white/5 transition-colors group text-[13px]">
+                                (summary.recentActivities || []).map((tx: any) => (
+                                    <tr key={tx._id} className="hover:bg-white/5 transition-colors group text-[13px]">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-400 group-hover:text-white transition-colors">
                                                     <ArrowRightLeft size={16} />
                                                 </div>
                                                 <div className="space-y-0.5">
-                                                    <p className="font-bold text-slate-200">{i % 2 === 0 ? 'User Liquidity Inject' : 'Service Payout Node'}</p>
-                                                    <p className="text-[10px] font-mono text-slate-600 uppercase">TXN_REF_{8293 + i}</p>
+                                                    <p className="font-bold text-slate-200 capitalize">{tx.type} {tx.service}</p>
+                                                    <p className="text-[10px] font-mono text-slate-600 uppercase">{tx.transactionId}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
-                                                i % 2 === 0 
+                                                tx.status === 'success' 
                                                 ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10' 
                                                 : 'bg-red-500/5 text-red-500 border-red-500/10'
                                             }`}>
-                                                {i % 2 === 0 ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
-                                                {i % 2 === 0 ? 'Inflow' : 'Outflow'}
+                                                {tx.status === 'success' ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
+                                                {tx.status}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 font-bold text-white">{formatCurrency(i * 12500)}</td>
+                                        <td className="px-6 py-5 font-bold text-white">{formatCurrency(tx.amount)}</td>
                                         <td className="px-6 py-5 text-right text-slate-500 text-[11px] font-bold uppercase tracking-wider">
-                                            Today • 14:2{i}
+                                            {tx.createdAt ? new Date(tx.createdAt).toLocaleTimeString() : 'Recent'}
                                         </td>
                                     </tr>
                                 ))

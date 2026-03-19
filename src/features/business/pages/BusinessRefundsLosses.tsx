@@ -14,17 +14,18 @@ import { useBusinessStore } from '../store/businessStore';
 import { ListSkeleton } from '../../../components/feedback/Skeletons';
 
 const BusinessRefundsLosses: React.FC = () => {
-    const { summary, losses, loading, fetchSummary } = useBusinessStore();
+    const { summary, refunds, loading, fetchSummary, fetchRefunds } = useBusinessStore();
 
     useEffect(() => {
         fetchSummary();
+        fetchRefunds();
     }, []);
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-NG', {
             style: 'currency',
             currency: 'NGN',
-        }).format(val);
+        }).format(val || 0);
     };
 
     return (
@@ -35,7 +36,7 @@ const BusinessRefundsLosses: React.FC = () => {
                     <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">Monitor refunds, system errors & operational losses</p>
                 </div>
                 <button 
-                    onClick={fetchSummary}
+                    onClick={() => { fetchSummary(); fetchRefunds(); }}
                     className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-all"
                 >
                     <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
@@ -48,16 +49,16 @@ const BusinessRefundsLosses: React.FC = () => {
                     <div className="absolute top-0 right-0 p-4 text-blue-500/10 group-hover:scale-110 transition-transform">
                         <RotateCcw size={48} />
                     </div>
-                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Aggregate Refunds</p>
-                    <h3 className="text-3xl font-bold text-white tracking-tighter">₦{(summary.totalExpenses * 0.1 || 45000).toLocaleString()}</h3>
+                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Escrow flow</p>
+                    <h3 className="text-3xl font-bold text-white tracking-tighter">{formatCurrency(summary.escrowFlow || 0)}</h3>
                 </div>
 
                 <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-8 space-y-2 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 text-red-500/10 group-hover:scale-110 transition-transform">
                         <TrendingDown size={48} />
                     </div>
-                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Operational Leakage</p>
-                    <h3 className="text-3xl font-bold text-white tracking-tighter">₦{(summary.totalCost * 0.01 || 12400).toLocaleString()}</h3>
+                    <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Total Expenses</p>
+                    <h3 className="text-3xl font-bold text-white tracking-tighter">{formatCurrency(summary.totalExpenses || 0)}</h3>
                 </div>
 
                 <div className="bg-amber-500/5 border border-amber-500/10 rounded-3xl p-8 space-y-2 relative overflow-hidden group">
@@ -65,7 +66,7 @@ const BusinessRefundsLosses: React.FC = () => {
                         <AlertTriangle size={48} />
                     </div>
                     <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Risk Exposure</p>
-                    <h3 className="text-3xl font-bold text-white tracking-tighter">₦3,200</h3>
+                    <h3 className="text-3xl font-bold text-white tracking-tighter">₦0.00</h3>
                 </div>
             </div>
 
@@ -94,7 +95,7 @@ const BusinessRefundsLosses: React.FC = () => {
                                 Array(3).fill(0).map((_, i) => (
                                     <tr key={i}><td colSpan={5} className="p-0"><ListSkeleton count={1} /></td></tr>
                                 ))
-                            ) : losses.length === 0 ? (
+                            ) : (refunds || []).length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12">
                                         <div className="flex flex-col items-center justify-center space-y-3 opacity-30 py-10">
@@ -104,7 +105,7 @@ const BusinessRefundsLosses: React.FC = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                losses.map((loss: any, i: number) => (
+                                (refunds || []).map((loss: any, i: number) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors group text-[13px]">
                                         <td className="px-6 py-5">
                                             <div className="space-y-0.5">
@@ -116,7 +117,7 @@ const BusinessRefundsLosses: React.FC = () => {
                                         <td className="px-6 py-5 text-slate-500 font-bold text-[11px] uppercase tracking-wider italic">"{loss.cause || 'Unknown Vector'}"</td>
                                         <td className="px-6 py-5">
                                             <span className="px-3 py-1 bg-red-500/5 text-red-500 border border-red-500/10 rounded-lg text-[10px] font-bold uppercase tracking-widest">
-                                                Active Risk
+                                                {loss.status || 'Active Risk'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 text-right">

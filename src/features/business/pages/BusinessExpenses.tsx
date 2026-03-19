@@ -18,9 +18,12 @@ const BusinessExpenses: React.FC = () => {
     const { expenses, loading, fetchExpenses, addExpense } = useBusinessStore();
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
-        description: '',
+        title: '',
         amount: '',
-        category: 'operational' as 'manual' | 'operational'
+        category: 'operational',
+        vendor: '',
+        paymentSource: 'Bank Transfer',
+        notes: ''
     });
 
     useEffect(() => {
@@ -31,18 +34,21 @@ const BusinessExpenses: React.FC = () => {
         return new Intl.NumberFormat('en-NG', {
             style: 'currency',
             currency: 'NGN',
-        }).format(val);
+        }).format(val || 0);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             await addExpense({
-                description: formData.description,
+                title: formData.title,
                 amount: parseFloat(formData.amount),
-                category: formData.category
+                category: formData.category,
+                vendor: formData.vendor,
+                paymentSource: formData.paymentSource,
+                notes: formData.notes
             });
-            setFormData({ description: '', amount: '', category: 'operational' });
+            setFormData({ title: '', amount: '', category: 'operational', vendor: '', paymentSource: 'Bank Transfer', notes: '' });
             setShowModal(false);
             toast.success("Expense logged successfully");
         } catch (err) {
@@ -69,21 +75,16 @@ const BusinessExpenses: React.FC = () => {
             <div className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden">
                 <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider">Transaction Trace</h3>
-                    <div className="flex gap-2">
-                        <button className="px-4 py-1.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest">All</button>
-                        <button className="px-4 py-1.5 text-slate-500 hover:text-slate-300 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors">Operational</button>
-                        <button className="px-4 py-1.5 text-slate-500 hover:text-slate-300 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors">Manual</button>
-                    </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-white/[0.01]">
-                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Description</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Title / Vendor</th>
                                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Category</th>
                                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Amount</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Source</th>
                                 <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Date</th>
-                                <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -98,14 +99,17 @@ const BusinessExpenses: React.FC = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                expenses.map((exp) => (
-                                    <tr key={exp.id} className="hover:bg-white/5 transition-colors group">
+                                (expenses || []).map((exp: any) => (
+                                    <tr key={exp._id} className="hover:bg-white/5 transition-colors group">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-400 group-hover:text-emerald-500 transition-colors">
                                                     <Receipt size={16} />
                                                 </div>
-                                                <span className="font-bold text-slate-200">{exp.description}</span>
+                                                <div className="space-y-0.5">
+                                                    <p className="font-bold text-slate-200">{exp.title}</p>
+                                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{exp.vendor || 'Platform'}</p>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
@@ -119,15 +123,13 @@ const BusinessExpenses: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-5 font-bold text-white tracking-tight">{formatCurrency(exp.amount)}</td>
                                         <td className="px-6 py-5">
+                                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{exp.paymentSource || 'N/A'}</span>
+                                        </td>
+                                        <td className="px-6 py-5">
                                             <div className="flex items-center gap-2 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
                                                 <Calendar size={12} />
-                                                {new Date(exp.date).toLocaleDateString()}
+                                                {exp.date ? new Date(exp.date).toLocaleDateString() : 'Now'}
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-right">
-                                            <button className="p-2 text-slate-600 hover:text-red-500 transition-colors">
-                                                <Trash2 size={16} />
-                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -150,39 +152,51 @@ const BusinessExpenses: React.FC = () => {
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Description</label>
-                                <input 
-                                    type="text" 
-                                    required
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    placeholder="e.g. Server maintenance"
-                                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold placeholder:text-slate-700"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount (₦)</label>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Entry Title</label>
                                     <input 
-                                        type="number" 
+                                        type="text" 
                                         required
-                                        value={formData.amount}
-                                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                        placeholder="0.00"
-                                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold"
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        placeholder="e.g. Server maintenance"
+                                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold placeholder:text-slate-700"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Category</label>
-                                    <select 
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold appearance-none cursor-pointer"
-                                    >
-                                        <option value="operational">Operational</option>
-                                        <option value="manual">Manual</option>
-                                    </select>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Vendor / Recipient</label>
+                                    <input 
+                                        type="text" 
+                                        value={formData.vendor}
+                                        onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+                                        placeholder="e.g. AWS Nigeria"
+                                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold placeholder:text-slate-700"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount (₦)</label>
+                                        <input 
+                                            type="number" 
+                                            required
+                                            value={formData.amount}
+                                            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                                            placeholder="0.00"
+                                            className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold placeholder:text-slate-700"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Category</label>
+                                        <select 
+                                            value={formData.category}
+                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                            className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold appearance-none cursor-pointer"
+                                        >
+                                            <option value="operational">Operational</option>
+                                            <option value="manual">Manual</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <button 

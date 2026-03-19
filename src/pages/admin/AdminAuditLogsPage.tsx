@@ -12,7 +12,7 @@ import {
     Lock,
     Terminal
 } from 'lucide-react';
-import apiClient from '../../services/api/apiClient';
+import * as adminService from '../../services/admin/adminService';
 import { ListSkeleton } from '../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
 
@@ -29,8 +29,8 @@ const AdminAuditLogsPage: React.FC = () => {
     const loadLogs = async () => {
         setLoading(true);
         try {
-            const res = await apiClient.get('/admin/audit-logs', { params: { page, search } });
-            setLogs(res.data.items || res.data || []);
+            const data = await adminService.fetchAuditLogs({ page, search });
+            setLogs(data.items || data || []);
         } catch (err) {
             toast.error("Failed to load audit logs");
         } finally {

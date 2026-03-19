@@ -47,7 +47,7 @@ const BusinessOverview: React.FC = () => {
     const cards = [
         { title: 'Total Revenue', value: summary.totalRevenue, icon: TrendingUp, color: 'text-emerald-500', trend: '+12.5%', isPos: true },
         { title: 'System Cost', value: summary.totalCost, icon: CreditCard, color: 'text-blue-500', trend: '+8.2%', isPos: true },
-        { title: 'Gross Profit', value: summary.totalProfit, icon: DollarSign, color: 'text-emerald-400', trend: '+14.1%', isPos: true },
+        { title: 'Gross Profit', value: summary.grossProfit, icon: DollarSign, color: 'text-emerald-400', trend: '+14.1%', isPos: true },
         { title: 'Operational Exp', value: summary.totalExpenses, icon: TrendingDown, color: 'text-red-400', trend: '-2.4%', isPos: false },
     ];
 
@@ -188,21 +188,21 @@ const BusinessOverview: React.FC = () => {
                                     <tr key={i} className="group hover:bg-white/5 transition-colors">
                                         <td className="px-8 py-5">
                                             <div className="space-y-0.5">
-                                                <p className="text-sm font-bold text-white">{tx.description}</p>
-                                                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">{tx.id}</p>
+                                                <p className="text-sm font-bold text-white">{tx.type} {tx.service}</p>
+                                                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tighter">{tx.transactionId}</p>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">{tx.channel}</span>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">{tx.provider || 'System'}</span>
                                         </td>
-                                        <td className="px-8 py-5 text-sm font-bold text-slate-400">{formatCurrency(tx.cost)}</td>
+                                        <td className="px-8 py-5 text-sm font-bold text-slate-400">{formatCurrency(tx.costPrice || 0)}</td>
                                         <td className="px-8 py-5">
-                                            <p className="text-sm font-bold text-emerald-500">+{formatCurrency(tx.profit)}</p>
-                                            <p className="text-[10px] text-slate-600 font-bold uppercase">Margin: {Math.round((tx.profit / tx.revenue) * 100)}%</p>
+                                            <p className="text-sm font-bold text-emerald-500">+{formatCurrency(tx.profit || 0)}</p>
+                                            <p className="text-[10px] text-slate-600 font-bold uppercase">Margin: {tx.amount ? Math.round(((tx.profit || 0) / tx.amount) * 100) : 0}%</p>
                                         </td>
                                         <td className="px-8 py-5 text-right">
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                                                Verified
+                                                {tx.status}
                                             </span>
                                         </td>
                                     </tr>

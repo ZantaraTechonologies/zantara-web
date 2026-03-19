@@ -49,3 +49,8 @@ export const processWithdrawal = async (id: string, action: 'approve' | 'reject'
     const response = await apiClient.post(`${BASE_URL}/withdrawals/${id}/process`, { action, reason });
     return response.data;
 };
+
+export const fetchAuditLogs = async (params = {}) => {
+    const response = await apiClient.get(`${BASE_URL}/audit-logs`, { params });
+    return response.data;
+};
