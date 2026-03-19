@@ -32,7 +32,9 @@ import UserBuyCablePage from "../pages/user/UserBuyCablePage";
 import UserBuyExamPinPage from "../pages/user/UserBuyExamPinPage";
 import TransactionStatusPage from "../pages/user/TransactionStatusPage";
 import PaystackReturn from '../pages/user/PaystackReturn';
-import ReferralPage from '../pages/user/Referral';
+import ReferralProgramPage from '../pages/user/ReferralProgramPage';
+import ReferralWalletPage from '../pages/user/ReferralWalletPage';
+import RedeemEarningsPage from '../pages/user/RedeemEarningsPage';
 import UserProfilePage from '../pages/user/UserProfilePage';
 import UserPersonalInfoPage from '../pages/user/UserPersonalInfoPage';
 import UserSecuritySettingsPage from '../pages/user/UserSecuritySettingsPage';
@@ -44,6 +46,10 @@ import KYCStatusPage from '../pages/user/KYCStatusPage';
 import UserTransactionsPage from '../pages/user/UserTransactionsPage';
 import TransactionDetailsPage from '../pages/user/TransactionDetailsPage';
 import ReceiptPage from '../pages/user/ReceiptPage';
+import UserNotificationsPage from '../pages/user/UserNotificationsPage';
+import SupportCenterPage from '../pages/user/SupportCenterPage';
+import CreateTicketPage from '../pages/user/CreateTicketPage';
+import SupportTicketDetailsPage from '../pages/user/SupportTicketDetailsPage';
 
 // Admin Pages
 import AdminLayout from '../layouts/admin/AdminLayout';
@@ -56,90 +62,115 @@ import TransactionsPage from '../pages/admin/TransactionsPage';
 // System Pages
 import NotFound from '../pages/system/NotFound';
 import NotAuthorized from '../pages/system/NotAuthorized';
+import MaintenancePage from '../pages/system/MaintenancePage';
+import NoInternetPage from '../pages/system/NoInternetPage';
+import ErrorPage from '../pages/system/ErrorPage';
+
+import { useAuthStore } from '../store/auth/authStore';
+
+const RootStateController = ({ children }) => {
+    const { isMaintenanceMode, isNoInternet, globalError } = useAuthStore();
+
+    if (isMaintenanceMode) return <MaintenancePage />;
+    if (isNoInternet) return <NoInternetPage />;
+    if (globalError) return <ErrorPage />;
+
+    return children;
+};
 
 export default function AppRoutes() {
     return (
         <Router>
             <Routes>
-                {/* ---------- Public Routes ---------- */}
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                {/* ---------- root state priority wrapper ---------- */}
+                <Route element={<RootStateController children={<Outlet />} />}>
+                    {/* ---------- Public Routes ---------- */}
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
 
-                {/* ---------- Auth Routes ---------- */}
-                <Route path="/login" element={<AuthRoute><UserLoginPage /></AuthRoute>} />
-                <Route path="/register" element={<AuthRoute><UserRegisterPage /></AuthRoute>} />
-                <Route path="/otp" element={<UserOtpPage />} />
-                <Route path="/forgot-password" element={<UserForgotPasswordPage />} />
-                
-                {/* Admin Auth */}
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route path="/admin/register" element={<AdminRegister />} />
-
-                {/* ---------- User (App) Protected Routes ---------- */}
-                <Route
-                    path="/app"
-                    element={
-                        <ProtectedRoute>
-                            <DashboardLayout />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route index element={<UserDashboardPage />} />
-                    <Route path="dashboard" element={<Navigate to="/app" replace />} />
+                    {/* ---------- Auth Routes ---------- */}
+                    <Route path="/login" element={<AuthRoute><UserLoginPage /></AuthRoute>} />
+                    <Route path="/register" element={<AuthRoute><UserRegisterPage /></AuthRoute>} />
+                    <Route path="/otp" element={<UserOtpPage />} />
+                    <Route path="/forgot-password" element={<UserForgotPasswordPage />} />
                     
-                    {/* Wallet Ecosystem (Batch 2) */}
-                    <Route path="wallet" element={<UserWalletPage />} />
-                    <Route path="wallet/fund" element={<UserFundWalletPage />} />
-                    <Route path="wallet/withdraw" element={<UserWithdrawPage />} />
-                    <Route path="wallet/linked-accounts" element={<UserLinkedAccountsPage />} />
-                    <Route path="wallet/virtual-account" element={<UserVirtualAccountPage />} />
+                    {/* Admin Auth */}
+                    <Route path="/admin/login" element={<AdminLoginPage />} />
+                    <Route path="/admin/register" element={<AdminRegister />} />
 
-                    {/* Services Ecosystem (Batch 3) */}
-                    <Route path="services/data" element={<UserBuyDataPage />} />
-                    <Route path="services/airtime" element={<UserBuyAirtimePage />} />
-                    <Route path="services/electricity" element={<UserBuyElectricityPage />} />
-                    <Route path="services/cable" element={<UserBuyCablePage />} />
-                    <Route path="services/exam-pins" element={<UserBuyExamPinPage />} />
-                    <Route path="services/status" element={<TransactionStatusPage />} />
+                    {/* ---------- User (App) Protected Routes ---------- */}
+                    <Route
+                        path="/app"
+                        element={
+                            <ProtectedRoute>
+                                <DashboardLayout />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route index element={<UserDashboardPage />} />
+                        <Route path="dashboard" element={<Navigate to="/app" replace />} />
+                        
+                        {/* Wallet Ecosystem (Batch 2) */}
+                        <Route path="wallet" element={<UserWalletPage />} />
+                        <Route path="wallet/fund" element={<UserFundWalletPage />} />
+                        <Route path="wallet/withdraw" element={<UserWithdrawPage />} />
+                        <Route path="wallet/linked-accounts" element={<UserLinkedAccountsPage />} />
+                        <Route path="wallet/virtual-account" element={<UserVirtualAccountPage />} />
 
-                    <Route path="transactions" element={<UserTransactionsPage />} />
-                    <Route path="transactions/:id" element={<TransactionDetailsPage />} />
-                    <Route path="transactions/:id/receipt" element={<ReceiptPage />} />
-                    <Route path="referral" element={<ReferralPage />} />
+                        {/* Services Ecosystem (Batch 3) */}
+                        <Route path="services/data" element={<UserBuyDataPage />} />
+                        <Route path="services/airtime" element={<UserBuyAirtimePage />} />
+                        <Route path="services/electricity" element={<UserBuyElectricityPage />} />
+                        <Route path="services/cable" element={<UserBuyCablePage />} />
+                        <Route path="services/exam-pins" element={<UserBuyExamPinPage />} />
+                        <Route path="services/status" element={<TransactionStatusPage />} />
 
-                    {/* Profile & Security (Batch 4) */}
-                    <Route path="profile" element={<UserProfilePage />} />
-                    <Route path="profile/personal" element={<UserPersonalInfoPage />} />
-                    <Route path="profile/security" element={<UserSecuritySettingsPage />} />
-                    <Route path="profile/security/password" element={<UserChangePasswordPage />} />
-                    <Route path="profile/security/pin" element={<UserPinSetupPage />} />
+                        <Route path="transactions" element={<UserTransactionsPage />} />
+                        <Route path="transactions/:id" element={<TransactionDetailsPage />} />
+                        <Route path="transactions/:id/receipt" element={<ReceiptPage />} />
+                        <Route path="referral" element={<ReferralProgramPage />} />
+                        <Route path="referral/wallet" element={<ReferralWalletPage />} />
+                        <Route path="referral/redeem" element={<RedeemEarningsPage />} />
 
-                    {/* KYC System (Batch 4) */}
-                    <Route path="kyc" element={<KYCLevelsPage />} />
-                    <Route path="kyc/upload" element={<KYCUploadPage />} />
-                    <Route path="kyc/status" element={<KYCStatusPage />} />
-                </Route>
+                        {/* Communication (Batch 7) */}
+                        <Route path="notifications" element={<UserNotificationsPage />} />
+                        <Route path="support" element={<SupportCenterPage />} />
+                        <Route path="support/create" element={<CreateTicketPage />} />
+                        <Route path="support/tickets/:id" element={<SupportTicketDetailsPage />} />
 
-                {/* Legacy redirects */}
-                <Route path="/buy/*" element={<Navigate to="/app/services/data" replace />} />
-                <Route path="/wallet-page" element={<Navigate to="/app/wallet" replace />} />
-                <Route path="/referral" element={<Navigate to="/app/referral" replace />} />
-                <Route path="/paystack/return" element={<ProtectedRoute><PaystackReturn /></ProtectedRoute>} />
+                        {/* Profile & Security (Batch 4) */}
+                        <Route path="profile" element={<UserProfilePage />} />
+                        <Route path="profile/personal" element={<UserPersonalInfoPage />} />
+                        <Route path="profile/security" element={<UserSecuritySettingsPage />} />
+                        <Route path="profile/security/password" element={<UserChangePasswordPage />} />
+                        <Route path="profile/security/pin" element={<UserPinSetupPage />} />
 
-                {/* ---------- Admin Protected Routes ---------- */}
-                <Route element={<AdminProtectedRoute />}>
-                    <Route path="/admin" element={<AdminLayout />}>
-                        <Route index element={<AdminDashboardPage />} />
-                        <Route path="status" element={<StatusPage />} />
-                        <Route path="transactions" element={<TransactionsPage />} />
-                        {/* More admin routes can be added here */}
+                        {/* KYC System (Batch 4) */}
+                        <Route path="kyc" element={<KYCLevelsPage />} />
+                        <Route path="kyc/upload" element={<KYCUploadPage />} />
+                        <Route path="kyc/status" element={<KYCStatusPage />} />
                     </Route>
-                </Route>
 
-                {/* ---------- System Routes ---------- */}
-                <Route path="/not-authorized" element={<NotAuthorized />} />
-                <Route path="*" element={<NotFound />} />
+                    {/* Legacy redirects */}
+                    <Route path="/buy/*" element={<Navigate to="/app/services/data" replace />} />
+                    <Route path="/wallet-page" element={<Navigate to="/app/wallet" replace />} />
+                    <Route path="/referral" element={<Navigate to="/app/referral" replace />} />
+                    <Route path="/paystack/return" element={<ProtectedRoute><PaystackReturn /></ProtectedRoute>} />
+
+                    {/* ---------- Admin Protected Routes ---------- */}
+                    <Route element={<AdminProtectedRoute />}>
+                        <Route path="/admin" element={<AdminLayout />}>
+                            <Route index element={<AdminDashboardPage />} />
+                            <Route path="status" element={<StatusPage />} />
+                            <Route path="transactions" element={<TransactionsPage />} />
+                        </Route>
+                    </Route>
+
+                    {/* ---------- System Routes ---------- */}
+                    <Route path="/not-authorized" element={<NotAuthorized />} />
+                    <Route path="*" element={<NotFound />} />
+                </Route>
             </Routes>
         </Router>
     );

@@ -8,6 +8,9 @@ export const useAuthStore = create((set, get) => ({
     loading: !!localStorage.getItem('token'),
     isInitialized: !localStorage.getItem('token'),
     error: null,
+    isMaintenanceMode: false,
+    isNoInternet: false,
+    globalError: null,
 
     setAuth: (user, token) => {
         const activeToken = token || user?.token || localStorage.getItem('token');
@@ -109,5 +112,9 @@ export const useAuthStore = create((set, get) => ({
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
     setUser: (user) => set({ user }),
+    setMaintenanceMode: (status) => set({ isMaintenanceMode: status }),
+    setNoInternet: (status) => set({ isNoInternet: status }),
+    setGlobalError: (error) => set({ globalError: error }),
+    resetSystemStates: () => set({ isMaintenanceMode: false, isNoInternet: false, globalError: null }),
 }));
 
