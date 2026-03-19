@@ -15,6 +15,8 @@ import {
 import { useWalletStore } from '../../store/wallet/walletStore';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useMyTransactions } from '../../hooks/useWallet';
+import { format } from 'date-fns';
+import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 
 const UserWalletPage: React.FC = () => {
     const { 
@@ -27,6 +29,7 @@ const UserWalletPage: React.FC = () => {
         virtualAccount,
         fetchLinkedAccounts,
         linkedAccounts,
+        loadingBalance,
     } = useWalletStore();
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -108,38 +111,42 @@ const UserWalletPage: React.FC = () => {
                 {/* Left Side: Balance & Stats */}
                 <div className="lg:col-span-8 space-y-6">
                     {/* Main Balance Card */}
-                    <div className="relative bg-slate-950 rounded-2xl p-6 overflow-hidden shadow-2xl shadow-slate-900/20 group">
-                        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-800/20 rounded-full blur-[80px] -ml-24 -mb-24"></div>
-                        
-                        <div className="relative z-10 space-y-6">
-                            <div className="flex justify-between items-start">
-                                <div className="space-y-2">
-                                    <p className="text-emerald-400/60 font-bold uppercase tracking-[0.2em] text-[10px]">Available Capital</p>
-                                    <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tighter">
-                                        {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                    </h2>
-                                </div>
-                                <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 backdrop-blur-sm">
-                                    <Wallet className="text-emerald-400 w-6 h-6" />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-8 pt-6 border-t border-white/5">
-                                <div className="space-y-1">
-                                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Wallet Status</p>
-                                    <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                                        <span>ACTIVE PROTOCOL</span>
+                    {loadingBalance ? (
+                        <CardSkeleton />
+                    ) : (
+                        <div className="relative bg-slate-950 rounded-2xl p-6 overflow-hidden shadow-2xl shadow-slate-900/20 group">
+                            <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-800/20 rounded-full blur-[80px] -ml-24 -mb-24"></div>
+                            
+                            <div className="relative z-10 space-y-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="space-y-2">
+                                        <p className="text-emerald-400/60 font-bold uppercase tracking-[0.2em] text-[10px]">Available Capital</p>
+                                        <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tighter">
+                                            {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        </h2>
+                                    </div>
+                                    <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 backdrop-blur-sm">
+                                        <Wallet className="text-emerald-400 w-6 h-6" />
                                     </div>
                                 </div>
-                                <div className="space-y-1 text-right">
-                                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Last Updated</p>
-                                    <p className="text-white font-bold text-sm">Just Now</p>
+
+                                <div className="grid grid-cols-2 gap-8 pt-6 border-t border-white/5">
+                                    <div className="space-y-1">
+                                        <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Wallet Status</p>
+                                        <div className="flex items-center gap-2 text-white font-bold text-sm">
+                                            <div className={`w-2 h-2 rounded-full ${balance > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`}></div>
+                                            <span>{balance > 0 ? 'ACTIVE PROTOCOL' : 'INACTIVE / EMPTY'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1 text-right">
+                                        <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Last Updated</p>
+                                        <p className="text-white font-bold text-sm">{recentTxs[0] ? format(new Date(recentTxs[0].createdAt), 'MMM dd, HH:mm') : 'No History'}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {stats.map((stat, i) => {
@@ -171,7 +178,9 @@ const UserWalletPage: React.FC = () => {
                         </div>
 
                         <div className="space-y-4">
-                            {recentTxs.length > 0 ? (
+                            {txData === undefined ? (
+                                <ListSkeleton items={3} />
+                            ) : recentTxs.length > 0 ? (
                                 recentTxs.map((tx, i) => {
                                     const isCredit = (tx.type === 'wallet_fund') || (tx.amount > 0);
                                     return (

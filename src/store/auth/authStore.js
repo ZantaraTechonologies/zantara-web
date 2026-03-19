@@ -17,7 +17,6 @@ export const useAuthStore = create((set, get) => ({
         if (activeToken) {
             localStorage.setItem('token', activeToken);
         }
-        console.log("setAuth: Session active", { user: user?.email, hasToken: !!activeToken });
         set({ user, token: activeToken, isAuthenticated: !!activeToken, loading: false, isInitialized: true, error: null });
     },
 

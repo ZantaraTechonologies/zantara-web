@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
 import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
@@ -7,82 +7,98 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import SecurePinModal from '../../components/modals/SecurePinModal';
 import { Tv, User, Search, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ServiceSkeleton } from '../../components/feedback/Skeletons';
 
-const PROVIDERS = [
+const FALLBACK_PROVIDERS = [
     { id: 'dstv', name: 'DSTV' },
     { id: 'gotv', name: 'GOTV' },
-    { id: 'startimes', name: 'StarTimes' },
-    { id: 'showmax', name: 'Showmax' },
 ];
 
 const UserBuyCablePage: React.FC = () => {
     const { balance, fetchBalance } = useWalletStore();
     const navigate = useNavigate();
 
-    const [provider, setProvider] = useState(PROVIDERS[0].id);
+    const [providers, setProviders] = useState(FALLBACK_PROVIDERS);
+    const [fetchingProviders, setFetchingProviders] = useState(true);
+    const [provider, setProvider] = useState(FALLBACK_PROVIDERS[0].id);
     const [smartcardNumber, setSmartcardNumber] = useState('');
     const [packages, setPackages] = useState<any[]>([]);
     const [packageId, setPackageId] = useState('');
     
     const [verifying, setVerifying] = useState(false);
-    const [verifiedUser, setVerifiedUser] = useState<string | null>(null);
+    const [verifiedUser, setVerifiedUser] = useState<any>(null);
     const [fetchingPackages, setFetchingPackages] = useState(false);
-    
     const [showPinModal, setShowPinModal] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const loadProviders = async () => {
+            try {
+                const res = await vtuService.fetchDataPlans('tv-subscription'); 
+                const fetched = res.data?.variations || res.data || [];
+                if (fetched.length > 0) {
+                    const formatted = fetched.map((f: any) => ({
+                        id: f.serviceID || f.id || f.variation_code,
+                        name: f.name || f.variation_name
+                    }));
+                    setProviders(formatted);
+                    setProvider(formatted[0].id);
+                }
+            } catch (err) {
+                console.error("Failed to fetch cable providers", err);
+            } finally {
+                setFetchingProviders(false);
+            }
+        };
+        loadProviders();
+    }, []);
 
     const handleVerify = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!smartcardNumber || verifying) return;
-        
         setVerifying(true);
+        setFetchingPackages(true);
         try {
-            const res = await vtuService.verifySmartcard(provider, smartcardNumber);
-            if (res.status === 'success' || res.data?.customerName) {
-                setVerifiedUser(res.data.customerName || res.data.name);
-                toast.success("Smartcard verified");
-                loadPackages();
-            } else {
-                toast.error("Verification failed");
-            }
+            const res = await vtuService.verifyMerchant({
+                serviceID: provider,
+                billersCode: smartcardNumber
+            });
+            setVerifiedUser(res.data);
+            
+            // Load packages
+            const pkgRes = await vtuService.fetchDataPlans(provider);
+            setPackages(pkgRes.data?.variations || pkgRes.data || []);
+            
+            toast.success("Card verified successfully");
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Verification failed");
         } finally {
             setVerifying(false);
-        }
-    };
-
-    const loadPackages = async () => {
-        setFetchingPackages(true);
-        try {
-            const res = await vtuService.fetchDataPlans(provider);
-            const fetchedPackages = res.data?.variations || res.data || [];
-            setPackages(fetchedPackages);
-            if (fetchedPackages.length > 0) {
-                setPackageId(fetchedPackages[0].variation_code || fetchedPackages[0].id);
-            }
-        } catch (err) {
-            toast.error("Failed to load packages");
-        } finally {
             setFetchingPackages(false);
         }
     };
 
     const handleReset = () => {
-        if (verifiedUser) setVerifiedUser(null);
-        if (packages.length > 0) setPackages([]);
-        if (packageId) setPackageId('');
+        setVerifiedUser(null);
+        setPackages([]);
+        setPackageId('');
     };
 
-    const selectedPackage = packages.find(p => (p.variation_code || p.id) === packageId);
-    const amount = Number(selectedPackage?.variation_amount || selectedPackage?.price || 0);
-    const insufficient = amount > balance || amount <= 0;
+    const selectedPackage = useMemo(() => 
+        packages.find(p => p.variation_code === packageId), 
+    [packages, packageId]);
+
+    const amount = Number(selectedPackage?.variation_amount || 0);
+    const insufficient = amount > balance;
 
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
-        if (loading) return;
+        if (!packageId) {
+            toast.error("Please select a package");
+            return;
+        }
         if (insufficient) {
-            toast.error("Insufficient wallet balance");
+            toast.error("Insufficient balance");
             return;
         }
         setShowPinModal(true);
@@ -93,7 +109,7 @@ const UserBuyCablePage: React.FC = () => {
         setLoading(true);
         setShowPinModal(false);
 
-        const providerName = PROVIDERS.find(p => p.id === provider)?.name;
+        const providerName = providers.find(p => p.id === provider)?.name;
         const serviceTitle = `${providerName} - ${selectedPackage?.name}`;
 
         try {
@@ -102,38 +118,39 @@ const UserBuyCablePage: React.FC = () => {
                 billersCode: smartcardNumber,
                 variation_code: packageId,
                 amount,
+                phone: verifiedUser?.Customer_Phone || '',
+                subscription_type: 'change', // specific to cable
                 pin
             });
-            
+
             await fetchBalance();
-            navigate('/app/services/status', { 
-                state: { 
-                    status: 'success', 
-                    message: res.message || 'Cable subscription successful.',
+            navigate('/app/services/status', {
+                state: {
+                    status: 'success',
+                    message: res.message || 'Subscription successful.',
                     transaction: {
                         service: serviceTitle,
-                        amount: amount,
+                        amount,
                         target: smartcardNumber,
                         reference: res.data?.reference || res.data?.requestId || res.requestId,
                         timestamp: new Date().toLocaleTimeString()
                     }
-                } 
+                }
             });
         } catch (err: any) {
-            const msg = err.response?.data?.message || "Subscription failed or timed out. Please check your transaction history.";
+            const msg = err.response?.data?.message || "Subscription failed.";
             toast.error(msg);
-
-            navigate('/app/services/status', { 
-                state: { 
-                    status: err.code === 'ECONNABORTED' ? 'timeout' : 'error', 
+            navigate('/app/services/status', {
+                state: {
+                    status: 'error',
                     message: msg,
                     transaction: {
                         service: serviceTitle,
-                        amount: amount,
+                        amount,
                         target: smartcardNumber,
                         timestamp: new Date().toLocaleTimeString()
                     }
-                } 
+                }
             });
         } finally {
             setLoading(false);
@@ -145,102 +162,116 @@ const UserBuyCablePage: React.FC = () => {
             title="Cable TV" 
             subtitle="Renew your favorite channels with absolute precision."
         >
-            <div className="space-y-8">
-                <form onSubmit={handleVerify} className="space-y-6">
-                    <div className="grid sm:grid-cols-2 gap-6">
-                        <Row label="TV Provider">
-                            <Select value={provider} onChange={(e) => { setProvider(e.target.value); handleReset(); }}>
-                                {PROVIDERS.map((p) => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </Select>
-                        </Row>
-                        <Row label="Smartcard/IUC Number">
-                            <div className="relative group">
-                                <Input 
-                                    type="text"
-                                    placeholder="Enter identifier"
-                                    value={smartcardNumber}
-                                    onChange={(e: any) => { setSmartcardNumber(e.target.value); handleReset(); }}
-                                    required
-                                />
-                                <button 
-                                    type="submit"
-                                    disabled={verifying || !smartcardNumber}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-900 text-white rounded-lg hover:bg-emerald-500 transition-colors disabled:opacity-30"
-                                >
-                                    {verifying ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div> : <Search size={16} />}
-                                </button>
+            {fetchingProviders ? (
+                <ServiceSkeleton />
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-7 space-y-8">
+                        <form onSubmit={handleVerify} className="space-y-6">
+                            <div className="grid sm:grid-cols-2 gap-6">
+                                <Row label="TV Provider">
+                                    <Select value={provider} onChange={(e) => { setProvider(e.target.value); handleReset(); }} disabled={fetchingProviders}>
+                                        {providers.map((p) => (
+                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                        ))}
+                                    </Select>
+                                </Row>
+                                <Row label="Smartcard/IUC Number">
+                                    <div className="relative group">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                            <Search size={18} />
+                                        </div>
+                                        <Input
+                                            placeholder="Enter IUC Number"
+                                            value={smartcardNumber}
+                                            onChange={(e: any) => { setSmartcardNumber(e.target.value); handleReset(); }}
+                                            className="pl-12"
+                                            required
+                                        />
+                                    </div>
+                                </Row>
                             </div>
-                        </Row>
-                    </div>
-                </form>
-
-                {verifiedUser && (
-                    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-                        {/* Verified User Info */}
-                        <div className="bg-slate-950 p-6 rounded-2xl flex items-start gap-4 text-emerald-400">
-                            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20 shrink-0">
-                                <User size={24} />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Verified Consumer</p>
-                                <h4 className="text-lg font-bold text-white leading-tight">{verifiedUser}</h4>
-                                <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-                                    <CheckCircle2 size={12} className="text-emerald-500" />
-                                    <span>Account: {smartcardNumber}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <form onSubmit={handleInitiate} className="space-y-8">
-                            <Row label="Select Package">
-                                <Select 
-                                    value={packageId} 
-                                    onChange={(e) => setPackageId(e.target.value)}
-                                    disabled={fetchingPackages}
-                                >
-                                    {fetchingPackages ? (
-                                        <option>Decrypting packages...</option>
-                                    ) : (
-                                        packages.map((p) => (
-                                            <option key={p.variation_code || p.id} value={p.variation_code || p.id}>
-                                                {p.name} — ₦{Number(p.variation_amount || p.price).toLocaleString()}
-                                            </option>
-                                        ))
-                                    )}
-                                </Select>
-                            </Row>
-
-                            <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Subscription Fee</p>
-                                    <p className="text-xl font-bold text-slate-900">₦{amount.toLocaleString()}</p>
-                                </div>
-                                <SubmitButton loading={loading} disabled={loading || insufficient || fetchingPackages}>
-                                    Renew Subscription
+                            {!verifiedUser && (
+                                <SubmitButton loading={verifying} disabled={verifying || !smartcardNumber}>
+                                    Verify Decoder
                                 </SubmitButton>
-                            </div>
+                            )}
                         </form>
-                    </div>
-                )}
 
-                {!verifiedUser && !verifying && (
-                    <div className="bg-slate-50 p-5 rounded-2xl flex items-center gap-4 border border-white">
-                        <Tv size={20} className="text-slate-400 shrink-0" />
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed">
-                            A Secure handshake with {PROVIDERS.find(p => p.id === provider)?.name} is required before package selection.
-                        </p>
+                        {verifiedUser && (
+                            <form onSubmit={handleInitiate} className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                                <Row label="Select Package">
+                                    <Select 
+                                        value={packageId} 
+                                        onChange={(e) => setPackageId(e.target.value)}
+                                        disabled={fetchingPackages}
+                                    >
+                                        <option value="">Choose a plan...</option>
+                                        {packages.map((p) => (
+                                            <option key={p.variation_code} value={p.variation_code}>
+                                                {p.name} — ₦{Number(p.variation_amount).toLocaleString()}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </Row>
+
+                                <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net Payable</p>
+                                        <p className="text-xl font-bold text-slate-900">₦{amount.toLocaleString()}</p>
+                                    </div>
+                                    <SubmitButton loading={loading} disabled={loading || insufficient || fetchingPackages || !packageId}>
+                                        Activate Plan
+                                    </SubmitButton>
+                                </div>
+                            </form>
+                        )}
+
+                        {!verifiedUser && !verifying && (
+                            <div className="bg-slate-50 p-5 rounded-2xl flex items-center gap-4 border border-white">
+                                <Tv size={20} className="text-slate-400 shrink-0" />
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed">
+                                    A Secure handshake with {providers.find(p => p.id === provider)?.name} is required before package selection.
+                                </p>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+
+                    <div className="lg:col-span-5">
+                        {verifiedUser ? (
+                            <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl space-y-6">
+                                <div className="flex items-center gap-3 text-emerald-600">
+                                    <CheckCircle2 size={20} />
+                                    <span className="text-xs font-bold uppercase tracking-widest">Smart-Node Linked</span>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-emerald-600/60 font-bold uppercase tracking-widest">Customer Name</p>
+                                        <p className="font-bold text-slate-900 text-base">{verifiedUser.Customer_Name || 'N/A'}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] text-emerald-600/60 font-bold uppercase tracking-widest">Current Status</p>
+                                        <p className="font-bold text-slate-900 text-sm tracking-tight">{verifiedUser.Status || 'Active'}</p>
+                                    </div>
+                                </div>
+                                <button type="button" onClick={handleReset} className="text-[10px] font-bold text-emerald-600 underline uppercase tracking-widest">Switch Account</button>
+                            </div>
+                        ) : (
+                            <div className="bg-slate-50 border border-slate-100 border-dashed p-10 rounded-2xl text-center">
+                                <Tv size={32} className="text-slate-200 mx-auto mb-4" />
+                                <p className="text-slate-400 text-xs font-medium">Verified customer identity will appear here after search.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <SecurePinModal 
                 isOpen={showPinModal}
                 onClose={() => setShowPinModal(false)}
                 onConfirm={handleConfirm}
                 loading={loading}
-                title={`Verify ${PROVIDERS.find(p => p.id === provider)?.name} Payment`}
+                title={`Verify ${providers.find(p => p.id === provider)?.name} Payment`}
             />
         </PurchaseLayout>
     );

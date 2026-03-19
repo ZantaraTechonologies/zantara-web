@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
 import { Row, Select, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
@@ -7,25 +7,48 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import SecurePinModal from '../../components/modals/SecurePinModal';
 import { GraduationCap, AlertCircle, Info, Zap } from 'lucide-react';
+import { ServiceSkeleton } from '../../components/feedback/Skeletons';
 
-const EXAM_TYPES = [
+const FALLBACK_EXAMS = [
     { id: 'waec', name: 'WAEC Result Checker', price: 3500 },
-    { id: 'neco', name: 'NECO Result Checker', price: 1200 },
-    { id: 'jamb', name: 'JAMB UTME PIN', price: 4700 },
-    { id: 'nabteb', name: 'NABTEB PIN', price: 1000 },
 ];
 
 const UserBuyExamPinPage: React.FC = () => {
     const { balance, fetchBalance } = useWalletStore();
     const navigate = useNavigate();
 
-    const [examType, setExamType] = useState(EXAM_TYPES[0].id);
+    const [examTypes, setExamTypes] = useState(FALLBACK_EXAMS);
+    const [fetching, setFetching] = useState(true);
+    const [examType, setExamType] = useState(FALLBACK_EXAMS[0].id);
     const [quantity, setQuantity] = useState(1);
     
     const [showPinModal, setShowPinModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const selectedExam = EXAM_TYPES.find(e => e.id === examType) || EXAM_TYPES[0];
+    useEffect(() => {
+        const loadExams = async () => {
+            try {
+                const res = await vtuService.fetchDataPlans('education');
+                const fetched = res.data?.variations || res.data || [];
+                if (fetched.length > 0) {
+                    const formatted = fetched.map((f: any) => ({
+                        id: f.serviceID || f.id || f.variation_code,
+                        name: f.name || f.variation_name,
+                        price: Number(f.variation_amount || f.price || 0)
+                    }));
+                    setExamTypes(formatted);
+                    setExamType(formatted[0].id);
+                }
+            } catch (err) {
+                console.error("Failed to fetch exam providers", err);
+            } finally {
+                setFetching(false);
+            }
+        };
+        loadExams();
+    }, []);
+
+    const selectedExam = examTypes.find(e => e.id === examType) || examTypes[0];
     const unitPrice = selectedExam.price;
     const totalAmount = unitPrice * quantity;
     const insufficient = totalAmount > balance;
@@ -96,11 +119,14 @@ const UserBuyExamPinPage: React.FC = () => {
             title="Educational PINs" 
             subtitle="Secure official exam result checkers and registration tokens."
         >
-            <form onSubmit={handleInitiate} className="space-y-8">
+            {fetching ? (
+                <ServiceSkeleton />
+            ) : (
+                <form onSubmit={handleInitiate} className="space-y-8">
                 <div className="grid sm:grid-cols-2 gap-6">
                     <Row label="Examination Body">
-                        <Select value={examType} onChange={(e) => setExamType(e.target.value)}>
-                            {EXAM_TYPES.map((e) => (
+                        <Select value={examType} onChange={(e) => setExamType(e.target.value)} disabled={fetching}>
+                            {examTypes.map((e) => (
                                 <option key={e.id} value={e.id}>{e.name}</option>
                             ))}
                         </Select>

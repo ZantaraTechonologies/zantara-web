@@ -1,221 +1,242 @@
-import React from 'react';
-import {
-    Wallet,
-    Zap,
-    Wifi,
-    Tv,
-    GraduationCap,
+import React, { useEffect, useState } from 'react';
+import { 
+    LayoutDashboard, 
+    ArrowUpRight, 
+    Plus, 
+    Zap, 
+    Wifi, 
+    Tv, 
+    GraduationCap, 
+    Gamepad2, 
     ChevronRight,
-    ArrowUpRight,
-    Search,
+    TrendingUp,
+    ShieldCheck,
+    AlertCircle,
     Bell,
-    Settings,
-    Plus,
-    Clock,
-    UserCircle,
+    CreditCard,
+    Users,
     Copy,
     Download,
     ShieldAlert
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { useEffect } from 'react';
+import { useReferralData } from '../../hooks/useReferral';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMyTransactions } from '../../hooks/useWallet';
+import { ListSkeleton } from '../../components/feedback/Skeletons';
+import { format } from 'date-fns';
 
 const UserDashboardPage: React.FC = () => {
     const { user } = useAuthStore();
-    const { balance, currency, fetchBalance } = useWalletStore();
+    const { balance, currency } = useWalletStore();
+    const referralData = useReferralData();
+    const { referralCode, totalReferrals, referralBalance } = referralData.data || {};
+    const refLoading = referralData.isLoading;
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchBalance();
-    }, []);
+    // Fetch transactions for "Recent Activity"
+    const { data: txData, isLoading: txLoading } = useMyTransactions({ limit: 4 });
+    const recentActivities = txData?.items ?? [];
+
+    const stats = [
+        { label: 'Network Assets', value: `${currency} ${balance?.toLocaleString()}`, icon: LayoutDashboard, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+        { label: 'Referral Yield', value: `${currency} ${referralBalance?.toLocaleString()}`, icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
+        { label: 'Active nodes', value: totalReferrals?.toString() || '0', icon: ShieldCheck, color: 'text-purple-500', bg: 'bg-purple-50' },
+    ];
 
     const quickActions = [
-        { name: 'Airtime', icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/airtime' },
-        { name: 'Data', icon: Wifi, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/data' },
-        { name: 'Electricity', icon: Zap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/electricity' },
-        { name: 'Cable TV', icon: Tv, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/cable' },
-        { name: 'Education', icon: GraduationCap, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/services/exam-pins' },
-        { name: 'Fund Wallet', icon: Wallet, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/app/wallet/fund' },
+        { label: 'Airtime', icon: Zap, path: '/app/services/airtime', color: 'bg-orange-50 text-orange-600' },
+        { label: 'Data', icon: Wifi, path: '/app/services/data', color: 'bg-blue-50 text-blue-600' },
+        { label: 'Cable', icon: Tv, path: '/app/services/cable', color: 'bg-purple-50 text-purple-600' },
+        { label: 'Power', icon: Zap, path: '/app/services/electricity', color: 'bg-yellow-50 text-yellow-600' },
+        { label: 'Exam', icon: GraduationCap, path: '/app/services/exam', color: 'bg-red-50 text-red-600' },
+        { label: 'Games', icon: Gamepad2, path: '/app/services/betting', color: 'bg-emerald-50 text-emerald-600' },
     ];
 
-    const activities = [
-        { name: 'Airtime Purchase', detail: 'Today, 2:45 PM', amount: '-₦1,000', status: 'SUCCESSFUL', color: 'text-red-500', icon: Zap },
-        { name: 'Wallet Funding', detail: 'Today, 10:12 AM', amount: '+₦25,000', status: 'BANK TRANSFER', color: 'text-emerald-500', icon: Plus },
-        { name: 'Electricity Bill', detail: 'Yesterday, 6:30 PM', amount: '-₦5,500', status: 'IKEJA ELECTRIC', color: 'text-red-500', icon: Zap },
-        { name: 'Data Subscription', detail: '2 days ago', amount: '-₦2,500', status: 'MTN DATA', color: 'text-red-500', icon: Wifi },
-    ];
+    const copyReferralCode = () => {
+        if (!referralCode) return;
+        navigator.clipboard.writeText(referralCode);
+        alert('Referral code copied to clipboard!');
+    };
+
+    const lastCredit = recentActivities.find(tx => tx.type === 'wallet_fund' || tx.amount > 0);
 
     return (
-        <div className="p-4 sm:p-6 font-sans">
-            {/* Top Toolbar Simulation (Inside Layout usually, but adding for completeness if needed) */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Dashboard</h1>
-                    <p className="text-slate-500 font-medium">Hello {user?.name || 'Alex'}, manage your wallet and bills with ease.</p>
+        <div className="p-4 sm:p-6 lg:p-8 space-y-8 animate-in fade-in duration-700 font-sans">
+            {/* Top Identity Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Protocol Alpha <span className="text-emerald-500">Online</span>
+                    </h1>
+                    <p className="text-slate-500 font-medium flex items-center gap-2">
+                        Welcome back, <span className="text-slate-900 font-bold">{user?.firstName || 'User'}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    </p>
                 </div>
-
-                <div className="flex items-center gap-4">
-                    <button onClick={() => navigate('/app/transactions')} className="flex items-center gap-2 bg-white border border-slate-100 px-5 py-2.5 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
-                        <Clock size={16} />
-                        <span>Transactions</span>
+                <div className="flex items-center gap-3">
+                    <button className="relative p-2.5 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
+                        <Bell size={20} className="text-slate-600" />
+                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                     </button>
-                    <button onClick={() => navigate('/app/wallet/fund')} className="flex items-center gap-2 bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-5 py-2.5 rounded-xl font-extrabold transition-all shadow-lg shadow-emerald-500/20">
-                        <Plus size={16} />
-                        <span>Fund Wallet</span>
-                    </button>
+                    <Link to="/app/wallet/fund" className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95">
+                        <Plus size={18} />
+                        <span>Fund Node</span>
+                    </Link>
                 </div>
             </div>
 
-            {/* Main Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                {/* Left Column - Main Stats */}
-                <div className="xl:col-span-8 space-y-6">
-                    {/* Hero Balance Card */}
-                    <Link to="/app/wallet" className="relative bg-teal-950 rounded-2xl p-6 overflow-hidden min-h-[220px] flex flex-col justify-between shadow-2xl shadow-emerald-950/20 group block">
-                        {/* Abstract Background Design */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-900/40 rounded-full blur-3xl -ml-16 -mb-16"></div>
-
-                        <div className="relative z-10 flex justify-between items-start">
-                            <div className="space-y-1">
-                                <span className="text-emerald-400/80 font-bold uppercase tracking-[0.2em] text-[9px]">Total Wallet Balance</span>
-                                <h2 className="text-4xl font-extrabold text-white tracking-tighter">
-                                    {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                </h2>
+            {/* Core Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {stats.map((stat, i) => (
+                    <div key={i} className="bg-white border border-slate-50 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className={`${stat.bg} ${stat.color} p-3 rounded-xl group-hover:scale-110 transition-transform`}>
+                                <stat.icon size={22} />
                             </div>
-                            <div className="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/10">
-                                <Wallet className="text-emerald-400 w-6 h-6" />
-                            </div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-lg">Live</div>
                         </div>
+                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-1">{stat.label}</p>
+                        <h3 className="text-2xl font-black text-slate-900 tracking-tight">{stat.value}</h3>
+                    </div>
+                ))}
+            </div>
 
-                        <div className="relative z-10 flex gap-12 text-sm border-t border-white/5 pt-6 mt-6">
-                            <div className="space-y-1">
-                                <p className="text-white/40 font-bold uppercase tracking-wider text-[9px]">Account Status</p>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                                    <span className="text-white font-bold">Active & Verified</span>
-                                </div>
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-white/40 font-bold uppercase tracking-wider text-[9px]">Last Credit</p>
-                                <p className="text-white font-bold">₦25,000.00 <span className="text-white/40 font-medium">(Today)</span></p>
-                            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Primary Content Area */}
+                <div className="lg:col-span-8 space-y-8">
+                    {/* Action Grid */}
+                    <section>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+                                <Zap className="text-emerald-500" size={20} />
+                                <span>Service Deployment</span>
+                            </h2>
                         </div>
-                    </Link>
-
-                    {/* Quick Actions Header */}
-                    <div className="pt-2">
-                        <h3 className="text-xl font-bold text-slate-900 mb-4">Quick Actions</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
                             {quickActions.map((action, i) => (
-                                <button key={i} onClick={() => navigate(action.path)} className="bg-white border border-slate-50 p-5 rounded-2xl flex flex-col items-center gap-3 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all group">
-                                    <div className={`${action.bg} ${action.color} p-3 rounded-xl group-hover:scale-110 transition-transform`}>
-                                        <action.icon size={22} strokeWidth={2.5} />
+                                <Link 
+                                    key={i} 
+                                    to={action.path}
+                                    className="flex flex-col items-center gap-3 group active:scale-95 transition-transform"
+                                >
+                                    <div className={`w-14 h-14 ${action.color} rounded-2xl flex items-center justify-center group-hover:shadow-lg transition-all border border-white/50 backdrop-blur-sm`}>
+                                        <action.icon size={24} />
                                     </div>
-                                    <span className="text-sm font-bold text-slate-700">{action.name}</span>
-                                </button>
+                                    <span className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">{action.label}</span>
+                                </Link>
                             ))}
                         </div>
-                    </div>
+                    </section>
 
-                    {/* Footer Info Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                        <div className="bg-white p-6 rounded-2xl border border-slate-50 flex items-center gap-4 shadow-sm">
-                            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 shrink-0">
-                                <ShieldAlert size={24} />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-slate-900 text-sm">Secure Account</h4>
-                                <p className="text-xs text-slate-500 font-medium mt-1">Your KYC is 85% complete.</p>
-                            </div>
-                        </div>
-                        <div className="bg-white p-6 rounded-2xl border border-slate-50 flex items-center gap-4 shadow-sm">
-                            <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 shrink-0">
-                                <Zap size={24} />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-slate-900 text-sm">Instant Payments</h4>
-                                <p className="text-xs text-slate-500 font-medium mt-1">All bill payments are instant.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Column - Secondary Stats & Activity */}
-                <div className="xl:col-span-4 space-y-6">
-                    {/* Referral Earnings Card */}
-                    <div className="bg-emerald-400 rounded-2xl p-6 relative overflow-hidden group shadow-xl shadow-emerald-500/20">
-                        {/* Background Decoration */}
-                        <div className="absolute bottom-0 right-0 p-8 opacity-20 group-hover:scale-110 transition-transform duration-500">
-                            <div className="w-24 h-24 bg-slate-950 rounded-full blur-2xl"></div>
-                        </div>
-
-                        <div className="relative z-10 space-y-6">
-                            <div className="space-y-1">
-                                <span className="text-slate-950/60 font-bold uppercase tracking-[0.2em] text-[10px]">Referral Earnings</span>
-                                <h3 className="text-2xl font-bold text-slate-950 tracking-tight">₦12,450.00</h3>
-                                <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800/80">
-                                    <ArrowUpRight size={14} />
-                                    <span>+₦3,000 this week</span>
-                                </div>
-                            </div>
-                            <button className="bg-slate-950 text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-slate-950/20">
-                                Withdraw
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Recent Activity */}
-                    <div className="bg-white rounded-2xl border border-slate-50 p-6 shadow-sm">
-                        <div className="flex items-center justify-between mb-5">
-                            <h3 className="font-bold text-slate-900">Recent Activity</h3>
-                            <button className="text-emerald-500 font-bold text-xs uppercase tracking-widest hover:text-emerald-600 transition-colors">
-                                View All
-                            </button>
+                    {/* Ledger Preview */}
+                    <section className="bg-white border border-slate-50 rounded-2xl p-6 shadow-sm overflow-hidden relative">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 uppercase tracking-tight">
+                                <CreditCard className="text-emerald-500" size={20} />
+                                <span>Recent Ledger</span>
+                            </h2>
+                            <Link to="/app/transactions" className="text-xs font-bold text-emerald-500 uppercase tracking-widest hover:text-emerald-600 transition-colors">Full History</Link>
                         </div>
 
                         <div className="space-y-4">
-                            {activities.map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between group">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors shrink-0">
-                                            <item.icon size={18} />
+                            {txLoading ? (
+                                <ListSkeleton items={4} />
+                            ) : recentActivities.length > 0 ? (
+                                recentActivities.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between group">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                                                <CreditCard size={20} />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-slate-900 text-sm">{item.service || item.type}</h4>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                                                    {format(new Date(item.createdAt), 'MMM dd, HH:mm')} • {item.status.toUpperCase()}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="space-y-0.5">
-                                            <h4 className="font-bold text-slate-900 text-sm whitespace-nowrap">{item.name}</h4>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{item.detail}</p>
+                                        <div className="text-right">
+                                            <p className={`font-bold text-sm ${item.amount > 0 ? 'text-emerald-500' : 'text-slate-900'}`}>
+                                                {item.amount > 0 ? '+' : ''}{currency}{Math.abs(item.amount).toLocaleString()}
+                                            </p>
+                                            <p className="text-[9px] text-slate-400 font-bold tracking-tighter uppercase">Protocol Settlement</p>
                                         </div>
                                     </div>
-                                    <div className="text-right space-y-0.5">
-                                        <p className={`font-bold text-sm ${item.color}`}>{item.amount}</p>
-                                        <p className="text-[9px] text-slate-400 font-bold tracking-widest">{item.status}</p>
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-12 border-2 border-dashed border-slate-50 rounded-2xl">
+                                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">No activities detected on this node</p>
                                 </div>
-                            ))}
+                            )}
                         </div>
+                    </section>
+                </div>
 
-                        <button className="w-full mt-6 border-t border-slate-50 pt-5 flex items-center justify-center gap-2 text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-slate-600 transition-colors group">
-                            <Download size={14} className="group-hover:translate-y-0.5 transition-transform" />
-                            <span>Download History</span>
-                        </button>
+                {/* Sidebar Analytics */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* User Status Card */}
+                    <div className="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-2xl">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                        <div className="relative z-10 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <p className="text-emerald-400 font-bold text-[10px] uppercase tracking-[0.2em]">Account Status</p>
+                                    <h4 className="text-lg font-bold flex items-center gap-2">
+                                        {user?.kycStatus === 'verified' ? 'Verified Tier' : 'Unverified Node'}
+                                        {user?.kycStatus === 'verified' && <ShieldCheck size={18} className="text-emerald-400" />}
+                                    </h4>
+                                </div>
+                                <div className="w-12 h-12 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center backdrop-blur-md">
+                                    <ShieldAlert size={20} className={user?.kycStatus === 'verified' ? 'text-emerald-400' : 'text-slate-400'} />
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 pt-6 border-t border-white/10">
+                                <div className="flex justify-between items-center text-xs font-bold">
+                                    <span className="text-slate-500 uppercase flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                        Last Credit
+                                    </span>
+                                    <span className="text-white">{lastCredit ? `${currency}${lastCredit.amount.toLocaleString()}` : 'None'}</span>
+                                </div>
+                                <Link to="/app/profile/kyc" className="w-full flex items-center justify-center gap-2 py-3 bg-white text-slate-950 rounded-xl font-bold text-xs hover:bg-slate-50 transition-colors uppercase tracking-widest">
+                                    Level Details
+                                    <ChevronRight size={14} />
+                                </Link>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Referral Link Card */}
-                    <div className="bg-slate-950 rounded-2xl p-6 text-white">
-                        <div className="flex items-center justify-between mb-6">
+                    {/* Referral Engine */}
+                    <div className="bg-emerald-50 rounded-2xl p-6 space-y-6 border border-emerald-100/50">
+                        <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <h4 className="font-bold text-lg leading-tight tracking-tight">Invite & Earn</h4>
-                                <p className="text-slate-500 text-xs font-medium">₦500 per friend</p>
+                                <p className="text-emerald-600 font-bold text-[10px] uppercase tracking-widest">Network Growth</p>
+                                <h3 className="text-xl font-bold text-slate-900">Refer & Earn</h3>
                             </div>
-                            <button className="bg-emerald-400 text-slate-950 px-4 py-2 rounded-lg font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-500 transition-colors">
-                                <Copy size={12} />
-                                <span>Copy Link</span>
-                            </button>
+                            <div className="w-12 h-12 bg-white rounded-2xl border border-emerald-100 flex items-center justify-center shadow-sm">
+                                <Users size={20} className="text-emerald-500" />
+                            </div>
                         </div>
-                        <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center gap-2">
-                            <span className="text-[10px] font-mono text-emerald-400/80 truncate">zantara.app/r/alex_2930</span>
+                        
+                        <div className="space-y-3">
+                            <div className="p-4 bg-white rounded-xl border border-emerald-100/50 space-y-2">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Your Referral ID</p>
+                                <div className="flex items-center justify-between">
+                                    <code className="text-lg font-black tracking-widest text-slate-900 font-mono">{referralCode || '-------'}</code>
+                                    <button onClick={copyReferralCode} className="text-emerald-500 hover:text-emerald-600 active:scale-90 transition-transform">
+                                        <Copy size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-emerald-700/70 font-medium leading-relaxed">
+                                Share your code and earn a commission on the first purchase of every new node assigned to you.
+                            </p>
+                            <Link to="/app/referral" className="w-full flex items-center justify-center py-3 bg-emerald-500 text-slate-950 rounded-xl font-bold text-xs hover:bg-emerald-600 transition-colors uppercase tracking-widest">
+                                Dashboard
+                            </Link>
                         </div>
                     </div>
                 </div>

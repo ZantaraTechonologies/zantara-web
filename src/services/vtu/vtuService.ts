@@ -4,7 +4,7 @@ const VTU_TIMEOUT = 30000; // 30 seconds
 
 const log = (msg: string, data?: any) => {
     if (import.meta.env.DEV) {
-        console.log(`[VTU-SERVICE] ${msg}`, data || '');
+        // console.log(`[VTU-SERVICE] ${msg}`, data || ''); // Removed as per instruction
     }
 };
 
