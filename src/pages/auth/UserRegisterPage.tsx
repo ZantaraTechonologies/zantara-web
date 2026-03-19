@@ -70,7 +70,7 @@ const UserRegisterPage: React.FC = () => {
             <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 sm:p-10 border border-slate-100">
                 <div className="text-center mb-8">
                     <h1 className="text-2xl font-bold text-slate-900 mb-2">Create your account</h1>
-                    <p className="text-slate-500 font-medium text-sm">Join over 10,000+ professionals on Zantara.</p>
+                    <p className="text-slate-500 font-medium text-sm">Join the growing community of professionals on Zantara.</p>
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-6">
@@ -89,7 +89,7 @@ const UserRegisterPage: React.FC = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
-                                    placeholder="John Doe"
+                                    placeholder="Your Full Name"
                                 />
                             </div>
                         </div>

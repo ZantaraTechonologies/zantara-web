@@ -1,8 +1,26 @@
-import React from 'react';
-import { ArrowDownLeft, ArrowUpRight, TrendingUp, Filter, Calendar } from 'lucide-react';
-import { StatCard } from '../components/StatCard';
+import React, { useEffect } from 'react';
+import { 
+    ArrowDownLeft, 
+    ArrowUpRight, 
+    TrendingUp, 
+    Filter, 
+    Calendar,
+    RefreshCcw,
+    Activity,
+    CreditCard,
+    DollarSign,
+    ArrowRightLeft
+} from 'lucide-react';
+import { useBusinessStore } from '../store/businessStore';
+import { CardSkeleton, ListSkeleton } from '../../../components/feedback/Skeletons';
 
 const BusinessCashFlow: React.FC = () => {
+    const { summary, loading, fetchSummary } = useBusinessStore();
+
+    useEffect(() => {
+        fetchSummary();
+    }, []);
+
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-NG', {
             style: 'currency',
@@ -11,82 +29,102 @@ const BusinessCashFlow: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Cash Flow</h1>
-                    <p className="text-slate-500">Monitor real-time inflow and outflow of funds across the system.</p>
+                    <h1 className="text-2xl font-bold text-white tracking-tight">Financial Pulse</h1>
+                    <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">Monitor real-time system-wide liquidity flow</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-                        <Calendar className="w-4 h-4" />
-                        Custom Range
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={fetchSummary}
+                        className="p-3 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white transition-all"
+                    >
+                        <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
+                    </button>
+                    <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-all">
+                        <Calendar size={14} />
+                        Cycle Export
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard 
-                    title="Total Inflow" 
-                    value={formatCurrency(15240000)} 
-                    icon={ArrowDownLeft} 
-                    color="green"
-                />
-                <StatCard 
-                    title="Total Outflow" 
-                    value={formatCurrency(12800000)} 
-                    icon={ArrowUpRight} 
-                    color="red"
-                />
-                <StatCard 
-                    title="Net Cash Position" 
-                    value={formatCurrency(2440000)} 
-                    icon={TrendingUp} 
-                    color="blue"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-3xl p-8 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 text-emerald-500/10">
+                        <ArrowDownLeft size={48} />
+                    </div>
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Gross Inflow</p>
+                    <h3 className="text-3xl font-bold text-white tracking-tighter">{formatCurrency(summary.totalRevenue || 0)}</h3>
+                </div>
+                
+                <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-8 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 text-red-500/10">
+                        <ArrowUpRight size={48} />
+                    </div>
+                    <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest">Total Outflow</p>
+                    <h3 className="text-3xl font-bold text-white tracking-tighter">{formatCurrency(summary.totalCost || 0)}</h3>
+                </div>
+
+                <div className="bg-blue-500/5 border border-blue-500/10 rounded-3xl p-8 space-y-2 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 text-blue-500/10">
+                        <TrendingUp size={48} />
+                    </div>
+                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Net Position</p>
+                    <h3 className="text-3xl font-bold text-white tracking-tighter">{formatCurrency(summary.netProfit || 0)}</h3>
+                </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="font-bold text-slate-900">Cash Flow History</h3>
-                    <div className="flex gap-2">
-                        <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                            <Filter className="w-4 h-4" />
-                        </button>
-                    </div>
+            <div className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden">
+                <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Live Flow Activity</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Reference</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Type</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date/Time</th>
+                            <tr className="bg-white/[0.01]">
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Transaction Trace</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Vector</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Amplitude</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Sync Time</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <span className="font-semibold text-slate-900">{i % 2 === 0 ? 'User Funding' : 'VTU Purchase'}</span>
-                                    </td>
-                                    <td className="px-6 py-4 font-mono text-xs text-slate-500">REF-928374{i}</td>
-                                    <td className="px-6 py-4">
-                                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                                            i % 2 === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                        }`}>
-                                            {i % 2 === 0 ? <ArrowDownLeft className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-                                            {i % 2 === 0 ? 'INFLOW' : 'OUTFLOW'}
-                                        </div>
-                                    </td>
-                                    <td className={`px-6 py-4 font-bold ${i % 2 === 0 ? 'text-green-600' : 'text-slate-900'}`}>
-                                        {i % 2 === 0 ? '+' : '-'}{formatCurrency(i * 1200)}
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-500 text-sm">Today, 04:2{i} PM</td>
-                                </tr>
-                            ))}
+                        <tbody className="divide-y divide-white/5">
+                            {loading ? (
+                                Array(5).fill(0).map((_, i) => (
+                                    <tr key={i}><td colSpan={4} className="p-0"><ListSkeleton count={1} /></td></tr>
+                                ))
+                            ) : (
+                                [1, 2, 3, 4, 5].map((i) => (
+                                    <tr key={i} className="hover:bg-white/5 transition-colors group text-[13px]">
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-400 group-hover:text-white transition-colors">
+                                                    <ArrowRightLeft size={16} />
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="font-bold text-slate-200">{i % 2 === 0 ? 'User Liquidity Inject' : 'Service Payout Node'}</p>
+                                                    <p className="text-[10px] font-mono text-slate-600 uppercase">TXN_REF_{8293 + i}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                                                i % 2 === 0 
+                                                ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10' 
+                                                : 'bg-red-500/5 text-red-500 border-red-500/10'
+                                            }`}>
+                                                {i % 2 === 0 ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
+                                                {i % 2 === 0 ? 'Inflow' : 'Outflow'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 font-bold text-white">{formatCurrency(i * 12500)}</td>
+                                        <td className="px-6 py-5 text-right text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                                            Today • 14:2{i}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

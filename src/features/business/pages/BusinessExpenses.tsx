@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useBusinessStore } from '../store/businessStore';
-import { Plus, Receipt, Trash2, Calendar } from 'lucide-react';
+import { 
+    Plus, 
+    Receipt, 
+    Trash2, 
+    Calendar, 
+    Filter, 
+    Search,
+    ArrowUpRight,
+    Tag,
+    X
+} from 'lucide-react';
+import { ListSkeleton } from '../../../components/feedback/Skeletons';
+import { toast } from 'react-toastify';
 
 const BusinessExpenses: React.FC = () => {
     const { expenses, loading, fetchExpenses, addExpense } = useBusinessStore();
@@ -13,7 +25,7 @@ const BusinessExpenses: React.FC = () => {
 
     useEffect(() => {
         fetchExpenses();
-    }, [fetchExpenses]);
+    }, []);
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-NG', {
@@ -24,86 +36,97 @@ const BusinessExpenses: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await addExpense({
-            description: formData.description,
-            amount: parseFloat(formData.amount),
-            category: formData.category
-        });
-        setFormData({ description: '', amount: '', category: 'operational' });
-        setShowModal(false);
+        try {
+            await addExpense({
+                description: formData.description,
+                amount: parseFloat(formData.amount),
+                category: formData.category
+            });
+            setFormData({ description: '', amount: '', category: 'operational' });
+            setShowModal(false);
+            toast.success("Expense logged successfully");
+        } catch (err) {
+            toast.error("Failed to log expense");
+        }
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Expenses Management</h1>
-                    <p className="text-slate-500">Track and log operational costs and manual expenses.</p>
+                    <h1 className="text-2xl font-bold text-white tracking-tight">Expenses Ledger</h1>
+                    <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">Track operational costs & manual outflows</p>
                 </div>
                 <button 
                     onClick={() => setShowModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-xl text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100"
+                    className="flex items-center gap-2 px-6 py-3 bg-emerald-500 rounded-2xl text-[10px] font-bold text-slate-950 uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10"
                 >
-                    <Plus className="w-4 h-4" />
-                    Record Expense
+                    <Plus size={16} />
+                    Record Outflow
                 </button>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="font-bold text-slate-900">Recent Expenses</h3>
+            <div className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden">
+                <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Transaction Trace</h3>
                     <div className="flex gap-2">
-                        <button className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold uppercase tracking-wider">All</button>
-                        <button className="px-3 py-1 text-slate-400 hover:text-slate-600 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">Operational</button>
-                        <button className="px-3 py-1 text-slate-400 hover:text-slate-600 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">Manual</button>
+                        <button className="px-4 py-1.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest">All</button>
+                        <button className="px-4 py-1.5 text-slate-500 hover:text-slate-300 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors">Operational</button>
+                        <button className="px-4 py-1.5 text-slate-500 hover:text-slate-300 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-colors">Manual</button>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Expense Details</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                            <tr className="bg-white/[0.01]">
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Description</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Category</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Amount</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Date</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {expenses.length === 0 ? (
+                        <tbody className="divide-y divide-white/5">
+                            {loading ? (
+                                Array(5).fill(0).map((_, i) => (
+                                    <tr key={i}><td colSpan={5} className="p-0"><ListSkeleton count={1} /></td></tr>
+                                ))
+                            ) : expenses.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
-                                        No expenses recorded yet.
+                                    <td colSpan={5} className="px-6 py-20 text-center text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">
+                                        No expense entries detected
                                     </td>
                                 </tr>
                             ) : (
                                 expenses.map((exp) => (
-                                    <tr key={exp.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-6 py-4">
+                                    <tr key={exp.id} className="hover:bg-white/5 transition-colors group">
+                                        <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-slate-100 rounded-lg text-slate-600">
-                                                    <Receipt className="w-4 h-4" />
+                                                <div className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-400 group-hover:text-emerald-500 transition-colors">
+                                                    <Receipt size={16} />
                                                 </div>
-                                                <span className="font-semibold text-slate-900">{exp.description}</span>
+                                                <span className="font-bold text-slate-200">{exp.description}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                                exp.category === 'operational' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                                        <td className="px-6 py-5">
+                                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.15em] border ${
+                                                exp.category === 'operational' 
+                                                ? 'bg-blue-500/5 text-blue-500 border-blue-500/10' 
+                                                : 'bg-purple-500/5 text-purple-500 border-purple-500/10'
                                             }`}>
                                                 {exp.category}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 font-bold text-slate-900">{formatCurrency(exp.amount)}</td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2 text-slate-500 text-sm">
-                                                <Calendar className="w-4 h-4" />
+                                        <td className="px-6 py-5 font-bold text-white tracking-tight">{formatCurrency(exp.amount)}</td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                                                <Calendar size={12} />
                                                 {new Date(exp.date).toLocaleDateString()}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <button className="p-2 text-slate-400 hover:text-red-600 transition-colors">
-                                                <Trash2 className="w-4 h-4" />
+                                        <td className="px-6 py-5 text-right">
+                                            <button className="p-2 text-slate-600 hover:text-red-500 transition-colors">
+                                                <Trash2 size={16} />
                                             </button>
                                         </td>
                                     </tr>
@@ -115,63 +138,59 @@ const BusinessExpenses: React.FC = () => {
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <div className="p-6 border-b border-slate-100">
-                            <h3 className="text-xl font-bold text-slate-900">Record New Expense</h3>
-                            <p className="text-slate-500 text-sm mt-1">Fill in the details to track a new expense.</p>
-                        </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                    <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+                        <div className="p-8 border-b border-white/5 flex items-center justify-between">
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-1">Description</label>
+                                <h3 className="text-xl font-black text-white tracking-tight">Record Outflow</h3>
+                                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Manual cost injection</p>
+                            </div>
+                            <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Description</label>
                                 <input 
                                     type="text" 
                                     required
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    placeholder="e.g. Server maintenance, Office rent"
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    placeholder="e.g. Server maintenance"
+                                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold placeholder:text-slate-700"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1">Amount (NGN)</label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount (₦)</label>
                                     <input 
                                         type="number" 
                                         required
                                         value={formData.amount}
                                         onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                                         placeholder="0.00"
-                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1">Category</label>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Category</label>
                                     <select 
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold appearance-none cursor-pointer"
                                     >
                                         <option value="operational">Operational</option>
                                         <option value="manual">Manual</option>
                                     </select>
                                 </div>
                             </div>
-                            <div className="flex gap-3 mt-6">
-                                <button 
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                    className="flex-1 px-4 py-2 bg-slate-100 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    type="submit"
-                                    className="flex-1 px-4 py-2 bg-blue-600 rounded-xl text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100"
-                                >
-                                    Save Expense
-                                </button>
-                            </div>
+                            <button 
+                                type="submit"
+                                className="w-full py-5 bg-emerald-500 rounded-2xl font-black text-slate-950 uppercase tracking-[0.2em] text-xs shadow-xl shadow-emerald-500/20 active:scale-95 transition-all mt-4"
+                            >
+                                Commit Outflow
+                            </button>
                         </form>
                     </div>
                 </div>

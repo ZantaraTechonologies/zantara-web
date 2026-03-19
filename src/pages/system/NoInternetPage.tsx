@@ -12,9 +12,6 @@ const NoInternetPage: React.FC = () => {
         resetSystemStates();
         try {
             await fetchMe();
-        } catch (err) {
-            // If it fails again, the interceptor will set the flag back
-            console.log("Retry failed, still offline");
         } finally {
             setRetrying(false);
         }

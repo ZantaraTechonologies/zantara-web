@@ -14,6 +14,10 @@ import {
     BarChart3,
     History,
     Receipt,
+    Users,
+    ShieldCheck,
+    MessageSquare,
+    Bell,
     LucideIcon
 } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
@@ -37,15 +41,17 @@ export default function AdminLayout() {
 
     const menuItems: MenuItem[] = [
         { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { path: "/admin/users", label: "User Management", icon: Users },
+        { path: "/admin/kyc", label: "KYC Queue", icon: ShieldCheck },
         { path: "/admin/transactions", label: "Transactions", icon: ListOrdered },
         { path: "/admin/withdrawals", label: "Withdrawals", icon: Banknote },
-        { path: "/admin/wallets", label: "Wallets", icon: WalletCards },
-        { path: "/admin/services", label: "Services Ops", icon: Settings },
-        { path: "/admin/payments", label: "Payments/Webhooks", icon: LinkIcon },
+        { path: "/admin/support", label: "Support Tickets", icon: MessageSquare },
+        { path: "/admin/notifications", label: "Message Center", icon: Bell },
         { path: "/admin/status", label: "System Status", icon: Activity },
         { type: "header", label: "Business & Finance" },
         { path: "/admin/business/overview", label: "Business Overview", icon: BadgeDollarSign },
-        { path: "/admin/business/cost-ledger", label: "Cost Ledger", icon: Receipt },
+        { path: "/admin/business/wallet", label: "System Liquidity", icon: WalletCards },
+        { path: "/admin/business/ledger", label: "Cost Ledger", icon: BarChart3 },
         { path: "/admin/business/expenses", label: "Expenses", icon: History },
         { path: "/admin/business/profit", label: "Profit Analytics", icon: BarChart3 },
     ];

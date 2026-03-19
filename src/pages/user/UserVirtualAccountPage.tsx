@@ -80,8 +80,8 @@ const UserVirtualAccountPage: React.FC = () => {
                         <div className="space-y-2 group">
                             <p className="text-slate-500 font-black uppercase tracking-widest text-[9px]">Account Name</p>
                             <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-bold tracking-tight">{virtualAccount?.accountName || 'Zantara / Alex Johnson'}</h2>
-                                <button onClick={() => copyToClipboard(virtualAccount?.accountName || 'Zantara / Alex Johnson')} className="text-slate-600 hover:text-emerald-400 transition-colors opacity-0 group-hover:opacity-100"><Copy size={16} /></button>
+                                <h2 className="text-xl font-bold tracking-tight">{virtualAccount?.accountName || 'Zantara / User'}</h2>
+                                <button onClick={() => copyToClipboard(virtualAccount?.accountName || 'Zantara / User')} className="text-slate-600 hover:text-emerald-400 transition-colors opacity-0 group-hover:opacity-100"><Copy size={16} /></button>
                             </div>
                         </div>
                     </div>

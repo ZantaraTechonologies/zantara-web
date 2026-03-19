@@ -56,7 +56,7 @@ export const useAuthStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const data = await authService.login(credentials);
-            console.log("login: Response received", data);
+            // console.log("login: Response received", data);
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
             const user = data.user || data.data?.user || (data.id || data._id ? data : null);
@@ -78,7 +78,7 @@ export const useAuthStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const data = await authService.register(userData);
-            console.log("register: Response received", data);
+            // console.log("register: Response received", data);
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
             const user = data.user || data.data?.user || (data.id || data._id ? data : null);

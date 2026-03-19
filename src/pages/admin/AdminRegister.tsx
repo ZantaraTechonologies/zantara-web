@@ -122,7 +122,7 @@ export default function AdminRegister() {
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full border border-slate-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold placeholder:text-slate-200 transition-all"
-                        placeholder="John Doe"
+                        placeholder="Full Name"
                         required
                     />
                 </div>

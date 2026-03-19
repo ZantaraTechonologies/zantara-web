@@ -14,17 +14,26 @@ import {
     ChevronRight,
     Search,
     Bell,
-    CheckCircle2
+    CheckCircle2,
+    Loader2
 } from 'lucide-react';
+import { useAdminStore } from '../../store/admin/adminStore';
+import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 
 const AdminDashboardPage: React.FC = () => {
+    const { stats, loadingStats, fetchDashboardStats, error } = useAdminStore();
+
+    React.useEffect(() => {
+        fetchDashboardStats();
+    }, [fetchDashboardStats]);
+
     const kpis = [
-        { label: 'TOTAL USERS', value: '12,842', trend: '+4.2%', trendUp: true, detail: null },
-        { label: 'ACTIVE USERS', value: '8,122', trend: '63%', trendUp: true, detail: null },
-        { label: 'PENDING KYC', value: '42', trend: 'URGENT', trendUp: false, detail: 'Action Required', alert: true },
-        { label: 'WITHDRAWALS', value: '18', trend: '$14.2k', trendUp: true, detail: null },
-        { label: 'FAILED TODAY', value: '7', trend: 'ACTION!', trendUp: false, detail: null, critical: true },
-        { label: 'OPEN TICKETS', value: '24', trend: '8 new', trendUp: true, detail: null },
+        { label: 'TOTAL USERS', value: stats?.totalUsers?.toLocaleString() || '0', trend: stats?.userGrowth || '0%', trendUp: true, detail: null },
+        { label: 'ACTIVE USERS', value: stats?.activeUsers?.toLocaleString() || '0', trend: stats?.activityRate || '0%', trendUp: true, detail: null },
+        { label: 'PENDING KYC', value: stats?.pendingKyc?.toString() || '0', trend: 'URGENT', trendUp: false, detail: 'Action Required', alert: (stats?.pendingKyc || 0) > 0 },
+        { label: 'WITHDRAWALS', value: stats?.pendingWithdrawals?.toString() || '0', trend: `₦${stats?.withdrawalVolume?.toLocaleString() || '0'}`, trendUp: true, detail: null },
+        { label: 'FAILED TODAY', value: stats?.failedTxsToday?.toString() || '0', trend: 'CHECK LOGS', trendUp: false, detail: null, critical: (stats?.failedTxsToday || 0) > 0 },
+        { label: 'OPEN TICKETS', value: stats?.openTickets?.toString() || '0', trend: 'SUPPORT', trendUp: true, detail: null },
     ];
 
     const toolbox = [
@@ -71,7 +80,9 @@ const AdminDashboardPage: React.FC = () => {
 
                 {/* KPI Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                    {kpis.map((kpi, i) => (
+                    {loadingStats ? (
+                        Array(6).fill(0).map((_, i) => <CardSkeleton key={i} />)
+                    ) : kpis.map((kpi, i) => (
                         <div key={i} className={`bg-white/5 border p-5 rounded-2xl shadow-sm space-y-3 hover:border-emerald-500/30 transition-all group ${kpi.critical ? 'border-red-500/20 bg-red-500/5' : 'border-white/5'}`}>
                             <div className="flex justify-between items-start">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{kpi.label}</span>
@@ -201,25 +212,35 @@ const AdminDashboardPage: React.FC = () => {
                         {/* Activity Stream */}
                         <div className="bg-white/5 border border-white/5 rounded-2xl p-6 shadow-sm">
                             <h3 className="text-xl font-bold text-white mb-5">Activity Stream</h3>
-                            <div className="space-y-5">
-                                {activityStream.map((item, i) => (
-                                    <div key={i} className="flex gap-3 group">
-                                        <div className="relative">
-                                            <div className={`w-9 h-9 bg-white/5 ${item.color} rounded-xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 opacity-80 group-hover:opacity-100 shrink-0`}>
-                                                <item.icon size={16} />
+                            {loadingStats ? (
+                                <ListSkeleton count={4} />
+                            ) : (
+                                <div className="space-y-5">
+                                    {(stats?.recentActivity || []).map((item: any, i: number) => (
+                                        <div key={i} className="flex gap-3 group">
+                                            <div className="relative">
+                                                <div className={`w-9 h-9 bg-white/5 ${item.type === 'error' ? 'text-red-500' : 'text-emerald-500'} rounded-xl flex items-center justify-center relative z-10 transition-transform group-hover:scale-110 opacity-80 group-hover:opacity-100 shrink-0`}>
+                                                    {item.type === 'kyc' && <ShieldCheck size={16} />}
+                                                    {item.type === 'system' && <Activity size={16} />}
+                                                    {item.type === 'error' && <AlertCircle size={16} />}
+                                                    {!['kyc', 'system', 'error'].includes(item.type) && <Zap size={16} />}
+                                                </div>
+                                                {i !== (stats?.recentActivity?.length || 0) - 1 && (
+                                                    <div className="absolute top-9 bottom-[-20px] left-1/2 w-px bg-white/5 -translate-x-1/2"></div>
+                                                )}
                                             </div>
-                                            {i !== activityStream.length - 1 && (
-                                                <div className="absolute top-9 bottom-[-20px] left-1/2 w-px bg-white/5 -translate-x-1/2"></div>
-                                            )}
+                                            <div className="space-y-0.5">
+                                                <h4 className="font-bold text-slate-200 text-sm">{item.event}</h4>
+                                                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{item.detail}</p>
+                                                <p className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">{item.time}</p>
+                                            </div>
                                         </div>
-                                        <div className="space-y-0.5">
-                                            <h4 className="font-bold text-slate-200 text-sm">{item.event}</h4>
-                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{item.detail}</p>
-                                            <p className="text-[10px] font-bold text-slate-600 tracking-widest">{item.time}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                    {(!stats?.recentActivity || stats.recentActivity.length === 0) && (
+                                        <p className="text-xs text-slate-500 text-center py-4">No recent activity detected.</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

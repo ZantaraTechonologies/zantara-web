@@ -1,88 +1,116 @@
-import React from 'react';
-import { CheckCircle, Clock, ExternalLink, HelpCircle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { 
+    CheckCircle, 
+    Clock, 
+    ExternalLink, 
+    HelpCircle, 
+    RefreshCcw,
+    ShieldCheck,
+    AlertCircle,
+    FileText
+} from 'lucide-react';
+import { useBusinessStore } from '../store/businessStore';
+import { ListSkeleton } from '../../../components/feedback/Skeletons';
 
 const BusinessSettlement: React.FC = () => {
+    const { settlements, loading, fetchSettlements } = useBusinessStore();
+
+    useEffect(() => {
+        fetchSettlements();
+    }, []);
+
+    const formatCurrency = (val: number) => {
+        return new Intl.NumberFormat('en-NG', {
+            style: 'currency',
+            currency: 'NGN',
+        }).format(val);
+    };
+
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Provider Settlements</h1>
-                    <p className="text-slate-500">Reconcile payments with upstream providers (VTpass, ClubKonnect, etc.)</p>
+                    <h1 className="text-2xl font-bold text-white tracking-tight">Provider Settlements</h1>
+                    <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">Reconcile payments with upstream nodes</p>
                 </div>
+                <button 
+                    onClick={fetchSettlements}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-all"
+                >
+                    <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
+                    Sync Ledger
+                </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-blue-600 p-6 rounded-2xl text-white shadow-lg shadow-blue-100 relative overflow-hidden">
-                    <div className="relative z-10">
-                        <p className="text-blue-100 text-sm font-medium">Unsettled Balance</p>
-                        <h3 className="text-3xl font-bold mt-1">₦84,200.00</h3>
-                        <div className="mt-4 flex items-center gap-2 text-xs font-bold text-blue-200 bg-blue-700/50 w-fit px-2 py-1 rounded-full">
-                            <Clock className="w-3 h-3" />
-                            Due in 2 days
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-3xl p-8 space-y-4 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 text-emerald-500/20 group-hover:scale-110 transition-transform">
+                        <ShieldCheck size={48} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Unsettled Balance</p>
+                        <h3 className="text-3xl font-bold text-white mt-1">₦84,200.00</h3>
+                        <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 w-fit px-3 py-1.5 rounded-full uppercase tracking-widest">
+                            <Clock size={12} />
+                            Due in 48h
                         </div>
                     </div>
-                    <CheckCircle className="absolute -right-4 -bottom-4 w-32 h-32 text-white/10" />
                 </div>
-                {/* Add more summary cards if needed */}
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100">
-                    <h3 className="font-bold text-slate-900">Reconciliation Ledger</h3>
+            <div className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden">
+                <div className="p-6 border-b border-white/5 bg-white/[0.02]">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Reconciliation Ledger</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Provider</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Statement Period</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Our Record</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Provider Record</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                            <tr className="bg-white/[0.01]">
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Provider</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Statement Period</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Our Record</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Provider Record</th>
+                                <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                                <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {[1, 2].map((i) => (
-                                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <span className="font-bold text-slate-900">{i === 1 ? 'VTpass' : 'ClubKonnect'}</span>
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-600 text-sm">March 1st - March 15th</td>
-                                    <td className="px-6 py-4 font-bold text-slate-700">₦1,240,000</td>
-                                    <td className="px-6 py-4 font-bold text-slate-700">₦1,240,000</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2 text-green-600 font-bold text-xs uppercase tracking-wider">
-                                            <CheckCircle className="w-4 h-4" />
-                                            Matched
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                            <ExternalLink className="w-4 h-4" />
-                                        </button>
+                        <tbody className="divide-y divide-white/5">
+                            {loading ? (
+                                Array(3).fill(0).map((_, i) => (
+                                    <tr key={i}><td colSpan={6} className="p-0"><ListSkeleton count={1} /></td></tr>
+                                ))
+                            ) : settlements.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-20 text-center text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">
+                                        No pending settlement records
                                     </td>
                                 </tr>
-                            ))}
-                            <tr className="hover:bg-slate-50/50 transition-colors bg-red-50/30">
-                                <td className="px-6 py-4">
-                                    <span className="font-bold text-slate-900">Gloworld API</span>
-                                </td>
-                                <td className="px-6 py-4 text-slate-600 text-sm">March 14th - March 18th</td>
-                                <td className="px-6 py-4 font-bold text-slate-700">₦45,000</td>
-                                <td className="px-6 py-4 font-bold text-red-600">₦48,500</td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2 text-red-600 font-bold text-xs uppercase tracking-wider">
-                                        <HelpCircle className="w-4 h-4" />
-                                        Mismatched
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <button className="px-4 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition-colors">
-                                        Resolve
-                                    </button>
-                                </td>
-                            </tr>
+                            ) : (
+                                settlements.map((s) => (
+                                    <tr key={s.id} className="hover:bg-white/5 transition-colors group text-[13px]">
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                                                <span className="font-bold text-white">{s.provider}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-slate-500 text-[11px] font-bold uppercase tracking-wider">Current Period (30d)</td>
+                                        <td className="px-6 py-5 font-bold text-slate-300">{formatCurrency(s.amount)}</td>
+                                        <td className="px-6 py-5 font-bold text-slate-300">{formatCurrency(s.amount)}</td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-1.5 text-emerald-500 font-bold text-[10px] uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/10 w-fit">
+                                                <CheckCircle size={12} />
+                                                Matched
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-right">
+                                            <button className="p-2 text-slate-500 hover:text-emerald-500 transition-colors">
+                                                <ExternalLink size={16} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
