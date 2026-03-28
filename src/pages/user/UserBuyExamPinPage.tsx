@@ -14,7 +14,7 @@ const FALLBACK_EXAMS = [
 ];
 
 const UserBuyExamPinPage: React.FC = () => {
-    const { balance, fetchBalance } = useWalletStore();
+    const { balance, fetchBalance, currency } = useWalletStore();
     const navigate = useNavigate();
 
     const [examTypes, setExamTypes] = useState(FALLBACK_EXAMS);
@@ -122,6 +122,7 @@ const UserBuyExamPinPage: React.FC = () => {
             {fetching ? (
                 <ServiceSkeleton />
             ) : (
+                <>
                 <form onSubmit={handleInitiate} className="space-y-8">
                 <div className="grid sm:grid-cols-2 gap-6">
                     <Row label="Examination Body">
@@ -144,7 +145,7 @@ const UserBuyExamPinPage: React.FC = () => {
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-4">
                     <div className="flex justify-between items-center text-sm">
                         <span className="text-slate-500 font-medium">Unit Price</span>
-                        <span className="text-slate-900 font-bold">₦{unitPrice.toLocaleString()}</span>
+                        <span className="text-slate-900 font-bold">{currency}{unitPrice.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                         <span className="text-slate-500 font-medium">Quantity</span>
@@ -152,7 +153,7 @@ const UserBuyExamPinPage: React.FC = () => {
                     </div>
                     <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Total Settlement</span>
-                        <span className="text-2xl font-extrabold text-emerald-500 leading-none">₦{totalAmount.toLocaleString()}</span>
+                        <span className="text-2xl font-extrabold text-emerald-500 leading-none">{currency}{totalAmount.toLocaleString()}</span>
                     </div>
                 </div>
 
@@ -180,7 +181,8 @@ const UserBuyExamPinPage: React.FC = () => {
                 onConfirm={handleConfirm}
                 loading={loading}
                 title={`Verify ${selectedExam.name} Purchase`}
-            />
+            </>
+            )}
         </PurchaseLayout>
     );
 };
