@@ -4,13 +4,21 @@ export type TxLog = {
     id: string;
     refId?: string;
     type: "wallet_fund" | "airtime" | "data" | "electricity" | "cable" | "exam_pin" | string;
-    status: "pending" | "success" | "failed";
+    status: "pending" | "success" | "failed" | "skipped";
     amount: number;
     costPrice?: number;
     profit?: number;
+    salePrice?: number;
+    agentPrice?: number;
     service?: string;
     currency?: string;
     createdAt: string;
+    // Transparency fields (Step 10)
+    wasCapped?: boolean;
+    buyerRole?: string;
+    originalCommission?: number;
+    details?: any;
+    metadata?: any;
 };
 
 export async function getMyTransactionLogs(params?: {
@@ -43,9 +51,17 @@ export async function getMyTransactionLogs(params?: {
         amount: x.amount, // already NGN units in your DB
         costPrice: x.costPrice,
         profit: x.profit ?? (x.amount && x.costPrice ? x.amount - x.costPrice : undefined),
+        salePrice: x.salePrice,
+        agentPrice: x.agentPrice,
         service: x.service ?? x.response?.channel ?? undefined,
         currency: x.response?.currency ?? "NGN",
         createdAt: x.createdAt ?? x.response?.createdAt ?? x.response?.transaction_date,
+        // Transparency mapping
+        wasCapped: x.wasCapped ?? x.details?.wasCapped,
+        buyerRole: x.buyerRole ?? x.details?.buyerRole,
+        originalCommission: x.originalCommission ?? x.details?.originalCommission,
+        details: x.details,
+        metadata: x.metadata
     }));
 
     // 4) Derive meta if missing
@@ -73,9 +89,17 @@ export async function getTransactionById(id: string): Promise<TxLog | null> {
             amount: x.amount,
             costPrice: x.costPrice,
             profit: x.profit ?? (x.amount && x.costPrice ? x.amount - x.costPrice : undefined),
+            salePrice: x.salePrice,
+            agentPrice: x.agentPrice,
             service: x.service ?? x.response?.channel ?? undefined,
             currency: x.response?.currency ?? "NGN",
             createdAt: x.createdAt ?? x.response?.createdAt ?? x.response?.transaction_date,
+            // Transparency mapping
+            wasCapped: x.wasCapped ?? x.details?.wasCapped,
+            buyerRole: x.buyerRole ?? x.details?.buyerRole,
+            originalCommission: x.originalCommission ?? x.details?.originalCommission,
+            details: x.details,
+            metadata: x.metadata
         };
     } catch (err) {
         console.error("Failed to fetch transaction details", err);

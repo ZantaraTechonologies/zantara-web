@@ -18,20 +18,27 @@ import {
     Loader2
 } from 'lucide-react';
 import { useAdminStore } from '../../store/admin/adminStore';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 
 const AdminDashboardPage: React.FC = () => {
-    const { stats, loadingStats, fetchDashboardStats, error } = useAdminStore();
+    const { stats, loadingStats, fetchDashboardStats, pendingKycCount, pendingWithdrawalsCount } = useAdminStore();
+    const { currency } = useWalletStore();
 
     React.useEffect(() => {
         fetchDashboardStats();
     }, [fetchDashboardStats]);
 
+    const { fetchBalance } = useWalletStore();
+    React.useEffect(() => {
+        fetchBalance();
+    }, [fetchBalance]);
+
     const kpis = [
         { label: 'TOTAL USERS', value: stats?.totalUsers?.toLocaleString() || '0', trend: stats?.userGrowth || '0%', trendUp: true, detail: null },
         { label: 'ACTIVE USERS', value: stats?.activeUsers?.toLocaleString() || '0', trend: stats?.activityRate || '0%', trendUp: true, detail: null },
         { label: 'PENDING KYC', value: stats?.pendingKyc?.toString() || '0', trend: 'URGENT', trendUp: false, detail: 'Action Required', alert: (stats?.pendingKyc || 0) > 0 },
-        { label: 'WITHDRAWALS', value: stats?.pendingWithdrawals?.toString() || '0', trend: `₦${stats?.withdrawalVolume?.toLocaleString() || '0'}`, trendUp: true, detail: null },
+        { label: 'WITHDRAWALS', value: stats?.pendingWithdrawals?.toString() || '0', trend: `${currency}${stats?.withdrawalVolume?.toLocaleString() || '0'}`, trendUp: true, detail: null },
         { label: 'FAILED TODAY', value: stats?.failedTxsToday?.toString() || '0', trend: 'CHECK LOGS', trendUp: false, detail: null, critical: (stats?.failedTxsToday || 0) > 0 },
         { label: 'OPEN TICKETS', value: stats?.openTickets?.toString() || '0', trend: 'SUPPORT', trendUp: true, detail: null },
     ];
@@ -43,16 +50,9 @@ const AdminDashboardPage: React.FC = () => {
         { name: 'MAINTENANCE', icon: Zap, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
     ];
 
-    const criticalMonitoring = [
-        { event: 'High Volume Withdrawal', entity: 'Sarah Jenkins (@sjenkins)', time: '2 mins ago', status: 'REVIEW REQUIRED', statusColor: 'bg-yellow-500/20 text-yellow-500' },
-        { event: 'Multiple Auth Failures', entity: 'IP: 192.168.1.42 (HK)', time: '15 mins ago', status: 'AUTO LOCKED', statusColor: 'bg-red-500/20 text-red-500' },
-    ];
+    const criticalMonitoring = (stats?.criticalAlerts || []);
 
-    const activityStream = [
-        { event: 'KYC Approved', detail: 'Admin Mark approved user #8421', time: '1 HOUR AGO', icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-        { event: 'System Scaled', detail: 'Node Cluster #4 auto-scaled successfully', time: '3 HOURS AGO', icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-        { event: 'Failed Payout', detail: 'Blockchain network congestion detected', time: '5 HOURS AGO', icon: AlertCircle, color: 'text-red-500', bg: 'bg-red-500/10' },
-    ];
+
 
     return (
         <div className="bg-slate-950 min-h-screen font-sans text-slate-300">
@@ -143,7 +143,7 @@ const AdminDashboardPage: React.FC = () => {
                                 <div className="flex items-center gap-4">
                                     <h3 className="text-xl font-bold text-white">Critical Monitoring</h3>
                                     <span className="bg-red-500/10 text-red-500 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-red-500/20">
-                                        2 Action Items
+                                        {pendingKycCount + pendingWithdrawalsCount} Action Items
                                     </span>
                                 </div>
                                 <button className="text-emerald-400 font-bold text-sm tracking-tight hover:underline flex items-center gap-1 group">

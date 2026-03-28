@@ -198,7 +198,7 @@ const UserWalletPage: React.FC = () => {
                                             </div>
                                             <div className="text-right">
                                                 <p className={`font-bold text-sm ${isCredit ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                    {isCredit ? '+' : '-'}₦{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    {isCredit ? '+' : '-'}{currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                 </p>
                                                 <p className="text-[9px] text-slate-400 font-bold tracking-widest mt-0.5">{(tx.status || 'DONE').toUpperCase()}</p>
                                             </div>
@@ -227,12 +227,12 @@ const UserWalletPage: React.FC = () => {
                             <div className="space-y-4">
                                 <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white">
                                     <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Bank Name</p>
-                                    <p className="font-bold text-slate-900 text-sm">{virtualAccount.bankName || 'Wema Bank'}</p>
+                                    <p className="font-bold text-slate-900 text-sm">{virtualAccount.bankName || 'Loading...'}</p>
                                 </div>
                                 <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white flex justify-between items-center">
                                     <div>
                                         <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Account Number</p>
-                                        <p className="font-bold text-slate-900 text-base tracking-widest">{virtualAccount.accountNumber || '0123456789'}</p>
+                                        <p className="font-bold text-slate-900 text-base tracking-widest">{virtualAccount.accountNumber || 'Generating...'}</p>
                                     </div>
                                     <button className="text-emerald-500 hover:text-emerald-600"><Plus size={16} /></button>
                                 </div>

@@ -1,11 +1,13 @@
 import React from 'react';
-import { useReferralData } from '../../hooks/useReferral';
-import { Users, Copy, Gift, ArrowRight, Wallet, Info } from 'lucide-react';
+import { useEarningsSummary } from '../../hooks/useReferral';
+import { Users, Copy, Gift, ArrowRight, Wallet, Info, Zap, ShieldCheck } from 'lucide-react';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 
 const ReferralProgramPage: React.FC = () => {
-    const { data: stats, isLoading } = useReferralData();
+    const { data: stats, isLoading } = useEarningsSummary();
+    const { currency } = useWalletStore();
 
     const copyCode = () => {
         if (!stats?.myReferralCode) return;
@@ -15,7 +17,7 @@ const ReferralProgramPage: React.FC = () => {
 
     const copyLink = () => {
         if (!stats?.myReferralCode) return;
-        const link = `https://zantara.app/register?ref=${stats.myReferralCode}`;
+        const link = `${window.location.origin}/register?ref=${stats.myReferralCode}`;
         navigator.clipboard.writeText(link);
         toast.success('Referral link copied!');
     };
@@ -34,14 +36,14 @@ const ReferralProgramPage: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Refer & Earn</h1>
-                    <p className="text-slate-500 font-medium text-sm">Invite your friends and earn commissions on their transactions.</p>
+                    <p className="text-slate-500 font-medium text-sm">Invite your network and build a stream of lifetime rewards.</p>
                 </div>
                 <Link 
                     to="/app/referral/wallet"
                     className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl font-bold text-sm hover:bg-emerald-100 transition-colors border border-emerald-100 w-fit"
                 >
                     <Wallet size={18} />
-                    Referral Wallet
+                    Manage Earnings
                 </Link>
             </div>
 
@@ -55,9 +57,9 @@ const ReferralProgramPage: React.FC = () => {
                     </div>
                     
                     <div className="flex-1 space-y-4 text-center md:text-left">
-                        <h2 className="text-xl font-bold text-slate-900 leading-tight">Share Zantara with friends and get rewarded</h2>
+                        <h2 className="text-xl font-bold text-slate-900 leading-tight">Build a Lifetime Income Stream</h2>
                         <p className="text-slate-500 text-sm leading-relaxed max-w-md">
-                            Earn <span className="text-emerald-500 font-bold">commissions</span> instantly on the very first purchase of every friend you refer. There's no limit to how much you can earn!
+                            Earn <span className="text-emerald-500 font-bold">commissions</span> instantly on <span className="font-bold text-slate-900">every single purchase</span> made by your referred friends. The more they use Zantara, the more you earn!
                         </p>
                     </div>
                 </div>
@@ -66,15 +68,15 @@ const ReferralProgramPage: React.FC = () => {
                      <div className="absolute bottom-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full -mr-8 -mb-8 blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
                      
                      <div className="space-y-1">
-                        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Referral Balance</p>
-                        <h3 className="text-3xl font-bold tracking-tight">₦{stats?.referralBalance?.toLocaleString() || '0'}</h3>
+                        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Spendable Balance</p>
+                        <h3 className="text-3xl font-bold tracking-tight">{currency}{stats?.referralBalance?.toLocaleString() || '0'}</h3>
                      </div>
 
                      <Link 
                         to="/app/referral/redeem"
                         className="mt-6 flex items-center justify-center gap-2 bg-emerald-500 text-slate-950 py-3 rounded-xl font-bold text-sm hover:bg-emerald-400 transition-all active:scale-95"
                      >
-                        Redeem Earnings
+                        Redeem Now
                         <ArrowRight size={16} />
                      </Link>
                 </div>
@@ -85,7 +87,7 @@ const ReferralProgramPage: React.FC = () => {
                 <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
                     <div className="flex items-center gap-2 text-slate-400">
                         <Users size={16} />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Your Referral Code</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Your Unique Referral Code</span>
                     </div>
                     <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <code className="text-lg font-bold text-slate-800 tracking-wider font-mono">{stats?.myReferralCode || '------'}</code>
@@ -101,10 +103,10 @@ const ReferralProgramPage: React.FC = () => {
                 <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
                     <div className="flex items-center gap-2 text-slate-400">
                         <Info size={16} />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Social Share Link</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Personal Invite Link</span>
                     </div>
                     <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <span className="text-sm font-medium text-slate-500 truncate mr-4">https://zantara.app/reg...{stats?.myReferralCode}</span>
+                        <span className="text-sm font-medium text-slate-500 truncate mr-4">{window.location.origin.replace('https://', '')}/reg...{stats?.myReferralCode}</span>
                         <button 
                             onClick={copyLink}
                             className="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-sm active:scale-95"
@@ -124,9 +126,9 @@ const ReferralProgramPage: React.FC = () => {
                     <div className="hidden md:block absolute top-12 left-24 right-24 h-0.5 bg-slate-50"></div>
 
                     {[
-                        { step: '01', title: 'Deploy Link', desc: 'Securely transmit your unique referral code to friends.' },
-                        { step: '02', title: 'Identity Linked', desc: 'New users authenticate using your specific referral hash.' },
-                        { step: '03', title: 'Yield Harvest', desc: 'Instantly receive a referral bonus on their first settlement.' }
+                        { step: '01', title: 'Share Link', desc: 'Securely transmit your unique referral code to friends and network.' },
+                        { step: '02', title: 'Link Accounts', desc: 'New users link to your profile permanently when they sign up with your code.' },
+                        { step: '03', title: 'Lifetime Yield', desc: 'Receive a commission automatically on every purchase they ever make.' }
                     ].map((item, idx) => (
                         <div key={idx} className="relative z-10 space-y-4 text-center md:text-left">
                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl border italic ${idx === 2 ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-white text-emerald-500 border-slate-100'}`}>
@@ -141,9 +143,26 @@ const ReferralProgramPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100 flex items-start gap-3">
+                    <Zap size={18} className="text-emerald-500 shrink-0 mt-0.5" />
+                    <div>
+                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-1">Instant Settlement</h4>
+                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Rewards are credited to your earnings wallet the moment a referred friend's transaction is confirmed.</p>
+                    </div>
+                </div>
+                <div className="p-5 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start gap-3">
+                    <ShieldCheck size={18} className="text-blue-500 shrink-0 mt-0.5" />
+                    <div>
+                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-1">Margin Protection</h4>
+                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">To keep the platform sustainable, rewards may be capped or skipped on extremely low-margin transactions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="p-4">
                 <p className="text-center text-[10px] text-slate-400 font-medium">
-                    * Rewards are available for first-time purchases by referred users. Multi-account fraud will result in account suspension.
+                    * Referral rewards are calculated based on service profit margins. Multi-account fraud or referral gaming will result in immediate suspension.
                 </p>
             </div>
         </div>

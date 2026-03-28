@@ -16,7 +16,7 @@ const FALLBACK_PROVIDERS = [
 ];
 
 const UserBuyElectricityPage: React.FC = () => {
-    const { balance, fetchBalance } = useWalletStore();
+    const { balance, currency, fetchBalance } = useWalletStore();
     const navigate = useNavigate();
 
     const [providers, setProviders] = useState(FALLBACK_PROVIDERS);
@@ -213,7 +213,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                 <button type="button" onClick={handleReset} className="text-[10px] font-bold text-emerald-600 underline uppercase tracking-widest">Change Meter</button>
                             </div>
 
-                            <Row label="Amount (₦)">
+                            <Row label={`Amount (${currency})`}>
                                 <Input
                                     type="number"
                                     placeholder="Min ₦500"
@@ -226,10 +226,10 @@ const UserBuyElectricityPage: React.FC = () => {
                             <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wallet Balance</p>
-                                    <p className="text-sm font-bold text-slate-900">₦{balance.toLocaleString()}</p>
+                                    <p className="text-sm font-bold text-slate-900">{currency}{balance.toLocaleString()}</p>
                                 </div>
                                 <SubmitButton loading={loading} disabled={loading || !amount || Number(amount) > balance}>
-                                    Confirm & Pay ₦{Number(amount || 0).toLocaleString()}
+                                    Confirm & Pay {currency}{Number(amount || 0).toLocaleString()}
                                 </SubmitButton>
                             </div>
                         </form>

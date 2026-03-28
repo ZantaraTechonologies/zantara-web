@@ -22,6 +22,7 @@ import BusinessSettlement from "../features/business/pages/BusinessSettlement";
 import BusinessCashFlow from "../features/business/pages/BusinessCashFlow";
 import BusinessRefundsLosses from "../features/business/pages/BusinessRefundsLosses";
 import BusinessExpenses from "../features/business/pages/BusinessExpenses";
+import AdminEarningsPage from "../pages/admin/AdminEarningsPage";
 
 export const router = createBrowserRouter([
   // Public admin auth pages
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
           { path: "business/settlements", element: <BusinessSettlement /> },
           { path: "business/cashflow", element: <BusinessCashFlow /> },
           { path: "business/refunds", element: <BusinessRefundsLosses /> },
+          { path: "business/earnings", element: <AdminEarningsPage /> },
         ],
       },
     ],

@@ -17,11 +17,12 @@ import {
     Users,
     Copy,
     Download,
-    ShieldAlert
+    ShieldAlert,
+    Briefcase
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { useReferralData } from '../../hooks/useReferral';
+import { useEarningsSummary } from '../../hooks/useReferral';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMyTransactions } from '../../hooks/useWallet';
 import { ListSkeleton } from '../../components/feedback/Skeletons';
@@ -30,9 +31,9 @@ import { format } from 'date-fns';
 const UserDashboardPage: React.FC = () => {
     const { user } = useAuthStore();
     const { balance, currency } = useWalletStore();
-    const referralData = useReferralData();
-    const { referralCode, totalReferrals, referralBalance } = referralData.data || {};
-    const refLoading = referralData.isLoading;
+    const earningsRes = useEarningsSummary();
+    const { myReferralCode, totalReferrals, referralBalance } = (earningsRes.data as any) || {};
+    const refLoading = earningsRes.isLoading;
     const navigate = useNavigate();
 
     // Fetch transactions for "Recent Activity"
@@ -41,22 +42,22 @@ const UserDashboardPage: React.FC = () => {
 
     const stats = [
         { label: 'Network Assets', value: `${currency} ${balance?.toLocaleString()}`, icon: LayoutDashboard, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        { label: 'Referral Yield', value: `${currency} ${referralBalance?.toLocaleString()}`, icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
-        { label: 'Active nodes', value: totalReferrals?.toString() || '0', icon: ShieldCheck, color: 'text-purple-500', bg: 'bg-purple-50' },
+        { label: 'Yield Balance', value: `${currency} ${referralBalance?.toLocaleString()}`, icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
+        { label: 'Nodes Linked', value: totalReferrals?.toString() || '0', icon: ShieldCheck, color: 'text-purple-500', bg: 'bg-purple-50' },
     ];
 
     const quickActions = [
         { label: 'Airtime', icon: Zap, path: '/app/services/airtime', color: 'bg-orange-50 text-orange-600' },
         { label: 'Data', icon: Wifi, path: '/app/services/data', color: 'bg-blue-50 text-blue-600' },
-        { label: 'Cable', icon: Tv, path: '/app/services/cable', color: 'bg-purple-50 text-purple-600' },
+        { label: 'Cable', icon: TV, path: '/app/services/cable', color: 'bg-purple-50 text-purple-600' },
         { label: 'Power', icon: Zap, path: '/app/services/electricity', color: 'bg-yellow-50 text-yellow-600' },
         { label: 'Exam', icon: GraduationCap, path: '/app/services/exam', color: 'bg-red-50 text-red-600' },
         { label: 'Games', icon: Gamepad2, path: '/app/services/betting', color: 'bg-emerald-50 text-emerald-600' },
     ];
 
     const copyReferralCode = () => {
-        if (!referralCode) return;
-        navigator.clipboard.writeText(referralCode);
+        if (!myReferralCode) return;
+        navigator.clipboard.writeText(myReferralCode);
         alert('Referral code copied to clipboard!');
     };
 
@@ -67,9 +68,21 @@ const UserDashboardPage: React.FC = () => {
             {/* Top Identity Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-1">
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                        Protocol Alpha <span className="text-emerald-500">Online</span>
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                            Protocol Alpha <span className="text-emerald-500">Online</span>
+                        </h1>
+                        {user?.role === 'agent' ? (
+                            <div className="bg-blue-900 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-blue-900/10">
+                                <Briefcase size={12} />
+                                Agent Node
+                            </div>
+                        ) : (
+                            <div className="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                Standard Node
+                            </div>
+                        )}
+                    </div>
                     <p className="text-slate-500 font-medium flex items-center gap-2">
                         Welcome back, <span className="text-slate-900 font-bold">{user?.firstName || 'User'}</span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -225,14 +238,14 @@ const UserDashboardPage: React.FC = () => {
                             <div className="p-4 bg-white rounded-xl border border-emerald-100/50 space-y-2">
                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Your Referral ID</p>
                                 <div className="flex items-center justify-between">
-                                    <code className="text-lg font-black tracking-widest text-slate-900 font-mono">{referralCode || '-------'}</code>
+                                    <code className="text-lg font-black tracking-widest text-slate-900 font-mono">{myReferralCode || '-------'}</code>
                                     <button onClick={copyReferralCode} className="text-emerald-500 hover:text-emerald-600 active:scale-90 transition-transform">
                                         <Copy size={18} />
                                     </button>
                                 </div>
                             </div>
                             <p className="text-[10px] text-emerald-700/70 font-medium leading-relaxed">
-                                Share your code and earn a commission on the first purchase of every new node assigned to you.
+                                Share your code and earn a lifetime commission on every purchase made by nodes assigned to you.
                             </p>
                             <Link to="/app/referral" className="w-full flex items-center justify-center py-3 bg-emerald-500 text-slate-950 rounded-xl font-bold text-xs hover:bg-emerald-600 transition-colors uppercase tracking-widest">
                                 Dashboard

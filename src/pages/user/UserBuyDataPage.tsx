@@ -19,7 +19,7 @@ const SERVICE_ID_MAP: Record<(typeof NETWORKS)[number], string> = {
 };
 
 const UserBuyDataPage: React.FC = () => {
-    const { balance, fetchBalance } = useWalletStore();
+    const { balance, currency, fetchBalance } = useWalletStore();
     const { user } = useAuthStore();
     const navigate = useNavigate();
 
@@ -178,7 +178,7 @@ const UserBuyDataPage: React.FC = () => {
                             <option value="">Choose a data package...</option>
                             {plans.map((plan) => (
                                 <option key={plan.variation_code} value={plan.variation_code}>
-                                    {plan.name} — ₦{Number(plan.variation_amount).toLocaleString()}
+                                    {plan.name} — {currency}{Number(plan.variation_amount).toLocaleString()}
                                 </option>
                             ))}
                         </Select>
@@ -188,7 +188,7 @@ const UserBuyDataPage: React.FC = () => {
                         <div className="flex items-center gap-4">
                             <div className="space-y-1">
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Balance</p>
-                                <p className="text-sm font-bold text-slate-900">₦{balance.toLocaleString()}</p>
+                                <p className="text-sm font-bold text-slate-900">{currency}{balance.toLocaleString()}</p>
                             </div>
                             {discount > 0 && (
                                 <div className="h-10 w-px bg-slate-100 mx-2"></div>
@@ -204,7 +204,7 @@ const UserBuyDataPage: React.FC = () => {
                         <div className="flex flex-col items-end gap-2">
                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Payable</p>
                              <SubmitButton loading={loading} disabled={loading || insufficient || fetchingPlans || !planId}>
-                                Pay ₦{finalAmount.toLocaleString()}
+                                Pay {currency}{finalAmount.toLocaleString()}
                             </SubmitButton>
                         </div>
                     </div>

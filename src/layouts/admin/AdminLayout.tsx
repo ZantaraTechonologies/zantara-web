@@ -18,6 +18,7 @@ import {
     ShieldCheck,
     MessageSquare,
     Bell,
+    BadgePercent,
     LucideIcon
 } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
@@ -50,6 +51,7 @@ export default function AdminLayout() {
         { path: "/admin/status", label: "System Status", icon: Activity },
         { type: "header", label: "Business & Finance" },
         { path: "/admin/business/overview", label: "Business Overview", icon: BadgeDollarSign },
+        { path: "/admin/business/earnings", label: "Earnings Analytics", icon: BadgePercent },
         { path: "/admin/business/wallet", label: "System Liquidity", icon: WalletCards },
         { path: "/admin/business/ledger", label: "Cost Ledger", icon: BarChart3 },
         { path: "/admin/business/expenses", label: "Expenses", icon: History },

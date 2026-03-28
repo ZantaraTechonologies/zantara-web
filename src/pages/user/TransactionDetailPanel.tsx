@@ -102,13 +102,59 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transaction Reference</p>
                             <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 group">
                                 <p className="font-mono text-xs font-bold text-slate-900 tracking-wider truncate mr-4">
-                                    {transaction.reference || 'ZTR-NODE-2024-X920'}
+                                    {transaction.reference || transaction.refId || 'ZTR-NODE-2024-X920'}
                                 </p>
-                                <button onClick={() => copyRef(transaction.reference)} className="text-emerald-500 hover:text-emerald-600 transition-colors">
+                                <button onClick={() => copyRef(transaction.reference || transaction.refId)} className="text-emerald-500 hover:text-emerald-600 transition-colors">
                                     <Copy size={16} />
                                 </button>
                             </div>
                         </div>
+
+                        {/* Earnings Transparency inside Panel */}
+                        {(transaction.type === 'referral_bonus' || transaction.type === 'agent_profit' || transaction.status === 'skipped' || transaction.type === 'referral_redeem') && (
+                            <div className="pt-6 border-t border-slate-100 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <ShieldCheck size={16} className="text-emerald-500" />
+                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">Earnings Transparency</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-white p-4 rounded-xl border border-slate-100 space-y-3">
+                                    <div className="flex items-start gap-3">
+                                        <Info size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                                        <p className="text-[11px] font-bold text-slate-800 leading-relaxed">
+                                            {transaction.type === 'referral_bonus' ? 'You earned from this purchase.' :
+                                             transaction.type === 'agent_profit' ? 'Agent profit from this sale.' :
+                                             transaction.type === 'referral_redeem' ? 'Earnings redeemed to main wallet.' :
+                                             'Commission skipped due to low margin.'}
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-3 pt-2">
+                                        {transaction.buyerRole && (
+                                            <div>
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Buyer Role</p>
+                                                <p className="font-bold text-slate-900 text-[11px]">{transaction.buyerRole}</p>
+                                            </div>
+                                        )}
+                                        {transaction.originalCommission > 0 && (
+                                            <div>
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Original Comm.</p>
+                                                <p className="font-bold text-slate-900 text-[11px]">₦{transaction.originalCommission.toLocaleString()}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {transaction.wasCapped && (
+                                        <div className="bg-amber-50 p-2 rounded-lg border border-amber-100 flex items-center gap-2">
+                                            <ShieldCheck size={12} className="text-amber-600" />
+                                            <span className="text-[9px] font-bold text-amber-700 uppercase">Capped to protect margin</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Footer Info */}

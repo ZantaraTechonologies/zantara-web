@@ -10,6 +10,22 @@ export const useReferralData = () => {
     });
 };
 
+export const useEarningsSummary = () => {
+    return useQuery({
+        queryKey: ['earnings-summary'],
+        queryFn: referralService.getEarningsSummary,
+        staleTime: 1000 * 60 * 2, // 2 minutes
+    });
+};
+
+export const useEarningsHistory = (page = 1, limit = 10) => {
+    return useQuery({
+        queryKey: ['earnings-history', page, limit],
+        queryFn: () => referralService.getEarningsHistory(page, limit),
+        staleTime: 1000 * 60 * 2, // 2 minutes
+    });
+};
+
 export const useRedeemEarnings = () => {
     const queryClient = useQueryClient();
 

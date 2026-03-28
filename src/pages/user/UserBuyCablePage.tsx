@@ -15,7 +15,7 @@ const FALLBACK_PROVIDERS = [
 ];
 
 const UserBuyCablePage: React.FC = () => {
-    const { balance, fetchBalance } = useWalletStore();
+    const { balance, currency, fetchBalance } = useWalletStore();
     const navigate = useNavigate();
 
     const [providers, setProviders] = useState(FALLBACK_PROVIDERS);
@@ -209,7 +209,7 @@ const UserBuyCablePage: React.FC = () => {
                                         <option value="">Choose a plan...</option>
                                         {packages.map((p) => (
                                             <option key={p.variation_code} value={p.variation_code}>
-                                                {p.name} — ₦{Number(p.variation_amount).toLocaleString()}
+                                                {p.name} — {currency}{Number(p.variation_amount).toLocaleString()}
                                             </option>
                                         ))}
                                     </Select>
@@ -218,7 +218,7 @@ const UserBuyCablePage: React.FC = () => {
                                 <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net Payable</p>
-                                        <p className="text-xl font-bold text-slate-900">₦{amount.toLocaleString()}</p>
+                                        <p className="text-xl font-bold text-slate-900">{currency}{amount.toLocaleString()}</p>
                                     </div>
                                     <SubmitButton loading={loading} disabled={loading || insufficient || fetchingPackages || !packageId}>
                                         Activate Plan

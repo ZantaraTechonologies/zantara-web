@@ -155,6 +155,66 @@ const TransactionDetailsPage: React.FC = () => {
                 </div>
             </div>
 
+            {/* Earnings Transparency Section */}
+            {(tx.type === 'referral_bonus' || tx.type === 'agent_profit' || tx.type === 'referral_skipped' || tx.type === 'referral_redeem' || tx.status === 'skipped') && (
+                <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <ShieldCheck size={18} className="text-emerald-500" />
+                            <h3 className="font-bold text-slate-900">Earnings Transparency</h3>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Reward Metadata</span>
+                    </div>
+                    
+                    <div className="p-6 space-y-4">
+                        {/* Status Specific Message */}
+                        <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                            <Info size={16} className="text-emerald-500" />
+                            <p className="text-xs font-bold text-slate-800">
+                                {tx.type === 'referral_bonus' ? 'You earned a referral bonus from this purchase.' :
+                                 tx.type === 'agent_profit' ? 'Agent profit generated from this sale.' :
+                                 tx.type === 'referral_redeem' ? 'Earnings redeemed to your main wallet.' :
+                                 'This commission was skipped due to low service margin.'}
+                            </p>
+                        </div>
+
+                        {/* Detail Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {tx.buyerRole && (
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Buyer Role</p>
+                                    <p className="font-bold text-slate-900 text-sm italic">{tx.buyerRole}</p>
+                                </div>
+                            )}
+                            {tx.originalCommission > 0 && (
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Original Commission</p>
+                                    <p className="font-bold text-slate-900 text-sm">₦{tx.originalCommission.toLocaleString()}</p>
+                                </div>
+                            )}
+                            {tx.wasCapped && (
+                                <div className="col-span-2 flex items-center gap-2 text-amber-600 bg-amber-50/50 p-2 rounded-lg border border-amber-100">
+                                    <ShieldCheck size={14} />
+                                    <span className="text-[10px] font-bold uppercase tracking-tight">Capped to protect platform margin</span>
+                                </div>
+                            )}
+                            {tx.type === 'agent_profit' && tx.metadata?.costPrice && (
+                                <>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selling Price</p>
+                                        <p className="font-bold text-slate-900 text-sm">₦{tx.metadata.sellingPrice?.toLocaleString()}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Cost</p>
+                                        <p className="font-bold text-slate-900 text-sm">₦{tx.metadata.costPrice?.toLocaleString()}</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Help/Support Section */}
             <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/50 flex items-start gap-4">
                 <div className="p-2 bg-white rounded-xl border border-blue-100 text-blue-500">
