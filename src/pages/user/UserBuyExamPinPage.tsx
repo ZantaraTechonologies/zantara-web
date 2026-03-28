@@ -181,7 +181,7 @@ const UserBuyExamPinPage: React.FC = () => {
                 onConfirm={handleConfirm}
                 loading={loading}
                 title={`Verify ${selectedExam.name} Purchase`}
-            </>
+            />
             )}
         </PurchaseLayout>
     );
