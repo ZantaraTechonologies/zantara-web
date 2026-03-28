@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '../../hooks/useNotifications';
-import { Bell, CheckCheck, Trash2, Calendar, ShieldInfo, Zap, CreditCard, MessageSquare, ArrowRight } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, Calendar, Shield, Zap, CreditCard, MessageSquare, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ const UserNotificationsPage: React.FC = () => {
         switch (type) {
             case 'support': return <MessageSquare size={20} />;
             case 'transaction': return <CreditCard size={20} />;
-            case 'security': return <ShieldInfo size={20} />;
+            case 'security': return <Shield size={20} />;
             case 'service': return <Zap size={20} />;
             default: return <Bell size={20} />;
         }

@@ -44,6 +44,19 @@ export const verifySmartcard = async (serviceID: string, billersCode: string) =>
     }
 };
 
+export const verifyMerchant = async (data: { serviceID: string, billersCode: string, type?: string }) => {
+    log(`Merchant verification started`, data);
+    try {
+        const res = await apiClient.post('/vtu/verify', data, { timeout: VTU_TIMEOUT });
+        log(`Merchant verification success`, res.data);
+        return res.data;
+    } catch (err) {
+        log(`Merchant verification failed`, err);
+        throw err;
+    }
+};
+
+
 export const buyAirtime = async (data: any) => {
     log('Airtime transaction started', { network: data.network, amount: data.amount });
     try {
