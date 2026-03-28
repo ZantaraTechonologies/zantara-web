@@ -49,7 +49,7 @@ const UserDashboardPage: React.FC = () => {
     const quickActions = [
         { label: 'Airtime', icon: Zap, path: '/app/services/airtime', color: 'bg-orange-50 text-orange-600' },
         { label: 'Data', icon: Wifi, path: '/app/services/data', color: 'bg-blue-50 text-blue-600' },
-        { label: 'Cable', icon: TV, path: '/app/services/cable', color: 'bg-purple-50 text-purple-600' },
+        { label: 'Cable', icon: Tv, path: '/app/services/cable', color: 'bg-purple-50 text-purple-600' },
         { label: 'Power', icon: Zap, path: '/app/services/electricity', color: 'bg-yellow-50 text-yellow-600' },
         { label: 'Exam', icon: GraduationCap, path: '/app/services/exam', color: 'bg-red-50 text-red-600' },
         { label: 'Games', icon: Gamepad2, path: '/app/services/betting', color: 'bg-emerald-50 text-emerald-600' },
