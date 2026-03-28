@@ -182,6 +182,7 @@ const UserBuyExamPinPage: React.FC = () => {
                 loading={loading}
                 title={`Verify ${selectedExam.name} Purchase`}
             />
+            </>
             )}
         </PurchaseLayout>
     );
