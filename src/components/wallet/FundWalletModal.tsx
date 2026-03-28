@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import API from "../../services/api/apiClient";
+import { useWalletStore } from "../../store/wallet/walletStore";
 
 /**
  * FundWalletModal (updated)
@@ -20,6 +21,7 @@ interface FundWalletModalProps {
 const MIN_AMOUNT = 50;
 
 const FundWalletModal: React.FC<FundWalletModalProps> = ({ open, onClose, onSuccess }) => {
+    const { currency } = useWalletStore();
     const [amount, setAmount] = useState<string>("");
     const [channel, setChannel] = useState<Channel>("all");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -146,7 +148,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ open, onClose, onSucc
 
         const amtNum = Number(amount);
         if (!amtNum || amtNum < MIN_AMOUNT) {
-            setError(`Please enter a valid amount (minimum ₦${MIN_AMOUNT}).`);
+            setError(`Please enter a valid amount (minimum ${currency}${MIN_AMOUNT}).`);
             return;
         }
 
@@ -224,7 +226,7 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ open, onClose, onSucc
                     {/* Amount */}
                     <div>
                         <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                            Amount (₦)
+                            Amount ({currency})
                         </label>
                         <input
                             id="amount"
@@ -234,11 +236,11 @@ const FundWalletModal: React.FC<FundWalletModalProps> = ({ open, onClose, onSucc
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:bg-gray-50"
-                            placeholder="e.g., 1000"
+                            placeholder={`e.g., 1000`}
                             required
                             disabled={isBusy}
                         />
-                        <p className="mt-1 text-xs text-gray-500">Minimum ₦{MIN_AMOUNT}. Charges may apply depending on channel.</p>
+                        <p className="mt-1 text-xs text-gray-500">Minimum {currency}{MIN_AMOUNT}. Charges may apply depending on channel.</p>
                     </div>
 
                     {/* Channels */}

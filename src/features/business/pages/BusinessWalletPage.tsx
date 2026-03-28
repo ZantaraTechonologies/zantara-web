@@ -13,11 +13,13 @@ import {
 } from 'lucide-react';
 import * as businessService from '../services/businessService';
 import { useBusinessStore } from '../store/businessStore';
+import { useWalletStore } from '../../../store/wallet/walletStore';
 import { CardSkeleton, ListSkeleton } from '../../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
 
 const BusinessWalletPage: React.FC = () => {
     const { summary, fetchSummary, wallet, fetchWallet } = useBusinessStore();
+    const { currency } = useWalletStore();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -83,7 +85,7 @@ const BusinessWalletPage: React.FC = () => {
 
                         <div className="space-y-1 relative z-10">
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{mainNode.providerName}</p>
-                            <h3 className="text-3xl font-bold text-white tracking-tighter">₦{mainNode.balance.toLocaleString()}</h3>
+                            <h3 className="text-3xl font-bold text-white tracking-tighter">{currency}{mainNode.balance.toLocaleString()}</h3>
                             <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest flex items-center gap-1.5 pt-1">
                                 <Clock size={12} />
                                 Last Sync: {mainNode.lastSync}
@@ -93,7 +95,7 @@ const BusinessWalletPage: React.FC = () => {
                         <div className="pt-6 border-t border-white/5 grid grid-cols-2 gap-4 relative z-10">
                             <div>
                                 <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">MTD Usage</p>
-                                <p className="text-sm font-bold text-slate-300">₦{mainNode.usage.toLocaleString()}</p>
+                                <p className="text-sm font-bold text-slate-300">{currency}{mainNode.usage.toLocaleString()}</p>
                             </div>
                             <div>
                                 <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Status</p>
@@ -117,28 +119,28 @@ const BusinessWalletPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Platform Balance</p>
-                        <p className="text-2xl font-bold text-white">₦{(wallet?.platformBalance || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-white">{currency}{(wallet?.platformBalance || 0).toLocaleString()}</p>
                         <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full bg-emerald-500" style={{ width: '85%' }}></div>
                         </div>
                     </div>
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reserved Payouts</p>
-                        <p className="text-2xl font-bold text-white">₦{(wallet?.reservedPayouts || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-white">{currency}{(wallet?.reservedPayouts || 0).toLocaleString()}</p>
                         <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full bg-blue-500" style={{ width: '40%' }}></div>
                         </div>
                     </div>
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Escrow Flow</p>
-                        <p className="text-2xl font-bold text-white">₦{(wallet?.escrowFlow || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-white">{currency}{(wallet?.escrowFlow || 0).toLocaleString()}</p>
                         <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full bg-orange-500" style={{ width: '25%' }}></div>
                         </div>
                     </div>
                     <div className="space-y-2">
                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Net Profit Pulse</p>
-                        <p className="text-2xl font-bold text-white">₦{(summary.netProfit || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-white">{currency}{(summary.netProfit || 0).toLocaleString()}</p>
                         <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full bg-emerald-400" style={{ width: '60%' }}></div>
                         </div>

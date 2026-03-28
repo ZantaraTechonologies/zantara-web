@@ -10,11 +10,13 @@ import {
     ChevronRight,
     ShieldCheck
 } from 'lucide-react';
+import { useWalletStore } from '../../store/wallet/walletStore';
 
 const TransactionStatusPage: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { status, transaction, message } = location.state || {};
+    const { currency } = useWalletStore();
 
     if (!status || !transaction) {
         return (
@@ -102,7 +104,7 @@ const TransactionStatusPage: React.FC = () => {
                         </div>
                         <div className="space-y-1 text-right">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Settlement</p>
-                            <p className="font-bold text-slate-900">₦{transaction.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                            <p className="font-bold text-slate-900">{currency}{transaction.amount?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recipient</p>

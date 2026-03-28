@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/auth/authStore';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import api from "../../services/api/apiClient";
 import { Users } from 'lucide-react';
 
 export default function Referral() {
+    const { currency } = useWalletStore();
     const [stats, setStats] = useState({
         earnings: 0,
         count: 0,
@@ -52,7 +54,7 @@ export default function Referral() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-emerald-400 rounded-2xl p-6 text-slate-950 shadow-xl shadow-emerald-500/10 flex flex-col justify-between min-h-[140px]">
                     <p className="text-slate-950/60 text-[10px] font-bold uppercase tracking-[0.2em]">Total Earnings</p>
-                    <h2 className="text-4xl font-extrabold tracking-tighter">₦{stats.earnings.toLocaleString()}</h2>
+                    <h2 className="text-4xl font-extrabold tracking-tighter">{currency}{stats.earnings.toLocaleString()}</h2>
                 </div>
                 
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-50 flex flex-col justify-between min-h-[140px]">
@@ -107,7 +109,7 @@ export default function Referral() {
                                             <td className="px-6 py-4">
                                                 <span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest border border-emerald-100">Active</span>
                                             </td>
-                                            <td className="px-6 py-4 font-bold text-emerald-600 text-right">+₦{item.amount}</td>
+                                            <td className="px-6 py-4 font-bold text-emerald-600 text-right">+{currency}{item.amount}</td>
                                         </tr>
                                     ))
                                 ) : (

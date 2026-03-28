@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useReferralData, useRedeemEarnings } from '../../hooks/useReferral';
 import { useAuthStore } from '../../store/auth/authStore';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { Wallet, ArrowRight, ShieldCheck, Info, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import SecurePinModal from '../../components/modals/SecurePinModal';
@@ -9,6 +10,7 @@ const RedeemEarningsPage: React.FC = () => {
     const navigate = useNavigate();
     const { data: stats } = useReferralData();
     const { mutate: redeem, isPending } = useRedeemEarnings();
+    const { currency } = useWalletStore();
     const [amount, setAmount] = useState<string>('');
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -38,7 +40,7 @@ const RedeemEarningsPage: React.FC = () => {
                 
                 <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Redemption Successful</h2>
-                    <p className="text-slate-500 text-sm">₦{Number(amount).toLocaleString()} has been moved to your main wallet.</p>
+                    <p className="text-slate-500 text-sm">{currency}{Number(amount).toLocaleString()} has been moved to your main wallet.</p>
                 </div>
 
                 <div className="flex flex-col gap-3">
@@ -82,11 +84,11 @@ const RedeemEarningsPage: React.FC = () => {
                 <div className="space-y-4">
                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                         <span>Redemption Amount</span>
-                        <span>Available: ₦{currentBalance.toLocaleString()}</span>
+                        <span>Available: {currency}{currentBalance.toLocaleString()}</span>
                      </div>
                      
                      <div className="relative group">
-                        <div className="absolute inset-y-0 left-6 flex items-center text-slate-400 font-bold text-xl group-focus-within:text-emerald-500 transition-colors">₦</div>
+                        <div className="absolute inset-y-0 left-6 flex items-center text-slate-400 font-bold text-xl group-focus-within:text-emerald-500 transition-colors uppercase">{currency}</div>
                         <input 
                             type="number"
                             value={amount}
@@ -103,7 +105,7 @@ const RedeemEarningsPage: React.FC = () => {
                                 onClick={() => setAmount(val.toString())}
                                 className="flex-1 py-2 bg-slate-50 rounded-lg text-xs font-bold text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 border border-transparent hover:border-emerald-100 transition-all"
                              >
-                                ₦{val}
+                                {currency}{val}
                              </button>
                          ))}
                      </div>

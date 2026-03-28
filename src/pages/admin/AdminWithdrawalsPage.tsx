@@ -14,10 +14,12 @@ import {
 import { useNavigate } from 'react-router-dom';
 import * as adminService from '../../services/admin/adminService';
 import { ListSkeleton } from '../../components/feedback/Skeletons';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-toastify';
 
 const AdminWithdrawalsPage: React.FC = () => {
     const navigate = useNavigate();
+    const { currency } = useWalletStore();
     const [withdrawals, setWithdrawals] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('pending');
@@ -104,8 +106,8 @@ const AdminWithdrawalsPage: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <p className="font-bold text-white text-sm">₦{item.amount.toLocaleString()}</p>
-                                        <p className="text-[10px] text-emerald-500/80 font-bold tracking-widest uppercase">Fee: ₦{item.fee || 0}</p>
+                                        <p className="font-bold text-white text-sm">{currency}{item.amount.toLocaleString()}</p>
+                                        <p className="text-[10px] text-emerald-500/80 font-bold tracking-widest uppercase">Fee: {currency}{item.fee || 0}</p>
                                     </td>
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-2 text-slate-500">
@@ -135,7 +137,7 @@ const AdminWithdrawalsPage: React.FC = () => {
                 <div className="space-y-1">
                     <h4 className="font-bold text-white text-sm tracking-tight">Security Protocol Active</h4>
                     <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                        All pending withdrawals exceeding ₦50,000 flagged for manual audit by the L3 Security clearance module.
+                        All pending withdrawals exceeding {currency}50,000 flagged for manual audit by the L3 Security clearance module.
                     </p>
                 </div>
             </div>

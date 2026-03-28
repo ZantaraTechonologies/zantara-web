@@ -12,10 +12,12 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { SubmitButton } from '../../components/buy/Buy';
+import { useWalletStore } from '../../store/wallet/walletStore';
 
 const KYCStatusPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { currency } = useWalletStore();
     
     const [status, setStatus] = useState<'pending' | 'verified' | 'rejected' | 'none'>('pending');
     const [message, setMessage] = useState('');
@@ -55,7 +57,7 @@ const KYCStatusPage: React.FC = () => {
                         </div>
                         <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl inline-flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-widest">
                             <UserCheck size={16} />
-                            Daily Limit: ₦500,000.00
+                            Daily Limit: {currency}500,000.00
                         </div>
                         <div className="pt-4">
                             <SubmitButton onClick={() => navigate('/app/profile')}>

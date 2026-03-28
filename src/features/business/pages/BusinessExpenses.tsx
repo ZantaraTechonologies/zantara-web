@@ -12,10 +12,12 @@ import {
     X
 } from 'lucide-react';
 import { ListSkeleton } from '../../../components/feedback/Skeletons';
+import { useWalletStore } from '../../../store/wallet/walletStore';
 import { toast } from 'react-toastify';
 
 const BusinessExpenses: React.FC = () => {
     const { expenses, loading, fetchExpenses, addExpense } = useBusinessStore();
+    const { currency } = useWalletStore();
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
@@ -31,10 +33,7 @@ const BusinessExpenses: React.FC = () => {
     }, []);
 
     const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: 'NGN',
-        }).format(val || 0);
+        return `${currency}${(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -176,13 +175,13 @@ const BusinessExpenses: React.FC = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount (₦)</label>
+                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount ({currency})</label>
                                         <input 
                                             type="number" 
                                             required
                                             value={formData.amount}
                                             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                                            placeholder="0.00"
+                                            placeholder={`${currency}0.00`}
                                             className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 outline-none transition-all font-bold placeholder:text-slate-700"
                                         />
                                     </div>

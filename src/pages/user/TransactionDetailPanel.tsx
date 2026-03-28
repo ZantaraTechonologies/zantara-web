@@ -12,8 +12,10 @@ import {
     Building2,
     Zap,
     History,
-    ShieldCheck
+    ShieldCheck,
+    Info
 } from 'lucide-react';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-toastify';
 
 interface TransactionDetailPanelProps {
@@ -22,6 +24,7 @@ interface TransactionDetailPanelProps {
 }
 
 const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transaction, onClose }) => {
+    const { currency } = useWalletStore();
     if (!transaction) return null;
 
     const isCredit = transaction.type === 'credit' || transaction.amount > 0;
@@ -67,7 +70,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                         </div>
                         <div className="space-y-1">
                             <h3 className={`text-4xl font-extrabold tracking-tighter ${isCredit ? 'text-emerald-500' : 'text-slate-900'}`}>
-                                {isCredit ? '+' : ''}₦{Number(transaction.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                {isCredit ? '+' : ''}{currency}{Number(transaction.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </h3>
                             <div className="flex justify-center">
                                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${statusColors[transaction.status] || statusColors.PENDING}`}>
@@ -141,7 +144,7 @@ const TransactionDetailPanel: React.FC<TransactionDetailPanelProps> = ({ transac
                                         {transaction.originalCommission > 0 && (
                                             <div>
                                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Original Comm.</p>
-                                                <p className="font-bold text-slate-900 text-[11px]">₦{transaction.originalCommission.toLocaleString()}</p>
+                                                <p className="font-bold text-slate-900 text-[11px]">{currency}{transaction.originalCommission.toLocaleString()}</p>
                                             </div>
                                         )}
                                     </div>

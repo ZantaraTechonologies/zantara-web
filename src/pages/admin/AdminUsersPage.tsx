@@ -15,10 +15,12 @@ import {
 import { useNavigate } from 'react-router-dom';
 import * as adminService from '../../services/admin/adminService';
 import { ListSkeleton } from '../../components/feedback/Skeletons';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-toastify';
 
 const AdminUsersPage: React.FC = () => {
     const navigate = useNavigate();
+    const { currency } = useWalletStore();
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -120,7 +122,7 @@ const AdminUsersPage: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <p className="font-bold text-white text-sm">₦{(user.balance || 0).toLocaleString()}</p>
+                                        <p className="font-bold text-white text-sm">{currency}{(user.balance || 0).toLocaleString()}</p>
                                         <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">General Ledger</p>
                                     </td>
                                     <td className="py-4 px-6">

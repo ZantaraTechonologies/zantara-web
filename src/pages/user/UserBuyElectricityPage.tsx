@@ -82,7 +82,7 @@ const UserBuyElectricityPage: React.FC = () => {
     const handleInitiatePurchase = (e: React.FormEvent) => {
         e.preventDefault();
         if (!amount || Number(amount) < 500) {
-            toast.error("Minimum purchase amount is ₦500");
+            toast.error(`Minimum purchase amount is ${currency}500`);
             return;
         }
         if (Number(amount) > balance) {
@@ -216,7 +216,7 @@ const UserBuyElectricityPage: React.FC = () => {
                             <Row label={`Amount (${currency})`}>
                                 <Input
                                     type="number"
-                                    placeholder="Min ₦500"
+                                    placeholder={`Min ${currency}500`}
                                     value={amount}
                                     onChange={(e: any) => setAmount(e.target.value)}
                                     required

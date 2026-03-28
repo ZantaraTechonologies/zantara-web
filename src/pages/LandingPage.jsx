@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Check, ChevronRight, Smartphone, Wifi, Tv, Zap, MessageSquare, Shield, CreditCard, Bolt, PhoneCall, ArrowRight, Star, Users } from "lucide-react";
+import { useWalletStore } from "../store/wallet/walletStore";
 
 import mtnLogo from "../assets/mtn.png";
 import airtelLogo from "../assets/airtel.png";
@@ -63,21 +64,24 @@ const Feature = ({ icon: Icon, title, desc }) => (
     </div>
 );
 
-const PlanCard = ({ plan }) => (
-    <div className="rounded-[2.5rem] border border-slate-50 bg-white p-7 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all group">
-        <div className="flex items-baseline justify-between mb-4">
-            <h5 className="text-2xl font-black text-slate-900 tracking-tighter">{plan.size}</h5>
-            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">{plan.validity}</span>
+const PlanCard = ({ plan }) => {
+    const { currency } = useWalletStore();
+    return (
+        <div className="rounded-[2.5rem] border border-slate-50 bg-white p-7 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all group">
+            <div className="flex items-baseline justify-between mb-4">
+                <h5 className="text-2xl font-black text-slate-900 tracking-tighter">{plan.size}</h5>
+                <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-slate-50 text-slate-400 border border-slate-100">{plan.validity}</span>
+            </div>
+            <div className="flex items-center gap-2 mb-6">
+                <div className="text-3xl font-black text-slate-900 tracking-tighter">{currency}{plan.price.toLocaleString()}</div>
+                <span className="text-slate-400 text-xs font-medium">FIXED</span>
+            </div>
+            <button className="w-full inline-flex items-center justify-center gap-2 rounded-[1.25rem] bg-slate-950 hover:bg-emerald-500 text-white hover:text-slate-950 py-4 font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-slate-100 active:scale-95">
+                GET STARTED <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
         </div>
-        <div className="flex items-center gap-2 mb-6">
-            <div className="text-3xl font-black text-slate-900 tracking-tighter">₦{plan.price.toLocaleString()}</div>
-            <span className="text-slate-400 text-xs font-medium">FIXED</span>
-        </div>
-        <button className="w-full inline-flex items-center justify-center gap-2 rounded-[1.25rem] bg-slate-950 hover:bg-emerald-500 text-white hover:text-slate-950 py-4 font-black uppercase tracking-widest text-[11px] transition-all shadow-xl shadow-slate-100 active:scale-95">
-            GET STARTED <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </button>
-    </div>
-);
+    );
+};
 
 const Testimonial = ({ quote, name, role }) => (
     <div className="rounded-[2.5rem] bg-white p-8 shadow-sm border border-slate-50 flex flex-col justify-between h-full">
@@ -232,7 +236,7 @@ export default function ZantaraLanding() {
                     </div>
                     <div className="shrink-0 grid grid-cols-2 gap-4 w-full lg:w-[480px] relative z-10">
                         <div className="rounded-[2rem] bg-white/5 border border-white/10 p-8 backdrop-blur-sm">
-                            <div className="text-4xl font-black text-emerald-400 tracking-tighter">₦1.5m+</div>
+                            <div className="text-4xl font-black text-emerald-400 tracking-tighter">{useWalletStore.getState().currency}1.5m+</div>
                             <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mt-2">Avg. Monthly Yield</div>
                         </div>
                         <div className="rounded-[2rem] bg-white/5 border border-white/10 p-8 backdrop-blur-sm">

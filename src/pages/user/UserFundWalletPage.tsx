@@ -18,7 +18,7 @@ const UserFundWalletPage: React.FC = () => {
     const [amount, setAmount] = useState('');
     const [method, setMethod] = useState<'card' | 'transfer' | null>(null);
     const [loadingPayment, setLoadingPayment] = useState(false);
-    const { virtualAccount } = useWalletStore();
+    const { virtualAccount, currency } = useWalletStore();
 
     const methods = [
         { 
@@ -89,7 +89,7 @@ const UserFundWalletPage: React.FC = () => {
             {step === 1 && (
                 <div className="space-y-8">
                     <div className="space-y-3">
-                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 ml-1">Capital Amount (₦)</label>
+                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 ml-1">Capital Amount ({currency})</label>
                         <div className="relative">
                             <input 
                                 type="number" 
@@ -98,8 +98,8 @@ const UserFundWalletPage: React.FC = () => {
                                 onChange={(e) => setAmount(e.target.value)}
                                 className="w-full bg-white border-2 border-slate-50 rounded-2xl p-6 text-3xl font-bold text-slate-900 focus:border-emerald-400 outline-none transition-all placeholder:text-slate-200"
                             />
-                            <div className="absolute right-6 top-1/2 -translate-y-1/2 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg font-bold text-xs">
-                                NGN
+                            <div className="absolute right-6 top-1/2 -translate-y-1/2 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">
+                                {currency}
                             </div>
                         </div>
                     </div>
@@ -111,7 +111,7 @@ const UserFundWalletPage: React.FC = () => {
                                 onClick={() => setAmount(val)}
                                 className="bg-white border border-slate-50 py-3 rounded-xl font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all text-sm"
                             >
-                                +₦{Number(val).toLocaleString()}
+                                +{currency}{Number(val).toLocaleString()}
                             </button>
                         ))}
                     </div>
@@ -181,7 +181,7 @@ const UserFundWalletPage: React.FC = () => {
                     <div className="space-y-3">
                         <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Initiating Secure Gateway</h2>
                         <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm">
-                            You're being redirected to our secure payment processor (Paystack) to complete your ₦{Number(amount).toLocaleString()} deposit.
+                            You're being redirected to our secure payment processor (Paystack) to complete your {currency}{Number(amount).toLocaleString()} deposit.
                         </p>
                     </div>
 

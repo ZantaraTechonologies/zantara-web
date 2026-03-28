@@ -28,10 +28,11 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
     );
 }
 
-export function SubmitButton({ loading, disabled, children }: { loading?: boolean; disabled?: boolean; children: ReactNode }) {
+export function SubmitButton({ loading, disabled, children, onClick }: { loading?: boolean; disabled?: boolean; children: ReactNode; onClick?: () => void }) {
     return (
         <button
-            type="submit"
+            type={onClick ? "button" : "submit"}
+            onClick={onClick}
             disabled={disabled || loading}
             className="inline-flex h-11 items-center justify-center rounded-xl bg-emerald-400 px-8 font-bold text-slate-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-500 disabled:opacity-60 transition-all active:scale-[0.98] text-sm"
         >

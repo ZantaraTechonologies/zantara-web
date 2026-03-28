@@ -11,10 +11,12 @@ import {
     CheckCircle2
 } from 'lucide-react';
 import { useBusinessStore } from '../store/businessStore';
+import { useWalletStore } from '../../../store/wallet/walletStore';
 import { ListSkeleton } from '../../../components/feedback/Skeletons';
 
 const BusinessRefundsLosses: React.FC = () => {
     const { summary, refunds, loading, fetchSummary, fetchRefunds } = useBusinessStore();
+    const { currency } = useWalletStore();
 
     useEffect(() => {
         fetchSummary();
@@ -22,10 +24,7 @@ const BusinessRefundsLosses: React.FC = () => {
     }, []);
 
     const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: 'NGN',
-        }).format(val || 0);
+        return `${currency}${(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     return (
@@ -66,7 +65,7 @@ const BusinessRefundsLosses: React.FC = () => {
                         <AlertTriangle size={48} />
                     </div>
                     <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Risk Exposure</p>
-                    <h3 className="text-3xl font-bold text-white tracking-tighter">₦0.00</h3>
+                    <h3 className="text-3xl font-bold text-white tracking-tighter">{currency}0.00</h3>
                 </div>
             </div>
 

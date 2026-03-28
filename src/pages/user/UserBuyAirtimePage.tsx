@@ -37,7 +37,7 @@ const UserBuyAirtimePage: React.FC = () => {
         }
 
         if (!amount || Number(amount) < 100) {
-            toast.error("Minimum airtime purchase is ₦100");
+            toast.error(`Minimum airtime purchase is ${currency}100`);
             return;
         }
 
@@ -134,7 +134,7 @@ const UserBuyAirtimePage: React.FC = () => {
                         </Row>
                     </div>
 
-                    <Row label="Amount (₦)">
+                    <Row label={`Amount (${currency})`}>
                         <div className="relative group">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                                 <Zap size={18} />

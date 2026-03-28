@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-    ChevronLeft, 
-    Shield, 
-    Wallet, 
-    History, 
-    User as UserIcon, 
-    CheckCircle2, 
-    AlertCircle, 
+import {
+    ChevronLeft,
+    Shield,
+    Wallet,
+    History,
+    User as UserIcon,
+    CheckCircle2,
+    AlertCircle,
     Ban,
     ArrowUpRight,
     ArrowDownLeft,
     Mail,
     Phone,
     Calendar,
-    Unlock
+    Unlock,
+    Activity,
+    Loader2
 } from 'lucide-react';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import * as adminService from '../../services/admin/adminService';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
@@ -23,6 +26,7 @@ import { toast } from 'react-toastify';
 const AdminUserDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { currency } = useWalletStore();
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
@@ -64,7 +68,7 @@ const AdminUserDetailPage: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            <button 
+            <button
                 onClick={() => navigate('/admin/users')}
                 className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors group"
             >
@@ -77,7 +81,7 @@ const AdminUserDetailPage: React.FC = () => {
                 <div className="lg:col-span-4 space-y-6">
                     <div className="bg-white/5 border border-white/5 rounded-3xl p-8 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl -mr-10 -mt-10 rounded-full"></div>
-                        
+
                         <div className="relative z-10 flex flex-col items-center text-center space-y-4">
                             <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-xl shadow-emerald-500/5">
                                 <UserIcon size={32} className="text-emerald-500" />
@@ -86,13 +90,12 @@ const AdminUserDetailPage: React.FC = () => {
                                 <h1 className="text-xl font-bold text-white tracking-tight">{user.firstName} {user.lastName}</h1>
                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">UID: {user.id?.slice(-8).toUpperCase()}</p>
                             </div>
-                            
+
                             <div className="flex gap-2">
-                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                                    user.kycVerified 
-                                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
-                                    : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
-                                }`}>
+                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${user.kycVerified
+                                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                        : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                                    }`}>
                                     {user.kycVerified ? 'KYC Verified' : 'KYC Pending'}
                                 </span>
                                 {user.isBlocked && (
@@ -134,14 +137,13 @@ const AdminUserDetailPage: React.FC = () => {
                         </div>
 
                         <div className="mt-8 grid grid-cols-2 gap-3">
-                            <button 
+                            <button
                                 onClick={handleToggleBlock}
                                 disabled={processing}
-                                className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${
-                                    user.isBlocked
-                                    ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400'
-                                    : 'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20'
-                                }`}
+                                className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${user.isBlocked
+                                        ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400'
+                                        : 'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20'
+                                    }`}
                             >
                                 {processing ? <Loader2 size={16} className="animate-spin" /> : (user.isBlocked ? <Unlock size={14} /> : <Ban size={14} />)}
                                 {user.isBlocked ? 'Unblock User' : 'Block User'}
@@ -165,7 +167,7 @@ const AdminUserDetailPage: React.FC = () => {
                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Main Wallet</span>
                             </div>
                             <div>
-                                <h3 className="text-3xl font-bold text-white tracking-tight">₦{(user.balance || 0).toLocaleString()}</h3>
+                                <h3 className="text-3xl font-bold text-white tracking-tight">{currency}{(user.balance || 0).toLocaleString()}</h3>
                                 <p className="text-emerald-500 font-bold text-[10px] tracking-[0.2em] mt-1 flex items-center gap-1">
                                     <ArrowUpRight size={12} />
                                     LIQUID FUNDS
@@ -180,7 +182,7 @@ const AdminUserDetailPage: React.FC = () => {
                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Volume (MTD)</span>
                             </div>
                             <div>
-                                <h3 className="text-3xl font-bold text-white tracking-tight">₦{(user.stats?.monthlyVolume || 0).toLocaleString()}</h3>
+                                <h3 className="text-3xl font-bold text-white tracking-tight">{currency}{(user.stats?.monthlyVolume || 0).toLocaleString()}</h3>
                                 <p className="text-blue-500 font-bold text-[10px] tracking-[0.2em] mt-1 flex items-center gap-1">
                                     <Activity size={12} />
                                     NETWORK SPEED
@@ -215,7 +217,7 @@ const AdminUserDetailPage: React.FC = () => {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <p className={`font-bold text-sm ${tx.type === 'credit' ? 'text-emerald-500' : 'text-slate-300'}`}>
-                                                    {tx.type === 'credit' ? '+' : '-'}₦{tx.amount.toLocaleString()}
+                                                    {tx.type === 'credit' ? '+' : '-'}{currency}{tx.amount.toLocaleString()}
                                                 </p>
                                                 <p className="text-[10px] text-slate-600 font-bold uppercase">{tx.date}</p>
                                             </td>

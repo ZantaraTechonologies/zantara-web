@@ -11,11 +11,13 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { useTransactionDetails } from '../../hooks/useWallet';
+import { useWalletStore } from '../../store/wallet/walletStore';
 
 const ReceiptPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: tx, isLoading, error } = useTransactionDetails(id);
+    const { currency } = useWalletStore();
 
     // Auto-open print dialog if requested via query param (optional)
     useEffect(() => {
@@ -99,7 +101,7 @@ const ReceiptPage: React.FC = () => {
                     <div className="py-8 border-y border-dashed border-slate-200 space-y-2">
                          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Total Value</p>
                          <h1 className="text-5xl font-black text-slate-900 tracking-tighter">
-                            ₦{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            {currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                          </h1>
                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
                              tx.status === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-orange-50 text-orange-600 border-orange-100'

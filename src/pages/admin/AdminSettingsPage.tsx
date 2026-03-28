@@ -14,10 +14,12 @@ import {
 } from 'lucide-react';
 import apiClient from '../../services/api/apiClient';
 import { CardSkeleton } from '../../components/feedback/Skeletons';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-toastify';
 
 const AdminSettingsPage: React.FC = () => {
     const [settings, setSettings] = useState<any>(null);
+    const { currency } = useWalletStore();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -106,7 +108,7 @@ const AdminSettingsPage: React.FC = () => {
                         </div>
 
                         <div className="space-y-2 pt-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Minimum Withdrawal (₦)</label>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Minimum Withdrawal ({currency})</label>
                             <input 
                                 type="number" 
                                 value={settings.minWithdrawal}

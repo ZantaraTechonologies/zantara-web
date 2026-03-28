@@ -12,9 +12,11 @@ import {
     XCircle,
     TrendingUp
 } from 'lucide-react';
+import { useWalletStore } from '../../store/wallet/walletStore';
 
 const KYCLevelsPage: React.FC = () => {
     const { user } = useAuthStore();
+    const { currency } = useWalletStore();
     const navigate = useNavigate();
     const [levels, setLevels] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ const KYCLevelsPage: React.FC = () => {
         const tier1 = { 
             level: 1, 
             name: 'Starter', 
-            limit: '₦50,000 Daily', 
+            limit: `${currency}50,000 Daily`, 
             requirements: ['Phone Verification', 'Email Verification'],
             status: 'active'
         };
@@ -34,7 +36,7 @@ const KYCLevelsPage: React.FC = () => {
         const tier2 = { 
             level: 2, 
             name: 'Verified', 
-            limit: '₦500,000 Daily', 
+            limit: `${currency}500,000 Daily`, 
             requirements: ['Government ID (NIN/BVN)', 'Residential Address'],
             status: kycStatus === 'verified' ? 'active' : (kycStatus === 'pending' ? 'pending' : 'available')
         };
@@ -42,7 +44,7 @@ const KYCLevelsPage: React.FC = () => {
         const tier3 = { 
             level: 3, 
             name: 'Premium', 
-            limit: '₦5,000,000 Daily', 
+            limit: `${currency}5,000,000 Daily`, 
             requirements: ['Utility Bill', 'Face Verification'],
             status: kycStatus === 'verified' ? 'available' : 'locked'
         };
@@ -86,7 +88,7 @@ const KYCLevelsPage: React.FC = () => {
                             </span>
                         </div>
                         <h2 className="text-3xl font-black text-white tracking-tight">Level {currentLevel} {currentLevel === 2 ? 'Verified' : 'Starter'}</h2>
-                        <p className="text-slate-400 text-sm font-medium">Daily Transaction Limit: {currentLevel === 2 ? '₦500,000.00' : '₦50,000.00'}</p>
+                        <p className="text-slate-400 text-sm font-medium">Daily Transaction Limit: {currentLevel === 2 ? `${currency}500,000.00` : `${currency}50,000.00`}</p>
                     </div>
                     <div className="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center border border-white/10 group-hover:rotate-6 transition-transform">
                         <ShieldCheck size={48} className="text-emerald-400" />

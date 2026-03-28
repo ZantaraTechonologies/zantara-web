@@ -18,12 +18,14 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { useTransactionDetails } from '../../hooks/useWallet';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-toastify';
 
 const TransactionDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { data: tx, isLoading, error, refetch } = useTransactionDetails(id);
+    const { currency } = useWalletStore();
 
     const handleCopy = (text: string, label: string) => {
         navigator.clipboard.writeText(text);
@@ -100,7 +102,7 @@ const TransactionDetailsPage: React.FC = () => {
                     </div>
                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{tx.status === 'success' ? 'Confirmed Entry' : 'Processing Entry'}</p>
                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter">
-                        ₦{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        {currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </h2>
                 </div>
 
@@ -189,7 +191,7 @@ const TransactionDetailsPage: React.FC = () => {
                             {tx.originalCommission > 0 && (
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Original Commission</p>
-                                    <p className="font-bold text-slate-900 text-sm">₦{tx.originalCommission.toLocaleString()}</p>
+                                    <p className="font-bold text-slate-900 text-sm">{currency}{tx.originalCommission.toLocaleString()}</p>
                                 </div>
                             )}
                             {tx.wasCapped && (
@@ -202,11 +204,11 @@ const TransactionDetailsPage: React.FC = () => {
                                 <>
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selling Price</p>
-                                        <p className="font-bold text-slate-900 text-sm">₦{tx.metadata.sellingPrice?.toLocaleString()}</p>
+                                        <p className="font-bold text-slate-900 text-sm">{currency}{tx.metadata.sellingPrice?.toLocaleString()}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Cost</p>
-                                        <p className="font-bold text-slate-900 text-sm">₦{tx.metadata.costPrice?.toLocaleString()}</p>
+                                        <p className="font-bold text-slate-900 text-sm">{currency}{tx.metadata.costPrice?.toLocaleString()}</p>
                                     </div>
                                 </>
                             )}

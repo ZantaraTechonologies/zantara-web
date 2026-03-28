@@ -89,7 +89,7 @@ const UserWithdrawPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 ml-2">Withdrawal Amount (₦)</label>
+                        <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 ml-2">Withdrawal Amount ({currency})</label>
                         <input 
                             type="number" 
                             placeholder="0.00"
@@ -158,7 +158,7 @@ const UserWithdrawPage: React.FC = () => {
                     
                     <div className="space-y-2">
                         <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Secure Authorization</h2>
-                        <p className="text-slate-500 font-medium text-sm">Enter your 4-digit security PIN to authorize the ₦{Number(amount).toLocaleString()} withdrawal.</p>
+                        <p className="text-slate-500 font-medium text-sm">Enter your 4-digit security PIN to authorize the {currency}{Number(amount).toLocaleString()} withdrawal.</p>
                     </div>
 
                     <div className="flex justify-center gap-4">
@@ -201,7 +201,7 @@ const UserWithdrawPage: React.FC = () => {
                     
                     <div className="space-y-2">
                         <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Withdrawal Sent</h2>
-                        <p className="text-slate-500 font-medium text-sm">Your request for ₦{Number(amount).toLocaleString()} is being processed. Funds should hit your account within 2-24 hours.</p>
+                        <p className="text-slate-500 font-medium text-sm">Your request for {currency}{Number(amount).toLocaleString()} is being processed. Funds should hit your account within 2-24 hours.</p>
                     </div>
 
                     <div className="bg-slate-50 p-6 rounded-3xl space-y-3">

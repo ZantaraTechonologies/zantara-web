@@ -20,6 +20,7 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { useMyTransactions } from '../../hooks/useWallet';
+import { useWalletStore } from '../../store/wallet/walletStore';
 import { TxLog } from '../../services/transactions/transactionService';
 
 const getServiceIcon = (type: string) => {
@@ -49,6 +50,7 @@ const UserTransactionsPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [typeFilter, setTypeFilter] = useState('all');
 
+    const { currency } = useWalletStore();
     const { data, isLoading, refetch } = useMyTransactions({
         limit: 100 // High limit for initial view
     });
@@ -170,9 +172,9 @@ const UserTransactionsPage: React.FC = () => {
                                 </div>
                                 <div className="text-right shrink-0">
                                     <p className={`text-lg font-black tracking-tight ${tx.amount > 0 ? 'text-slate-900' : 'text-slate-900'}`}>
-                                        ₦{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        {currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </p>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">NGN</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">{currency}</p>
                                 </div>
                                 <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
                             </button>
