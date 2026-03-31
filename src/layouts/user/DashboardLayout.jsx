@@ -13,7 +13,8 @@ import {
     ChevronRight,
     Search,
     Zap,
-    User
+    User,
+    HelpCircle
 } from 'lucide-react';
 import Navbar from '../../components/navigation/Navbar';
 
@@ -24,24 +25,24 @@ export default function DashboardLayout() {
 
     const menuItems = [
         { path: '/app', label: 'Overview', icon: LayoutDashboard },
-        { path: '/app/wallet', label: 'Wallet', icon: Wallet },
-        { path: '/app/services/data', label: 'Services', icon: Zap },
+        { path: '/app/services', label: 'Services', icon: Zap },
         { path: '/app/transactions', label: 'Transactions', icon: ArrowLeftRight },
         { path: '/app/profile', label: 'Profile', icon: User },
         { path: '/app/referral', label: 'Refer & Earn', icon: Users },
+        { path: '/app/support', label: 'Support', icon: HelpCircle },
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
             <Navbar />
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Desktop Sidebar */}
-                <aside className="hidden lg:flex w-64 bg-white border-r border-slate-100 flex-col sticky h-[calc(100vh-80px)]">
-                    <div className="p-5">
+                <aside className="hidden lg:flex w-64 bg-white border-r border-slate-100 flex-col shrink-0">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5">
                         <div className="bg-emerald-50 rounded-2xl p-4 mb-6 border border-emerald-100/50">
-                            <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-2">User Account</div>
-                            <div className="text-slate-900 font-bold truncate text-sm">{user?.name || 'Zantara User'}</div>
+                            <div className="text-[10px] font-semibold text-emerald-600 uppercase tracking-[0.2em] mb-2">User Account</div>
+                            <div className="text-slate-900 font-semibold truncate text-sm">{user?.name || 'Zantara User'}</div>
                             <div className="text-slate-400 text-[11px] font-medium truncate mt-1">{user?.email || ''}</div>
                         </div>
 
@@ -71,10 +72,10 @@ export default function DashboardLayout() {
                         </nav>
                     </div>
 
-                    <div className="mt-auto p-5 border-t border-slate-50">
+                    <div className="p-5 border-t border-slate-50 bg-white">
                         <button
                             onClick={logout}
-                            className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 font-bold text-sm rounded-xl hover:bg-red-50 hover:text-red-500 transition-all group"
+                            className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 font-semibold text-sm rounded-xl hover:bg-red-50 hover:text-red-500 transition-all group"
                         >
                             <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                             <span>Sign Out</span>
@@ -83,8 +84,8 @@ export default function DashboardLayout() {
                 </aside>
 
                 {/* Main Content Area */}
-                <main className="flex-1 min-w-0 overflow-y-auto bg-slate-50/30">
-                    <div className="max-w-7xl mx-auto p-5 md:p-6">
+                <main className="flex-1 min-w-0 overflow-y-auto bg-slate-50/30 custom-scrollbar relative">
+                    <div className="max-w-7xl mx-auto p-5 md:p-6 pb-12">
                         <Outlet />
                     </div>
                 </main>

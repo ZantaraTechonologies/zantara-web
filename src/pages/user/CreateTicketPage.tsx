@@ -13,13 +13,36 @@ const CreateTicketPage: React.FC = () => {
     const [formData, setFormData] = useState({
         subject: '',
         priority: 'medium',
+        category: 'General Inquiry',
         message: '',
         transactionId: transactionId
     });
 
+    const isValidObjectId = (id: string) => {
+        return /^[0-9a-fA-F]{24}$/.test(id);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        create(formData, {
+        
+        // Clean payload: handle transactionId based on format
+        let payload = { ...formData };
+        const txId = payload.transactionId?.trim();
+
+        if (txId) {
+            if (isValidObjectId(txId)) {
+                // Valid system ID, keep it
+                payload.transactionId = txId;
+            } else {
+                // Not a valid ObjectId (e.g. human-readable ref), append to message and remove from field
+                payload.message = `[TRANS-REF: ${txId}]\n\n${payload.message}`;
+                delete payload.transactionId;
+            }
+        } else {
+            delete payload.transactionId;
+        }
+
+        create(payload, {
             onSuccess: () => navigate('/app/support')
         });
     };
@@ -66,8 +89,8 @@ const CreateTicketPage: React.FC = () => {
                                         onClick={() => setFormData({...formData, priority: p})}
                                         className={`py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border ${
                                             formData.priority === p 
-                                            ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-200' 
-                                            : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200'
+                                            ? 'bg-slate-950 text-emerald-400 border-slate-950 shadow-lg' 
+                                            : 'bg-slate-50 text-slate-400 border-slate-100 hover:border-slate-200'
                                         }`}
                                     >
                                         {p}
@@ -76,17 +99,33 @@ const CreateTicketPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Transaction ID */}
+                        {/* Category */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Transaction Ref (Optional)</label>
-                            <input 
-                                type="text"
-                                value={formData.transactionId}
-                                onChange={(e) => setFormData({...formData, transactionId: e.target.value})}
-                                placeholder="e.g., TX-12345678"
-                                className="w-full bg-slate-50 border-0 text-sm font-bold text-slate-900 p-4 rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all placeholder:text-slate-300"
-                            />
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Issue Category</label>
+                            <select 
+                                required
+                                value={formData.category}
+                                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                className="w-full bg-slate-50 border-0 text-sm font-bold text-slate-900 p-4 rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all appearance-none"
+                            >
+                                <option value="General Inquiry">General Inquiry</option>
+                                <option value="Technical Issue">Technical Issue</option>
+                                <option value="Billing/Payment">Billing/Payment</option>
+                                <option value="Service Interruption">Service Interruption</option>
+                                <option value="Account Access">Account Access</option>
+                            </select>
                         </div>
+                    </div>
+
+                    <div className="space-y-2">
+                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Transaction Ref (Optional)</label>
+                         <input 
+                            type="text"
+                            value={formData.transactionId}
+                            onChange={(e) => setFormData({...formData, transactionId: e.target.value})}
+                            placeholder="e.g., TX-12345678"
+                            className="w-full bg-slate-50 border-0 text-sm font-bold text-slate-900 p-4 rounded-2xl focus:ring-2 focus:ring-emerald-500 transition-all placeholder:text-slate-300"
+                        />
                     </div>
 
                     {/* Message */}

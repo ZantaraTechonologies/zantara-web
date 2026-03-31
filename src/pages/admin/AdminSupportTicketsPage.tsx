@@ -14,7 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import * as supportService from '../../services/support/supportService'; 
 import { ListSkeleton } from '../../components/feedback/Skeletons';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 
 const AdminSupportTicketsPage: React.FC = () => {
     const navigate = useNavigate();

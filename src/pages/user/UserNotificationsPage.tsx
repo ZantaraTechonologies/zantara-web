@@ -48,7 +48,7 @@ const UserNotificationsPage: React.FC = () => {
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
                         Notifications
                         {unreadCount > 0 && (
-                            <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                            <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">
                                 {unreadCount} New
                             </span>
                         )}
@@ -59,7 +59,7 @@ const UserNotificationsPage: React.FC = () => {
                 {unreadCount > 0 && (
                     <button 
                         onClick={() => markAllRead()}
-                        className="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-widest hover:text-emerald-700 transition-colors"
+                        className="flex items-center gap-2 text-emerald-600 font-semibold text-xs uppercase tracking-widest hover:text-emerald-700 transition-colors"
                     >
                         <CheckCheck size={16} />
                         Mark all as read

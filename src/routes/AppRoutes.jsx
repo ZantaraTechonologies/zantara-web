@@ -20,6 +20,7 @@ import UserForgotPasswordPage from '../pages/auth/UserForgotPasswordPage';
 // User Pages
 import DashboardLayout from '../layouts/user/DashboardLayout';
 import UserDashboardPage from '../pages/user/UserDashboardPage';
+import ServicesPage from '../pages/user/ServicesPage';
 import UserWalletPage from '../pages/user/UserWalletPage';
 import UserFundWalletPage from '../pages/user/UserFundWalletPage';
 import UserWithdrawPage from '../pages/user/UserWithdrawPage';
@@ -58,6 +59,15 @@ import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import AdminRegister from '../pages/admin/AdminRegister';
 import { StatusPage } from '../pages/admin/StatusPage';
 import TransactionsPage from '../pages/admin/TransactionsPage';
+import AdminUsersPage from '../pages/admin/AdminUsersPage';
+import AdminUserDetailPage from '../pages/admin/AdminUserDetailPage';
+import AdminKycQueuePage from '../pages/admin/AdminKycQueuePage';
+import AdminWithdrawalsPage from '../pages/admin/AdminWithdrawalsPage';
+import AdminSupportTicketsPage from '../pages/admin/AdminSupportTicketsPage';
+import AdminNotificationsControlPage from '../pages/admin/AdminNotificationsControlPage';
+import AdminEarningsPage from '../pages/admin/AdminEarningsPage';
+import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
+import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
 
 // System Pages
 import NotFound from '../pages/system/NotFound';
@@ -109,10 +119,11 @@ export default function AppRoutes() {
                         }
                     >
                         <Route index element={<UserDashboardPage />} />
+                        <Route path="services" element={<ServicesPage />} />
                         <Route path="dashboard" element={<Navigate to="/app" replace />} />
                         
-                        {/* Wallet Ecosystem (Batch 2) */}
-                        <Route path="wallet" element={<UserWalletPage />} />
+                        {/* Wallet Ecosystem (Merged into Dashboard) */}
+                        <Route path="wallet" element={<Navigate to="/app" replace />} />
                         <Route path="wallet/fund" element={<UserFundWalletPage />} />
                         <Route path="wallet/withdraw" element={<UserWithdrawPage />} />
                         <Route path="wallet/linked-accounts" element={<UserLinkedAccountsPage />} />
@@ -162,8 +173,32 @@ export default function AppRoutes() {
                     <Route element={<AdminProtectedRoute />}>
                         <Route path="/admin" element={<AdminLayout />}>
                             <Route index element={<AdminDashboardPage />} />
-                            <Route path="status" element={<StatusPage />} />
+                            <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+                            
+                            <Route path="users" element={<AdminUsersPage />} />
+                            <Route path="users/:id" element={<AdminUserDetailPage />} />
+                            
+                            <Route path="kyc" element={<AdminKycQueuePage />} />
                             <Route path="transactions" element={<TransactionsPage />} />
+                            <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
+                            <Route path="support" element={<AdminSupportTicketsPage />} />
+                            <Route path="notifications" element={<AdminNotificationsControlPage />} />
+                            <Route path="status" element={<StatusPage />} />
+                            
+                            {/* Business & Finance */}
+                            <Route path="business">
+                                <Route path="earnings" element={<AdminEarningsPage />} />
+                                {/* Fallback mappings for missing specific analytics views */}
+                                <Route path="overview" element={<Navigate to="/admin/business/earnings" replace />} />
+                                <Route path="wallet" element={<Navigate to="/admin/business/earnings" replace />} />
+                                <Route path="ledger" element={<Navigate to="/admin/business/earnings" replace />} />
+                                <Route path="expenses" element={<Navigate to="/admin/business/earnings" replace />} />
+                                <Route path="profit" element={<Navigate to="/admin/business/earnings" replace />} />
+                            </Route>
+
+                            {/* System */}
+                            <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+                            <Route path="settings" element={<AdminSettingsPage />} />
                         </Route>
                     </Route>
 

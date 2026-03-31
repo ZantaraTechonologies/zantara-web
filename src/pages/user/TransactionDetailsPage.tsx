@@ -100,8 +100,8 @@ const TransactionDetailsPage: React.FC = () => {
                          tx.status === 'pending' ? <Clock size={32} className="animate-pulse" /> :
                          <XCircle size={32} />}
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{tx.status === 'success' ? 'Confirmed Entry' : 'Processing Entry'}</p>
-                    <h2 className="text-4xl font-black text-slate-900 tracking-tighter">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">{tx.status === 'success' ? 'Confirmed Entry' : 'Processing Entry'}</p>
+                    <h2 className="text-4xl font-bold text-slate-900 tracking-tighter">
                         {currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </h2>
                 </div>
@@ -225,7 +225,12 @@ const TransactionDetailsPage: React.FC = () => {
                 <div className="space-y-1">
                     <h4 className="text-sm font-bold text-slate-900">Need help with this?</h4>
                     <p className="text-[11px] text-slate-500 font-medium leading-relaxed">If you have any issues with this transaction, please contact our support team with the Reference ID above. Most issues are resolved within 24 hours.</p>
-                    <button className="text-[10px] font-black uppercase tracking-widest text-blue-600 mt-2 hover:underline">Open Support Ticket</button>
+                    <button 
+                        onClick={() => navigate(`/app/support/create?txId=${tx.id || tx._id}`)}
+                        className="text-[10px] font-black uppercase tracking-widest text-blue-600 mt-2 hover:underline"
+                    >
+                        Open Support Ticket
+                    </button>
                 </div>
             </div>
         </div>

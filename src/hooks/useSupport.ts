@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as supportService from '../services/support/supportService';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 
 export const useMyTickets = () => {
     return useQuery({
@@ -40,6 +40,7 @@ export const useReplyToTicket = () => {
         mutationFn: ({ id, message }: { id: string, message: string }) => 
             supportService.replyToTicket(id, message),
         onSuccess: (_, variables) => {
+            toast.success('Reply transmitted');
             queryClient.invalidateQueries({ queryKey: ['ticket', variables.id] });
             queryClient.invalidateQueries({ queryKey: ['my-tickets'] });
         },

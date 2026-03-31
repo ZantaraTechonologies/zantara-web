@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { 
-    LayoutDashboard, 
-    ArrowUpRight, 
-    Plus, 
-    Zap, 
-    Wifi, 
-    Tv, 
-    GraduationCap, 
-    Gamepad2, 
+import {
+    LayoutDashboard,
+    ArrowUpRight,
+    Plus,
+    Zap,
+    Wifi,
+    Tv,
+    GraduationCap,
+    Gamepad2,
     ChevronRight,
     TrendingUp,
     ShieldCheck,
     AlertCircle,
+    ShieldAlert,
+    Briefcase,
+    Share2,
     Bell,
     CreditCard,
     Users,
     Copy,
-    Download,
-    ShieldAlert,
-    Briefcase
+    Building2,
+    Info,
+    Wallet,
+    Activity
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
@@ -27,12 +31,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useMyTransactions } from '../../hooks/useWallet';
 import { ListSkeleton } from '../../components/feedback/Skeletons';
 import { format } from 'date-fns';
+import { copyToClipboard, shareContent } from '../../utils/clipboard';
+import { toast } from 'react-hot-toast';
 
 const UserDashboardPage: React.FC = () => {
     const { user } = useAuthStore();
-    const { balance, currency } = useWalletStore();
+    const { 
+        balance, 
+        frozenBalance,
+        currency, 
+        fetchBalance,
+        fetchVirtualAccount,
+        fetchLinkedAccounts
+    } = useWalletStore();
+    
     const earningsRes = useEarningsSummary();
-    const { myReferralCode, totalReferrals, referralBalance } = (earningsRes.data as any) || {};
+    const myReferralCode = user?.myReferralCode;
+    const { totalReferrals, referralBalance } = (earningsRes.data as any) || {};
     const refLoading = earningsRes.isLoading;
     const navigate = useNavigate();
 
@@ -40,10 +55,17 @@ const UserDashboardPage: React.FC = () => {
     const { data: txData, isLoading: txLoading } = useMyTransactions({ limit: 4 });
     const recentActivities = txData?.items ?? [];
 
+    useEffect(() => {
+        // Initial data sync
+        fetchBalance();
+        fetchVirtualAccount();
+        fetchLinkedAccounts();
+    }, []);
+
     const stats = [
         { label: 'Network Assets', value: `${currency} ${balance?.toLocaleString()}`, icon: LayoutDashboard, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        { label: 'Yield Balance', value: `${currency} ${referralBalance?.toLocaleString()}`, icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
-        { label: 'Nodes Linked', value: totalReferrals?.toString() || '0', icon: ShieldCheck, color: 'text-purple-500', bg: 'bg-purple-50' },
+        { label: 'Frozen Capital', value: `${currency} ${frozenBalance?.toLocaleString() || '0'}`, icon: ShieldAlert, color: 'text-red-500', bg: 'bg-red-50' },
+        { label: 'Yield Balance', value: `${currency} ${referralBalance?.toLocaleString() || '0'}`, icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
     ];
 
     const quickActions = [
@@ -51,67 +73,70 @@ const UserDashboardPage: React.FC = () => {
         { label: 'Data', icon: Wifi, path: '/app/services/data', color: 'bg-blue-50 text-blue-600' },
         { label: 'Cable', icon: Tv, path: '/app/services/cable', color: 'bg-purple-50 text-purple-600' },
         { label: 'Power', icon: Zap, path: '/app/services/electricity', color: 'bg-yellow-50 text-yellow-600' },
-        { label: 'Exam', icon: GraduationCap, path: '/app/services/exam', color: 'bg-red-50 text-red-600' },
-        { label: 'Games', icon: Gamepad2, path: '/app/services/betting', color: 'bg-emerald-50 text-emerald-600' },
+        { label: 'Exam', icon: GraduationCap, path: '/app/services/exam-pins', color: 'bg-red-50 text-red-600' },
+        { label: 'History', icon: CreditCard, path: '/app/transactions', color: 'bg-emerald-50 text-emerald-600' },
     ];
 
     const copyReferralCode = () => {
         if (!myReferralCode) return;
-        navigator.clipboard.writeText(myReferralCode);
-        alert('Referral code copied to clipboard!');
+        copyToClipboard(myReferralCode, 'Referral code copied!');
+    };
+
+    const handleShare = () => {
+        if (!myReferralCode) return;
+        shareContent({
+            title: 'Join Zantara',
+            text: `Join me on Zantara and start earning! Use my code: ${myReferralCode}`,
+            url: `${window.location.origin}/register?ref=${myReferralCode}`
+        });
     };
 
     const lastCredit = recentActivities.find(tx => tx.type === 'wallet_fund' || tx.amount > 0);
 
     return (
-        <div className="p-4 sm:p-6 lg:p-8 space-y-8 animate-in fade-in duration-700 font-sans">
+        <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-6 animate-in fade-in duration-700 font-sans">
             {/* Top Identity Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                            Protocol Alpha <span className="text-emerald-500">Online</span>
-                        </h1>
-                        {user?.role === 'agent' ? (
-                            <div className="bg-blue-900 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-blue-900/10">
-                                <Briefcase size={12} />
-                                Agent Node
-                            </div>
-                        ) : (
-                            <div className="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                                Standard Node
-                            </div>
-                        )}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-slate-50 shadow-sm">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-xs shrink-0">
+                        {user?.name?.substring(0, 2).toUpperCase() || 'AZ'}
                     </div>
-                    <p className="text-slate-500 font-medium flex items-center gap-2">
-                        Welcome back, <span className="text-slate-900 font-bold">{user?.firstName || 'User'}</span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    </p>
+                    <div className="space-y-1">
+                        <p className="text-slate-500 font-medium flex items-center gap-2 text-sm">
+                            System Online: Hello, <span className="text-slate-900 font-bold">{user?.name || 'User'}</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-lg border ${user?.kycStatus === 'verified' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-slate-50 border-slate-100 text-slate-500'}`}>
+                                {user?.kycStatus === 'verified' ? 'Verified Tier' : 'Unverified Node'}
+                            </span>
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">ID: {user?.email?.split('@')[0]}</span>
+                        </div>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="relative p-2.5 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
-                        <Bell size={20} className="text-slate-600" />
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                    <button disabled className="flex items-center gap-2 bg-white border border-slate-200 text-slate-300 px-4 py-2 rounded-xl font-bold transition-all shadow-sm cursor-not-allowed opacity-60 text-xs">
+                        <ArrowUpRight size={14} />
+                        <span>Withdraw</span>
                     </button>
-                    <Link to="/app/wallet/fund" className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95">
-                        <Plus size={18} />
+                    <button disabled className="flex items-center gap-2 bg-emerald-300 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg cursor-not-allowed opacity-80 text-xs">
+                        <Plus size={14} />
                         <span>Fund Node</span>
-                    </Link>
+                    </button>
                 </div>
             </div>
 
             {/* Core Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white border border-slate-50 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className={`${stat.bg} ${stat.color} p-3 rounded-xl group-hover:scale-110 transition-transform`}>
-                                <stat.icon size={22} />
-                            </div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-lg">Live</div>
+                    <div key={i} className="bg-white border border-slate-50 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all group flex items-center gap-4">
+                        <div className={`${stat.bg} ${stat.color} p-4 rounded-2xl group-hover:scale-110 transition-transform shrink-0`}>
+                            <stat.icon size={24} />
                         </div>
-                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-1">{stat.label}</p>
-                        <h3 className="text-2xl font-black text-slate-900 tracking-tight">{stat.value}</h3>
+                        <div>
+                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-0.5">{stat.label}</p>
+                            <h3 className="text-xl font-bold text-slate-900 tracking-tight">{stat.value}</h3>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -129,8 +154,8 @@ const UserDashboardPage: React.FC = () => {
                         </div>
                         <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
                             {quickActions.map((action, i) => (
-                                <Link 
-                                    key={i} 
+                                <Link
+                                    key={i}
                                     to={action.path}
                                     className="flex flex-col items-center gap-3 group active:scale-95 transition-transform"
                                 >
@@ -157,27 +182,53 @@ const UserDashboardPage: React.FC = () => {
                             {txLoading ? (
                                 <ListSkeleton items={4} />
                             ) : recentActivities.length > 0 ? (
-                                recentActivities.map((item, idx) => (
-                                    <div key={idx} className="flex items-center justify-between group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                                <CreditCard size={20} />
+                                recentActivities.map((item, idx) => {
+                                    const isSuccess = item.status?.toLowerCase() === 'success' || item.status?.toLowerCase() === 'completed';
+                                    const isFailed = item.status?.toLowerCase() === 'failed' || item.status?.toLowerCase() === 'error';
+                                    const isPending = item.status?.toLowerCase() === 'pending' || item.status?.toLowerCase() === 'processing';
+
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => navigate(`/app/transactions/${item.id}`)}
+                                            className="w-full flex items-center justify-between group p-3 hover:bg-slate-50 rounded-xl transition-all text-left border border-transparent hover:border-slate-100"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
+                                                    isSuccess ? 'bg-emerald-50 text-emerald-500' : 
+                                                    isFailed ? 'bg-red-50 text-red-500' : 
+                                                    'bg-slate-50 text-slate-400'
+                                                }`}>
+                                                    <CreditCard size={20} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-slate-900 text-sm">{item.service || item.type.replace('_', ' ').toUpperCase()}</h4>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest whitespace-nowrap">
+                                                            {item.createdAt ? format(new Date(item.createdAt), 'MMM dd, HH:mm') : 'N/A'}
+                                                        </p>
+                                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest ${
+                                                            isSuccess ? 'bg-emerald-100 text-emerald-700' : 
+                                                            isFailed ? 'bg-red-100 text-red-700' : 
+                                                            'bg-amber-100 text-amber-700'
+                                                        }`}>
+                                                            {item.status}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-900 text-sm">{item.service || item.type}</h4>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
-                                                    {format(new Date(item.createdAt), 'MMM dd, HH:mm')} • {item.status.toUpperCase()}
-                                                </p>
+                                            <div className="text-right flex items-center gap-4">
+                                                <div>
+                                                    <p className={`font-bold text-sm ${item.amount > 0 ? 'text-emerald-500' : 'text-slate-900'}`}>
+                                                        {item.amount > 0 ? '+' : ''}{currency}{Math.abs(item.amount).toLocaleString()}
+                                                    </p>
+                                                    <p className="text-[9px] text-slate-400 font-bold tracking-tighter uppercase">Protocol Settlement</p>
+                                                </div>
+                                                <ChevronRight size={16} className="text-slate-200 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
                                             </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className={`font-bold text-sm ${item.amount > 0 ? 'text-emerald-500' : 'text-slate-900'}`}>
-                                                {item.amount > 0 ? '+' : ''}{currency}{Math.abs(item.amount).toLocaleString()}
-                                            </p>
-                                            <p className="text-[9px] text-slate-400 font-bold tracking-tighter uppercase">Protocol Settlement</p>
-                                        </div>
-                                    </div>
-                                ))
+                                        </button>
+                                    );
+                                })
                             ) : (
                                 <div className="text-center py-12 border-2 border-dashed border-slate-50 rounded-2xl">
                                     <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">No activities detected on this node</p>
@@ -187,43 +238,12 @@ const UserDashboardPage: React.FC = () => {
                     </section>
                 </div>
 
-                {/* Sidebar Analytics */}
+                {/* Sidebar Analytics & Status */}
                 <div className="lg:col-span-4 space-y-8">
-                    {/* User Status Card */}
-                    <div className="bg-slate-950 rounded-2xl p-6 text-white relative overflow-hidden shadow-2xl">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                        <div className="relative z-10 space-y-6">
-                            <div className="flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <p className="text-emerald-400 font-bold text-[10px] uppercase tracking-[0.2em]">Account Status</p>
-                                    <h4 className="text-lg font-bold flex items-center gap-2">
-                                        {user?.kycStatus === 'verified' ? 'Verified Tier' : 'Unverified Node'}
-                                        {user?.kycStatus === 'verified' && <ShieldCheck size={18} className="text-emerald-400" />}
-                                    </h4>
-                                </div>
-                                <div className="w-12 h-12 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center backdrop-blur-md">
-                                    <ShieldAlert size={20} className={user?.kycStatus === 'verified' ? 'text-emerald-400' : 'text-slate-400'} />
-                                </div>
-                            </div>
-
-                            <div className="space-y-4 pt-6 border-t border-white/10">
-                                <div className="flex justify-between items-center text-xs font-bold">
-                                    <span className="text-slate-500 uppercase flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                        Last Credit
-                                    </span>
-                                    <span className="text-white">{lastCredit ? `${currency}${lastCredit.amount.toLocaleString()}` : 'None'}</span>
-                                </div>
-                                <Link to="/app/profile/kyc" className="w-full flex items-center justify-center gap-2 py-3 bg-white text-slate-950 rounded-xl font-bold text-xs hover:bg-slate-50 transition-colors uppercase tracking-widest">
-                                    Level Details
-                                    <ChevronRight size={14} />
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
+                    {/* (Account status moved to header) */}
 
                     {/* Referral Engine */}
-                    <div className="bg-emerald-50 rounded-2xl p-6 space-y-6 border border-emerald-100/50">
+                    <div className="bg-slate-50 rounded-2xl p-6 space-y-6 border border-slate-100">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
                                 <p className="text-emerald-600 font-bold text-[10px] uppercase tracking-widest">Network Growth</p>
@@ -233,22 +253,27 @@ const UserDashboardPage: React.FC = () => {
                                 <Users size={20} className="text-emerald-500" />
                             </div>
                         </div>
-                        
+
                         <div className="space-y-3">
                             <div className="p-4 bg-white rounded-xl border border-emerald-100/50 space-y-2">
                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Your Referral ID</p>
                                 <div className="flex items-center justify-between">
-                                    <code className="text-lg font-black tracking-widest text-slate-900 font-mono">{myReferralCode || '-------'}</code>
-                                    <button onClick={copyReferralCode} className="text-emerald-500 hover:text-emerald-600 active:scale-90 transition-transform">
-                                        <Copy size={18} />
-                                    </button>
+                                    <code className="text-lg font-bold tracking-widest text-slate-900 font-mono">{myReferralCode || '-------'}</code>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={copyReferralCode} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg active:scale-90 transition-all" title="Copy Code">
+                                            <Copy size={18} />
+                                        </button>
+                                        <button onClick={handleShare} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg active:scale-90 transition-all" title="Share Link">
+                                            <Share2 size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <p className="text-[10px] text-emerald-700/70 font-medium leading-relaxed">
                                 Share your code and earn a lifetime commission on every purchase made by nodes assigned to you.
                             </p>
-                            <Link to="/app/referral" className="w-full flex items-center justify-center py-3 bg-emerald-500 text-slate-950 rounded-xl font-bold text-xs hover:bg-emerald-600 transition-colors uppercase tracking-widest">
-                                Dashboard
+                            <Link to="/app/referral" className="w-full flex items-center justify-center py-3 bg-emerald-500 text-slate-950 rounded-xl font-bold text-xs hover:bg-emerald-600 transition-colors uppercase tracking-widest shadow-sm shadow-emerald-500/10">
+                                View Network
                             </Link>
                         </div>
                     </div>

@@ -2,9 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     Search, 
-    Filter, 
     ChevronRight, 
-    ArrowLeft,
     Download,
     Calendar,
     Wallet,
@@ -14,14 +12,12 @@ import {
     Tv,
     GraduationCap,
     Clock,
-    CheckCircle2,
-    XCircle,
     Info,
     RefreshCw
 } from 'lucide-react';
 import { useMyTransactions } from '../../hooks/useWallet';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { TxLog } from '../../services/transactions/transactionService';
+import { toast } from 'react-hot-toast';
 
 const getServiceIcon = (type: string) => {
     switch (type) {
@@ -52,7 +48,7 @@ const UserTransactionsPage: React.FC = () => {
 
     const { currency } = useWalletStore();
     const { data, isLoading, refetch } = useMyTransactions({
-        limit: 100 // High limit for initial view
+        limit: 100 
     });
 
     const filteredTransactions = useMemo(() => {
@@ -67,22 +63,50 @@ const UserTransactionsPage: React.FC = () => {
         });
     }, [data, searchQuery, statusFilter, typeFilter]);
 
+    const handleExport = () => {
+        if (!filteredTransactions.length) {
+            toast.error('No transactions to export');
+            return;
+        }
+        const headers = ['Date', 'Service', 'Reference', 'Amount', 'Status'];
+        const csvRows = filteredTransactions.map(tx => [
+            new Date(tx.createdAt).toLocaleDateString(),
+            tx.service || tx.type,
+            tx.refId,
+            `${currency}${tx.amount}`,
+            tx.status
+        ].join(','));
+        const csvContent = [headers.join(','), ...csvRows].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `zantara_ledger_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast.success('Financial ledger exported');
+    };
+
     return (
         <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Financial Ledger</h1>
-                    <p className="text-sm text-slate-500 font-medium">Keep track of every transaction on your account</p>
+                    <p className="text-sm text-slate-500 font-medium tracking-tight">Systematic record of all node operations</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button 
-                        onClick={() => refetch()}
-                        className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
+                        onClick={() => { refetch(); toast.success('Ledger synchronized'); }}
+                        className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-emerald-500 transition-colors shadow-sm active:scale-95"
+                        title="Sync Ledger"
                     >
                         <RefreshCw size={20} className={isLoading ? 'animate-spin' : ''} />
                     </button>
-                    <button className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all shadow-xl shadow-slate-200">
+                    <button 
+                        onClick={handleExport}
+                        className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-lg active:scale-95"
+                    >
                         <Download size={16} />
                         <span>Export CSV</span>
                     </button>
@@ -146,38 +170,38 @@ const UserTransactionsPage: React.FC = () => {
                         filteredTransactions.map((tx) => (
                             <button 
                                 key={tx.id}
-                                onClick={() => navigate(`/app/transactions/${tx.id}`)}
-                                className="w-full p-6 flex items-center gap-5 hover:bg-slate-50 transition-colors group text-left"
-                            >
-                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-                                    {getServiceIcon(tx.type)}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-slate-900 flex items-center gap-2">
-                                        <span className="truncate">{tx.service || tx.type.replace('_', ' ').toUpperCase()}</span>
-                                        <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-md border ${getStatusStyles(tx.status)}`}>
-                                            {tx.status}
-                                        </span>
-                                    </h4>
-                                    <div className="flex items-center gap-3 mt-1">
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-1.2">
-                                            <Calendar size={10} />
-                                            {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'Unknown date'}
-                                        </p>
-                                        <p className="text-[10px] text-slate-300 font-bold">•</p>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate">
-                                            {tx.refId || 'N/A'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right shrink-0">
-                                    <p className={`text-lg font-black tracking-tight ${tx.amount > 0 ? 'text-slate-900' : 'text-slate-900'}`}>
-                                        {currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                    </p>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">{currency}</p>
-                                </div>
-                                <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
-                            </button>
+                                 onClick={() => navigate(`/app/transactions/${tx.id}`)}
+                                 className="w-full p-6 flex items-center gap-5 hover:bg-slate-50 transition-colors group text-left"
+                             >
+                                 <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-sm">
+                                     {getServiceIcon(tx.type)}
+                                 </div>
+                                 <div className="flex-1 min-w-0">
+                                     <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                                         <span className="truncate text-sm tracking-tight">{tx.service || tx.type.replace('_', ' ').toUpperCase()}</span>
+                                         <span className={`px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest rounded-md border ${getStatusStyles(tx.status)}`}>
+                                             {tx.status}
+                                         </span>
+                                     </h4>
+                                     <div className="flex items-center gap-3 mt-1">
+                                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-1.2">
+                                             <Calendar size={10} />
+                                             {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'Unknown date'}
+                                         </p>
+                                         <p className="text-[10px] text-slate-300 font-bold">•</p>
+                                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate">
+                                             {tx.refId || 'N/A'}
+                                         </p>
+                                     </div>
+                                 </div>
+                                 <div className="text-right shrink-0">
+                                     <p className={`text-md font-bold tracking-tight ${tx.amount > 0 ? 'text-emerald-500' : 'text-slate-900'}`}>
+                                         {tx.amount > 0 ? '+' : ''}{currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                     </p>
+                                     <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Settled</p>
+                                 </div>
+                                 <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
+                             </button>
                         ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
@@ -185,8 +209,8 @@ const UserTransactionsPage: React.FC = () => {
                                 <Clock size={40} />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-900">No transactions found</h3>
-                                <p className="text-sm text-slate-500 font-medium">Try adjusting your filters or search query</p>
+                                <h3 className="text-lg font-bold text-slate-900">No records found</h3>
+                                <p className="text-sm text-slate-500 font-medium">Clear search or filters to re-index ledger.</p>
                             </div>
                             {(statusFilter !== 'all' || typeFilter !== 'all' || searchQuery) && (
                                 <button 
@@ -204,7 +228,7 @@ const UserTransactionsPage: React.FC = () => {
             {/* Pagination Placeholder */}
             {filteredTransactions.length > 0 && (
                 <div className="flex items-center justify-center pt-4">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Showing {filteredTransactions.length} results</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Re-indexing {filteredTransactions.length} entries</p>
                 </div>
             )}
         </div>

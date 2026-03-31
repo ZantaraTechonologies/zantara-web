@@ -13,6 +13,7 @@ export interface Ticket {
     message: string;
     status: 'open' | 'in-progress' | 'resolved' | 'closed';
     priority: 'low' | 'medium' | 'high';
+    category: string;
     transactionId?: string;
     responses: TicketResponse[];
     createdAt: string;
@@ -23,6 +24,7 @@ export const createTicket = async (ticketData: {
     subject: string;
     message: string;
     priority: string;
+    category: string;
     transactionId?: string;
 }): Promise<Ticket> => {
     const { data } = await API.post('/support/create', ticketData);

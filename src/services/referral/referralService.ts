@@ -58,7 +58,7 @@ export const getReferralStats = async (): Promise<ReferralStats> => {
 
 export const getEarningsSummary = async (): Promise<EarningsSummary> => {
     const { data } = await API.get('/user/earnings/summary');
-    return data;
+    return data.data || data; 
 };
 
 export const getEarningsHistory = async (page = 1, limit = 10): Promise<EarningsHistoryResponse> => {
