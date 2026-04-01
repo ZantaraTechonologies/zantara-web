@@ -24,7 +24,7 @@ const steps = [
 
 const HowItWorks: React.FC = () => {
     return (
-        <section className="py-12 md:py-16 bg-slate-950 text-white relative overflow-hidden">
+        <section id="how-it-works" className="py-12 md:py-16 bg-slate-950 text-white relative overflow-hidden">
              {/* Abstract curves for background */}
              <div className="absolute inset-0 opacity-10 pointer-events-none">
                 <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full text-emerald-500 fill-current">

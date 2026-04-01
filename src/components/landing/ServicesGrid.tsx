@@ -55,7 +55,7 @@ const services = [
 
 const ServicesGrid: React.FC = () => {
     return (
-        <section className="py-12 md:py-16 bg-slate-50/50">
+        <section id="services" className="py-12 md:py-16 bg-slate-50/50">
             <div className="mx-auto max-w-7xl px-6">
                 <div className="text-center max-w-2xl mx-auto mb-16">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Core Infrastructure</span>

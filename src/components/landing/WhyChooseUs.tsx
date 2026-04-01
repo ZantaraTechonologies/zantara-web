@@ -36,7 +36,7 @@ const features = [
 
 const WhyChooseUs: React.FC = () => {
     return (
-        <section className="py-12 md:py-16 bg-white relative overflow-hidden">
+        <section id="features" className="py-12 md:py-16 bg-white relative overflow-hidden">
              <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-50 rounded-full blur-[120px] -z-10 opacity-50 transform translate-x-1/2 -translate-y-1/2"></div>
              
              <div className="mx-auto max-w-7xl px-6">

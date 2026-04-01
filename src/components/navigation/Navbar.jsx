@@ -94,12 +94,20 @@ export default function Navbar() {
                             </div>
                         </div>
                     ) : (
-                        <div className="hidden lg:flex items-center gap-8">
-                            <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors">Login</Link>
-                            <Link to="/register" className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-2.5 rounded-xl font-extrabold text-sm transition-all shadow-lg shadow-emerald-500/10">
-                                Get Started
-                            </Link>
-                        </div>
+                        <>
+                            <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center max-w-[400px]">
+                                <a href="/#" className={linkBase}>Home</a>
+                                <a href="/#services" className={linkBase}>Services</a>
+                                <a href="/#features" className={linkBase}>Features</a>
+                                <a href="/#security" className={linkBase}>Security</a>
+                            </nav>
+                            <div className="hidden lg:flex items-center gap-6">
+                                <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors">Login</Link>
+                                <Link to="/register" className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-2.5 rounded-xl font-extrabold text-sm transition-all shadow-lg shadow-emerald-500/10">
+                                    Get Started
+                                </Link>
+                            </div>
+                        </>
                     )}
 
                     {/* Mobile Controls */}
@@ -124,11 +132,11 @@ export default function Navbar() {
 
             {/* Mobile menu drawer */}
             <div 
-                className={`lg:hidden fixed inset-0 z-[100] transition-visibility duration-300 ${open ? "visible" : "invisible"}`}
+                className={`lg:hidden fixed inset-0 z-[100] transition-all duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
             >
                 {/* Backdrop */}
                 <div 
-                    className={`absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`}
+                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
                     onClick={() => setOpen(false)}
                 />
                 
@@ -203,9 +211,27 @@ export default function Navbar() {
                                 </nav>
                             </div>
                         ) : (
-                            <div className="flex flex-col gap-4 py-10">
-                                <Link to="/login" className="w-full py-5 rounded-2xl bg-slate-50 text-slate-900 font-black text-center border border-slate-100 active:scale-95 transition-all" onClick={() => setOpen(false)}>Login Account</Link>
-                                <Link to="/register" className="w-full py-5 rounded-2xl bg-emerald-500 text-slate-950 font-black text-center shadow-xl shadow-emerald-500/10 active:scale-95 transition-all text-sm uppercase tracking-widest" onClick={() => setOpen(false)}>Get Started Now</Link>
+                            <div className="space-y-6">
+                                <nav className="space-y-1.5 text-left">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mb-3">Quick Navigation</p>
+                                    <a href="/#" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                        Home Overview
+                                    </a>
+                                    <a href="/#services" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                        Our Services
+                                    </a>
+                                    <a href="/#features" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                        Platform Features
+                                    </a>
+                                    <a href="/#security" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                        Security Measures
+                                    </a>
+                                </nav>
+
+                                <div className="flex flex-col gap-4 py-6 border-t border-slate-50">
+                                    <Link to="/login" className="w-full py-5 rounded-2xl bg-slate-50 text-slate-900 font-black text-center border border-slate-100 active:scale-95 transition-all" onClick={() => setOpen(false)}>Login Account</Link>
+                                    <Link to="/register" className="w-full py-5 rounded-2xl bg-emerald-500 text-slate-950 font-black text-center shadow-xl shadow-emerald-500/10 active:scale-95 transition-all text-sm uppercase tracking-widest" onClick={() => setOpen(false)}>Get Started Now</Link>
+                                </div>
                             </div>
                         )}
                     </div>

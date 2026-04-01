@@ -21,7 +21,7 @@ const trustFeatures = [
 
 const SecurityTrust: React.FC = () => {
     return (
-        <section className="py-12 md:py-16 bg-slate-50 relative border-t border-slate-100">
+        <section id="security" className="py-12 md:py-16 bg-slate-50 relative border-t border-slate-100">
              <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-2 gap-16 items-center">
                  {/* Left Side: Security Graphic */}
                  <div className="order-2 md:order-1 relative">
