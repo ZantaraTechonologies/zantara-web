@@ -102,15 +102,23 @@ export default function Navbar() {
                         </div>
                     )}
 
-                    {/* Mobile burger */}
-                    <button
-                        onClick={() => setOpen((v) => !v)}
-                        className="lg:hidden inline-flex items-center justify-center rounded-xl p-2.5 bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors"
-                        aria-expanded={open}
-                        aria-label="Toggle menu"
-                    >
-                        {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </button>
+                    {/* Mobile Controls */}
+                    <div className="lg:hidden flex items-center gap-3">
+                        {isAuthenticated && (
+                            <Link to={isAdmin ? "/admin/notifications" : "/app/notifications"} className="p-2.5 text-slate-400 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors relative">
+                                <Bell size={20} />
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 border-2 border-white rounded-full"></span>
+                            </Link>
+                        )}
+                        <button
+                            onClick={() => setOpen((v) => !v)}
+                            className="inline-flex items-center justify-center rounded-xl p-2.5 bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-lg active:scale-95"
+                            aria-expanded={open}
+                            aria-label="Toggle menu"
+                        >
+                            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -126,64 +134,90 @@ export default function Navbar() {
                 
                 {/* Drawer Content */}
                 <div 
-                    className={`absolute inset-y-0 left-0 w-[280px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out transform ${open ? "translate-x-0" : "-translate-x-full"}`}
+                    className={`absolute inset-y-0 left-0 w-[300px] bg-white shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
                 >
-                    <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-                            <img src="/app_store_icon.png" alt="Zantara Logo" className="w-8 h-8 rounded-lg shadow-lg" />
-                            <span className="text-lg font-bold text-slate-900 tracking-tight uppercase">Zantara {isAdmin && <span className="text-emerald-500 ml-1">Admin</span>}</span>
+                            <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center">
+                                <img src="/app_store_icon.png" alt="Zantara Logo" className="w-7 h-7" />
+                            </div>
+                            <span className="text-lg font-black text-slate-900 tracking-tight uppercase">Zantara</span>
                         </Link>
-                        <button onClick={() => setOpen(false)} className="p-2 -mr-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button onClick={() => setOpen(false)} className="p-2 -mr-2 text-slate-400 hover:text-slate-900 transition-colors">
                             <X className="w-6 h-6" />
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 space-y-2 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
                         {isAuthenticated ? (
-                            <>
-                                <div className={`mb-6 p-4 rounded-2xl border ${isAdmin ? "bg-slate-900 border-emerald-500/20" : "bg-emerald-50 border-emerald-100/50"}`}>
-                                    <div className={`text-[10px] font-semibold uppercase tracking-[0.2em] mb-1 ${isAdmin ? "text-emerald-400" : "text-emerald-600"}`}>{isAdmin ? "Admin Console" : "Signed in as"}</div>
-                                    <div className={`font-bold truncate text-sm ${isAdmin ? "text-white" : "text-slate-900"}`}>{isAdmin ? "System Administrator" : (user?.name || 'User')}</div>
-                                    {!isAdmin && <div className="text-slate-400 text-[11px] font-medium truncate mt-1">{user?.email}</div>}
+                            <div className="space-y-6">
+                                {/* Profile Card */}
+                                <div className={`p-5 rounded-3xl border shadow-sm relative overflow-hidden ${isAdmin ? "bg-slate-900 border-slate-800" : "bg-emerald-50 border-emerald-100"}`}>
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full -mr-12 -mt-12 blur-2xl"></div>
+                                    <div className="relative z-10 flex items-center gap-4 text-left">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs shadow-lg ${isAdmin ? "bg-emerald-500 text-slate-900" : "bg-white text-emerald-600 border border-emerald-200"}`}>
+                                            {user?.name?.substring(0, 2).toUpperCase() || 'AZ'}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5 ${isAdmin ? "text-emerald-400" : "text-emerald-600"}`}>{isAdmin ? "Institutional Operator" : "Account Holder"}</div>
+                                            <div className={`font-bold truncate text-base leading-none ${isAdmin ? "text-white" : "text-slate-900"}`}>{user?.name || 'User'}</div>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                {!isAdmin ? (
-                                    <>
-                                        <NavLink to="/app" end className={({ isActive }) => `block py-3 px-4 rounded-xl font-bold transition-all ${isActive ? "bg-slate-950 text-emerald-400 shadow-lg" : "text-slate-600 hover:bg-slate-50"}`} onClick={() => setOpen(false)}>Dashboard Overview</NavLink>
-                                        <NavLink to="/app/transactions" className={({ isActive }) => `block py-3 px-4 rounded-xl font-bold transition-all ${isActive ? "bg-slate-950 text-emerald-400 shadow-lg" : "text-slate-600 hover:bg-slate-50"}`} onClick={() => setOpen(false)}>Transactions History</NavLink>
-                                        <NavLink to="/app/services" className="block py-3 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>All Services</NavLink>
-                                        <NavLink to="/app/profile" className="block py-3 px-4 rounded-xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>My Profile</NavLink>
-                                    </>
-                                ) : (
-                                    adminMenuItems.map((item) => (
-                                        <NavLink 
-                                            key={item.path} 
-                                            to={item.path} 
-                                            className={({ isActive }) => `flex items-center gap-3 py-3 px-4 rounded-xl font-bold transition-all ${isActive ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20" : "text-slate-600 hover:bg-slate-50"}`} 
-                                            onClick={() => setOpen(false)}
-                                        >
-                                            <item.icon size={18} />
-                                            {item.label}
-                                        </NavLink>
-                                    ))
-                                )}
-                            </>
+                                {/* Link Tiles */}
+                                <nav className="space-y-1.5 text-left">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mb-3">Navigation</p>
+                                    {!isAdmin ? (
+                                        <>
+                                            <NavLink to="/app" end className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "text-slate-600 hover:bg-slate-50"}`} onClick={() => setOpen(false)}>
+                                                <LayoutDashboard size={20} />
+                                                Dashboard Overview
+                                            </NavLink>
+                                            <NavLink to="/app/transactions" className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "text-slate-600 hover:bg-slate-50"}`} onClick={() => setOpen(false)}>
+                                                <ListOrdered size={20} />
+                                                Transactions History
+                                            </NavLink>
+                                            <NavLink to="/app/services" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                                <Zap size={20} />
+                                                Bill Payments
+                                            </NavLink>
+                                            <NavLink to="/app/profile" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                                <User size={20} />
+                                                Account Security
+                                            </NavLink>
+                                        </>
+                                    ) : (
+                                        adminMenuItems.map((item) => (
+                                            <NavLink 
+                                                key={item.path} 
+                                                to={item.path} 
+                                                className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-emerald-500 text-slate-950 shadow-xl shadow-emerald-500/20" : "text-slate-600 hover:bg-slate-50"}`} 
+                                                onClick={() => setOpen(false)}
+                                            >
+                                                <item.icon size={18} />
+                                                {item.label}
+                                            </NavLink>
+                                        ))
+                                    )}
+                                </nav>
+                            </div>
                         ) : (
-                            <div className="flex flex-col gap-3">
-                                <Link to="/login" className="w-full py-4 rounded-xl bg-slate-50 text-slate-600 font-extrabold text-center" onClick={() => setOpen(false)}>Login</Link>
-                                <Link to="/register" className="w-full py-4 rounded-xl bg-emerald-400 text-slate-950 font-extrabold text-center shadow-lg shadow-emerald-500/20" onClick={() => setOpen(false)}>Get Started</Link>
+                            <div className="flex flex-col gap-4 py-10">
+                                <Link to="/login" className="w-full py-5 rounded-2xl bg-slate-50 text-slate-900 font-black text-center border border-slate-100 active:scale-95 transition-all" onClick={() => setOpen(false)}>Login Account</Link>
+                                <Link to="/register" className="w-full py-5 rounded-2xl bg-emerald-500 text-slate-950 font-black text-center shadow-xl shadow-emerald-500/10 active:scale-95 transition-all text-sm uppercase tracking-widest" onClick={() => setOpen(false)}>Get Started Now</Link>
                             </div>
                         )}
                     </div>
 
                     {isAuthenticated && (
-                        <div className="p-6 border-t border-slate-100">
+                        <div className="p-6 border-t border-slate-50 bg-slate-50/20">
                             <button
                                 onClick={() => { setOpen(false); logout(); }}
-                                className="w-full py-4 rounded-xl bg-red-50 text-red-600 font-extrabold flex items-center justify-center gap-2"
+                                className="w-full py-4 rounded-2xl bg-white text-red-500 border border-red-100 font-black flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all text-xs uppercase tracking-widest"
                             >
                                 <LogOut size={18} />
-                                {isAdmin ? "Terminate Admin Session" : "Logout Session"}
+                                {isAdmin ? "End Admin Session" : "Disconnect Session"}
                             </button>
                         </div>
                     )}
