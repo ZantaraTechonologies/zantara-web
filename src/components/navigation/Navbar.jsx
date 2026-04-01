@@ -1,12 +1,22 @@
 import React, { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/auth/authStore";
-import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight } from "lucide-react";
+import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight, HelpCircle, BadgeDollarSign, BadgePercent, WalletCards, BarChart3, History, ChevronRight } from "lucide-react";
 
 export default function Navbar() {
     const { isAuthenticated, logout, user } = useAuthStore();
     const [open, setOpen] = useState(false);
     const location = useLocation();
+
+    // Body-scroll lock when menu is open
+    React.useEffect(() => {
+        if (open) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [open]);
 
     const isAdmin = location.pathname.startsWith('/admin');
 
@@ -14,12 +24,20 @@ export default function Navbar() {
 
     const adminMenuItems = [
         { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { path: "/admin/users", label: "Users", icon: Users },
-        { path: "/admin/kyc", label: "KYC", icon: ShieldCheck },
+        { path: "/admin/users", label: "User Management", icon: Users },
+        { path: "/admin/kyc", label: "KYC Queue", icon: ShieldCheck },
         { path: "/admin/transactions", label: "Transactions", icon: ListOrdered },
         { path: "/admin/withdrawals", label: "Withdrawals", icon: Banknote },
-        { path: "/admin/support", label: "Support", icon: MessageSquare },
-        { path: "/admin/status", label: "System", icon: Activity },
+        { path: "/admin/support", label: "Support Tickets", icon: MessageSquare },
+        { path: "/admin/notifications", label: "Message Center", icon: Bell },
+        { path: "/admin/status", label: "System Status", icon: Activity },
+        { header: "Business & Finance" },
+        { path: "/admin/business/overview", label: "Business Overview", icon: BadgeDollarSign },
+        { path: "/admin/business/earnings", label: "Earnings Analytics", icon: BadgePercent },
+        { path: "/admin/business/wallet", label: "System Liquidity", icon: WalletCards },
+        { path: "/admin/business/ledger", label: "Cost Ledger", icon: BarChart3 },
+        { path: "/admin/business/expenses", label: "Expenses", icon: History },
+        { path: "/admin/business/profit", label: "Profit Analytics", icon: BarChart3 },
     ];
 
     return (
@@ -136,40 +154,44 @@ export default function Navbar() {
             >
                 {/* Backdrop */}
                 <div 
-                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                    className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
                     onClick={() => setOpen(false)}
                 />
                 
                 {/* Drawer Content */}
                 <div 
-                    className={`absolute inset-y-0 left-0 w-[300px] bg-white shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
+                    className={`absolute inset-y-0 left-0 w-[300px] bg-white shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
                 >
-                    <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                    <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white relative z-20">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-                            <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center">
+                            <div className="w-10 h-10 bg-slate-900 rounded-xl shadow-lg flex items-center justify-center">
                                 <img src="/app_store_icon.png" alt="Zantara Logo" className="w-7 h-7" />
                             </div>
-                            <span className="text-lg font-black text-slate-900 tracking-tight uppercase">Zantara</span>
+                            <span className="text-xl font-black text-slate-900 tracking-tight uppercase">Zantara</span>
                         </Link>
-                        <button onClick={() => setOpen(false)} className="p-2 -mr-2 text-slate-400 hover:text-slate-900 transition-colors">
+                        <button onClick={() => setOpen(false)} className="p-2.5 -mr-2 bg-slate-50 rounded-xl text-slate-400 hover:text-slate-900 transition-colors">
                             <X className="w-6 h-6" />
                         </button>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
                         {isAuthenticated ? (
-                            <div className="space-y-6">
-                                {/* Profile Card */}
-                                <div className={`p-5 rounded-3xl border shadow-sm relative overflow-hidden ${isAdmin ? "bg-slate-900 border-slate-800" : "bg-emerald-50 border-emerald-100"}`}>
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full -mr-12 -mt-12 blur-2xl"></div>
-                                    <div className="relative z-10 flex items-center gap-4 text-left">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs shadow-lg ${isAdmin ? "bg-emerald-500 text-slate-900" : "bg-white text-emerald-600 border border-emerald-200"}`}>
+                            <div className="space-y-8">
+                                {/* Profile Card Simplified */}
+                                <div className={`p-6 rounded-3xl shadow-sm border ${isAdmin ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"}`}>
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs shadow-md ${isAdmin ? "bg-emerald-500 text-slate-900" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
                                             {user?.name?.substring(0, 2).toUpperCase() || 'AZ'}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5 ${isAdmin ? "text-emerald-400" : "text-emerald-600"}`}>{isAdmin ? "Institutional Operator" : "Account Holder"}</div>
-                                            <div className={`font-bold truncate text-base leading-none ${isAdmin ? "text-white" : "text-slate-900"}`}>{user?.name || 'User'}</div>
+                                            <div className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-1 ${isAdmin ? "text-emerald-400" : "text-emerald-500"}`}>{isAdmin ? "System Administrator" : "Account Identity"}</div>
+                                            <div className={`font-black truncate text-lg leading-none ${isAdmin ? "text-white" : "text-slate-900"}`}>{user?.name || 'User'}</div>
                                         </div>
+                                    </div>
+                                    <div className="h-px bg-slate-50 w-full mb-4"></div>
+                                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">
+                                        <span>Status</span>
+                                        <span className="text-emerald-500 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Verified User</span>
                                     </div>
                                 </div>
                                 
@@ -190,23 +212,36 @@ export default function Navbar() {
                                                 <Zap size={20} />
                                                 Bill Payments
                                             </NavLink>
+                                            <NavLink to="/app/referral" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                                <Users size={20} />
+                                                Refer & Earn
+                                            </NavLink>
+                                            <NavLink to="/app/support" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                                <HelpCircle size={20} />
+                                                Contact Support
+                                            </NavLink>
                                             <NavLink to="/app/profile" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
                                                 <User size={20} />
                                                 Account Security
                                             </NavLink>
                                         </>
                                     ) : (
-                                        adminMenuItems.map((item) => (
-                                            <NavLink 
-                                                key={item.path} 
-                                                to={item.path} 
-                                                className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-emerald-500 text-slate-950 shadow-xl shadow-emerald-500/20" : "text-slate-600 hover:bg-slate-50"}`} 
-                                                onClick={() => setOpen(false)}
-                                            >
-                                                <item.icon size={18} />
-                                                {item.label}
-                                            </NavLink>
-                                        ))
+                                        adminMenuItems.map((item, idx) => {
+                                            if (item.header) {
+                                                return <p key={idx} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mt-6 mb-3">{item.header}</p>
+                                            }
+                                            return (
+                                                <NavLink 
+                                                    key={item.path} 
+                                                    to={item.path} 
+                                                    className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-emerald-500 text-slate-950 shadow-xl shadow-emerald-500/20" : "text-slate-400 hover:bg-white/5 hover:text-emerald-400 font-bold"}`} 
+                                                    onClick={() => setOpen(false)}
+                                                >
+                                                    <item.icon size={18} />
+                                                    {item.label}
+                                                </NavLink>
+                                            )
+                                        })
                                     )}
                                 </nav>
                             </div>
@@ -237,13 +272,13 @@ export default function Navbar() {
                     </div>
 
                     {isAuthenticated && (
-                        <div className="p-6 border-t border-slate-50 bg-slate-50/20">
+                        <div className="p-6 border-t border-slate-100 bg-white shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
                             <button
                                 onClick={() => { setOpen(false); logout(); }}
-                                className="w-full py-4 rounded-2xl bg-white text-red-500 border border-red-100 font-black flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all text-xs uppercase tracking-widest"
+                                className="w-full py-4.5 rounded-2xl bg-red-50 text-red-600 border border-red-100 font-black flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all text-sm uppercase tracking-widest"
                             >
                                 <LogOut size={18} />
-                                {isAdmin ? "End Admin Session" : "Disconnect Session"}
+                                Logout session
                             </button>
                         </div>
                     )}
