@@ -177,24 +177,6 @@ export default function Navbar() {
                     <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-8 custom-scrollbar bg-white">
                         {isAuthenticated ? (
                             <div className="space-y-8">
-                                {/* Profile Card Simplified */}
-                                <div className={`p-6 rounded-3xl shadow-sm border ${isAdmin ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"}`}>
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs shadow-md ${isAdmin ? "bg-emerald-500 text-slate-900" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
-                                            {user?.name?.substring(0, 2).toUpperCase() || 'AZ'}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-1 ${isAdmin ? "text-emerald-400" : "text-emerald-500"}`}>{isAdmin ? "System Administrator" : "Account Identity"}</div>
-                                            <div className={`font-black truncate text-lg leading-none ${isAdmin ? "text-white" : "text-slate-900"}`}>{user?.name || 'User'}</div>
-                                        </div>
-                                    </div>
-                                    <div className="h-px bg-slate-50 w-full mb-4"></div>
-                                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">
-                                        <span>Status</span>
-                                        <span className="text-emerald-500 flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Verified User</span>
-                                    </div>
-                                </div>
-                                
                                 {/* Link Tiles */}
                                 <nav className="space-y-1.5 text-left">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mb-3">Navigation</p>
