@@ -160,7 +160,7 @@ export default function Navbar() {
                 
                 {/* Drawer Content */}
                 <div 
-                    className={`absolute inset-y-0 left-0 w-[300px] bg-white shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
+                    className={`absolute inset-y-0 left-0 w-[300px] h-screen h-[100dvh] bg-white opacity-100 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
                 >
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white relative z-20">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
@@ -174,7 +174,7 @@ export default function Navbar() {
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
+                    <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-8 custom-scrollbar bg-white">
                         {isAuthenticated ? (
                             <div className="space-y-8">
                                 {/* Profile Card Simplified */}
