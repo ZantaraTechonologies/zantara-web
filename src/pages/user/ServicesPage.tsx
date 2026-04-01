@@ -54,18 +54,9 @@ const ServicesPage: React.FC = () => {
             label: 'Education PINs', 
             description: 'WAEC, NECO, and JAMB result checkers',
             icon: GraduationCap, 
-            path: '/app/services/exam', 
+            path: '/app/services/exam-pins', 
             color: 'bg-red-50 text-red-600',
             borderColor: 'border-red-100'
-        },
-        { 
-            id: 'betting', 
-            label: 'Betting Wallet', 
-            description: 'Fund your betting accounts instantly',
-            icon: Gamepad2, 
-            path: '/app/services/betting', 
-            color: 'bg-emerald-50 text-emerald-600',
-            borderColor: 'border-emerald-100'
         },
     ];
 

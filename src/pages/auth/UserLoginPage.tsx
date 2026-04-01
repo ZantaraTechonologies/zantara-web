@@ -27,7 +27,7 @@ const UserLoginPage: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await login({ email, password });
+            await login({ email, password }, rememberMe);
             toast.success('Welcome back to Zantara!');
             navigate(from, { replace: true });
         } catch (err: any) {

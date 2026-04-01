@@ -18,16 +18,19 @@ export const useWalletStore = create((set, get) => ({
     error: null,
 
     fetchBalance: async () => {
+        set({ loading: true });
         try {
             const data = await getWalletBalance();
             set({ 
                 balance: data.available, // Available for spending
                 totalBalance: data.balance, // Total including frozen
                 frozenBalance: data.frozen,
-                currency: data.currency || '₦' 
+                currency: data.currency || '₦',
+                loading: false
             });
         } catch (error) {
             console.error('Failed to fetch wallet balance:', error);
+            set({ loading: false });
         }
     },
 

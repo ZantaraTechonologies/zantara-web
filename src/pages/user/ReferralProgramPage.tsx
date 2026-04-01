@@ -2,24 +2,86 @@ import React from 'react';
 import { useEarningsSummary } from '../../hooks/useReferral';
 import { Users, Copy, Gift, ArrowRight, Wallet, Info, Zap, ShieldCheck } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
+import { useAuthStore } from '../../store/auth/authStore';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 
 const ReferralProgramPage: React.FC = () => {
     const { data: stats, isLoading } = useEarningsSummary();
+    const { user } = useAuthStore();
     const { currency } = useWalletStore();
 
-    const copyCode = () => {
-        if (!stats?.myReferralCode) return;
-        navigator.clipboard.writeText(stats.myReferralCode);
-        toast.success('Referral code copied!');
+    const referralCode = stats?.myReferralCode || user?.myReferralCode;
+
+    const copyToClipboard = async (text: string, successMsg: string) => {
+        console.log('Attempting to copy:', text);
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                toast.success(successMsg);
+                return;
+            }
+        } catch (err) {
+            console.warn('Navigator clipboard failed, trying fallback', err);
+        }
+
+        // Fallback for non-secure contexts or failed API
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) {
+                toast.success(successMsg);
+            } else {
+                throw new Error('execCommand copy failed');
+            }
+        } catch (fallbackErr) {
+            console.error('Final copy fallback failed:', fallbackErr);
+            toast.error('Could not copy automatically. Please select and copy manually.');
+        }
     };
 
-    const copyLink = () => {
-        if (!stats?.myReferralCode) return;
-        const link = `${window.location.origin}/register?ref=${stats.myReferralCode}`;
-        navigator.clipboard.writeText(link);
-        toast.success('Referral link copied!');
+    const copyCode = () => {
+        console.log('Copy Code clicked, code:', referralCode);
+        if (!referralCode) {
+            toast.error('Referral code not available yet. Please wait a moment.');
+            return;
+        }
+        copyToClipboard(referralCode, 'Referral code copied!');
+    };
+
+    const copyLink = async () => {
+        console.log('Copy Link clicked, code:', referralCode);
+        if (!referralCode) {
+            toast.error('Referral link not available yet.');
+            return;
+        }
+        
+        const link = `${window.location.origin}/register?ref=${referralCode}`;
+        
+        // Use Native Share API if available (especially for mobile users)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Join Zantara',
+                    text: 'Join me on Zantara and start enjoying fast, secure digital payments!',
+                    url: link,
+                });
+                return;
+            } catch (err) {
+                console.log('Native share failed or cancelled', err);
+            }
+        }
+
+        // Fallback to clipboard
+        copyToClipboard(link, 'Referral link copied!');
     };
 
     if (isLoading) {
@@ -90,7 +152,7 @@ const ReferralProgramPage: React.FC = () => {
                         <span className="text-[10px] font-bold uppercase tracking-widest">Your Unique Referral Code</span>
                     </div>
                     <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <code className="text-lg font-bold text-slate-800 tracking-wider font-mono">{stats?.myReferralCode || '------'}</code>
+                        <code className="text-lg font-bold text-slate-800 tracking-wider font-mono">{referralCode || '------'}</code>
                         <button 
                             onClick={copyCode}
                             className="bg-white text-slate-900 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm active:scale-95"
@@ -106,7 +168,7 @@ const ReferralProgramPage: React.FC = () => {
                         <span className="text-[10px] font-bold uppercase tracking-widest">Personal Invite Link</span>
                     </div>
                     <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <span className="text-sm font-medium text-slate-500 truncate mr-4">{window.location.origin.replace('https://', '')}/reg...{stats?.myReferralCode}</span>
+                        <span className="text-sm font-medium text-slate-500 truncate mr-4">{window.location.origin.replace('https://', '').replace('http://', '')}/reg...{referralCode || ''}</span>
                         <button 
                             onClick={copyLink}
                             className="bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-sm active:scale-95"

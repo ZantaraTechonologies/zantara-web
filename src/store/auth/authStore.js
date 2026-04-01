@@ -3,30 +3,37 @@ import * as authService from '../../services/auth/authService';
 
 export const useAuthStore = create((set, get) => ({
     user: null,
-    token: localStorage.getItem('token') || null,
-    isAuthenticated: !!localStorage.getItem('token'),
-    loading: !!localStorage.getItem('token'),
-    isInitialized: !localStorage.getItem('token'),
+    token: localStorage.getItem('token') || sessionStorage.getItem('token') || null,
+    isAuthenticated: !!(localStorage.getItem('token') || sessionStorage.getItem('token')),
+    loading: !!(localStorage.getItem('token') || sessionStorage.getItem('token')),
+    isInitialized: !(localStorage.getItem('token') || sessionStorage.getItem('token')),
     error: null,
     isMaintenanceMode: false,
     isNoInternet: false,
     globalError: null,
 
-    setAuth: (user, token) => {
-        const activeToken = token || user?.token || localStorage.getItem('token');
+    setAuth: (user, token, rememberMe = true) => {
+        const activeToken = token || user?.token || localStorage.getItem('token') || sessionStorage.getItem('token');
         if (activeToken) {
-            localStorage.setItem('token', activeToken);
+            if (rememberMe) {
+                localStorage.setItem('token', activeToken);
+                sessionStorage.removeItem('token');
+            } else {
+                sessionStorage.setItem('token', activeToken);
+                localStorage.removeItem('token');
+            }
         }
         set({ user, token: activeToken, isAuthenticated: !!activeToken, loading: false, isInitialized: true, error: null });
     },
 
     clearAuth: () => {
         localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         set({ user: null, token: null, isAuthenticated: false, loading: false, isInitialized: true, error: null });
     },
 
     fetchMe: async () => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (!token) {
             set({ loading: false, isInitialized: true, isAuthenticated: false });
             return;
@@ -52,17 +59,16 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    login: async (credentials) => {
+    login: async (credentials, rememberMe = true) => {
         set({ loading: true, error: null });
         try {
             const data = await authService.login(credentials);
-            // console.log("login: Response received", data);
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
             const user = data.user || data.data?.user || (data.id || data._id ? data : null);
 
             if (token || user) {
-                get().setAuth(user, token);
+                get().setAuth(user, token, rememberMe);
                 return data;
             } else {
                 throw new Error(data.message || 'Login failed: No user or token in response');

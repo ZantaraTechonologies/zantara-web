@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth/authStore';
+import { PageLoader } from '../../components/feedback/Skeletons';
 
 const AdminProtectedRoute = () => {
     const { user, isAuthenticated, loading, isInitialized, fetchMe } = useAuthStore();
@@ -12,11 +13,7 @@ const AdminProtectedRoute = () => {
     }, [isInitialized, fetchMe]);
 
     if (loading || !isInitialized) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-slate-950">
-                <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
+        return <PageLoader />;
     }
 
     if (!isAuthenticated) {

@@ -13,6 +13,7 @@ export interface EarningsSummary {
     agentProfit: number;
     totalReferrals: number;
     referralBalance: number;
+    myReferralCode: string;
     cappedCommissionsCount: number;
     skippedCommissionsCount: number;
 }

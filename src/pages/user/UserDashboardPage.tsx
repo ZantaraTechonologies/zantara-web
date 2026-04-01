@@ -7,11 +7,8 @@ import {
     Wifi,
     Tv,
     GraduationCap,
-    Gamepad2,
     ChevronRight,
     TrendingUp,
-    ShieldCheck,
-    AlertCircle,
     ShieldAlert,
     Briefcase,
     Share2,
@@ -19,7 +16,6 @@ import {
     CreditCard,
     Users,
     Copy,
-    Building2,
     Info,
     Wallet,
     Activity
@@ -29,10 +25,43 @@ import { useWalletStore } from '../../store/wallet/walletStore';
 import { useEarningsSummary } from '../../hooks/useReferral';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMyTransactions } from '../../hooks/useWallet';
-import { ListSkeleton } from '../../components/feedback/Skeletons';
+import { ListSkeleton, PageLoader } from '../../components/feedback/Skeletons';
 import { format } from 'date-fns';
 import { copyToClipboard, shareContent } from '../../utils/clipboard';
 import { toast } from 'react-hot-toast';
+
+const DashboardSkeleton = () => (
+    <div className="space-y-6 animate-pulse">
+        <div className="flex items-center justify-between bg-white/50 p-4 rounded-3xl border border-slate-50">
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100"></div>
+                <div className="space-y-2">
+                    <div className="w-40 h-3 bg-slate-100 rounded"></div>
+                    <div className="w-28 h-2 bg-slate-50 rounded"></div>
+                </div>
+            </div>
+            <div className="flex gap-3">
+                <div className="w-24 h-8 bg-slate-100 rounded-xl"></div>
+                <div className="w-28 h-8 bg-emerald-100 rounded-xl"></div>
+            </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1,2,3].map(i => (
+                <div key={i} className="bg-white border border-slate-50 p-5 rounded-2xl flex items-center gap-4">
+                    <div className="w-14 h-14 bg-slate-100 rounded-2xl"></div>
+                    <div className="space-y-2">
+                        <div className="w-20 h-2 bg-slate-100 rounded"></div>
+                        <div className="w-28 h-5 bg-slate-100 rounded"></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+        <div className="bg-white border border-slate-50 rounded-2xl p-6">
+            <div className="w-32 h-3 bg-slate-100 rounded mb-6"></div>
+            <ListSkeleton items={4} />
+        </div>
+    </div>
+);
 
 const UserDashboardPage: React.FC = () => {
     const { user } = useAuthStore();
@@ -55,12 +84,18 @@ const UserDashboardPage: React.FC = () => {
     const { data: txData, isLoading: txLoading } = useMyTransactions({ limit: 4 });
     const recentActivities = txData?.items ?? [];
 
+    const [initialLoading, setInitialLoading] = useState(true);
+
     useEffect(() => {
         // Initial data sync
-        fetchBalance();
-        fetchVirtualAccount();
-        fetchLinkedAccounts();
+        Promise.all([
+            fetchBalance(),
+            fetchVirtualAccount(),
+            fetchLinkedAccounts()
+        ]).finally(() => setInitialLoading(false));
     }, []);
+
+    if (initialLoading) return <DashboardSkeleton />;
 
     const stats = [
         { label: 'Network Assets', value: `${currency} ${balance?.toLocaleString()}`, icon: LayoutDashboard, color: 'text-emerald-500', bg: 'bg-emerald-50' },
@@ -115,14 +150,14 @@ const UserDashboardPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button disabled className="flex items-center gap-2 bg-white border border-slate-200 text-slate-300 px-4 py-2 rounded-xl font-bold transition-all shadow-sm cursor-not-allowed opacity-60 text-xs">
+                    <Link to="/app/wallet/withdraw" className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 px-4 py-2 rounded-xl font-bold transition-all shadow-sm text-xs">
                         <ArrowUpRight size={14} />
                         <span>Withdraw</span>
-                    </button>
-                    <button disabled className="flex items-center gap-2 bg-emerald-300 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg cursor-not-allowed opacity-80 text-xs">
+                    </Link>
+                    <Link to="/app/wallet/fund" className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 text-xs">
                         <Plus size={14} />
                         <span>Fund Node</span>
-                    </button>
+                    </Link>
                 </div>
             </div>
 

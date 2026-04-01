@@ -11,7 +11,7 @@ const log = (msg: string, data?: any) => {
 export const fetchDataPlans = async (serviceID: string) => {
     log(`Fetch plans started: ${serviceID}`);
     try {
-        const res = await apiClient.get(`/vtu/variations/${serviceID}`, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.get(`/services/plans/${serviceID}`, { timeout: VTU_TIMEOUT });
         log(`Fetch plans success: ${serviceID}`);
         return res.data;
     } catch (err) {
@@ -23,7 +23,7 @@ export const fetchDataPlans = async (serviceID: string) => {
 export const verifyMeter = async (serviceID: string, billersCode: string) => {
     log(`Meter verification started: ${serviceID} | ${billersCode}`);
     try {
-        const res = await apiClient.post('/vtu/verify', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/electricity/verify/meter', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
         log(`Meter verification success: ${serviceID}`);
         return res.data;
     } catch (err) {
@@ -35,7 +35,7 @@ export const verifyMeter = async (serviceID: string, billersCode: string) => {
 export const verifySmartcard = async (serviceID: string, billersCode: string) => {
     log(`Smartcard verification started: ${serviceID} | ${billersCode}`);
     try {
-        const res = await apiClient.post('/vtu/verify', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/electricity/verify/meter', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
         log(`Smartcard verification success: ${serviceID}`);
         return res.data;
     } catch (err) {
@@ -47,7 +47,7 @@ export const verifySmartcard = async (serviceID: string, billersCode: string) =>
 export const verifyMerchant = async (data: { serviceID: string, billersCode: string, type?: string }) => {
     log(`Merchant verification started`, data);
     try {
-        const res = await apiClient.post('/vtu/verify', data, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/electricity/verify/meter', data, { timeout: VTU_TIMEOUT });
         log(`Merchant verification success`, res.data);
         return res.data;
     } catch (err) {
@@ -60,7 +60,7 @@ export const verifyMerchant = async (data: { serviceID: string, billersCode: str
 export const buyAirtime = async (data: any) => {
     log('Airtime transaction started', { network: data.network, amount: data.amount });
     try {
-        const res = await apiClient.post('/vtu/airtime', data, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/airtime', data, { timeout: VTU_TIMEOUT });
         log('Airtime transaction success', res.data);
         return res.data;
     } catch (err) {
@@ -72,7 +72,7 @@ export const buyAirtime = async (data: any) => {
 export const buyData = async (data: any) => {
     log('Data transaction started', { serviceID: data.serviceID, amount: data.amount });
     try {
-        const res = await apiClient.post('/vtu/data', data, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/data', data, { timeout: VTU_TIMEOUT });
         log('Data transaction success', res.data);
         return res.data;
     } catch (err) {
@@ -84,7 +84,7 @@ export const buyData = async (data: any) => {
 export const buyElectricity = async (data: any) => {
     log('Electricity transaction started', { serviceID: data.serviceID, amount: data.amount });
     try {
-        const res = await apiClient.post('/vtu/electricity', data, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/electricity', data, { timeout: VTU_TIMEOUT });
         log('Electricity transaction success', res.data);
         return res.data;
     } catch (err) {
@@ -96,7 +96,7 @@ export const buyElectricity = async (data: any) => {
 export const buyCable = async (data: any) => {
     log('Cable transaction started', { serviceID: data.serviceID, variation_code: data.variation_code });
     try {
-        const res = await apiClient.post('/vtu/cable', data, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/cable', data, { timeout: VTU_TIMEOUT });
         log('Cable transaction success', res.data);
         return res.data;
     } catch (err) {
@@ -108,7 +108,7 @@ export const buyCable = async (data: any) => {
 export const buyExamPin = async (data: any) => {
     log('Exam PIN transaction started', { serviceID: data.serviceID, quantity: data.quantity });
     try {
-        const res = await apiClient.post('/vtu/exam', data, { timeout: VTU_TIMEOUT });
+        const res = await apiClient.post('/services/purchase-pin', data, { timeout: VTU_TIMEOUT });
         log('Exam PIN transaction success', res.data);
         return res.data;
     } catch (err) {

@@ -48,8 +48,8 @@ const UserRegisterPage: React.FC = () => {
                 phone: formData.phone,
                 password: formData.password
             });
-            toast.success('Registration successful! Please verify your identity.');
-            navigate('/otp'); // Navigate to OTP verification page
+            toast.success('Registration successful! Welcome to Zantara.');
+            navigate('/app/dashboard');
         } catch (err: any) {
             const msg = err?.response?.data?.message || 'Registration failed. Please try again.';
             toast.error(msg);

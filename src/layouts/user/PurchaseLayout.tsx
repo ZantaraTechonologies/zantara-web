@@ -1,6 +1,6 @@
 // src/pages/buy/PurchaseLayout.tsx
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useWalletStore } from "../../store/wallet/walletStore";
 export default function PurchaseLayout({
@@ -9,15 +9,19 @@ export default function PurchaseLayout({
     children,
 }: { title: string; subtitle?: string; children: ReactNode }) {
     const { balance, currency, loading, fetchBalance } = useWalletStore();
+    const navigate = useNavigate();
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 max-w-4xl mx-auto">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-2">
-                    <Link to="/app/wallet" className="inline-flex items-center gap-2 text-emerald-500 font-bold hover:text-emerald-600 transition-colors group">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="inline-flex items-center gap-2 text-emerald-500 font-bold hover:text-emerald-600 transition-colors group bg-transparent border-none p-0 cursor-pointer"
+                    >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-                        <span className="text-sm">Back to Wallet</span>
-                    </Link>
+                        <span className="text-sm">Back</span>
+                    </button>
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{title}</h1>
                     {subtitle && <p className="text-slate-500 font-medium text-sm">{subtitle}</p>}
                 </div>

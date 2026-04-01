@@ -47,7 +47,7 @@ const UserProfilePage: React.FC = () => {
             title: 'Notification Preferences',
             description: 'Control how you receive alerts and updates',
             icon: Bell,
-            path: '#',
+            path: '/app/notifications',
             color: 'text-orange-500',
             bg: 'bg-orange-50'
         }
