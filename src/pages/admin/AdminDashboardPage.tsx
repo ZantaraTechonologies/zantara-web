@@ -16,7 +16,8 @@ import {
     Search,
     Bell,
     CheckCircle2,
-    Loader2
+    Loader2,
+    CreditCard
 } from 'lucide-react';
 import { useAdminStore } from '../../store/admin/adminStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
@@ -24,15 +25,13 @@ import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons'
 
 const AdminDashboardPage: React.FC = () => {
     const { stats, loadingStats, fetchDashboardStats, error, pendingKycCount, pendingWithdrawalsCount } = useAdminStore();
-    const { currency } = useWalletStore();
-
+    const { currency, fetchBalance } = useWalletStore();
     const [timeframe, setTimeframe] = React.useState(7);
 
     React.useEffect(() => {
         fetchDashboardStats(timeframe);
     }, [fetchDashboardStats, timeframe]);
 
-    const { fetchBalance } = useWalletStore();
     React.useEffect(() => {
         fetchBalance();
     }, [fetchBalance]);
@@ -52,10 +51,6 @@ const AdminDashboardPage: React.FC = () => {
         { name: 'BROADCAST', icon: Radio, color: 'text-emerald-400', bg: 'bg-emerald-500/10', link: '/admin/notifications' },
         { name: 'MAINTENANCE', icon: Zap, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', link: '/admin/status' },
     ];
-
-    const criticalMonitoring = (stats?.criticalAlerts || []);
-
-
 
     return (
         <div className="bg-slate-950 min-h-screen font-sans text-slate-300">
@@ -115,12 +110,12 @@ const AdminDashboardPage: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {/* Left Side - Charts and Tables */}
                     <div className="lg:col-span-8 space-y-6">
-                        {/* Transaction Volume Placeholder */}
+                        {/* Transaction Volume chart */}
                         <div className="bg-white/5 border border-white/5 rounded-2xl p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-6">
                                 <div>
                                     <h3 className="text-xl font-bold text-white">Transaction Volume</h3>
-                                    <p className="text-sm text-slate-500 font-medium">Weekly performance overview</p>
+                                    <p className="text-sm text-slate-500 font-medium">{timeframe === 7 ? 'Weekly' : 'Monthly'} performance overview</p>
                                 </div>
                                 <div className="flex bg-white/5 p-1.5 rounded-xl">
                                     <button 
@@ -137,9 +132,9 @@ const AdminDashboardPage: React.FC = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="h-[350px] w-full bg-emerald-500/5 rounded-3xl border border-dashed border-emerald-500/20 flex items-center justify-center overflow-hidden pt-4">
+                            <div className="h-[400px] w-full bg-emerald-500/5 rounded-3xl border border-dashed border-emerald-500/20 pt-8 px-4 flex items-center justify-center">
                                 {stats?.transactionTrend && stats.transactionTrend.length > 0 ? (
-                                    <svg className="w-full h-full p-4 overflow-visible" viewBox="0 -10 800 310" preserveAspectRatio="none">
+                                    <svg className="w-full h-full overflow-visible" viewBox="0 -20 800 340" preserveAspectRatio="none">
                                         <defs>
                                             <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
                                                 <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.15 }} />
@@ -150,9 +145,9 @@ const AdminDashboardPage: React.FC = () => {
                                         {(() => {
                                             const trend = stats.transactionTrend;
                                             const maxVal = Math.max(...trend.map((t: any) => t.value), 5);
-                                            const padding = 50; 
+                                            const padding = 60; 
                                             const chartWidth = 800 - padding * 2;
-                                            const chartHeight = 250;
+                                            const chartHeight = 260;
                                             
                                             const points = trend.map((t: any, i: number) => {
                                                 const x = padding + (i * chartWidth) / (trend.length - 1 || 1);
@@ -172,19 +167,18 @@ const AdminDashboardPage: React.FC = () => {
                                                         return (
                                                             <g key={tick}>
                                                                 <line x1={padding} y1={y} x2={800 - padding} y2={y} stroke="white" strokeOpacity="0.05" strokeDasharray="4" />
-                                                                <text x={padding - 12} y={y + 4} textAnchor="end" className="text-[10px] fill-slate-500 font-bold">{countVal}</text>
+                                                                <text x={padding - 15} y={y + 4} textAnchor="end" className="text-[11px] fill-slate-500 font-bold">{countVal}</text>
                                                             </g>
                                                         );
                                                     })}
 
                                                     {/* X-Axis Labels (Dates) */}
                                                     {points.map((p: any, i: number) => {
-                                                        // Show fewer labels in monthly view to avoid clutter
-                                                        const skip = timeframe === 30 ? (i % 5 !== 0 && i !== points.length - 1) : false;
-                                                        if (skip) return null;
+                                                        const showLabel = timeframe === 7 ? true : (i % 5 === 0 || i === points.length - 1);
+                                                        if (!showLabel) return null;
                                                         
                                                         return (
-                                                            <text key={i} x={p.x} y={chartHeight + 25} textAnchor="middle" className="text-[9px] fill-slate-500 font-bold font-mono">
+                                                            <text key={i} x={p.x} y={chartHeight + 35} textAnchor="middle" className="text-[10px] fill-slate-500 font-bold font-mono">
                                                                 {p.label}
                                                             </text>
                                                         );
@@ -208,8 +202,8 @@ const AdminDashboardPage: React.FC = () => {
                                                             <rect x={p.x - 20} y={0} width="40" height={chartHeight} fill="transparent" className="cursor-crosshair" />
                                                             <circle cx={p.x} cy={p.y} r="4" fill="#10b981" className="opacity-0 group-hover/point:opacity-100 transition-opacity" />
                                                             <g className="opacity-0 group-hover/point:opacity-100 transition-opacity pointer-events-none">
-                                                                <rect x={p.x - 25} y={p.y - 32} width="50" height="22" rx="6" fill="#10b981" />
-                                                                <text x={p.x} y={p.y - 17} textAnchor="middle" className="text-[10px] fill-slate-950 font-black">
+                                                                <rect x={p.x - 25} y={p.y - 35} width="50" height="24" rx="6" fill="#10b981" />
+                                                                <text x={p.x} y={p.y - 19} textAnchor="middle" className="text-[11px] fill-slate-950 font-black">
                                                                     {p.value}
                                                                 </text>
                                                             </g>

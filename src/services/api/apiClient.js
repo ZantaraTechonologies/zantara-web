@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { useAuthStore } from '../../store/auth/authStore.js';
 
+const baseURL = import.meta.env.DEV 
+    ? 'http://localhost:8000' 
+    : import.meta.env.VITE_API_BASE_URL;
+
 const API = axios.create({
-    baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
+    baseURL: `${baseURL}/api`,
 });
 
 API.interceptors.request.use((config) => {
