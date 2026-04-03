@@ -243,7 +243,12 @@ const AdminUserDetailPage: React.FC = () => {
                     <div className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden shadow-sm">
                         <div className="p-6 border-b border-white/5 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-white tracking-tight">Ledger History</h3>
-                            <button className="text-emerald-400 font-bold text-[10px] uppercase tracking-widest hover:underline">Full Statement</button>
+                            <button 
+                                onClick={() => navigate(`/admin/transactions?userId=${user._id}`)}
+                                className="text-emerald-400 font-bold text-[10px] uppercase tracking-widest hover:underline"
+                            >
+                                Full Statement
+                            </button>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full">
@@ -260,15 +265,15 @@ const AdminUserDetailPage: React.FC = () => {
                                         <tr key={i} className="group hover:bg-white/5 transition-colors">
                                             <td className="py-4 px-6">
                                                 <div className="space-y-0.5">
-                                                    <p className="text-sm font-bold text-slate-300">{tx.service}</p>
-                                                    <p className="text-[10px] font-mono text-slate-500">{tx.reference}</p>
+                                                    <p className="text-sm font-bold text-slate-300 capitalize">{tx.type} {tx.service ? `- ${tx.service}` : ''}</p>
+                                                    <p className="text-[10px] font-mono text-slate-500">{tx.transactionId || tx.refId}</p>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6">
-                                                <p className={`font-bold text-sm ${tx.type === 'credit' ? 'text-emerald-500' : 'text-slate-300'}`}>
-                                                    {tx.type === 'credit' ? '+' : '-'}{currency}{tx.amount.toLocaleString()}
+                                                <p className={`font-bold text-sm ${['funding', 'credit'].includes(tx.type) ? 'text-emerald-500' : 'text-slate-300'}`}>
+                                                    {['funding', 'credit'].includes(tx.type) ? '+' : '-'}{currency}{tx.amount.toLocaleString()}
                                                 </p>
-                                                <p className="text-[10px] text-slate-600 font-bold uppercase">{tx.date}</p>
+                                                <p className="text-[10px] text-slate-600 font-bold uppercase">{new Date(tx.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">ZANTARA_L2</p>
