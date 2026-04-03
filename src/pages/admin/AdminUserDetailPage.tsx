@@ -16,7 +16,15 @@ import {
     Calendar,
     Unlock,
     Activity,
-    Loader2
+    Loader2,
+    Smartphone,
+    Globe,
+    Zap,
+    Tv,
+    CreditCard,
+    PlusCircle,
+    MinusCircle,
+    Download
 } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import * as adminService from '../../services/admin/adminService';
@@ -30,6 +38,33 @@ const AdminUserDetailPage: React.FC = () => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
+    const [transactions, setTransactions] = useState<any[]>([]);
+
+    const getTransactionConfig = (type: string) => {
+        switch (type) {
+            case 'funding':
+            case 'credit':
+            case 'settlement':
+                return { icon: <PlusCircle size={16} />, color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'Wallet Funding' };
+            case 'data':
+                return { icon: <Globe size={16} />, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'Data Purchase' };
+            case 'airtime':
+                return { icon: <Smartphone size={16} />, color: 'text-orange-500', bg: 'bg-orange-500/10', label: 'Airtime Purchase' };
+            case 'tv':
+            case 'cable':
+                return { icon: <Tv size={16} />, color: 'text-purple-500', bg: 'bg-purple-500/10', label: 'TV Subscription' };
+            case 'electricity':
+                return { icon: <Zap size={16} />, color: 'text-yellow-500', bg: 'bg-yellow-500/10', label: 'Utility Bill' };
+            case 'withdrawal':
+            case 'expense':
+                return { icon: <MinusCircle size={16} />, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'Funds Withdrawal' };
+            case 'referral_redeem':
+            case 'referral_bonus':
+                return { icon: <ArrowUpRight size={16} />, color: 'text-indigo-500', bg: 'bg-indigo-500/10', label: 'Referral Bonus' };
+            default:
+                return { icon: <Activity size={16} />, color: 'text-slate-400', bg: 'bg-white/5', label: type.toUpperCase() };
+        }
+    };
 
     useEffect(() => {
         if (id) loadUser(id);
@@ -261,30 +296,47 @@ const AdminUserDetailPage: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {(user.transactions || []).map((tx: any, i: number) => (
-                                        <tr key={i} className="group hover:bg-white/5 transition-colors">
-                                            <td className="py-4 px-6">
-                                                <div className="space-y-0.5">
-                                                    <p className="text-sm font-bold text-slate-300 capitalize">{tx.type} {tx.service ? `- ${tx.service}` : ''}</p>
-                                                    <p className="text-[10px] font-mono text-slate-500">{tx.transactionId || tx.refId}</p>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <p className={`font-bold text-sm ${['funding', 'credit'].includes(tx.type) ? 'text-emerald-500' : 'text-slate-300'}`}>
-                                                    {['funding', 'credit'].includes(tx.type) ? '+' : '-'}{currency}{tx.amount.toLocaleString()}
-                                                </p>
-                                                <p className="text-[10px] text-slate-600 font-bold uppercase">{new Date(tx.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">ZANTARA_L2</p>
-                                            </td>
-                                            <td className="py-4 px-6 text-right">
-                                                <span className="text-emerald-400/80 bg-emerald-500/5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">
-                                                    {tx.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {(user.transactions || []).map((tx: any, i: number) => {
+                                        const config = getTransactionConfig(tx.type);
+                                        const isCredit = ['funding', 'credit', 'referral_bonus', 'settlement'].includes(tx.type);
+                                        
+                                        return (
+                                            <tr key={i} className="group hover:bg-white/5 transition-colors">
+                                                <td className="py-4 px-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-lg ${config.bg} ${config.color} flex items-center justify-center border border-white/5`}>
+                                                            {config.icon}
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-sm font-bold text-slate-300">{config.label} {tx.service ? `- ${tx.service}` : ''}</p>
+                                                            <p className="text-[10px] font-mono text-slate-500 font-medium uppercase tracking-tight">{tx.transactionId || tx.refId}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <p className={`font-bold text-sm ${isCredit ? 'text-emerald-500' : 'text-slate-300'}`}>
+                                                        {isCredit ? '+' : '-'}{currency}{tx.amount.toLocaleString()}
+                                                    </p>
+                                                    <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{new Date(tx.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                                                </td>
+                                                <td className="py-4 px-6">
+                                                    <div className="flex items-center gap-1.5 opacity-60">
+                                                        <Activity size={12} className="text-slate-500" />
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">L2_NODE</p>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4 px-6 text-right">
+                                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${
+                                                        tx.status === 'success' ? 'text-emerald-400/80 bg-emerald-500/5' :
+                                                        tx.status === 'failed' ? 'text-rose-400/80 bg-rose-500/5' :
+                                                        'text-amber-400/80 bg-amber-500/5'
+                                                    }`}>
+                                                        {tx.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                     {(!user.transactions || user.transactions.length === 0) && (
                                         <tr>
                                             <td colSpan={4} className="py-12 text-center text-slate-600 text-[10px] font-bold uppercase tracking-widest">No ledger records found</td>
