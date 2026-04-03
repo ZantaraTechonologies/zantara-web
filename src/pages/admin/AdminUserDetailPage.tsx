@@ -52,13 +52,30 @@ const AdminUserDetailPage: React.FC = () => {
         if (!user || processing) return;
         setProcessing(true);
         try {
-            // Simplified: we'll use a generic update or specific block endpoint
-            // For now assuming the backend has an endpoint for this
-            // await adminService.blockUser(user.id); 
-            toast.success(user.isBlocked ? "User Unblocked" : "User Blocked Successfully");
+            await adminService.blockUser(user.id, !user.isBlocked);
+            toast.success(user.isBlocked ? "User Unblocked Successfully" : "User Blocked Successfully");
             loadUser(user.id);
         } catch (err) {
             toast.error("Operation failed");
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handleRoleUpdate = async (newRole: string) => {
+        if (!user || processing) return;
+        
+        const confirmMsg = `Are you sure you want to change this user's role to ${newRole}?`;
+        if (!window.confirm(confirmMsg)) return;
+
+        setProcessing(true);
+        try {
+            await adminService.updateUserRole(user.id, newRole);
+            toast.success(`User role updated to ${newRole} successfully`);
+            loadUser(user.id); // Reload user to reflect changes
+        } catch (err: any) {
+            const msg = err?.response?.data?.message || "Failed to update role";
+            toast.error(msg);
         } finally {
             setProcessing(false);
         }
@@ -91,7 +108,15 @@ const AdminUserDetailPage: React.FC = () => {
                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">UID: {user.id?.slice(-8).toUpperCase()}</p>
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap justify-center gap-2">
+                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+                                    user.role === 'superAdmin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
+                                    user.role === 'admin' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                    user.role === 'agent' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                    'bg-slate-500/10 text-slate-500 border-white/5'
+                                }`}>
+                                    {user.role?.toUpperCase() || 'USER'}
+                                </span>
                                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${user.kycVerified
                                         ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                                         : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
@@ -152,6 +177,30 @@ const AdminUserDetailPage: React.FC = () => {
                                 <AlertCircle size={14} />
                                 Reset PIN
                             </button>
+                        </div>
+
+                        {/* Role Management Section */}
+                        <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Shield size={14} className="text-emerald-500" />
+                                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Authority Management</h3>
+                            </div>
+                            <div className="space-y-3">
+                                <select 
+                                    value={user.role || 'user'}
+                                    onChange={(e) => handleRoleUpdate(e.target.value)}
+                                    disabled={processing}
+                                    className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all cursor-pointer disabled:opacity-50"
+                                >
+                                    <option value="user">Standard User</option>
+                                    <option value="agent">Business Agent</option>
+                                    <option value="admin">Platform Admin</option>
+                                    <option value="superAdmin">Super Administrator</option>
+                                </select>
+                                <p className="text-[9px] text-slate-500 font-medium italic px-2">
+                                    Promoting a user grants them access to restricted admin zones.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

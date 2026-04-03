@@ -54,3 +54,13 @@ export const fetchAuditLogs = async (params = {}) => {
     const response = await apiClient.get(`${BASE_URL}/audit-logs`, { params });
     return response.data;
 };
+
+export const updateUserRole = async (id: string, role: string) => {
+    const response = await apiClient.put(`${BASE_URL}/users/${id}`, { role });
+    return response.data;
+};
+
+export const blockUser = async (id: string, isBlocked: boolean) => {
+    const response = await apiClient.put(`${BASE_URL}/users/${id}`, { status: isBlocked });
+    return response.data;
+};

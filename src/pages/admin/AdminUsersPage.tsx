@@ -105,7 +105,17 @@ const AdminUsersPage: React.FC = () => {
                                                 <UserIcon size={18} className="text-slate-400" />
                                             </div>
                                             <div className="space-y-0.5">
-                                                <p className="text-sm font-bold text-white tracking-tight">{user.firstName} {user.lastName}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-sm font-bold text-white tracking-tight">{user.firstName} {user.lastName}</p>
+                                                    <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest border ${
+                                                        user.role === 'superAdmin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
+                                                        user.role === 'admin' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                                        user.role === 'agent' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                                        'hidden'
+                                                    }`}>
+                                                        {user.role}
+                                                    </span>
+                                                </div>
                                                 <p className="text-[11px] text-slate-500 font-medium">{user.email}</p>
                                             </div>
                                         </div>
