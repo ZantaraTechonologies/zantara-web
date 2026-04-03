@@ -52,9 +52,9 @@ const AdminUserDetailPage: React.FC = () => {
         if (!user || processing) return;
         setProcessing(true);
         try {
-            await adminService.blockUser(user.id, !user.isBlocked);
+            await adminService.blockUser(user._id, !user.isBlocked);
             toast.success(user.isBlocked ? "User Unblocked Successfully" : "User Blocked Successfully");
-            loadUser(user.id);
+            loadUser(user._id);
         } catch (err) {
             toast.error("Operation failed");
         } finally {
@@ -70,9 +70,9 @@ const AdminUserDetailPage: React.FC = () => {
 
         setProcessing(true);
         try {
-            await adminService.updateUserRole(user.id, newRole);
+            await adminService.updateUserRole(user._id, newRole);
             toast.success(`User role updated to ${newRole} successfully`);
-            loadUser(user.id); // Reload user to reflect changes
+            loadUser(user._id); // Reload user to reflect changes
         } catch (err: any) {
             const msg = err?.response?.data?.message || "Failed to update role";
             toast.error(msg);
