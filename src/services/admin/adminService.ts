@@ -5,8 +5,10 @@ const BASE_URL = "/admin";
 /**
  * Admin Service for Core Operations
  */
-export const fetchDashboardStats = async () => {
-    const response = await apiClient.get(`${BASE_URL}/stats/dashboard`);
+export const fetchDashboardStats = async (days = 7) => {
+    const response = await apiClient.get(`${BASE_URL}/stats/dashboard`, {
+        params: { days }
+    });
     return response.data;
 };
 

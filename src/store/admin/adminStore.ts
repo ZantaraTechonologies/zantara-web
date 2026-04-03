@@ -6,7 +6,7 @@ interface AdminState {
     loadingStats: boolean;
     error: string | null;
 
-    fetchDashboardStats: () => Promise<void>;
+    fetchDashboardStats: (days?: number) => Promise<void>;
     
     // Quick Operational Counts
     pendingKycCount: number;
@@ -22,11 +22,11 @@ export const useAdminStore = create<AdminState>((set) => ({
     pendingWithdrawalsCount: 0,
     failedTxsToday: 0,
 
-    fetchDashboardStats: async () => {
+    fetchDashboardStats: async (days = 7) => {
         set({ loadingStats: true, error: null });
         try {
-            const response = await adminService.fetchDashboardStats();
-            const data = response.data; // Backend returns { success: true, data: { ... } }
+            const response = await adminService.fetchDashboardStats(days);
+            const data = response; // adminService now returns response.data directly
             
             set({ 
                 stats: data, 

@@ -26,9 +26,11 @@ const AdminDashboardPage: React.FC = () => {
     const { stats, loadingStats, fetchDashboardStats, error, pendingKycCount, pendingWithdrawalsCount } = useAdminStore();
     const { currency } = useWalletStore();
 
+    const [timeframe, setTimeframe] = React.useState(7);
+
     React.useEffect(() => {
-        fetchDashboardStats();
-    }, [fetchDashboardStats]);
+        fetchDashboardStats(timeframe);
+    }, [fetchDashboardStats, timeframe]);
 
     const { fetchBalance } = useWalletStore();
     React.useEffect(() => {
@@ -121,48 +123,96 @@ const AdminDashboardPage: React.FC = () => {
                                     <p className="text-sm text-slate-500 font-medium">Weekly performance overview</p>
                                 </div>
                                 <div className="flex bg-white/5 p-1.5 rounded-xl">
-                                    <button className="px-5 py-2 text-xs font-bold text-slate-400 hover:text-white transition-colors">Weekly</button>
-                                    <button className="px-5 py-2 text-xs font-bold bg-emerald-500 text-slate-950 rounded-lg shadow-sm">Monthly</button>
+                                    <button 
+                                        onClick={() => setTimeframe(7)}
+                                        className={`px-5 py-2 text-xs font-bold transition-colors rounded-lg ${timeframe === 7 ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                                    >
+                                        Weekly
+                                    </button>
+                                    <button 
+                                        onClick={() => setTimeframe(30)}
+                                        className={`px-5 py-2 text-xs font-bold transition-colors rounded-lg ${timeframe === 30 ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                                    >
+                                        Monthly
+                                    </button>
                                 </div>
                             </div>
-                            <div className="h-[300px] w-full bg-emerald-500/5 rounded-3xl border border-dashed border-emerald-500/20 flex items-center justify-center overflow-hidden">
+                            <div className="h-[350px] w-full bg-emerald-500/5 rounded-3xl border border-dashed border-emerald-500/20 flex items-center justify-center overflow-hidden pt-4">
                                 {stats?.transactionTrend && stats.transactionTrend.length > 0 ? (
-                                    <svg className="w-full h-full p-4" viewBox="0 0 800 300" preserveAspectRatio="none">
+                                    <svg className="w-full h-full p-4 overflow-visible" viewBox="0 -10 800 310" preserveAspectRatio="none">
                                         <defs>
                                             <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.2 }} />
+                                                <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.15 }} />
                                                 <stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 0 }} />
                                             </linearGradient>
                                         </defs>
+
                                         {(() => {
                                             const trend = stats.transactionTrend;
                                             const maxVal = Math.max(...trend.map((t: any) => t.value), 5);
+                                            const padding = 50; 
+                                            const chartWidth = 800 - padding * 2;
+                                            const chartHeight = 250;
+                                            
                                             const points = trend.map((t: any, i: number) => {
-                                                const x = (i * 800) / (trend.length - 1 || 1);
-                                                const y = 300 - (t.value / maxVal) * 200 - 50; // Leave 50px padding top/bottom
-                                                return { x, y };
+                                                const x = padding + (i * chartWidth) / (trend.length - 1 || 1);
+                                                const y = chartHeight - (t.value / maxVal) * chartHeight;
+                                                return { x, y, label: t.label, value: t.value };
                                             });
+
                                             const d = `M${points.map((p: any) => `${p.x},${p.y}`).join(' L')}`;
-                                            const areaD = `${d} L${points[points.length - 1].x},300 L${points[0].x},300 Z`;
+                                            const areaD = `${d} L${points[points.length - 1].x},${chartHeight} L${points[0].x},${chartHeight} Z`;
                                             
                                             return (
                                                 <>
+                                                    {/* Reference Grid Lines & Y-Axis Labels */}
+                                                    {[0, 0.25, 0.5, 0.75, 1].map((tick) => {
+                                                        const y = chartHeight - tick * chartHeight;
+                                                        const countVal = Math.round(tick * maxVal);
+                                                        return (
+                                                            <g key={tick}>
+                                                                <line x1={padding} y1={y} x2={800 - padding} y2={y} stroke="white" strokeOpacity="0.05" strokeDasharray="4" />
+                                                                <text x={padding - 12} y={y + 4} textAnchor="end" className="text-[10px] fill-slate-500 font-bold">{countVal}</text>
+                                                            </g>
+                                                        );
+                                                    })}
+
+                                                    {/* X-Axis Labels (Dates) */}
+                                                    {points.map((p: any, i: number) => {
+                                                        // Show fewer labels in monthly view to avoid clutter
+                                                        const skip = timeframe === 30 ? (i % 5 !== 0 && i !== points.length - 1) : false;
+                                                        if (skip) return null;
+                                                        
+                                                        return (
+                                                            <text key={i} x={p.x} y={chartHeight + 25} textAnchor="middle" className="text-[9px] fill-slate-500 font-bold font-mono">
+                                                                {p.label}
+                                                            </text>
+                                                        );
+                                                    })}
+
+                                                    {/* Main Visual Elements */}
                                                     <path d={areaD} fill="url(#grad)" />
                                                     <path 
                                                         d={d} 
                                                         fill="none" 
                                                         stroke="#10b981" 
-                                                        strokeWidth="4"
+                                                        strokeWidth="3"
                                                         strokeLinecap="round"
                                                         strokeLinejoin="round"
                                                         className="animate-draw"
                                                     />
+
+                                                    {/* Hover Interaction Areas */}
                                                     {points.map((p: any, i: number) => (
                                                         <g key={i} className="group/point">
+                                                            <rect x={p.x - 20} y={0} width="40" height={chartHeight} fill="transparent" className="cursor-crosshair" />
                                                             <circle cx={p.x} cy={p.y} r="4" fill="#10b981" className="opacity-0 group-hover/point:opacity-100 transition-opacity" />
-                                                            <text x={p.x} y={p.y - 10} textAnchor="middle" className="text-[10px] fill-emerald-400 opacity-0 group-hover/point:opacity-100 transition-opacity font-bold">
-                                                                {trend[i].value}
-                                                            </text>
+                                                            <g className="opacity-0 group-hover/point:opacity-100 transition-opacity pointer-events-none">
+                                                                <rect x={p.x - 25} y={p.y - 32} width="50" height="22" rx="6" fill="#10b981" />
+                                                                <text x={p.x} y={p.y - 17} textAnchor="middle" className="text-[10px] fill-slate-950 font-black">
+                                                                    {p.value}
+                                                                </text>
+                                                            </g>
                                                         </g>
                                                     ))}
                                                 </>
