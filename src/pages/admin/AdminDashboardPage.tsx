@@ -126,25 +126,55 @@ const AdminDashboardPage: React.FC = () => {
                                 </div>
                             </div>
                             <div className="h-[300px] w-full bg-emerald-500/5 rounded-3xl border border-dashed border-emerald-500/20 flex items-center justify-center overflow-hidden">
-                                {/* Visual simulation of a line chart */}
-                                <svg className="w-full h-full p-4" viewBox="0 0 800 300">
-                                    <path 
-                                        d="M0,200 Q100,220 200,150 T400,100 T600,180 T800,50" 
-                                        fill="none" 
-                                        stroke="#10b981" 
-                                        strokeWidth="4"
-                                        strokeLinecap="round"
-                                        className="animate-draw"
-                                    />
-                                    <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.1 }} />
-                                        <stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 0 }} />
-                                    </linearGradient>
-                                    <path 
-                                        d="M0,200 Q100,220 200,150 T400,100 T600,180 T800,50 L800,300 L0,300 Z" 
-                                        fill="url(#grad)" 
-                                    />
-                                </svg>
+                                {stats?.transactionTrend && stats.transactionTrend.length > 0 ? (
+                                    <svg className="w-full h-full p-4" viewBox="0 0 800 300" preserveAspectRatio="none">
+                                        <defs>
+                                            <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.2 }} />
+                                                <stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 0 }} />
+                                            </linearGradient>
+                                        </defs>
+                                        {(() => {
+                                            const trend = stats.transactionTrend;
+                                            const maxVal = Math.max(...trend.map((t: any) => t.value), 5);
+                                            const points = trend.map((t: any, i: number) => {
+                                                const x = (i * 800) / (trend.length - 1 || 1);
+                                                const y = 300 - (t.value / maxVal) * 200 - 50; // Leave 50px padding top/bottom
+                                                return { x, y };
+                                            });
+                                            const d = `M${points.map((p: any) => `${p.x},${p.y}`).join(' L')}`;
+                                            const areaD = `${d} L${points[points.length - 1].x},300 L${points[0].x},300 Z`;
+                                            
+                                            return (
+                                                <>
+                                                    <path d={areaD} fill="url(#grad)" />
+                                                    <path 
+                                                        d={d} 
+                                                        fill="none" 
+                                                        stroke="#10b981" 
+                                                        strokeWidth="4"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        className="animate-draw"
+                                                    />
+                                                    {points.map((p: any, i: number) => (
+                                                        <g key={i} className="group/point">
+                                                            <circle cx={p.x} cy={p.y} r="4" fill="#10b981" className="opacity-0 group-hover/point:opacity-100 transition-opacity" />
+                                                            <text x={p.x} y={p.y - 10} textAnchor="middle" className="text-[10px] fill-emerald-400 opacity-0 group-hover/point:opacity-100 transition-opacity font-bold">
+                                                                {trend[i].value}
+                                                            </text>
+                                                        </g>
+                                                    ))}
+                                                </>
+                                            );
+                                        })()}
+                                    </svg>
+                                ) : (
+                                    <div className="flex flex-col items-center gap-2 opacity-30">
+                                        <Activity size={40} className="text-emerald-500" />
+                                        <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Awaiting Pulse Data</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -157,10 +187,10 @@ const AdminDashboardPage: React.FC = () => {
                                         {pendingKycCount + pendingWithdrawalsCount} Action Items
                                     </span>
                                 </div>
-                                <button className="text-emerald-400 font-bold text-sm tracking-tight hover:underline flex items-center gap-1 group">
+                                <Link to="/admin/status" className="text-emerald-400 font-bold text-sm tracking-tight hover:underline flex items-center gap-1 group">
                                     View Monitoring Pool
                                     <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                                </button>
+                                </Link>
                             </div>
 
                             <div className="overflow-x-auto">
