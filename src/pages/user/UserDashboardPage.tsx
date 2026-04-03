@@ -150,10 +150,10 @@ const UserDashboardPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link to="/app/wallet/withdraw" className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300 px-4 py-2 rounded-xl font-bold transition-all shadow-sm text-xs">
+                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 text-slate-300 px-4 py-2 rounded-xl font-bold transition-all shadow-sm text-xs cursor-not-allowed opacity-60" title="Withdrawals currently disabled">
                         <ArrowUpRight size={14} />
                         <span>Withdraw</span>
-                    </Link>
+                    </div>
                     <Link to="/app/wallet/fund" className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 text-xs">
                         <Plus size={14} />
                         <span>Fund Node</span>
@@ -213,7 +213,7 @@ const UserDashboardPage: React.FC = () => {
                             <Link to="/app/transactions" className="text-xs font-bold text-emerald-500 uppercase tracking-widest hover:text-emerald-600 transition-colors">Full History</Link>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             {txLoading ? (
                                 <ListSkeleton items={4} />
                             ) : recentActivities.length > 0 ? (
@@ -226,26 +226,28 @@ const UserDashboardPage: React.FC = () => {
                                         <button
                                             key={idx}
                                             onClick={() => navigate(`/app/transactions/${item.id}`)}
-                                            className="w-full flex items-center justify-between group p-3 hover:bg-slate-50 rounded-xl transition-all text-left border border-transparent hover:border-slate-100"
+                                            className="w-full flex items-center justify-between group p-4 hover:bg-slate-50 rounded-2xl transition-all text-left border border-slate-50 hover:border-slate-200"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
-                                                    isSuccess ? 'bg-emerald-50 text-emerald-500' : 
-                                                    isFailed ? 'bg-red-50 text-red-500' : 
-                                                    'bg-slate-50 text-slate-400'
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors shadow-sm ${
+                                                    isSuccess ? 'bg-emerald-500 text-white' : 
+                                                    isFailed ? 'bg-rose-500 text-white' : 
+                                                    isPending ? 'bg-amber-500 text-white' :
+                                                    'bg-slate-400 text-white'
                                                 }`}>
                                                     <CreditCard size={20} />
                                                 </div>
                                                 <div>
                                                     <h4 className="font-bold text-slate-900 text-sm">{item.service || item.type.replace('_', ' ').toUpperCase()}</h4>
-                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                    <div className="flex items-center gap-2 mt-1">
                                                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest whitespace-nowrap">
                                                             {item.createdAt ? format(new Date(item.createdAt), 'MMM dd, HH:mm') : 'N/A'}
                                                         </p>
-                                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest ${
-                                                            isSuccess ? 'bg-emerald-100 text-emerald-700' : 
-                                                            isFailed ? 'bg-red-100 text-red-700' : 
-                                                            'bg-amber-100 text-amber-700'
+                                                        <span className="text-slate-200 text-[8px]">•</span>
+                                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-widest border ${
+                                                            isSuccess ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 
+                                                            isFailed ? 'bg-rose-50 border-rose-100 text-rose-600' : 
+                                                            'bg-amber-50 border-amber-100 text-amber-600'
                                                         }`}>
                                                             {item.status}
                                                         </span>
@@ -254,10 +256,10 @@ const UserDashboardPage: React.FC = () => {
                                             </div>
                                             <div className="text-right flex items-center gap-4">
                                                 <div>
-                                                    <p className={`font-bold text-sm ${item.amount > 0 ? 'text-emerald-500' : 'text-slate-900'}`}>
+                                                    <p className={`font-black text-sm tracking-tight ${item.amount > 0 ? 'text-emerald-500' : 'text-slate-900'}`}>
                                                         {item.amount > 0 ? '+' : ''}{currency}{Math.abs(item.amount).toLocaleString()}
                                                     </p>
-                                                    <p className="text-[9px] text-slate-400 font-bold tracking-tighter uppercase">Protocol Settlement</p>
+                                                    <p className="text-[9px] text-slate-400 font-bold tracking-tighter uppercase mt-0.5">Settlement Result</p>
                                                 </div>
                                                 <ChevronRight size={16} className="text-slate-200 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
                                             </div>

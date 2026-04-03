@@ -25,13 +25,16 @@ const UserLoginPage: React.FC = () => {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.info(`[Auth] Attempting login for: ${email}`);
         setIsLoading(true);
         try {
             await login({ email, password }, rememberMe);
+            console.info(`[Auth] Login successful for: ${email}`);
             toast.success('Welcome back to Zantara!');
             navigate(from, { replace: true });
         } catch (err: any) {
-            const msg = err?.response?.data?.message || 'Invalid email or password';
+            const msg = err?.response?.data?.message || err?.message || 'Invalid email or password';
+            console.error(`[Auth] Login error:`, err);
             toast.error(msg);
         } finally {
             setIsLoading(false);
@@ -181,32 +184,6 @@ const UserLoginPage: React.FC = () => {
                             )}
                         </button>
 
-                        <div className="relative py-4">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-slate-100"></div>
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest text-slate-400">
-                                <span className="bg-white px-4">Or continue with</span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <button
-                                type="button"
-                                className="flex items-center justify-center gap-3 py-3 border border-slate-100 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-[0.98]"
-                            >
-                                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 grayscale opacity-70" />
-                                <span>Google</span>
-                            </button>
-                            <button
-                                type="button"
-                                className="flex items-center justify-center gap-3 py-3 border border-slate-100 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-[0.98]"
-                            >
-                                <Github size={20} className="text-slate-900" />
-                                <span>GitHub</span>
-                            </button>
-                        </div>
-
                         <p className="text-center text-slate-500 font-medium">
                             Don't have an account?{' '}
                             <Link to="/register" title="Create Account" className="text-emerald-500 font-bold hover:text-emerald-600 transition-colors">
@@ -216,6 +193,7 @@ const UserLoginPage: React.FC = () => {
                     </form>
                 </div>
             </div>
+
         </div>
     );
 };

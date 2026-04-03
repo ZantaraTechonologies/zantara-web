@@ -1,7 +1,22 @@
 import { ShieldAlert, Home, LogOut } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/auth/authStore';
 
 export default function NotAuthorized({ requiredRoles = ["admin"] }: { requiredRoles?: string[] }) {
+    const { logout } = useAuthStore();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/login');
+        } catch (err) {
+            console.error('Logout failed:', err);
+            // Fallback navigate
+            navigate('/login');
+        }
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6 py-12">
             <div className="text-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-500 max-w-lg w-full">
@@ -28,13 +43,13 @@ export default function NotAuthorized({ requiredRoles = ["admin"] }: { requiredR
                         <Home className="w-4 h-4" />
                         <span>Go back home</span>
                     </Link>
-                    <Link
-                        to="/admin/logout"
+                    <button
+                        onClick={handleLogout}
                         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-2xl font-bold hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95"
                     >
                         <LogOut className="w-4 h-4" />
                         <span>Sign out</span>
-                    </Link>
+                    </button>
                 </div>
 
                 <div className="pt-8 p-6 bg-amber-50 rounded-3xl border border-amber-100/50">
@@ -47,3 +62,4 @@ export default function NotAuthorized({ requiredRoles = ["admin"] }: { requiredR
         </div>
     );
 }
+

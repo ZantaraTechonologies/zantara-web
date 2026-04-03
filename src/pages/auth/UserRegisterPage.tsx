@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
     User, 
     Mail, 
     Phone, 
     Lock, 
-    Briefcase
+    UserPlus
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 
 const UserRegisterPage: React.FC = () => {
+    const [searchParams] = useSearchParams();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
         password: '',
+        referralCode: '',
         agreeToTerms: false
     });
     const [isLoading, setIsLoading] = useState(false);
 
     const { register } = useAuthStore();
     const navigate = useNavigate();
+
+    // Capture referral code from URL
+    useEffect(() => {
+        const ref = searchParams.get('ref');
+        if (ref) {
+            setFormData(prev => ({ ...prev, referralCode: ref }));
+            console.info(`[Auth] Referral code detected from URL: ${ref}`);
+        }
+    }, [searchParams]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -33,6 +44,9 @@ const UserRegisterPage: React.FC = () => {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        console.info(`[Auth] Attempting registration for: ${formData.email}`);
+
         if (!formData.agreeToTerms) {
             toast.error('Please agree to the Terms of Service and Privacy Policy');
             return;
@@ -40,18 +54,19 @@ const UserRegisterPage: React.FC = () => {
 
         setIsLoading(true);
         try {
-            // Mapping UI fields to backend expectation if needed
-            // Based on authService.ts: { name, email, phone, password }
             await register({
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
-                password: formData.password
+                password: formData.password,
+                referralCode: formData.referralCode
             });
+            console.info(`[Auth] Registration successful for: ${formData.email}`);
             toast.success('Registration successful! Welcome to Zantara.');
             navigate('/app/dashboard');
         } catch (err: any) {
-            const msg = err?.response?.data?.message || 'Registration failed. Please try again.';
+            const msg = err?.response?.data?.message || err?.message || 'Registration failed. Please try again.';
+            console.error(`[Auth] Registration error:`, err);
             toast.error(msg);
         } finally {
             setIsLoading(false);
@@ -74,7 +89,7 @@ const UserRegisterPage: React.FC = () => {
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-6">
                         {/* Full Name */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700 block">Full Name</label>
@@ -152,6 +167,24 @@ const UserRegisterPage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Referral Code */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-700 block">Referral Code (Optional)</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                                    <UserPlus size={18} />
+                                </div>
+                                <input
+                                    name="referralCode"
+                                    type="text"
+                                    value={formData.referralCode}
+                                    onChange={handleChange}
+                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
+                                    placeholder="Enter referral code"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex items-center">
@@ -181,32 +214,6 @@ const UserRegisterPage: React.FC = () => {
                         )}
                     </button>
 
-                    <div className="relative py-4">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-slate-100"></div>
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest text-slate-400">
-                            <span className="bg-white px-4">Or register with</span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <button
-                            type="button"
-                            className="flex items-center justify-center gap-3 py-3 border border-slate-100 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-[0.98]"
-                        >
-                            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 grayscale opacity-70" />
-                            <span>Google</span>
-                        </button>
-                        <button
-                            type="button"
-                            className="flex items-center justify-center gap-3 py-3 border border-slate-100 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-[0.98]"
-                        >
-                            <Briefcase size={18} className="text-slate-400" />
-                            <span>SSO</span>
-                        </button>
-                    </div>
-
                     <p className="text-center text-slate-500 font-medium">
                         Already have an account?{' '}
                         <Link to="/login" className="text-emerald-500 font-bold hover:text-emerald-600 transition-colors">
@@ -231,3 +238,4 @@ const UserRegisterPage: React.FC = () => {
 };
 
 export default UserRegisterPage;
+

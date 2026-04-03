@@ -226,6 +226,18 @@ export default function Navbar() {
                                         })
                                     )}
                                 </nav>
+
+                                {isAuthenticated && (
+                                    <div className="pt-6 border-t border-slate-50">
+                                        <button
+                                            onClick={() => { setOpen(false); logout(); }}
+                                            className="w-full py-4 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 font-bold flex items-center justify-center gap-3 active:scale-95 transition-all text-xs uppercase tracking-widest"
+                                        >
+                                            <LogOut size={18} />
+                                            Logout session
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="space-y-6">
@@ -252,20 +264,9 @@ export default function Navbar() {
                             </div>
                         )}
                     </div>
-
-                    {isAuthenticated && (
-                        <div className="p-6 border-t border-slate-100 bg-white shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
-                            <button
-                                onClick={() => { setOpen(false); logout(); }}
-                                className="w-full py-4.5 rounded-2xl bg-red-50 text-red-600 border border-red-100 font-black flex items-center justify-center gap-3 shadow-sm active:scale-95 transition-all text-sm uppercase tracking-widest"
-                            >
-                                <LogOut size={18} />
-                                Logout session
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
         </header>
     );
 }
+
