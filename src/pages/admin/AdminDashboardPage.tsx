@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { 
     Users, 
     ShieldCheck, 
@@ -22,7 +23,7 @@ import { useWalletStore } from '../../store/wallet/walletStore';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 
 const AdminDashboardPage: React.FC = () => {
-    const { stats, loadingStats, fetchDashboardStats, pendingKycCount, pendingWithdrawalsCount } = useAdminStore();
+    const { stats, loadingStats, fetchDashboardStats, error, pendingKycCount, pendingWithdrawalsCount } = useAdminStore();
     const { currency } = useWalletStore();
 
     React.useEffect(() => {
@@ -35,19 +36,19 @@ const AdminDashboardPage: React.FC = () => {
     }, [fetchBalance]);
 
     const kpis = [
-        { label: 'TOTAL USERS', value: stats?.totalUsers?.toLocaleString() || '0', trend: stats?.userGrowth || '0%', trendUp: true, detail: null },
-        { label: 'ACTIVE USERS', value: stats?.activeUsers?.toLocaleString() || '0', trend: stats?.activityRate || '0%', trendUp: true, detail: null },
-        { label: 'PENDING KYC', value: stats?.pendingKyc?.toString() || '0', trend: 'URGENT', trendUp: false, detail: 'Action Required', alert: (stats?.pendingKyc || 0) > 0 },
-        { label: 'WITHDRAWALS', value: stats?.pendingWithdrawals?.toString() || '0', trend: `${currency}${stats?.withdrawalVolume?.toLocaleString() || '0'}`, trendUp: true, detail: null },
-        { label: 'FAILED TODAY', value: stats?.failedTxsToday?.toString() || '0', trend: 'CHECK LOGS', trendUp: false, detail: null, critical: (stats?.failedTxsToday || 0) > 0 },
-        { label: 'OPEN TICKETS', value: stats?.openTickets?.toString() || '0', trend: 'SUPPORT', trendUp: true, detail: null },
+        { label: 'TOTAL USERS', value: stats?.totalUsers?.toLocaleString() || '0', trend: stats?.userGrowth || '0%', trendUp: true, detail: null, link: '/admin/users' },
+        { label: 'ACTIVE USERS', value: stats?.activeUsers?.toLocaleString() || '0', trend: stats?.activityRate || '0%', trendUp: true, detail: null, link: '/admin/users' },
+        { label: 'PENDING KYC', value: stats?.pendingKyc?.toString() || '0', trend: 'URGENT', trendUp: false, detail: 'Action Required', alert: (stats?.pendingKyc || 0) > 0, link: '/admin/kyc' },
+        { label: 'WITHDRAWALS', value: stats?.pendingWithdrawals?.toString() || '0', trend: `${currency}${stats?.withdrawalVolume?.toLocaleString() || '0'}`, trendUp: true, detail: null, link: '/admin/withdrawals' },
+        { label: 'FAILED TODAY', value: stats?.failedTxsToday?.toString() || '0', trend: 'CHECK LOGS', trendUp: false, detail: null, critical: (stats?.failedTxsToday || 0) > 0, link: '/admin/transactions' },
+        { label: 'OPEN TICKETS', value: stats?.openTickets?.toString() || '0', trend: 'SUPPORT', trendUp: true, detail: null, link: '/admin/support' },
     ];
 
     const toolbox = [
-        { name: 'ADD ADMIN', icon: UserPlus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-        { name: 'EXPORT LOGS', icon: FileText, color: 'text-slate-400', bg: 'bg-white/5' },
-        { name: 'BROADCAST', icon: Radio, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-        { name: 'MAINTENANCE', icon: Zap, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+        { name: 'ADD ADMIN', icon: UserPlus, color: 'text-emerald-500', bg: 'bg-emerald-500/10', link: '/admin/register' },
+        { name: 'EXPORT LOGS', icon: FileText, color: 'text-slate-400', bg: 'bg-white/5', link: '/admin/audit' },
+        { name: 'BROADCAST', icon: Radio, color: 'text-emerald-400', bg: 'bg-emerald-500/10', link: '/admin/notifications' },
+        { name: 'MAINTENANCE', icon: Zap, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', link: '/admin/status' },
     ];
 
     const criticalMonitoring = (stats?.criticalAlerts || []);
@@ -78,12 +79,22 @@ const AdminDashboardPage: React.FC = () => {
                     </div>
                 </div>
 
+                {error && (
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3">
+                        <AlertCircle className="text-red-500 w-5 h-5 flex-shrink-0" />
+                        <div>
+                            <p className="text-red-500 font-bold text-sm">Dashboard Sync Error</p>
+                            <p className="text-red-400/70 text-xs">{error}. Please ensure your local backend is running and the .env is correctly configured.</p>
+                        </div>
+                    </div>
+                )}
+
                 {/* KPI Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                     {loadingStats ? (
                         Array(6).fill(0).map((_, i) => <CardSkeleton key={i} />)
                     ) : kpis.map((kpi, i) => (
-                        <div key={i} className={`bg-white/5 border p-5 rounded-2xl shadow-sm space-y-3 hover:border-emerald-500/30 transition-all group ${kpi.critical ? 'border-red-500/20 bg-red-500/5' : 'border-white/5'}`}>
+                        <Link to={kpi.link} key={i} className={`bg-white/5 border p-5 rounded-2xl shadow-sm space-y-3 hover:border-emerald-500/30 transition-all group block ${kpi.critical ? 'border-red-500/20 bg-red-500/5' : 'border-white/5'}`}>
                             <div className="flex justify-between items-start">
                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{kpi.label}</span>
                                 {kpi.alert && <AlertCircle className="text-orange-500 w-4 h-4 animate-bounce" />}
@@ -94,7 +105,7 @@ const AdminDashboardPage: React.FC = () => {
                                     {kpi.trend}
                                 </span>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 
@@ -164,28 +175,41 @@ const AdminDashboardPage: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
-                                        {criticalMonitoring.map((row, i) => (
+                                        {stats?.criticalAlerts?.map((row: any, i: number) => (
                                             <tr key={i} className="group hover:bg-white/5 transition-colors">
                                                 <td className="py-3.5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-orange-400' : 'bg-red-500'}`}></div>
+                                                        <div className={`w-2 h-2 rounded-full ${row.statusColor.includes('red') ? 'bg-red-500' : 'bg-orange-400'}`}></div>
                                                         <span className="text-sm font-bold text-slate-300">{row.event}</span>
                                                     </div>
                                                 </td>
                                                 <td className="py-3.5 font-mono text-xs text-slate-500">{row.entity}</td>
-                                                <td className="py-3.5 text-xs text-slate-500 font-medium">{row.time}</td>
+                                                <td className="py-3.5 text-xs text-slate-500 font-medium">
+                                                    {new Date(row.time).toLocaleDateString()}
+                                                </td>
                                                 <td className="py-3.5">
                                                     <span className={`${row.statusColor} text-[10px] font-bold px-3 py-1 rounded-lg tracking-widest opacity-80`}>
                                                         {row.status}
                                                     </span>
                                                 </td>
                                                 <td className="py-3.5 text-right">
-                                                    <button className="bg-emerald-500 text-slate-950 text-[10px] font-bold px-4 py-2 rounded-xl hover:bg-emerald-400 transition-all shadow-sm">
-                                                        {i === 0 ? 'Investigate' : 'Unlock/Verify'}
-                                                    </button>
+                                                    {row.link ? (
+                                                        <Link to={row.link} className="bg-emerald-500 text-slate-950 text-[10px] font-bold px-4 py-2 rounded-xl hover:bg-emerald-400 transition-all shadow-sm inline-block">
+                                                            Investigate
+                                                        </Link>
+                                                    ) : (
+                                                        <span className="text-[10px] text-slate-600 italic">None</span>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}
+                                        {(!stats?.criticalAlerts || stats.criticalAlerts.length === 0) && (
+                                            <tr>
+                                                <td colSpan={5} className="py-10 text-center text-slate-500 text-xs font-medium">
+                                                    No critical alerts pending investigative action.
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -199,12 +223,12 @@ const AdminDashboardPage: React.FC = () => {
                             <h3 className="text-xl font-bold text-white mb-5">Admin Toolbox</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 {toolbox.map((tool, i) => (
-                                    <button key={i} className={`flex flex-col items-center justify-center gap-3 border p-4 rounded-2xl transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group bg-white/5 border-white/5`}>
+                                    <Link to={tool.link} key={i} className={`flex flex-col items-center justify-center gap-3 border p-4 rounded-2xl transition-all shadow-sm hover:shadow-md hover:-translate-y-1 group bg-white/5 border-white/5 block w-full`}>
                                         <div className={`${tool.color} transition-transform group-hover:scale-110 opacity-80 group-hover:opacity-100`}>
                                             <tool.icon size={22} />
                                         </div>
                                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{tool.name}</span>
-                                    </button>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
@@ -232,7 +256,9 @@ const AdminDashboardPage: React.FC = () => {
                                             <div className="space-y-0.5">
                                                 <h4 className="font-bold text-slate-200 text-sm">{item.event}</h4>
                                                 <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{item.detail}</p>
-                                                <p className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">{item.time}</p>
+                                                <p className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">
+                                                    {new Date(item.time).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                                </p>
                                             </div>
                                         </div>
                                     ))}

@@ -25,7 +25,9 @@ export const useAdminStore = create<AdminState>((set) => ({
     fetchDashboardStats: async () => {
         set({ loadingStats: true, error: null });
         try {
-            const data = await adminService.fetchDashboardStats();
+            const response = await adminService.fetchDashboardStats();
+            const data = response.data; // Backend returns { success: true, data: { ... } }
+            
             set({ 
                 stats: data, 
                 pendingKycCount: data?.pendingKyc || 0,
