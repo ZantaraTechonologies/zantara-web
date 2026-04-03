@@ -26,7 +26,7 @@ export const useAdminStore = create<AdminState>((set) => ({
         set({ loadingStats: true, error: null });
         try {
             const response = await adminService.fetchDashboardStats(days);
-            const data = response; // adminService now returns response.data directly
+            const data = response.data; // Backend returns { success: true, data: { ... } }
             
             set({ 
                 stats: data, 
