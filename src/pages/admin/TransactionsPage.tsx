@@ -1,8 +1,27 @@
-// ---------------------------------------------
-// src/pages/admin/TransactionsPage.tsx
-// ---------------------------------------------
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import API from "../../services/api/apiClient";
+import { 
+    Search, 
+    Filter, 
+    RefreshCw, 
+    Download, 
+    Smartphone, 
+    Globe, 
+    Zap, 
+    Tv, 
+    PlusCircle, 
+    MinusCircle, 
+    Activity,
+    ChevronLeft,
+    ChevronRight,
+    User,
+    Calendar,
+    ArrowUpRight,
+    Loader2,
+    XCircle
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
 // Types — align to your backend fields
 export type Txn = {
@@ -15,6 +34,9 @@ export type Txn = {
     amount: number;
     status: "success" | "pending" | "failed";
     reference?: string; // provider reference
+    transactionId?: string; // system ID
+    refId?: string; // fallback ID
+    type?: string; // e.g., funding, purchase, Commission
     meta?: Record<string, any>;
 };
 
@@ -44,9 +66,15 @@ function useDebounce<T>(val: T, ms = 500) {
 }
 
 export default function TransactionsPage() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [rows, setRows] = useState<Txn[]>([]);
     const [total, setTotal] = useState(0);
+
+    // Get userId from URL if coming from User Detail
+    const queryParams = new URLSearchParams(location.search);
+    const [userIdFilter, setUserIdFilter] = useState(queryParams.get('userId') || "");
 
     // Filters & pagination
     const [q, setQ] = useState("");
@@ -59,30 +87,55 @@ export default function TransactionsPage() {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
 
-    const debouncedQ = useDebounce(q, 400);
+    const getTransactionConfig = (type: string) => {
+        switch (type) {
+            case 'funding':
+            case 'credit':
+            case 'settlement':
+                return { icon: <PlusCircle size={14} />, color: 'text-emerald-500', bg: 'bg-emerald-500/10', label: 'Wallet Funding' };
+            case 'data':
+                return { icon: <Globe size={14} />, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'Data Purchase' };
+            case 'airtime':
+                return { icon: <Smartphone size={14} />, color: 'text-orange-500', bg: 'bg-orange-500/10', label: 'Airtime Purchase' };
+            case 'tv':
+            case 'cable':
+                return { icon: <Tv size={14} />, color: 'text-purple-500', bg: 'bg-purple-500/10', label: 'TV Subscription' };
+            case 'electricity':
+                return { icon: <Zap size={14} />, color: 'text-yellow-500', bg: 'bg-yellow-500/10', label: 'Utility Bill' };
+            case 'withdrawal':
+            case 'expense':
+                return { icon: <MinusCircle size={14} />, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'Withdrawal' };
+            default:
+                return { icon: <Activity size={14} />, color: 'text-slate-400', bg: 'bg-slate-100', label: String(type || 'UNKNOWN').toUpperCase() };
+        }
+    };
 
+    const debouncedQ = useDebounce(q, 400);
     async function fetchData() {
         setLoading(true);
         try {
             const params: Record<string, any> = { page, limit };
-            if (debouncedQ) params.search = debouncedQ; // backend: allow search on user/ref
+            if (debouncedQ) params.search = debouncedQ;
             if (status) params.status = status;
             if (service) params.service = service;
-            if (from) params.from = from; // ISO date string (YYYY-MM-DD)
+            if (from) params.from = from;
             if (to) params.to = to;
             if (minAmt) params.minAmount = Number(minAmt);
             if (maxAmt) params.maxAmount = Number(maxAmt);
+            if (userIdFilter) params.userId = userIdFilter;
 
-            const { data } = await API.get("/transaction-logs/admin/transactions/all", { params });
-            // Expecting shape: { items: Txn[], total: number }
-            setRows(data?.items ?? data ?? []);
-            setTotal(data?.total ?? (data?.items?.length ?? 0));
+            const response = await API.get("/transaction-logs/admin/transactions/all", { params });
+            const result = response.data.data;
+            setRows(result.transactions || []);
+            setTotal(result.pagination?.total || 0);
         } catch (e) {
             console.error(e);
+            toast.error("Failed to fetch transactions");
         } finally {
             setLoading(false);
         }
     }
+
 
     useEffect(() => {
         fetchData();
@@ -97,24 +150,27 @@ export default function TransactionsPage() {
         setTo("");
         setMinAmt("");
         setMaxAmt("");
+        setUserIdFilter("");
         setPage(1);
+        navigate('/admin/transactions', { replace: true });
     }
 
-    async function recheck(reference?: string) {
-        if (!reference) return;
+    async function recheck(reference?: string, transactionId?: string, refId?: string) {
+        const targetRef = reference || transactionId || refId;
+        if (!targetRef) return;
+        
         const prev = rows.slice();
         try {
-            const idx = rows.findIndex((r) => r.reference === reference);
+            const idx = rows.findIndex((r) => r.reference === reference || r.transactionId === transactionId || r.refId === refId);
             if (idx >= 0) {
                 const copy = rows.slice();
                 (copy[idx] as any).__checking = true;
                 setRows(copy);
             }
-            await API.post("/services/transaction/status", { reference });
+            await API.post("/services/transaction/status", { reference: targetRef });
             await fetchData();
         } catch (e) {
             console.error(e);
-            // restore
             setRows(prev);
         }
     }
@@ -130,11 +186,11 @@ export default function TransactionsPage() {
         ];
         const lines = rows.map((r) => [
             new Date(r.createdAt).toLocaleString(),
-            typeof r.user === "string" ? r.user : (r.user?.email ?? r.user?.name ?? r.user?._id ?? r.userId ?? ""),
+            typeof r.user === "string" ? r.user : (r.user?.email ?? r.user?.name ?? (typeof r.userId === 'object' ? (r.userId as any)?.email || (r.userId as any)?.name : r.userId) ?? ""),
             r.service ?? "",
             String(r.amount),
             r.status,
-            r.reference ?? "",
+            r.transactionId || r.refId || r.reference || "",
         ]);
         const csv = [header, ...lines].map((a) => a.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -190,11 +246,12 @@ export default function TransactionsPage() {
                     <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Service Type</label>
                     <select value={service} onChange={(e) => setService(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all appearance-none bg-white">
                         <option value="">All Services</option>
+                        <option value="funding">Wallet Funding</option>
                         <option value="airtime">Airtime</option>
                         <option value="data">Data</option>
                         <option value="electricity">Electricity</option>
                         <option value="cable">Cable</option>
-                        <option value="pins">Exam PINs</option>
+                        <option value="commission">Commissions</option>
                     </select>
                 </div>
                 <div className="space-y-2">
@@ -241,22 +298,75 @@ export default function TransactionsPage() {
                                 </tr>
                             )}
                             {!loading && rows.map((r) => {
-                                const userText = typeof r.user === "string"
-                                    ? r.user
-                                    : (r.user?.email ?? r.user?.name ?? r.user?._id ?? r.userId ?? "");
+                                const typeOrService = (r.type || r.service || 'data').toLowerCase();
+                                const config = getTransactionConfig(typeOrService);
+                                const isCredit = ['funding', 'credit', 'settlement', 'referral_bonus', 'commission'].includes(typeOrService);
+                                
+                                const userText = typeof r.user === "string" 
+                                    ? r.user 
+                                    : (r.user?.email ?? r.user?.name ?? (typeof r.userId === 'object' ? (r.userId as any)?.email || (r.userId as any)?.name : r.userId) ?? "Unknown User");
+
                                 return (
                                     <tr key={r._id} className="group hover:bg-slate-50 transition-colors">
-                                        <td className="px-4 py-2.5 text-slate-500 font-medium whitespace-nowrap">{new Date(r.createdAt).toLocaleString()}</td>
-                                        <td className="px-4 py-2.5 text-slate-900 font-semibold">{userText}</td>
-                                        <td className="px-4 py-2.5 text-slate-500 font-bold uppercase text-[10px] tracking-widest">{r.service ?? "—"}</td>
-                                        <td className="px-4 py-2.5 text-right font-bold text-slate-900">{currency(r.amount)}</td>
-                                        <td className="px-4 py-2.5"><StatusTag status={r.status} /></td>
-                                        <td className="px-4 py-2.5 text-slate-400 font-mono text-xs">{r.reference ?? "—"}</td>
-                                        <td className="px-4 py-2.5 text-right">
-                                            <div className="flex items-center gap-2 justify-end">
-                                                <button onClick={() => alert(JSON.stringify(r, null, 2))} className="px-3 py-1.5 bg-white border border-slate-100 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-all">Details</button>
-                                                <button onClick={() => recheck(r.reference)} disabled={!r.reference || (r as any).__checking} className="px-3 py-1.5 bg-slate-950 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider disabled:opacity-50 hover:bg-emerald-500 hover:text-slate-950 transition-all">
-                                                    {(r as any).__checking ? "Checking…" : "Trace"}
+                                        <td className="px-4 py-3 whitespace-nowrap">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-slate-700">{new Date(r.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                                                <span className="text-[10px] text-slate-400 font-medium uppercase">{new Date(r.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                                                    <User size={14} />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold text-slate-900 truncate max-w-[120px]">{userText}</span>
+                                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">CLIENT_NODE</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-7 h-7 rounded-lg ${config.bg} ${config.color} flex items-center justify-center`}>
+                                                    {config.icon}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold text-slate-700 capitalize">{r.service}</span>
+                                                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">{config.label}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className={`px-4 py-3 text-right font-bold text-sm ${isCredit ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                            {isCredit ? '+' : '-'}{currency(r.amount || 0).replace('NGN', '₦')}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${
+                                                r.status === 'success' ? 'bg-emerald-100 text-emerald-700' :
+                                                r.status === 'failed' ? 'bg-rose-100 text-rose-700' :
+                                                'bg-amber-100 text-amber-700'
+                                            }`}>
+                                                {r.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className="text-[10px] font-mono text-slate-400 select-all">{r.transactionId || r.refId || r.reference?.slice(0, 12) || "—"}</span>
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            <div className="flex items-center gap-1.5 justify-end">
+                                                <button 
+                                                    onClick={() => recheck(r.reference, r.transactionId, r.refId)} 
+                                                    disabled={(!r.reference && !r.transactionId && !r.refId) || (r as any).__checking}
+                                                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-emerald-500 transition-all disabled:opacity-30"
+                                                    title="Trace Transaction"
+                                                >
+                                                    <RefreshCw size={14} className={(r as any).__checking ? "animate-spin" : ""} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => navigate(`/admin/transactions/${r._id}`)}
+                                                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-900 transition-all"
+                                                    title="Deep Audit"
+                                                >
+                                                    <ArrowUpRight size={14} />
                                                 </button>
                                             </div>
                                         </td>
@@ -267,15 +377,38 @@ export default function TransactionsPage() {
                     </table>
                 </div>
                 {/* Pagination */}
-                <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-                    <div className="text-sm text-slate-600">Total: {total}</div>
-                    <div className="flex items-center gap-2">
-                        <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }} className="px-2 py-1 rounded-lg border border-slate-200 text-sm">
-                            {[10, 20, 50, 100].map(n => <option key={n} value={n}>{n}/page</option>)}
+                <div className="flex items-center justify-between px-6 py-4 bg-slate-50/50 border-t border-slate-100">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        Total Audit Units: {total.toLocaleString()}
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <select 
+                            value={limit} 
+                            onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }} 
+                            className="px-3 py-1.5 rounded-xl border border-slate-200 text-[10px] font-bold uppercase tracking-wider bg-white outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all"
+                        >
+                            {[10, 20, 50, 100].map(n => <option key={n} value={n}>{n} Per Page</option>)}
                         </select>
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg" disabled={page <= 1}>Prev</button>
-                        <span className="text-sm">{page} / {totalPages}</span>
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg" disabled={page >= totalPages}>Next</button>
+                        
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={() => setPage(p => Math.max(1, p - 1))} 
+                                disabled={page <= 1}
+                                className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 disabled:opacity-30 hover:bg-slate-50 transition-all"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest min-w-[80px] text-center">
+                                {page} of {totalPages}
+                            </span>
+                            <button 
+                                onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
+                                disabled={page >= totalPages}
+                                className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 disabled:opacity-30 hover:bg-slate-50 transition-all"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

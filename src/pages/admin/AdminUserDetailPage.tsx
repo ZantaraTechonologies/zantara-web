@@ -266,7 +266,7 @@ const AdminUserDetailPage: React.FC = () => {
                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Volume (MTD)</span>
                             </div>
                             <div>
-                                <h3 className="text-3xl font-bold text-white tracking-tight">{currency}{(user.stats?.monthlyVolume || 0).toLocaleString()}</h3>
+                                <h3 className="text-3xl font-bold text-rose-500 tracking-tight">{currency}{(user.stats?.monthlyVolume || 0).toLocaleString()}</h3>
                                 <p className="text-blue-500 font-bold text-[10px] tracking-[0.2em] mt-1 flex items-center gap-1">
                                     <Activity size={12} />
                                     NETWORK SPEED
@@ -314,7 +314,7 @@ const AdminUserDetailPage: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 <td className="py-4 px-6">
-                                                    <p className={`font-bold text-sm ${isCredit ? 'text-emerald-500' : 'text-slate-300'}`}>
+                                                    <p className={`font-bold text-sm ${isCredit ? 'text-emerald-500' : 'text-rose-500'}`}>
                                                         {isCredit ? '+' : '-'}{currency}{tx.amount.toLocaleString()}
                                                     </p>
                                                     <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{new Date(tx.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>

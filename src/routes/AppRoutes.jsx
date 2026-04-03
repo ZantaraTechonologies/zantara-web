@@ -59,11 +59,13 @@ import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import AdminRegister from '../pages/admin/AdminRegister';
 import { StatusPage } from '../pages/admin/StatusPage';
 import TransactionsPage from '../pages/admin/TransactionsPage';
+import AdminTransactionDetailPage from '../pages/admin/AdminTransactionDetailPage';
 import AdminUsersPage from '../pages/admin/AdminUsersPage';
 import AdminUserDetailPage from '../pages/admin/AdminUserDetailPage';
 import AdminKycQueuePage from '../pages/admin/AdminKycQueuePage';
 import AdminWithdrawalsPage from '../pages/admin/AdminWithdrawalsPage';
 import AdminSupportTicketsPage from '../pages/admin/AdminSupportTicketsPage';
+import AdminSupportTicketDetailPage from '../pages/admin/AdminSupportTicketDetailPage';
 import AdminNotificationsControlPage from '../pages/admin/AdminNotificationsControlPage';
 import AdminEarningsPage from '../pages/admin/AdminEarningsPage';
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
@@ -180,8 +182,10 @@ export default function AppRoutes() {
                             
                             <Route path="kyc" element={<AdminKycQueuePage />} />
                             <Route path="transactions" element={<TransactionsPage />} />
+                            <Route path="transactions/:id" element={<AdminTransactionDetailPage />} />
                             <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
                             <Route path="support" element={<AdminSupportTicketsPage />} />
+                            <Route path="support/:id" element={<AdminSupportTicketDetailPage />} />
                             <Route path="notifications" element={<AdminNotificationsControlPage />} />
                             <Route path="status" element={<StatusPage />} />
                             

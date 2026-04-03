@@ -20,7 +20,7 @@ const AdminProtectedRoute = () => {
         return <Navigate to="/admin/login" replace />;
     }
 
-    const roles = Array.isArray(user?.roles) ? user.roles : [];
+    const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
     const isAdmin = roles.includes('admin') || roles.includes('superAdmin');
 
     if (!isAdmin) {

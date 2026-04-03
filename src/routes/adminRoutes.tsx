@@ -9,11 +9,13 @@ import AdminUserDetailPage from "../pages/admin/AdminUserDetailPage";
 import AdminKycQueuePage from "../pages/admin/AdminKycQueuePage";
 import AdminWithdrawalsPage from "../pages/admin/AdminWithdrawalsPage";
 import AdminSupportTicketsPage from "../pages/admin/AdminSupportTicketsPage";
+import AdminSupportTicketDetailPage from "../pages/admin/AdminSupportTicketDetailPage";
 import AdminNotificationsControlPage from "../pages/admin/AdminNotificationsControlPage";
 import AdminAuditLogsPage from "../pages/admin/AdminAuditLogsPage";
 import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import { StatusPage } from "../pages/admin/StatusPage";
 import TransactionsPage from "../pages/admin/TransactionsPage";
+import AdminTransactionDetailPage from "../pages/admin/AdminTransactionDetailPage";
 import BusinessOverview from "../features/business/pages/BusinessOverview";
 import BusinessWalletPage from "../features/business/pages/BusinessWalletPage";
 import BusinessCostLedgerPage from "../features/business/pages/BusinessCostLedgerPage";
@@ -43,11 +45,13 @@ export const router = createBrowserRouter([
           { path: "kyc", element: <AdminKycQueuePage /> },
           { path: "withdrawals", element: <AdminWithdrawalsPage /> },
           { path: "support", element: <AdminSupportTicketsPage /> },
+          { path: "support/:id", element: <AdminSupportTicketDetailPage /> },
           { path: "notifications", element: <AdminNotificationsControlPage /> },
           { path: "audit", element: <AdminAuditLogsPage /> },
           { path: "settings", element: <AdminSettingsPage /> },
           { path: "status", element: <StatusPage /> },
           { path: "transactions", element: <TransactionsPage /> },
+          { path: "transactions/:id", element: <AdminTransactionDetailPage /> },
           { path: "business/overview", element: <BusinessOverview /> },
           { path: "business/wallet", element: <BusinessWalletPage /> },
           { path: "business/ledger", element: <BusinessCostLedgerPage /> },
