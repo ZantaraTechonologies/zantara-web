@@ -25,6 +25,7 @@ const AdminUsersPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         loadUsers();
@@ -34,8 +35,9 @@ const AdminUsersPage: React.FC = () => {
         setLoading(true);
         try {
             const response = await adminService.fetchUsers({ page, search });
-            const usersList = response.data || [];
-            setUsers(usersList);
+            const result = response.data;
+            setUsers(result.users || []);
+            setTotalPages(result.pagination?.totalPages || 1);
         } catch (err) {
             toast.error("Failed to load users");
         } finally {
@@ -99,7 +101,7 @@ const AdminUsersPage: React.FC = () => {
                                     <td colSpan={5} className="py-20 text-center text-slate-500 text-xs font-bold uppercase tracking-[0.2em]">No Users Found</td>
                                 </tr>
                             ) : users.map((user) => (
-                                <tr key={user.id} className="group hover:bg-white/5 transition-colors">
+                                <tr key={user._id} className="group hover:bg-white/5 transition-colors">
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5">
@@ -148,7 +150,7 @@ const AdminUsersPage: React.FC = () => {
                                     </td>
                                     <td className="py-4 px-6 text-right">
                                         <button 
-                                            onClick={() => navigate(`/admin/users/${user.id}`)}
+                                            onClick={() => navigate(`/admin/users/${user._id}`)}
                                             className="p-2.5 rounded-xl bg-white/5 text-slate-400 hover:text-white hover:bg-emerald-500 transition-all border border-white/10"
                                         >
                                             <ArrowUpRight size={18} />
@@ -162,7 +164,7 @@ const AdminUsersPage: React.FC = () => {
 
                 {/* Pagination */}
                 <div className="p-4 border-t border-white/5 flex items-center justify-between bg-white/[0.01]">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Page {page} of N</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Page {page} of {totalPages}</p>
                     <div className="flex gap-2">
                         <button 
                             disabled={page === 1}
@@ -172,8 +174,9 @@ const AdminUsersPage: React.FC = () => {
                             <ChevronLeft size={16} />
                         </button>
                         <button 
+                            disabled={page >= totalPages}
                             onClick={() => setPage(p => p + 1)}
-                            className="p-2 rounded-lg bg-white/5 text-slate-400 hover:bg-white/10 transition-colors"
+                            className="p-2 rounded-lg bg-white/5 text-slate-400 disabled:opacity-30 hover:bg-white/10 transition-colors"
                         >
                             <ChevronRight size={16} />
                         </button>
