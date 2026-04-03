@@ -11,6 +11,7 @@ import {
     ChevronRight,
     Tag
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import * as supportService from '../../services/support/supportService'; 
 import * as adminService from '../../services/admin/adminService';
 import { ListSkeleton } from '../../components/feedback/Skeletons';

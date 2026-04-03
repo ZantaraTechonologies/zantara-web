@@ -66,3 +66,8 @@ export const blockUser = async (id: string, isBlocked: boolean) => {
     const response = await apiClient.put(`${BASE_URL}/users/${id}`, { status: isBlocked });
     return response.data;
 };
+
+export const fetchAllTickets = async (params = {}) => {
+    const response = await apiClient.get(`${BASE_URL}/support/all`, { params });
+    return response.data;
+};
