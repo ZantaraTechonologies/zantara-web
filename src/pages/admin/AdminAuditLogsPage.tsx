@@ -29,8 +29,8 @@ const AdminAuditLogsPage: React.FC = () => {
     const loadLogs = async () => {
         setLoading(true);
         try {
-            const data = await adminService.fetchAuditLogs({ page, search });
-            setLogs(data.items || data || []);
+            const response = await adminService.fetchAuditLogs({ page, search });
+            setLogs(response.data || []);
         } catch (err) {
             toast.error("Failed to load audit logs");
         } finally {

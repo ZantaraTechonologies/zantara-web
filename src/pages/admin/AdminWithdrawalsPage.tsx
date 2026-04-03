@@ -31,8 +31,8 @@ const AdminWithdrawalsPage: React.FC = () => {
     const loadWithdrawals = async () => {
         setLoading(true);
         try {
-            const data = await adminService.fetchWithdrawals({ status: filter });
-            setWithdrawals(data.items || data || []);
+            const response = await adminService.fetchWithdrawals({ status: filter });
+            setWithdrawals(response.data || []);
         } catch (err) {
             toast.error("Failed to load withdrawals");
         } finally {

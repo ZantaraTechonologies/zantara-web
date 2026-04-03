@@ -28,8 +28,8 @@ const AdminKycQueuePage: React.FC = () => {
     const loadQueue = async () => {
         setLoading(true);
         try {
-            const data = await adminService.fetchKycQueue({ status: filter });
-            setQueue(data.items || data || []);
+            const response = await adminService.fetchKycQueue({ status: filter });
+            setQueue(response.data || []);
         } catch (err) {
             toast.error("Failed to load KYC queue");
         } finally {

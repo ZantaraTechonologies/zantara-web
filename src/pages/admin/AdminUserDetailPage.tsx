@@ -38,8 +38,8 @@ const AdminUserDetailPage: React.FC = () => {
     const loadUser = async (userId: string) => {
         setLoading(true);
         try {
-            const data = await adminService.fetchUserDetails(userId);
-            setUser(data);
+            const response = await adminService.fetchUserDetails(userId);
+            setUser(response.data);
         } catch (err) {
             toast.error("User not found");
             navigate('/admin/users');

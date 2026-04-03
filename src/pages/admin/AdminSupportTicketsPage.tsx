@@ -11,8 +11,8 @@ import {
     ChevronRight,
     Tag
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import * as supportService from '../../services/support/supportService'; 
+import * as adminService from '../../services/admin/adminService';
 import { ListSkeleton } from '../../components/feedback/Skeletons';
 import { toast } from 'react-hot-toast';
 
@@ -29,9 +29,8 @@ const AdminSupportTicketsPage: React.FC = () => {
     const loadTickets = async () => {
         setLoading(true);
         try {
-            // Assuming supportService has a method for admin to fetch all tickets
-            const data = await (supportService as any).fetchAllTickets?.({ status: filter }) || [];
-            setTickets(data);
+            const response = await adminService.fetchAllTickets({ status: filter });
+            setTickets(response.data || []);
         } catch (err) {
             toast.error("Failed to load tickets");
         } finally {

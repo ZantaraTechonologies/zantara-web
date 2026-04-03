@@ -33,8 +33,9 @@ const AdminUsersPage: React.FC = () => {
     const loadUsers = async () => {
         setLoading(true);
         try {
-            const data = await adminService.fetchUsers({ page, search });
-            setUsers(data.users || data || []);
+            const response = await adminService.fetchUsers({ page, search });
+            const usersList = response.data || [];
+            setUsers(usersList);
         } catch (err) {
             toast.error("Failed to load users");
         } finally {

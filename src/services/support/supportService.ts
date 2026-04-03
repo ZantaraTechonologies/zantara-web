@@ -42,8 +42,11 @@ export const replyToTicket = async (id: string, message: string): Promise<Ticket
 };
 
 export const getTicketById = async (id: string): Promise<Ticket> => {
-    // In this backend, getMyTickets returns all. We can filter locally or if there was a specific GET /support/:id
-    // But typically we fetch all and find the one. Let's assume we fetch all for now or the backend has a direct GET.
-    const { data } = await API.get('/support/my-tickets');
-    return data.data.find((t: any) => t._id === id);
+    const { data } = await API.get(`/support/${id}`);
+    return data.data;
+};
+
+export const fetchAllTickets = async (params = {}): Promise<Ticket[]> => {
+    const { data } = await API.get('/support/all', { params });
+    return data.data;
 };
