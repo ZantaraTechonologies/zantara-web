@@ -18,13 +18,16 @@ import {
     Copy,
     Info,
     Wallet,
-    Activity
+    Activity,
+    X,
+    Trophy
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import { useEarningsSummary } from '../../hooks/useReferral';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMyTransactions } from '../../hooks/useWallet';
+import { useNotifications } from '../../hooks/useNotifications';
 import { ListSkeleton, PageLoader } from '../../components/feedback/Skeletons';
 import { format } from 'date-fns';
 import { copyToClipboard, shareContent } from '../../utils/clipboard';
@@ -86,6 +89,15 @@ const UserDashboardPage: React.FC = () => {
 
     const [initialLoading, setInitialLoading] = useState(true);
 
+    const { data: notifData } = useNotifications();
+    const notifications = Array.isArray(notifData) ? notifData : [];
+    const activeBroadcasts = notifications.filter((n: any) => n.isBroadcast);
+    const bannerBroadcasts = activeBroadcasts.filter((n: any) => n.broadcastType === 'critical' || n.broadcastType === 'warning');
+    const promoBroadcasts = activeBroadcasts.filter((n: any) => n.broadcastType === 'success' || n.broadcastType === 'info');
+
+    const [showPromo, setShowPromo] = useState(false);
+    const [currentPromo, setCurrentPromo] = useState<any>(null);
+
     useEffect(() => {
         // Initial data sync
         Promise.all([
@@ -94,6 +106,24 @@ const UserDashboardPage: React.FC = () => {
             fetchLinkedAccounts()
         ]).finally(() => setInitialLoading(false));
     }, []);
+
+    useEffect(() => {
+        if (promoBroadcasts.length > 0) {
+            const promo = promoBroadcasts[0];
+            const seenPromo = sessionStorage.getItem(`seen_promo_${promo._id}`);
+            if (!seenPromo) {
+                setCurrentPromo(promo);
+                setShowPromo(true);
+            }
+        }
+    }, [promoBroadcasts.length]);
+
+    const handleClosePromo = () => {
+        if (currentPromo) {
+            sessionStorage.setItem(`seen_promo_${currentPromo._id}`, 'true');
+        }
+        setShowPromo(false);
+    };
 
     if (initialLoading) return <DashboardSkeleton />;
 
@@ -129,7 +159,53 @@ const UserDashboardPage: React.FC = () => {
     const lastCredit = recentActivities.find(tx => tx.type === 'wallet_fund' || tx.amount > 0);
 
     return (
-        <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-6 animate-in fade-in duration-700 font-sans">
+        <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-6 animate-in fade-in duration-700 font-sans relative">
+            {/* Promo Modal Overlay */}
+            {showPromo && currentPromo && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl animate-in zoom-in-95 duration-300">
+                        <button 
+                            onClick={handleClosePromo}
+                            className="absolute top-4 right-4 z-20 p-2 bg-black/10 hover:bg-black/20 text-white rounded-full transition-colors backdrop-blur-md"
+                        >
+                            <X size={20} />
+                        </button>
+                        <div className="bg-emerald-500 p-8 text-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 blur-3xl -mr-10 -mt-10 rounded-full"></div>
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 blur-2xl -ml-10 -mb-10 rounded-full"></div>
+                            <div className="relative z-10 w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center border border-white/30 shadow-xl mb-4">
+                                <Trophy size={32} className="text-white" />
+                            </div>
+                            <h2 className="relative z-10 text-2xl font-black text-white tracking-tight">{currentPromo.title}</h2>
+                        </div>
+                        <div className="p-8 text-center space-y-6">
+                            <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap">
+                                {currentPromo.message}
+                            </p>
+                            <button 
+                                onClick={handleClosePromo}
+                                className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-emerald-500 transition-colors shadow-lg active:scale-95"
+                            >
+                                Got it, thanks!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulletin Banners */}
+            {bannerBroadcasts.map((banner: any) => (
+                <div key={banner._id} className={`flex items-start gap-4 p-4 rounded-3xl border mb-6 shadow-sm ${banner.broadcastType === 'critical' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
+                    <div className={`p-3 rounded-2xl shrink-0 ${banner.broadcastType === 'critical' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}`}>
+                        <ShieldAlert size={20} />
+                    </div>
+                    <div className="flex-1 mt-0.5">
+                        <h3 className="font-bold text-sm tracking-tight">{banner.title}</h3>
+                        <p className="text-xs font-medium mt-1 text-slate-700 leading-relaxed whitespace-pre-wrap">{banner.message}</p>
+                    </div>
+                </div>
+            ))}
+
             {/* Top Identity Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-slate-50 shadow-sm">
                 <div className="flex items-center gap-4">

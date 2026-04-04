@@ -12,14 +12,14 @@ export interface Notification {
 }
 
 export const getMyNotifications = async (): Promise<Notification[]> => {
-    const { data } = await API.get('/notification');
+    const { data } = await API.get('/notifications');
     return data.data;
 };
 
 export const markAsRead = async (id: string): Promise<void> => {
-    await API.post(`/notification/read/${id}`);
+    await API.post(`/notifications/read/${id}`);
 };
 
 export const markAllAsRead = async (): Promise<void> => {
-    await API.post('/notification/read-all');
+    await API.post('/notifications/read-all');
 };

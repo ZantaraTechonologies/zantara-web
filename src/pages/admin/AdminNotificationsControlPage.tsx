@@ -7,14 +7,15 @@ import {
     History, 
     Trash2, 
     Clock, 
-    Settings,
     Radio,
     Zap,
     Users,
     ChevronRight,
-    CheckCircle2
+    CheckCircle2,
+    Eye,
+    EyeOff
 } from 'lucide-react';
-import * as notificationService from '../../services/notifications/notificationService';
+import * as adminNotificationService from '../../services/admin/adminNotificationService';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
 
@@ -23,12 +24,16 @@ const AdminNotificationsControlPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [activeTab, setActiveTab] = useState('history');
+    const [title, setTitle] = useState('');
+    const [message, setMessage] = useState('');
+    const [target, setTarget] = useState('all');
+    const [type, setType] = useState('info');
 
     // Stats
     const stats = [
-        { label: 'DELIVERED', value: '42.8k', icon: CheckCircle2, color: 'text-emerald-500' },
-        { label: 'AUTO ALERTS', value: '18', icon: Zap, color: 'text-emerald-400' },
-        { label: 'PENDING', value: '0', icon: Clock, color: 'text-slate-400' },
+        { label: 'TOTAL BROADCASTS', value: notifications.length.toString(), icon: CheckCircle2, color: 'text-emerald-500' },
+        { label: 'ACTIVE ALERTS', value: notifications.filter(n => n.active).length.toString(), icon: Zap, color: 'text-emerald-400' },
+        { label: 'HISTORY', value: notifications.filter(n => !n.active).length.toString(), icon: Clock, color: 'text-slate-400' },
     ];
 
     useEffect(() => {
@@ -38,13 +43,51 @@ const AdminNotificationsControlPage: React.FC = () => {
     const loadNotifications = async () => {
         setLoading(true);
         try {
-            // Assuming this service exists or we'll create the admin version
-            const data = await (notificationService as any).fetchAdminNotifications?.() || [];
-            setNotifications(data);
+            const result = await adminNotificationService.fetchAdminNotifications();
+            setNotifications(result.data || []);
         } catch (err) {
             toast.error("Failed to load notification history");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSendBroadcast = async () => {
+        if (!title.trim() || !message.trim()) {
+            return toast.error("Title and message are required");
+        }
+        setSending(true);
+        try {
+            await adminNotificationService.sendBroadcast({ title, message, target, type });
+            toast.success("Global dispatch initiated successfully");
+            setTitle('');
+            setMessage('');
+            setActiveTab('history');
+            loadNotifications();
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Failed to initiate broadcast");
+        } finally {
+            setSending(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this broadcast?")) return;
+        try {
+            await adminNotificationService.deleteBroadcast(id);
+            toast.success("Broadcast deleted");
+            loadNotifications();
+        } catch (err) {
+            toast.error("Failed to delete broadcast");
+        }
+    };
+
+    const handleToggleStatus = async (id: string) => {
+        try {
+            await adminNotificationService.toggleBroadcastStatus(id);
+            loadNotifications();
+        } catch (err: any) {
+            toast.error("Failed to toggle broadcast status");
         }
     };
 
@@ -102,7 +145,7 @@ const AdminNotificationsControlPage: React.FC = () => {
                             <div className="py-20 text-center text-slate-500 text-[10px] font-bold uppercase tracking-widest">No previous broadcasts</div>
                         ) : (
                             notifications.map((n: any) => (
-                                <div key={n.id} className="p-6 flex items-center justify-between group hover:bg-white/5 transition-colors">
+                                <div key={n.id} className={`p-6 flex items-center justify-between group hover:bg-white/5 transition-colors ${n.active ? '' : 'opacity-40 grayscale'}`}>
                                     <div className="flex items-center gap-5">
                                         <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
                                             <Radio size={18} />
@@ -115,9 +158,20 @@ const AdminNotificationsControlPage: React.FC = () => {
                                     <div className="flex items-center gap-6">
                                         <div className="text-right text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                             <p>{n.sentBy}</p>
-                                            <p className="text-slate-700">{n.createdAt}</p>
+                                            <p className="text-slate-700">{new Date(n.createdAt).toLocaleDateString()}</p>
                                         </div>
-                                        <button className="p-2 text-slate-600 hover:text-red-500 transition-colors">
+                                        <button 
+                                            onClick={() => handleToggleStatus(n.id)}
+                                            className={`p-2 transition-colors ${n.active ? 'text-emerald-500 hover:text-emerald-600' : 'text-slate-400 hover:text-slate-500'}`}
+                                            title={n.active ? "Deactivate Broadcast" : "Activate Broadcast"}
+                                        >
+                                            {n.active ? <Eye size={16} /> : <EyeOff size={16} />}
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(n.id)}
+                                            className="p-2 text-slate-600 hover:text-red-500 transition-colors"
+                                            title="Delete Permanently"
+                                        >
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -135,6 +189,8 @@ const AdminNotificationsControlPage: React.FC = () => {
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] ml-1">Dispatch Title</label>
                           <input 
                               type="text" 
+                              value={title}
+                              onChange={(e) => setTitle(e.target.value)}
                               placeholder="e.g. System Maintenance Update"
                               className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all"
                           />
@@ -144,9 +200,39 @@ const AdminNotificationsControlPage: React.FC = () => {
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] ml-1">Broadcast Content</label>
                           <textarea 
                               rows={4}
+                              value={message}
+                              onChange={(e) => setMessage(e.target.value)}
                               placeholder="Enter message for all active users..."
                               className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none"
                           />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] ml-1">Target Audience</label>
+                                <select 
+                                    value={target}
+                                    onChange={(e) => setTarget(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all appearance-none cursor-pointer"
+                                >
+                                    <option value="all" className="bg-slate-900 border-none">All Active Users</option>
+                                    <option value="user" className="bg-slate-900 border-none">Retail Users Only</option>
+                                    <option value="agent" className="bg-slate-900 border-none">Business Agents Only</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] ml-1">Alert Priority</label>
+                                <select 
+                                    value={type}
+                                    onChange={(e) => setType(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all appearance-none cursor-pointer"
+                                >
+                                    <option value="info" className="bg-slate-900 border-none">Standard Information</option>
+                                    <option value="success" className="bg-slate-900 border-none">Success/Promo</option>
+                                    <option value="warning" className="bg-slate-900 border-none">Warning Alert</option>
+                                    <option value="critical" className="bg-slate-900 border-none">Critical System Alert</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
@@ -157,10 +243,16 @@ const AdminNotificationsControlPage: React.FC = () => {
                         </div>
 
                         <button 
-                            className="w-full py-4 bg-emerald-500 text-slate-950 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 flex items-center justify-center gap-3 group"
+                            onClick={handleSendBroadcast}
+                            disabled={sending}
+                            className="w-full py-4 bg-emerald-500 text-slate-950 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 flex items-center justify-center gap-3 group disabled:opacity-50"
                         >
-                            <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                            Initiate Global Dispatch
+                            {sending ? 'Initiating...' : (
+                                <>
+                                    <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                    Initiate Global Dispatch
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
