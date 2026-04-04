@@ -1,6 +1,6 @@
 import apiClient from "../api/apiClient";
 
-const BASE_URL = "/analytics/admin";
+const BASE_URL = "/admin/stats/admin";
 
 /**
  * Admin Analytics Service for Earnings & Commission Insights

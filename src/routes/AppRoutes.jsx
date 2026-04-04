@@ -68,6 +68,11 @@ import AdminSupportTicketsPage from '../pages/admin/AdminSupportTicketsPage';
 import AdminSupportTicketDetailPage from '../pages/admin/AdminSupportTicketDetailPage';
 import AdminNotificationsControlPage from '../pages/admin/AdminNotificationsControlPage';
 import AdminEarningsPage from '../pages/admin/AdminEarningsPage';
+import AdminBusinessOverviewPage from '../pages/admin/finance/AdminBusinessOverviewPage';
+import AdminSystemWalletPage from '../pages/admin/finance/AdminSystemWalletPage';
+import AdminBusinessLedgerPage from '../pages/admin/finance/AdminBusinessLedgerPage';
+import AdminExpensesPage from '../pages/admin/finance/AdminExpensesPage';
+import AdminProfitAnalyticsPage from '../pages/admin/finance/AdminProfitAnalyticsPage';
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
 
@@ -192,12 +197,11 @@ export default function AppRoutes() {
                             {/* Business & Finance */}
                             <Route path="business">
                                 <Route path="earnings" element={<AdminEarningsPage />} />
-                                {/* Fallback mappings for missing specific analytics views */}
-                                <Route path="overview" element={<Navigate to="/admin/business/earnings" replace />} />
-                                <Route path="wallet" element={<Navigate to="/admin/business/earnings" replace />} />
-                                <Route path="ledger" element={<Navigate to="/admin/business/earnings" replace />} />
-                                <Route path="expenses" element={<Navigate to="/admin/business/earnings" replace />} />
-                                <Route path="profit" element={<Navigate to="/admin/business/earnings" replace />} />
+                                <Route path="overview" element={<AdminBusinessOverviewPage />} />
+                                <Route path="wallet" element={<AdminSystemWalletPage />} />
+                                <Route path="ledger" element={<AdminBusinessLedgerPage />} />
+                                <Route path="expenses" element={<AdminExpensesPage />} />
+                                <Route path="profit" element={<AdminProfitAnalyticsPage />} />
                             </Route>
 
                             {/* System */}
