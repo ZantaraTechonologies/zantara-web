@@ -73,6 +73,7 @@ import AdminSystemWalletPage from '../pages/admin/finance/AdminSystemWalletPage'
 import AdminBusinessLedgerPage from '../pages/admin/finance/AdminBusinessLedgerPage';
 import AdminExpensesPage from '../pages/admin/finance/AdminExpensesPage';
 import AdminProfitAnalyticsPage from '../pages/admin/finance/AdminProfitAnalyticsPage';
+import AdminCommissionSettingsPage from '../pages/admin/finance/AdminCommissionSettingsPage';
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
 
@@ -202,6 +203,7 @@ export default function AppRoutes() {
                                 <Route path="ledger" element={<AdminBusinessLedgerPage />} />
                                 <Route path="expenses" element={<AdminExpensesPage />} />
                                 <Route path="profit" element={<AdminProfitAnalyticsPage />} />
+                                <Route path="commissions" element={<AdminCommissionSettingsPage />} />
                             </Route>
 
                             {/* System */}

@@ -16,14 +16,12 @@ import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import { StatusPage } from "../pages/admin/StatusPage";
 import TransactionsPage from "../pages/admin/TransactionsPage";
 import AdminTransactionDetailPage from "../pages/admin/AdminTransactionDetailPage";
-import BusinessOverview from "../features/business/pages/BusinessOverview";
-import BusinessWalletPage from "../features/business/pages/BusinessWalletPage";
-import BusinessCostLedgerPage from "../features/business/pages/BusinessCostLedgerPage";
-import BusinessProfitAnalytics from "../features/business/pages/BusinessProfitAnalytics";
-import BusinessSettlement from "../features/business/pages/BusinessSettlement";
-import BusinessCashFlow from "../features/business/pages/BusinessCashFlow";
-import BusinessRefundsLosses from "../features/business/pages/BusinessRefundsLosses";
-import BusinessExpenses from "../features/business/pages/BusinessExpenses";
+import AdminBusinessOverviewPage from "../pages/admin/finance/AdminBusinessOverviewPage";
+import AdminSystemWalletPage from "../pages/admin/finance/AdminSystemWalletPage";
+import AdminBusinessLedgerPage from "../pages/admin/finance/AdminBusinessLedgerPage";
+import AdminProfitAnalyticsPage from "../pages/admin/finance/AdminProfitAnalyticsPage";
+import AdminExpensesPage from "../pages/admin/finance/AdminExpensesPage";
+import AdminCommissionSettingsPage from "../pages/admin/finance/AdminCommissionSettingsPage";
 import AdminEarningsPage from "../pages/admin/AdminEarningsPage";
 
 export const router = createBrowserRouter([
@@ -52,14 +50,12 @@ export const router = createBrowserRouter([
           { path: "status", element: <StatusPage /> },
           { path: "transactions", element: <TransactionsPage /> },
           { path: "transactions/:id", element: <AdminTransactionDetailPage /> },
-          { path: "business/overview", element: <BusinessOverview /> },
-          { path: "business/wallet", element: <BusinessWalletPage /> },
-          { path: "business/ledger", element: <BusinessCostLedgerPage /> },
-          { path: "business/expenses", element: <BusinessExpenses /> },
-          { path: "business/profit", element: <BusinessProfitAnalytics /> },
-          { path: "business/settlements", element: <BusinessSettlement /> },
-          { path: "business/cashflow", element: <BusinessCashFlow /> },
-          { path: "business/refunds", element: <BusinessRefundsLosses /> },
+          { path: "business/overview", element: <AdminBusinessOverviewPage /> },
+          { path: "business/wallet", element: <AdminSystemWalletPage /> },
+          { path: "business/ledger", element: <AdminBusinessLedgerPage /> },
+          { path: "business/expenses", element: <AdminExpensesPage /> },
+          { path: "business/profit", element: <AdminProfitAnalyticsPage /> },
+          { path: "business/commissions", element: <AdminCommissionSettingsPage /> },
           { path: "business/earnings", element: <AdminEarningsPage /> },
         ],
       },

@@ -44,3 +44,45 @@ export const getSystemStatus = async () => {
     const response = await apiClient.get(`/admin/system/status`);
     return response.data;
 };
+
+// --- Commission & Agent Settings ---
+
+export const getCommissionSettings = async () => {
+    const response = await apiClient.get(`/admin/settings/commission`);
+    return response.data;
+};
+
+export const updateCommissionSettings = async (data: any) => {
+    const response = await apiClient.put(`/admin/settings/commission`, data);
+    return response.data;
+};
+
+export const getAgentSettings = async () => {
+    const response = await apiClient.get(`/admin/settings/agent`);
+    return response.data;
+};
+
+export const updateAgentSettings = async (data: any) => {
+    const response = await apiClient.put(`/admin/settings/agent`, data);
+    return response.data;
+};
+
+export const getCommissionCaps = async () => {
+    const response = await apiClient.get(`/admin/settings/commission-caps`);
+    return response.data;
+};
+
+export const updateCommissionCaps = async (data: any) => {
+    const response = await apiClient.put(`/admin/settings/commission-caps`, data);
+    return response.data;
+};
+
+export const updateUserCommissionRate = async (userId: string, data: any) => {
+    const response = await apiClient.put(`/admin/users/${userId}/commission-rate`, data);
+    return response.data;
+};
+
+export const updateUserAgentDiscount = async (userId: string, data: any) => {
+    const response = await apiClient.put(`/admin/users/${userId}/agent-discount`, data);
+    return response.data;
+};

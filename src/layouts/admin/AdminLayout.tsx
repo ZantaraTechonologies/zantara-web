@@ -52,6 +52,7 @@ export default function AdminLayout() {
         { type: "header", label: "Business & Finance" },
         { path: "/admin/business/overview", label: "Business Overview", icon: BadgeDollarSign },
         { path: "/admin/business/earnings", label: "Earnings Analytics", icon: BadgePercent },
+        { path: "/admin/business/commissions", label: "Commission & Discounts", icon: BadgePercent },
         { path: "/admin/business/wallet", label: "System Liquidity", icon: WalletCards },
         { path: "/admin/business/ledger", label: "Cost Ledger", icon: BarChart3 },
         { path: "/admin/business/expenses", label: "Expenses", icon: History },

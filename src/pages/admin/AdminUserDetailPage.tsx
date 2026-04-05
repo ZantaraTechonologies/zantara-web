@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import * as adminService from '../../services/admin/adminService';
+import { updateUserCommissionRate, updateUserAgentDiscount } from '../../services/admin/adminBusinessService';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
 
@@ -39,6 +40,10 @@ const AdminUserDetailPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [transactions, setTransactions] = useState<any[]>([]);
+    
+    // Pricing Overrides State
+    const [customCommRate, setCustomCommRate] = useState<number | ''>('');
+    const [customAgentDiscount, setCustomAgentDiscount] = useState<number | ''>('');
 
     const getTransactionConfig = (type: string) => {
         switch (type) {
@@ -74,7 +79,21 @@ const AdminUserDetailPage: React.FC = () => {
         setLoading(true);
         try {
             const response = await adminService.fetchUserDetails(userId);
-            setUser(response.data);
+            const userData = response.data;
+            setUser(userData);
+            
+            // Set initial overrides from user data
+            if (userData.commissionRate !== undefined && userData.commissionRate !== null) {
+                setCustomCommRate(userData.commissionRate * 100);
+            } else {
+                setCustomCommRate('');
+            }
+            
+            if (userData.agentDiscountRate !== undefined && userData.agentDiscountRate !== null) {
+                setCustomAgentDiscount(userData.agentDiscountRate * 100);
+            } else {
+                setCustomAgentDiscount('');
+            }
         } catch (err) {
             toast.error("User not found");
             navigate('/admin/users');
@@ -111,6 +130,28 @@ const AdminUserDetailPage: React.FC = () => {
         } catch (err: any) {
             const msg = err?.response?.data?.message || "Failed to update role";
             toast.error(msg);
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handleSavePricingOverrides = async () => {
+        if (!user || processing) return;
+        setProcessing(true);
+        try {
+            // Update Commission Rate
+            const commValue = customCommRate === '' ? null : Number(customCommRate) / 100;
+            const agentValue = customAgentDiscount === '' ? null : Number(customAgentDiscount) / 100;
+
+            await Promise.all([
+                updateUserCommissionRate(user._id, { commissionRate: commValue }),
+                updateUserAgentDiscount(user._id, { agentDiscountRate: agentValue })
+            ]);
+
+            toast.success("Pricing protocols updated for user");
+            loadUser(user._id);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to update pricing");
         } finally {
             setProcessing(false);
         }
@@ -212,6 +253,67 @@ const AdminUserDetailPage: React.FC = () => {
                                 <AlertCircle size={14} />
                                 Reset PIN
                             </button>
+                        </div>
+
+                        {/* Pricing & Commissions Section */}
+                        <div className="mt-8 pt-8 border-t border-white/5 space-y-6">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Zap size={14} className="text-blue-500" />
+                                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Pricing & Commissions</h3>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                                        <label>Referral Commission (%)</label>
+                                        <span className={customCommRate === '' ? 'text-slate-600' : 'text-emerald-500'}>
+                                            {customCommRate === '' ? 'Using Default' : 'Custom Override'}
+                                        </span>
+                                    </div>
+                                    <div className="relative">
+                                        <input 
+                                            type="number"
+                                            step="0.01"
+                                            value={customCommRate}
+                                            onChange={(e) => setCustomCommRate(e.target.value === '' ? '' : Number(e.target.value))}
+                                            className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 transition-all"
+                                            placeholder="System Default"
+                                        />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600">%</div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                                        <label>Agent Discount (%)</label>
+                                        <span className={customAgentDiscount === '' ? 'text-slate-600' : 'text-blue-500'}>
+                                            {customAgentDiscount === '' ? 'Using Default' : 'Custom Override'}
+                                        </span>
+                                    </div>
+                                    <div className="relative">
+                                        <input 
+                                            type="number"
+                                            step="0.1"
+                                            value={customAgentDiscount}
+                                            onChange={(e) => setCustomAgentDiscount(e.target.value === '' ? '' : Number(e.target.value))}
+                                            className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 transition-all"
+                                            placeholder="System Default"
+                                        />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600">%</div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleSavePricingOverrides}
+                                    disabled={processing}
+                                    className="w-full h-12 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2"
+                                >
+                                    {processing ? <Loader2 className="animate-spin" size={16} /> : "Synchronize Overrides"}
+                                </button>
+                                <p className="text-[8px] text-slate-600 font-medium leading-relaxed italic text-center px-4">
+                                    * Leave blank to use system defaults defined in the financial settings dashboard.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Role Management Section */}
