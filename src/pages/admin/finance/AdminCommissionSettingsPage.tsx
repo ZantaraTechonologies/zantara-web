@@ -158,12 +158,12 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                         value={(commSettings?.defaultCommissionRate ?? 0) * 100}
                                         onChange={(e) => setCommSettings({ ...commSettings, defaultCommissionRate: Number(e.target.value) / 100 })}
                                         className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-lg text-white font-black outline-none focus:border-emerald-500/50 transition-all"
-                                        placeholder="1.0"
+                                        placeholder="20.0"
                                     />
                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</div>
                                 </div>
                                 <p className="text-[10px] text-slate-500 font-medium leading-relaxed italic">
-                                    * This percentage of the NET PROFIT will be credited to referrers. Recommended: 0.5% - 2%.
+                                    * This percentage of the PROFIT MARGIN will be credited to referrers. Recommended: 10% - 30%.
                                 </p>
                             </div>
 
@@ -208,12 +208,12 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                         value={(agentSettings?.defaultAgentDiscountRate ?? 0) * 100}
                                         onChange={(e) => setAgentSettings({ ...agentSettings, defaultAgentDiscountRate: Number(e.target.value) / 100 })}
                                         className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-lg text-white font-black outline-none focus:border-blue-500/50 transition-all"
-                                        placeholder="2.0"
+                                        placeholder="50.0"
                                     />
                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</div>
                                 </div>
                                 <p className="text-[10px] text-slate-500 font-medium leading-relaxed italic">
-                                    * Agents receive this percentage off the RETAIL PRICE. Ensure this doesn't exceed your margin.
+                                    * Agents receive this percentage of the PROFIT MARGIN as a discount. (e.g., 50% shares margin evenly).
                                 </p>
                             </div>
 
