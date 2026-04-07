@@ -31,11 +31,15 @@ import * as adminService from '../../services/admin/adminService';
 import { updateUserCommissionRate, updateUserAgentDiscount } from '../../services/admin/adminBusinessService';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
+import { useAdminAuth } from '../../hooks/useAdminAuth';
+import { hasAnyRole } from '../../utils/access';
 
 const AdminUserDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { currency } = useWalletStore();
+    const { admin } = useAdminAuth();
+    const isSuperAdmin = hasAnyRole(admin, ['superAdmin']);
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
@@ -255,7 +259,8 @@ const AdminUserDetailPage: React.FC = () => {
                             </button>
                         </div>
 
-                        {/* Pricing & Commissions Section */}
+                        {/* Pricing & Commissions Section — SuperAdmin Only */}
+                        {isSuperAdmin && (
                         <div className="mt-8 pt-8 border-t border-white/5 space-y-6">
                             <div className="flex items-center gap-2 mb-2">
                                 <Zap size={14} className="text-blue-500" />
@@ -315,8 +320,10 @@ const AdminUserDetailPage: React.FC = () => {
                                 </p>
                             </div>
                         </div>
+                        )}
 
-                        {/* Role Management Section */}
+                        {/* Role Management Section — SuperAdmin Only */}
+                        {isSuperAdmin && (
                         <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
                             <div className="flex items-center gap-2 mb-2">
                                 <Shield size={14} className="text-emerald-500" />
@@ -339,6 +346,7 @@ const AdminUserDetailPage: React.FC = () => {
                                 </p>
                             </div>
                         </div>
+                        )}
                     </div>
                 </div>
 
