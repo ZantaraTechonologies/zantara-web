@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 import ProtectedRoute from './guards/ProtectedRoute';
 import AuthRoute from './guards/AuthRoute';
 import AdminProtectedRoute from './guards/AdminProtectedRoute';
+import RequireAccess from './guards/RequireAccess';
 
 // Public Pages
 import LandingPage from '../pages/LandingPage';
@@ -195,20 +196,22 @@ export default function AppRoutes() {
                             <Route path="notifications" element={<AdminNotificationsControlPage />} />
                             <Route path="status" element={<StatusPage />} />
                             
-                            {/* Business & Finance */}
-                            <Route path="business">
-                                <Route path="earnings" element={<AdminEarningsPage />} />
-                                <Route path="overview" element={<AdminBusinessOverviewPage />} />
-                                <Route path="wallet" element={<AdminSystemWalletPage />} />
-                                <Route path="ledger" element={<AdminBusinessLedgerPage />} />
-                                <Route path="expenses" element={<AdminExpensesPage />} />
-                                <Route path="profit" element={<AdminProfitAnalyticsPage />} />
-                                <Route path="commissions" element={<AdminCommissionSettingsPage />} />
-                            </Route>
+                            {/* Business & Finance — SuperAdmin Only */}
+                            <Route element={<RequireAccess anyRole={["superAdmin"]} />}>
+                                <Route path="business">
+                                    <Route path="earnings" element={<AdminEarningsPage />} />
+                                    <Route path="overview" element={<AdminBusinessOverviewPage />} />
+                                    <Route path="wallet" element={<AdminSystemWalletPage />} />
+                                    <Route path="ledger" element={<AdminBusinessLedgerPage />} />
+                                    <Route path="expenses" element={<AdminExpensesPage />} />
+                                    <Route path="profit" element={<AdminProfitAnalyticsPage />} />
+                                    <Route path="commissions" element={<AdminCommissionSettingsPage />} />
+                                </Route>
 
-                            {/* System */}
-                            <Route path="audit-logs" element={<AdminAuditLogsPage />} />
-                            <Route path="settings" element={<AdminSettingsPage />} />
+                                {/* System — SuperAdmin Only */}
+                                <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+                                <Route path="settings" element={<AdminSettingsPage />} />
+                            </Route>
                         </Route>
                     </Route>
 

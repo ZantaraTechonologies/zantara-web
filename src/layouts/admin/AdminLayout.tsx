@@ -19,13 +19,18 @@ import {
     MessageSquare,
     Bell,
     BadgePercent,
+    FileText,
     LucideIcon
 } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
+import { useAdminAuth } from "../../hooks/useAdminAuth";
+import { hasAnyRole } from "../../utils/access";
 
 export default function AdminLayout() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { admin } = useAdminAuth();
+    const isSuperAdmin = hasAnyRole(admin, ['superAdmin']);
 
     // Simplified logout for admin since auth context/store is separated.
     const handleLogout = () => {
@@ -40,7 +45,8 @@ export default function AdminLayout() {
         type?: "header";
     }
 
-    const menuItems: MenuItem[] = [
+    // All admins can see these operational pages
+    const baseMenuItems: MenuItem[] = [
         { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
         { path: "/admin/users", label: "User Management", icon: Users },
         { path: "/admin/kyc", label: "KYC Queue", icon: ShieldCheck },
@@ -48,7 +54,10 @@ export default function AdminLayout() {
         { path: "/admin/withdrawals", label: "Withdrawals", icon: Banknote },
         { path: "/admin/support", label: "Support Tickets", icon: MessageSquare },
         { path: "/admin/notifications", label: "Message Center", icon: Bell },
-        { path: "/admin/status", label: "System Status", icon: Activity },
+    ];
+
+    // Only superAdmins see these sensitive pages
+    const superAdminMenuItems: MenuItem[] = [
         { type: "header", label: "Business & Finance" },
         { path: "/admin/business/overview", label: "Business Overview", icon: BadgeDollarSign },
         { path: "/admin/business/earnings", label: "Earnings Analytics", icon: BadgePercent },
@@ -57,7 +66,15 @@ export default function AdminLayout() {
         { path: "/admin/business/ledger", label: "Cost Ledger", icon: BarChart3 },
         { path: "/admin/business/expenses", label: "Expenses", icon: History },
         { path: "/admin/business/profit", label: "Profit Analytics", icon: BarChart3 },
+        { type: "header", label: "System" },
+        { path: "/admin/status", label: "System Status", icon: Activity },
+        { path: "/admin/audit-logs", label: "Audit Logs", icon: FileText },
+        { path: "/admin/settings", label: "Settings", icon: Settings },
     ];
+
+    const menuItems: MenuItem[] = isSuperAdmin
+        ? [...baseMenuItems, ...superAdminMenuItems]
+        : baseMenuItems;
 
     return (
         <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
