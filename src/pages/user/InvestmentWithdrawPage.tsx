@@ -19,6 +19,7 @@ const InvestmentWithdrawPage: React.FC = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [amount, setAmount] = useState('');
+    const [source, setSource] = useState<'dividend' | 'referral'>('dividend');
     const [selectedBank, setSelectedBank] = useState<string | null>(null);
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
     const [withdrawalRes, setWithdrawalRes] = useState<any>(null);
@@ -40,6 +41,7 @@ const InvestmentWithdrawPage: React.FC = () => {
             bankName: bank.bankName,
             accountNumber: bank.accountNumber,
             accountName: bank.accountName,
+            source,
             pin // We need the backend to verify the PIN
         };
 
@@ -64,7 +66,7 @@ const InvestmentWithdrawPage: React.FC = () => {
         );
     }
 
-    const balance = summary?.dividendBalance || 0;
+    const balance = source === 'referral' ? (summary?.referralBalance || 0) : (summary?.dividendBalance || 0);
     const feePercent = summary?.settings?.dividendWithdrawalFee || 0;
     const fee = Number(amount) * (feePercent / 100);
     const netAmount = Number(amount) - fee;
@@ -85,34 +87,53 @@ const InvestmentWithdrawPage: React.FC = () => {
             {step === 1 && (
                 <div className="space-y-8">
                     {/* Balance Preview */}
-                    <div className="bg-emerald-950 rounded-[2rem] p-10 text-white relative overflow-hidden group shadow-2xl">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
-                        <div className="relative z-10 space-y-2 text-center">
-                            <p className="text-emerald-400 font-bold uppercase tracking-[0.3em] text-[10px]">Available Dividends</p>
-                            <h2 className="text-5xl font-black tracking-tighter">{currency} {balance.toLocaleString()}</h2>
+                    <div className="flex flex-col sm:flex-row items-center gap-6 justify-center">
+                        <div className="flex items-center gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/10">
+                            <button 
+                                onClick={() => { setSource('dividend'); setAmount(''); }}
+                                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${source === 'dividend' ? 'bg-emerald-500 text-slate-950' : 'text-emerald-400/60 hover:text-emerald-400'}`}
+                            >
+                                Dividends
+                            </button>
+                            <button 
+                                onClick={() => { setSource('referral'); setAmount(''); }}
+                                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${source === 'referral' ? 'bg-amber-500 text-slate-950' : 'text-amber-400/60 hover:text-amber-400'}`}
+                            >
+                                Referrals
+                            </button>
+                        </div>
+                        <div className="bg-white/5 rounded-2xl px-8 py-4 border border-white/5 text-center">
+                            <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${source === 'referral' ? 'text-amber-400' : 'text-emerald-400'}`}>Available {source}s</p>
+                            <h2 className="text-4xl font-black tracking-tighter">{currency} {balance.toLocaleString()}</h2>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-6">
-                            <div className="space-y-3">
+                            <div className="flex items-center justify-between px-1">
                                 <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-2">Withdrawal Amount ({currency})</label>
-                                <div className="relative group">
-                                    <input 
-                                        type="number" 
-                                        placeholder="0.00"
-                                        value={amount}
-                                        onChange={(e) => setAmount(e.target.value)}
-                                        className="w-full bg-white border-2 border-slate-100 rounded-2xl p-6 text-3xl font-black text-slate-900 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-100"
-                                    />
-                                    {Number(amount) > 0 && (
+                                <button 
+                                    onClick={() => setAmount(balance.toString())}
+                                    className="text-[10px] font-black text-emerald-500 uppercase tracking-widest hover:text-emerald-600 transition-colors"
+                                >
+                                    [ Withdraw All ]
+                                </button>
+                            </div>
+                            <div className="relative group">
+                                <input 
+                                    type="number" 
+                                    placeholder="0.00"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    className="w-full bg-white border-2 border-slate-100 rounded-2xl p-6 text-3xl font-black text-slate-900 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-100"
+                                />
+                                {Number(amount) > 0 && (
                                         <div className="absolute right-6 top-1/2 -translate-y-1/2 text-right">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fee ({feePercent}%)</p>
                                             <p className="text-sm font-black text-red-500">-{currency}{fee.toLocaleString()}</p>
                                         </div>
                                     )}
                                 </div>
-                            </div>
 
                             {Number(amount) > 0 && (
                                 <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100/50 flex justify-between items-center animate-in fade-in zoom-in duration-300">
@@ -179,9 +200,9 @@ const InvestmentWithdrawPage: React.FC = () => {
                     <button 
                         disabled={!amount || !selectedBank || Number(amount) <= 0 || Number(amount) > balance}
                         onClick={() => setIsPinModalOpen(true)}
-                        className="w-full bg-slate-900 text-white py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-xs hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-2xl shadow-slate-200 disabled:opacity-20 disabled:pointer-events-none active:scale-[0.98]"
+                        className={`w-full text-white py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-2xl disabled:opacity-20 disabled:pointer-events-none active:scale-[0.98] ${source === 'referral' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-200' : 'bg-slate-900 hover:bg-emerald-500 hover:text-slate-950 shadow-slate-200'}`}
                     >
-                        {Number(amount) > balance ? 'Insufficient Dividend Balance' : 'Confirm Withdrawal Request'}
+                        {Number(amount) > balance ? `Insufficient ${source} Balance` : `Confirm ${source} Withdrawal`}
                     </button>
                 </div>
             )}

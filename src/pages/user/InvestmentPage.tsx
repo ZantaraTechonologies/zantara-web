@@ -41,6 +41,7 @@ const InvestmentPage: React.FC = () => {
     const [buyQty, setBuyQty] = useState('');
     const [reinvestQty, setReinvestQty] = useState('');
     const [redeemAmount, setRedeemAmount] = useState('');
+    const [redeemSource, setRedeemSource] = useState<'dividend' | 'referral'>('dividend');
     const [exitQty, setExitQty] = useState('');
 
     const [activeModal, setActiveModal] = useState<'buy' | 'reinvest' | 'redeem' | 'exit' | null>(null);
@@ -74,9 +75,9 @@ const InvestmentPage: React.FC = () => {
                 onError: (err: any) => toast.error(err.response?.data?.message || 'Reinvestment failed')
             });
         } else if (activeModal === 'redeem') {
-            redeem(Number(redeemAmount), {
+            redeem({ amount: Number(redeemAmount), source: redeemSource }, {
                 onSuccess: () => {
-                    toast.success('Funds moved to main wallet');
+                    toast.success(`${redeemSource === 'dividend' ? 'Dividends' : 'Referral earnings'} moved to main wallet`);
                     setRedeemAmount('');
                     setIsPinModalOpen(false);
                 },
@@ -131,35 +132,85 @@ const InvestmentPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-10 py-8 border-y border-white/5">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-8 border-y border-white/5">
                             <div>
-                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Lifetime Earnings</p>
+                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Lifetime Dividends</p>
                                 <p className="text-2xl font-black text-emerald-400">{currency}{summary.totalDividendsEarned.toLocaleString()}</p>
                             </div>
                             <div>
-                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Investment Wallet</p>
+                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Dividend Balance</p>
                                 <p className="text-2xl font-black">{currency}{summary.dividendBalance.toLocaleString()}</p>
+                            </div>
+                            <div>
+                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Referral Balance</p>
+                                <p className="text-2xl font-black text-amber-400">{currency}{summary.referralBalance.toLocaleString()}</p>
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                        <div className="space-y-4 pt-4 border-t border-white/5">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
+                                <div className="flex items-center gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
+                                    <button 
+                                        onClick={() => { setRedeemSource('dividend'); setRedeemAmount(''); }}
+                                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'dividend' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                                    >
+                                        Dividends
+                                    </button>
+                                    <button 
+                                        onClick={() => { setRedeemSource('referral'); setRedeemAmount(''); }}
+                                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'referral' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                                    >
+                                        Referrals
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                        Amount to {redeemSource === 'referral' ? 'Referral' : 'Dividend'} Wallet
+                                    </span>
+                                    {((redeemSource === 'dividend' ? summary.dividendBalance : summary.referralBalance) > 0) && (
+                                        <button 
+                                            onClick={() => setRedeemAmount((redeemSource === 'dividend' ? summary.dividendBalance : summary.referralBalance).toString())}
+                                            className="text-[10px] font-black text-emerald-400 uppercase tracking-widest hover:text-emerald-300 transition-colors"
+                                        >
+                                            [ Use Max ]
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="flex-1 relative group">
+                                    <input 
+                                        type="number" 
+                                        placeholder={`Enter amount from ${redeemSource}s`}
+                                        value={redeemAmount}
+                                        onChange={(e) => setRedeemAmount(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm font-bold text-white outline-none focus:border-emerald-500/50 transition-all placeholder:text-white/20"
+                                    />
+                                    {Number(redeemAmount) > 0 && (
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/40">
+                                            Fee: {settings?.dividendRedeemFee}%
+                                        </div>
+                                    )}
+                                </div>
+                                <button 
+                                    disabled={!redeemAmount || Number(redeemAmount) <= 0 || Number(redeemAmount) > (redeemSource === 'dividend' ? summary.dividendBalance : summary.referralBalance) || redeemPending}
+                                    onClick={() => handleActionClick('redeem')}
+                                    className={`px-8 py-4 rounded-2xl font-black text-sm transition-all disabled:opacity-20 flex items-center justify-center gap-2 whitespace-nowrap ${redeemSource === 'referral' ? 'bg-amber-500 text-slate-900 hover:bg-amber-400' : 'bg-white text-slate-900 hover:bg-emerald-400'}`}
+                                >
+                                    <RefreshCw size={18} className={redeemPending ? 'animate-spin' : ''} />
+                                    Move {redeemSource === 'referral' ? 'Referral' : 'Earnings'} 
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="pt-4">
                             <Link 
                                 to="/app/investments/withdraw"
-                                className="flex-1 bg-emerald-500 text-slate-950 px-8 py-5 rounded-2xl font-black text-sm text-center hover:bg-emerald-400 active:scale-95 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
+                                className="w-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-8 py-5 rounded-2xl font-black text-sm text-center hover:bg-emerald-500 hover:text-slate-950 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                             >
                                 <LogOut size={18} />
-                                Withdraw Earnings
+                                Withdraw to Bank Account
                             </Link>
-                            <button 
-                                onClick={() => {
-                                    setRedeemAmount(summary.dividendBalance > 0 ? summary.dividendBalance.toString() : '');
-                                    handleActionClick('redeem');
-                                }}
-                                className="flex-1 bg-white/10 backdrop-blur-md text-white px-8 py-5 rounded-2xl font-black text-sm text-center hover:bg-white/20 active:scale-95 transition-all border border-white/10 flex items-center justify-center gap-2"
-                            >
-                                <RefreshCw size={18} />
-                                Move to Main Wallet
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -225,16 +276,19 @@ const InvestmentPage: React.FC = () => {
                             className="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white rounded-2xl p-5 text-lg font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
                         />
                         <button 
-                            disabled={!buyQty || buyPending}
+                            disabled={!buyQty || Number(buyQty) < (settings?.minSharesPerPurchase || 1) || buyPending}
                             onClick={() => handleActionClick('buy')}
                             className="w-full bg-emerald-500 text-slate-950 py-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-emerald-400 disabled:opacity-50 transition-all active:scale-[0.98]"
                         >
-                            {buyPending ? 'Processing...' : 'Purchase Shares Now'}
+                            {buyPending ? 'Processing...' : (Number(buyQty) > 0 && Number(buyQty) < (settings?.minSharesPerPurchase || 1)) ? `Min ${settings?.minSharesPerPurchase} Shares Required` : 'Purchase Shares Now'}
                             <ArrowRight size={18} />
                         </button>
-                        <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium px-1">
-                            <Plus size={12} />
-                            <span>Max {settings?.maxSharesPerUser} shares per user. {settings?.sharesRemaining} remaining in pool.</span>
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium px-1">
+                            <div className="flex items-center gap-2">
+                                <Plus size={12} />
+                                <span>Max {settings?.maxSharesPerUser} shares per user.</span>
+                            </div>
+                            <span className="font-bold text-emerald-500">Min: {settings?.minSharesPerPurchase || 1} Shares</span>
                         </div>
                     </div>
                 </div>
@@ -242,49 +296,87 @@ const InvestmentPage: React.FC = () => {
                 {/* Exit / Reinvest Grid */}
                 <div className="grid grid-cols-1 gap-6">
                     {/* Reinvest Card */}
-                    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between group hover:border-blue-100 transition-colors">
+                    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6 group hover:border-blue-100 transition-colors">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 group-hover:rotate-12 transition-transform">
                                 <Coins size={24} />
                             </div>
                             <div>
-                                <h3 className="font-black text-slate-900 tracking-tight">Auto-Reinvest</h3>
-                                <p className="text-xs text-slate-400 font-medium">Use dividends to buy more shares + compound earnings.</p>
+                                <h3 className="font-black text-slate-900 tracking-tight">Compound Dividends</h3>
+                                <p className="text-xs text-slate-400 font-medium">Reinvest earnings into more shares.</p>
                             </div>
                         </div>
-                        <button 
-                            disabled={summary.dividendBalance < (settings?.sharePrice || 0)}
-                            onClick={() => {
-                                setReinvestQty('1');
-                                handleActionClick('reinvest');
-                            }}
-                            className="bg-slate-50 hover:bg-blue-500 hover:text-white text-slate-900 p-4 rounded-2xl transition-all active:scale-90"
-                        >
-                            <ArrowRight size={24} />
-                        </button>
+                        
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="flex-1 relative">
+                                    <input 
+                                        type="number" 
+                                        placeholder="Qty"
+                                        value={reinvestQty}
+                                        onChange={(e) => setReinvestQty(e.target.value)}
+                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-xl p-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">Shares</div>
+                                </div>
+                                <button 
+                                    disabled={!reinvestQty || Number(reinvestQty) < 1 || reinvestPending || (Number(reinvestQty) * (settings?.sharePrice || 0)) > summary.dividendBalance}
+                                    onClick={() => handleActionClick('reinvest')}
+                                    className="bg-blue-500 text-white p-4 rounded-xl shadow-lg shadow-blue-500/20 hover:bg-blue-600 disabled:opacity-20 transition-all active:scale-90"
+                                >
+                                    <ArrowRight size={20} />
+                                </button>
+                            </div>
+                            {Number(reinvestQty) > 0 && (
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                                    Cost: {currency}{(Number(reinvestQty) * (settings?.sharePrice || 0)).toLocaleString()}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Exit Card */}
-                    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between group hover:border-amber-100 transition-colors">
+                    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6 group hover:border-amber-100 transition-colors">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 group-hover:-rotate-12 transition-transform">
                                 <Briefcase size={24} />
                             </div>
                             <div>
                                 <h3 className="font-black text-slate-900 tracking-tight">Principal Exit</h3>
-                                <p className="text-xs text-slate-400 font-medium">Liquidate your investment and return principal.</p>
+                                <p className="text-xs text-slate-400 font-medium">Liquidate shares and return principal.</p>
                             </div>
                         </div>
-                        <button 
-                            disabled={!summary.canExit || summary.sharesOwned === 0}
-                            onClick={() => {
-                                setExitQty(summary.availableShares.toString());
-                                handleActionClick('exit');
-                            }}
-                            className={`p-4 rounded-2xl transition-all active:scale-90 ${summary.canExit ? 'bg-slate-50 hover:bg-amber-500 hover:text-white text-slate-900' : 'bg-slate-50 text-slate-200 cursor-not-allowed'}`}
-                        >
-                            <ArrowRight size={24} />
-                        </button>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="flex-1 relative">
+                                    <input 
+                                        type="number" 
+                                        placeholder="Qty"
+                                        value={exitQty}
+                                        onChange={(e) => setExitQty(e.target.value)}
+                                        disabled={!summary.canExit}
+                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-amber-500 focus:bg-white rounded-xl p-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300 disabled:opacity-50"
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">Shares</div>
+                                </div>
+                                <button 
+                                    disabled={!summary.canExit || !exitQty || Number(exitQty) < 1 || Number(exitQty) > summary.availableShares || exitPending}
+                                    onClick={() => handleActionClick('exit')}
+                                    className="bg-amber-500 text-white p-4 rounded-xl shadow-lg shadow-amber-500/20 hover:bg-amber-600 disabled:opacity-20 transition-all active:scale-90"
+                                >
+                                    <ArrowRight size={20} />
+                                </button>
+                            </div>
+                            {summary.canExit && summary.availableShares > 0 && (
+                                <button 
+                                    onClick={() => setExitQty(summary.availableShares.toString())}
+                                    className="text-[10px] font-black text-amber-600 uppercase tracking-widest px-1 hover:text-amber-700 transition-colors"
+                                >
+                                    [ Max: {summary.availableShares} Shares ]
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {/* Lock Status Info */}

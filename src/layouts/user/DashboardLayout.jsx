@@ -14,7 +14,8 @@ import {
     Search,
     Zap,
     User,
-    HelpCircle
+    HelpCircle,
+    TrendingUp
 } from 'lucide-react';
 import Navbar from '../../components/navigation/Navbar';
 

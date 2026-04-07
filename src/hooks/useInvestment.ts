@@ -40,7 +40,8 @@ export const useReinvestDividends = () => {
 export const useRedeemToMainWallet = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (amount: number) => investmentService.redeemToMainWallet(amount),
+        mutationFn: ({ amount, source }: { amount: number; source: 'dividend' | 'referral' }) => 
+            investmentService.redeemToMainWallet(amount, source),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['investment-summary'] });
             queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });

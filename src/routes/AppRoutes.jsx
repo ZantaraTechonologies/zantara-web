@@ -80,6 +80,7 @@ import AdminCommissionSettingsPage from '../pages/admin/finance/AdminCommissionS
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
 import AdminShareholdersPage from '../pages/admin/AdminShareholdersPage';
+import AdminProfilePage from '../pages/admin/AdminProfilePage';
 
 // System Pages
 import NotFound from '../pages/system/NotFound';
@@ -200,6 +201,7 @@ export default function AppRoutes() {
                             <Route path="support/:id" element={<AdminSupportTicketDetailPage />} />
                             <Route path="notifications" element={<AdminNotificationsControlPage />} />
                             <Route path="status" element={<StatusPage />} />
+                            <Route path="profile" element={<AdminProfilePage />} />
                             
                             {/* Business & Finance — SuperAdmin Only */}
                             <Route element={<RequireAccess anyRole={["superAdmin"]} />}>

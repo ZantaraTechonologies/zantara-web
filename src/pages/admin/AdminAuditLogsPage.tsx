@@ -96,22 +96,28 @@ const AdminAuditLogsPage: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                                                <User size={12} />
+                                            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                                                <User size={14} />
                                             </div>
-                                            <span className="font-bold text-slate-200">{log.operatorName || log.operatorId}</span>
+                                            <div>
+                                                <p className="font-bold text-slate-200 leading-none mb-1">{log.operatorName || log.operatorId}</p>
+                                                <p className="text-[9px] font-medium text-slate-500 font-mono tracking-tighter truncate max-w-[120px]">{log.ipAddress || 'UNKNOWN_IP'}</p>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg border ${
-                                            log.action.includes('DELETE') ? 'bg-red-500/5 text-red-500 border-red-500/10' :
-                                            log.action.includes('CREATE') ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10' :
-                                            'bg-blue-500/5 text-blue-500 border-blue-500/10'
-                                        }`}>{log.action}</span>
+                                        <div className="space-y-1">
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${
+                                                log.action.includes('DELETE') ? 'bg-red-500/5 text-red-500 border-red-500/10' :
+                                                log.action.includes('CREATE') ? 'bg-emerald-500/5 text-emerald-500 border-emerald-500/10' :
+                                                'bg-blue-500/5 text-blue-500 border-blue-500/10'
+                                            }`}>{log.action}</span>
+                                            <p className="text-[9px] text-slate-500 truncate max-w-[200px] font-medium leading-none opacity-60">{log.userAgent || 'System Process'}</p>
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 text-slate-400 font-mono text-[11px]">{log.target || 'GLOBAL_SCOPE'}</td>
+                                    <td className="px-6 py-4 text-slate-400 font-mono text-[10px]">{log.target || 'GLOBAL_SCOPE'}</td>
                                     <td className="px-6 py-4 text-right">
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                                             Success
                                         </span>
                                     </td>

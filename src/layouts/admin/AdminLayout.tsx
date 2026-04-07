@@ -15,6 +15,7 @@ import {
     History,
     Receipt,
     Users,
+    User,
     ShieldCheck,
     MessageSquare,
     Bell,
@@ -55,6 +56,7 @@ export default function AdminLayout() {
         { path: "/admin/withdrawals", label: "Withdrawals", icon: Banknote },
         { path: "/admin/support", label: "Support Tickets", icon: MessageSquare },
         { path: "/admin/notifications", label: "Message Center", icon: Bell },
+        { path: "/admin/profile", label: "My Profile", icon: User },
     ];
 
     // Only superAdmins see these sensitive pages
