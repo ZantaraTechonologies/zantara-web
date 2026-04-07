@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/auth/authStore";
-import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight, HelpCircle, BadgeDollarSign, BadgePercent, WalletCards, BarChart3, History, ChevronRight } from "lucide-react";
+import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight, HelpCircle, BadgeDollarSign, BadgePercent, WalletCards, BarChart3, History, ChevronRight, Settings, PieChart } from "lucide-react";
 
 export default function Navbar() {
     const { isAuthenticated, logout, user } = useAuthStore();
