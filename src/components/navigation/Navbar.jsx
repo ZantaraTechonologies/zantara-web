@@ -167,7 +167,7 @@ export default function Navbar() {
                 
                 {/* Drawer Content */}
                 <div 
-                    className={`absolute inset-y-0 left-0 w-[300px] h-screen h-[100dvh] bg-white opacity-100 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
+                    className={`absolute inset-y-0 left-0 w-[300px] h-screen h-[100dvh] bg-white opacity-100 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
                 >
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white relative z-20">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
@@ -266,7 +266,10 @@ export default function Navbar() {
 
                     {/* Fixed Logout Button at the bottom */}
                     {isAuthenticated && (
-                        <div className="p-5 border-t border-slate-50 bg-white relative z-20 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)]">
+                        <div 
+                            className="p-5 border-t border-slate-50 bg-white relative z-50 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.08)]"
+                            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)' }}
+                        >
                             <button
                                 onClick={() => { setOpen(false); logout(); }}
                                 className="w-full py-4 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 font-bold flex items-center justify-center gap-3 active:scale-95 transition-all text-xs uppercase tracking-widest"
