@@ -237,18 +237,6 @@ export default function Navbar() {
                                         })
                                     )}
                                 </nav>
-
-                                {isAuthenticated && (
-                                    <div className="pt-6 border-t border-slate-50">
-                                        <button
-                                            onClick={() => { setOpen(false); logout(); }}
-                                            className="w-full py-4 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 font-bold flex items-center justify-center gap-3 active:scale-95 transition-all text-xs uppercase tracking-widest"
-                                        >
-                                            <LogOut size={18} />
-                                            Logout session
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         ) : (
                             <div className="space-y-6">
@@ -275,6 +263,19 @@ export default function Navbar() {
                             </div>
                         )}
                     </div>
+
+                    {/* Fixed Logout Button at the bottom */}
+                    {isAuthenticated && (
+                        <div className="p-5 border-t border-slate-50 bg-white relative z-20 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)]">
+                            <button
+                                onClick={() => { setOpen(false); logout(); }}
+                                className="w-full py-4 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 font-bold flex items-center justify-center gap-3 active:scale-95 transition-all text-xs uppercase tracking-widest"
+                            >
+                                <LogOut size={18} />
+                                Logout session
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </header>
