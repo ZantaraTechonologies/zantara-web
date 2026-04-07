@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { 
-    User, 
-    Mail, 
-    Phone, 
-    Shield, 
-    Lock, 
-    KeyRound, 
-    Eye, 
+import {
+    User,
+    Mail,
+    Phone,
+    Shield,
+    Lock,
+    KeyRound,
+    Eye,
     EyeOff,
     CheckCircle2,
-    Clock
+    Clock,
+    Info
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import apiClient from '../../services/api/apiClient';
@@ -24,7 +25,7 @@ const AdminProfilePage: React.FC = () => {
 
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (passwords.newPassword !== passwords.confirmPassword) {
             return toast.error('New passwords do not match');
         }
@@ -67,7 +68,7 @@ const AdminProfilePage: React.FC = () => {
                 <div className="lg:col-span-1 space-y-6">
                     <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 text-center relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-slate-900 to-slate-800"></div>
-                        
+
                         <div className="relative pt-8">
                             <div className="w-24 h-24 bg-emerald-500 rounded-3xl flex items-center justify-center mx-auto text-slate-900 font-black text-3xl shadow-2xl shadow-emerald-500/20 border-4 border-white mb-4">
                                 {user?.name?.substring(0, 2).toUpperCase() || 'AD'}
@@ -128,7 +129,7 @@ const AdminProfilePage: React.FC = () => {
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">Current Password</label>
                                     <div className="relative group">
                                         <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={20} />
-                                        <input 
+                                        <input
                                             type={showPasswords.old ? 'text' : 'password'}
                                             placeholder="Enter current password"
                                             value={passwords.oldPassword}
@@ -136,7 +137,7 @@ const AdminProfilePage: React.FC = () => {
                                             className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl py-4 pl-14 pr-14 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
                                             required
                                         />
-                                        <button 
+                                        <button
                                             type="button"
                                             onClick={() => setShowPasswords({ ...showPasswords, old: !showPasswords.old })}
                                             className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
@@ -150,7 +151,7 @@ const AdminProfilePage: React.FC = () => {
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">New Password</label>
                                         <div className="relative group">
-                                            <input 
+                                            <input
                                                 type={showPasswords.new ? 'text' : 'password'}
                                                 placeholder="••••••••"
                                                 value={passwords.newPassword}
@@ -158,7 +159,7 @@ const AdminProfilePage: React.FC = () => {
                                                 className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-200"
                                                 required
                                             />
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
                                                 className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
@@ -170,7 +171,7 @@ const AdminProfilePage: React.FC = () => {
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">Confirm New Password</label>
                                         <div className="relative group">
-                                            <input 
+                                            <input
                                                 type={showPasswords.new ? 'text' : 'password'}
                                                 placeholder="••••••••"
                                                 value={passwords.confirmPassword}
@@ -183,7 +184,7 @@ const AdminProfilePage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <button 
+                            <button
                                 type="submit"
                                 disabled={loading || !passwords.oldPassword || !passwords.newPassword}
                                 className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 disabled:opacity-50 active:scale-[0.98] flex items-center justify-center gap-3"

@@ -39,6 +39,12 @@ export default function Navbar() {
         { path: "/admin/business/ledger", label: "Cost Ledger", icon: BarChart3 },
         { path: "/admin/business/expenses", label: "Expenses", icon: History },
         { path: "/admin/business/profit", label: "Profit Analytics", icon: BarChart3 },
+        { path: "/admin/business/shareholders", label: "Shareholders", icon: PieChart },
+        { header: "System & Security" },
+        { path: "/admin/status", label: "System Status", icon: Activity },
+        { path: "/admin/audit-logs", label: "Audit Logs", icon: Activity },
+        { path: "/admin/settings", label: "System Parameters", icon: Settings },
+        { path: "/admin/profile", label: "My Profile", icon: User },
     ];
 
     return (

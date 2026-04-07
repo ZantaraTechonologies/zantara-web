@@ -132,7 +132,7 @@ const InvestmentPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-8 border-y border-white/5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 py-8 border-y border-white/5">
                             <div>
                                 <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Lifetime Dividends</p>
                                 <p className="text-2xl font-black text-emerald-400">{currency}{summary.totalDividendsEarned.toLocaleString()}</p>
@@ -149,16 +149,16 @@ const InvestmentPage: React.FC = () => {
 
                         <div className="space-y-4 pt-4 border-t border-white/5">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
-                                <div className="flex items-center gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
+                                <div className="flex flex-wrap items-center gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
                                     <button 
                                         onClick={() => { setRedeemSource('dividend'); setRedeemAmount(''); }}
-                                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'dividend' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'dividend' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
                                     >
                                         Dividends
                                     </button>
                                     <button 
                                         onClick={() => { setRedeemSource('referral'); setRedeemAmount(''); }}
-                                        className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'referral' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'referral' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
                                     >
                                         Referrals
                                     </button>
