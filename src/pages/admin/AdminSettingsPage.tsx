@@ -8,9 +8,10 @@ import {
     Network,
     Bell,
     Lock,
-    Cpu,
     Database,
-    CloudIcon
+    CloudIcon,
+    PieChart,
+    BarChart3
 } from 'lucide-react';
 import apiClient from '../../services/api/apiClient';
 import { CardSkeleton } from '../../components/feedback/Skeletons';
@@ -129,46 +130,88 @@ const AdminSettingsPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="bg-white/5 border border-white/5 rounded-3xl p-8 space-y-6">
+                <div className="bg-white/5 border border-white/5 rounded-3xl p-8 space-y-6 lg:col-span-2">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-blue-500">
-                            <CloudIcon size={20} />
+                        <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-amber-500">
+                            <PieChart size={20} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-white">VTU Gateway</h3>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Provider node configuration</p>
+                            <h3 className="text-lg font-bold text-white">Investment & Shareholder Controls</h3>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Global equity and dividend governance</p>
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="p-4 bg-white/5 border border-white/5 rounded-2xl space-y-4">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Primary Gateway</span>
-                                <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded uppercase">Verified</span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Enable Investment System</label>
+                                <div className="flex items-center gap-4">
+                                    <button 
+                                        type="button"
+                                        onClick={() => setSettings({...settings, investmentEnabled: !settings.investmentEnabled})}
+                                        className={`w-14 h-8 rounded-full transition-all relative ${settings.investmentEnabled ? 'bg-emerald-500' : 'bg-white/10'}`}
+                                    >
+                                        <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${settings.investmentEnabled ? 'left-7' : 'left-1'}`} />
+                                    </button>
+                                </div>
                             </div>
-                            <select 
-                                value={settings.primaryGateway}
-                                onChange={(e) => setSettings({...settings, primaryGateway: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold outline-none"
-                            >
-                                <option value="vtpass">VTpass (Direct)</option>
-                                <option value="monnify">Monnify Service</option>
-                                <option value="simhost">Simhost Gateway</option>
-                            </select>
+                            <div className="space-y-2 pt-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Share Price ({currency})</label>
+                                <input 
+                                    type="number" 
+                                    value={settings.sharePrice || 10000}
+                                    onChange={(e) => setSettings({...settings, sharePrice: Number(e.target.value)})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold"
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-2 pt-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gateway Timeout (ms)</label>
-                            <input 
-                                type="number" 
-                                value={settings.gatewayTimeout || 30000}
-                                onChange={(e) => setSettings({...settings, gatewayTimeout: Number(e.target.value)})}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold"
-                            />
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Shares Cap</label>
+                                <input 
+                                    type="number" 
+                                    value={settings.totalSharesAvailable || 200}
+                                    onChange={(e) => setSettings({...settings, totalSharesAvailable: Number(e.target.value)})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Max Shares Per User</label>
+                                <input 
+                                    type="number" 
+                                    value={settings.maxSharesPerUser || 20}
+                                    onChange={(e) => setSettings({...settings, maxSharesPerUser: Number(e.target.value)})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Investor Allocation (%)</label>
+                                <input 
+                                    type="number" 
+                                    value={settings.investorAllocationPercent || 20}
+                                    onChange={(e) => setSettings({...settings, investorAllocationPercent: Number(e.target.value)})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold"
+                                />
+                                <p className="text-[9px] text-slate-500 font-medium italic mt-1">% of monthly net profit distributed to shareholders.</p>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Withdrawal Fee (%)</label>
+                                <input 
+                                    type="number" 
+                                    value={settings.dividendWithdrawalFee || 1.5}
+                                    onChange={(e) => setSettings({...settings, dividendWithdrawalFee: Number(e.target.value)})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </form>
     );
 };

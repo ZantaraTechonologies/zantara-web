@@ -203,6 +203,10 @@ export default function Navbar() {
                                                 <HelpCircle size={20} />
                                                 Contact Support
                                             </NavLink>
+                                            <NavLink to="/app/investments" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                                <BarChart3 size={20} />
+                                                Investment Portfolio
+                                            </NavLink>
                                             <NavLink to="/app/profile" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
                                                 <User size={20} />
                                                 Account Security

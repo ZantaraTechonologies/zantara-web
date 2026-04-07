@@ -52,6 +52,8 @@ import UserNotificationsPage from '../pages/user/UserNotificationsPage';
 import SupportCenterPage from '../pages/user/SupportCenterPage';
 import CreateTicketPage from '../pages/user/CreateTicketPage';
 import SupportTicketDetailsPage from '../pages/user/SupportTicketDetailsPage';
+import InvestmentPage from '../pages/user/InvestmentPage';
+import InvestmentWithdrawPage from '../pages/user/InvestmentWithdrawPage';
 
 // Admin Pages
 import AdminLayout from '../layouts/admin/AdminLayout';
@@ -77,6 +79,7 @@ import AdminProfitAnalyticsPage from '../pages/admin/finance/AdminProfitAnalytic
 import AdminCommissionSettingsPage from '../pages/admin/finance/AdminCommissionSettingsPage';
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
+import AdminShareholdersPage from '../pages/admin/AdminShareholdersPage';
 
 // System Pages
 import NotFound from '../pages/system/NotFound';
@@ -152,6 +155,8 @@ export default function AppRoutes() {
                         <Route path="referral" element={<ReferralProgramPage />} />
                         <Route path="referral/wallet" element={<ReferralWalletPage />} />
                         <Route path="referral/redeem" element={<RedeemEarningsPage />} />
+                        <Route path="investments" element={<InvestmentPage />} />
+                        <Route path="investments/withdraw" element={<InvestmentWithdrawPage />} />
 
                         {/* Communication (Batch 7) */}
                         <Route path="notifications" element={<UserNotificationsPage />} />
@@ -206,6 +211,7 @@ export default function AppRoutes() {
                                     <Route path="expenses" element={<AdminExpensesPage />} />
                                     <Route path="profit" element={<AdminProfitAnalyticsPage />} />
                                     <Route path="commissions" element={<AdminCommissionSettingsPage />} />
+                                    <Route path="shareholders" element={<AdminShareholdersPage />} />
                                 </Route>
 
                                 {/* System — SuperAdmin Only */}

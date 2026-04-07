@@ -20,6 +20,7 @@ import {
     Bell,
     BadgePercent,
     FileText,
+    PieChart,
     LucideIcon
 } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
@@ -66,6 +67,7 @@ export default function AdminLayout() {
         { path: "/admin/business/ledger", label: "Cost Ledger", icon: BarChart3 },
         { path: "/admin/business/expenses", label: "Expenses", icon: History },
         { path: "/admin/business/profit", label: "Profit Analytics", icon: BarChart3 },
+        { path: "/admin/business/shareholders", label: "Shareholders", icon: PieChart },
         { type: "header", label: "System" },
         { path: "/admin/status", label: "System Status", icon: Activity },
         { path: "/admin/audit-logs", label: "Audit Logs", icon: FileText },

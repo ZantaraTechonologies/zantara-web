@@ -29,6 +29,7 @@ export default function DashboardLayout() {
         { path: '/app/transactions', label: 'Transactions', icon: ArrowLeftRight },
         { path: '/app/profile', label: 'Profile', icon: User },
         { path: '/app/referral', label: 'Refer & Earn', icon: Users },
+        { path: '/app/investments', label: 'Investments', icon: TrendingUp },
         { path: '/app/support', label: 'Support', icon: HelpCircle },
     ];
 
