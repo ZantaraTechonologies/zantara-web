@@ -64,7 +64,12 @@ export const useAdminUpdateInvestmentSettings = () => {
 };
 
 export const useAdminTriggerManualPayout = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: () => api.post('/investment/admin/payout/trigger'),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-shareholders'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-shareholder-overview'] });
+        },
     });
 };

@@ -4,10 +4,10 @@ import { getAdminEarningsAnalytics } from "../../services/admin/adminAnalyticsSe
 /**
  * Hook for platform-wide earnings analytics (Admin only)
  */
-export const useAdminEarnings = () => {
+export const useAdminEarnings = (params?: any) => {
     return useQuery({
-        queryKey: ["admin", "earnings", "analytics"],
-        queryFn: getAdminEarningsAnalytics,
+        queryKey: ["admin", "earnings", "analytics", params],
+        queryFn: () => getAdminEarningsAnalytics(params),
         refetchInterval: 60000, // Refresh every minute
         staleTime: 30000,
     });

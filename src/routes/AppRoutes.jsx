@@ -73,8 +73,7 @@ import AdminNotificationsControlPage from '../pages/admin/AdminNotificationsCont
 import AdminEarningsPage from '../pages/admin/AdminEarningsPage';
 import AdminBusinessOverviewPage from '../pages/admin/finance/AdminBusinessOverviewPage';
 import AdminSystemWalletPage from '../pages/admin/finance/AdminSystemWalletPage';
-import AdminBusinessLedgerPage from '../pages/admin/finance/AdminBusinessLedgerPage';
-import AdminExpensesPage from '../pages/admin/finance/AdminExpensesPage';
+import AdminUnifiedOutflowPage from '../pages/admin/finance/AdminUnifiedOutflowPage';
 import AdminProfitAnalyticsPage from '../pages/admin/finance/AdminProfitAnalyticsPage';
 import AdminCommissionSettingsPage from '../pages/admin/finance/AdminCommissionSettingsPage';
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
@@ -209,8 +208,9 @@ export default function AppRoutes() {
                                     <Route path="earnings" element={<AdminEarningsPage />} />
                                     <Route path="overview" element={<AdminBusinessOverviewPage />} />
                                     <Route path="wallet" element={<AdminSystemWalletPage />} />
-                                    <Route path="ledger" element={<AdminBusinessLedgerPage />} />
-                                    <Route path="expenses" element={<AdminExpensesPage />} />
+                                    <Route path="treasury" element={<AdminUnifiedOutflowPage />} />
+                                    <Route path="ledger" element={<Navigate to="../treasury" replace />} />
+                                    <Route path="expenses" element={<Navigate to="../treasury" replace />} />
                                     <Route path="profit" element={<AdminProfitAnalyticsPage />} />
                                     <Route path="commissions" element={<AdminCommissionSettingsPage />} />
                                     <Route path="shareholders" element={<AdminShareholdersPage />} />

@@ -5,8 +5,8 @@ const BASE_URL = "/admin/business";
 /**
  * Admin Business & Finance Service
  */
-export const getBusinessOverview = async () => {
-    const response = await apiClient.get(`${BASE_URL}/overview`);
+export const getBusinessOverview = async (params: any = {}) => {
+    const response = await apiClient.get(`${BASE_URL}/overview`, { params });
     return response.data;
 };
 
@@ -84,5 +84,17 @@ export const updateUserCommissionRate = async (userId: string, data: any) => {
 
 export const updateUserAgentDiscount = async (userId: string, data: any) => {
     const response = await apiClient.put(`/admin/users/${userId}/agent-discount`, data);
+    return response.data;
+};
+
+// --- System & Investment Settings ---
+
+export const getSystemSettings = async () => {
+    const response = await apiClient.get(`/admin/settings`);
+    return response.data;
+};
+
+export const updateSystemSettings = async (data: any) => {
+    const response = await apiClient.post(`/admin/settings`, data);
     return response.data;
 };
