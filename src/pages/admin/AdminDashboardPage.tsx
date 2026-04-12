@@ -81,7 +81,9 @@ const AdminDashboardPage: React.FC = () => {
                         <AlertCircle className="text-red-500 w-5 h-5 flex-shrink-0" />
                         <div>
                             <p className="text-red-500 font-bold text-sm">Dashboard Sync Error</p>
-                            <p className="text-red-400/70 text-xs">{error}. Please ensure your local backend is running and the .env is correctly configured.</p>
+                            <p className="text-red-400/70 text-xs">
+                                {error}. Please verify your connection status and ensure you are logged in correctly.
+                            </p>
                         </div>
                     </div>
                 )}
