@@ -226,10 +226,10 @@ const UserDashboardPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 text-slate-300 px-4 py-2 rounded-xl font-bold transition-all shadow-sm text-xs cursor-not-allowed opacity-60" title="Withdrawals currently disabled">
+                    <Link to="/app/wallet/withdraw" className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg shadow-slate-900/20 active:scale-95 text-xs">
                         <ArrowUpRight size={14} />
                         <span>Withdraw</span>
-                    </div>
+                    </Link>
                     <Link to="/app/wallet/fund" className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 text-xs">
                         <Plus size={14} />
                         <span>Fund Node</span>
