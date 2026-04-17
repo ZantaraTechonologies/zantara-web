@@ -18,6 +18,7 @@ const AdminLoginPage: React.FC = () => {
         accessKey: ''
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
     const { login } = useAuthStore();
     const navigate = useNavigate();
 
@@ -26,11 +27,13 @@ const AdminLoginPage: React.FC = () => {
             ...prev,
             [e.target.name]: e.target.value
         }));
+        if (errorMsg) setErrorMsg(''); // clear error on new input
     };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setErrorMsg('');
         try {
             // Mapping for admin login - backend might expect different fields but using authStore login
             await login({ 
@@ -41,7 +44,9 @@ const AdminLoginPage: React.FC = () => {
             toast.success('System override successful. Access granted.');
             navigate('/admin');
         } catch (err: any) {
-            toast.error('ACCESS DENIED: INVALID CREDENTIALS');
+            const msg = err?.response?.data?.message || err?.message || 'Invalid credentials. Access denied.';
+            setErrorMsg(msg);
+            toast.error(msg);
         } finally {
             setIsLoading(false);
         }
@@ -87,6 +92,12 @@ const AdminLoginPage: React.FC = () => {
                         </div>
 
                         <form onSubmit={handleLogin} className="space-y-6">
+                            {errorMsg && (
+                                <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+                                    <ShieldAlert size={16} className="text-red-400 mt-0.5 shrink-0" />
+                                    <p className="text-red-400 text-xs font-bold uppercase tracking-wide leading-relaxed">{errorMsg}</p>
+                                </div>
+                            )}
                             <div className="space-y-4">
                                 {/* Username Input */}
                                 <div className="space-y-2">
