@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
         }
     }, [isInitialized, fetchMe]);
 
-    if (loading || !isInitialized) {
+    if (!isInitialized) {
         return <PageLoader />;
     }
 

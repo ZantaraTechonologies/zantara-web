@@ -14,7 +14,7 @@ const AuthRoute = ({ children }) => {
         }
     }, [isInitialized, fetchMe]);
 
-    if (loading || !isInitialized) {
+    if (!isInitialized) {
         return <PageLoader />;
     }
     
