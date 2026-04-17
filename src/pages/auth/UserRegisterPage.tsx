@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import { 
     User, 
     Mail, 
@@ -21,6 +21,7 @@ const UserRegisterPage: React.FC = () => {
         agreeToTerms: false
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
 
     const { register } = useAuthStore();
     const navigate = useNavigate();
@@ -40,6 +41,7 @@ const UserRegisterPage: React.FC = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+        if (errorMsg) setErrorMsg('');
     };
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -53,6 +55,7 @@ const UserRegisterPage: React.FC = () => {
         }
 
         setIsLoading(true);
+        setErrorMsg('');
         try {
             await register({
                 name: formData.name,
@@ -67,6 +70,7 @@ const UserRegisterPage: React.FC = () => {
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.message || 'Registration failed. Please try again.';
             console.error(`[Auth] Registration error:`, err);
+            setErrorMsg(msg);
             toast.error(msg);
         } finally {
             setIsLoading(false);
@@ -87,6 +91,13 @@ const UserRegisterPage: React.FC = () => {
                     <h1 className="text-2xl font-bold text-slate-900 mb-2">Create your account</h1>
                     <p className="text-slate-500 font-medium text-sm">Join the growing community of professionals on Zantara.</p>
                 </div>
+
+                {errorMsg && (
+                    <div className="mb-6 p-4 text-sm font-semibold text-red-600 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
+                        <span className="mt-0.5 animate-pulse">⚠️</span>
+                        {errorMsg}
+                    </div>
+                )}
 
                 <form onSubmit={handleRegister} className="space-y-6">
                     <div className="grid grid-cols-1 gap-6">

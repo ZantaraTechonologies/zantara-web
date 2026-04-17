@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import {
     Mail,
     Lock,
@@ -17,6 +17,7 @@ const UserLoginPage: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
 
     const { login } = useAuthStore();
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ const UserLoginPage: React.FC = () => {
         e.preventDefault();
         console.info(`[Auth] Attempting login for: ${email}`);
         setIsLoading(true);
+        setErrorMsg('');
         try {
             await login({ email, password }, rememberMe);
             console.info(`[Auth] Login successful for: ${email}`);
@@ -35,6 +37,7 @@ const UserLoginPage: React.FC = () => {
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.message || 'Invalid email or password';
             console.error(`[Auth] Login error:`, err);
+            setErrorMsg(msg);
             toast.error(msg);
         } finally {
             setIsLoading(false);
@@ -109,6 +112,13 @@ const UserLoginPage: React.FC = () => {
                         <p className="text-slate-500 font-medium text-sm">Enter your credentials to access your Zantara account</p>
                     </div>
 
+                    {errorMsg && (
+                        <div className="mb-6 p-4 text-sm font-semibold text-red-600 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
+                            <span className="mt-0.5 animate-pulse">⚠️</span>
+                            {errorMsg}
+                        </div>
+                    )}
+
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700 block">Email or Username</label>
@@ -120,7 +130,10 @@ const UserLoginPage: React.FC = () => {
                                     type="text"
                                     required
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        if (errorMsg) setErrorMsg('');
+                                    }}
                                     className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
                                     placeholder="e.g. alex@zantara.com"
                                 />
@@ -142,7 +155,10 @@ const UserLoginPage: React.FC = () => {
                                     type={showPassword ? 'text' : 'password'}
                                     required
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        if (errorMsg) setErrorMsg('');
+                                    }}
                                     className="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
                                     placeholder="••••••••"
                                 />
