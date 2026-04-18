@@ -83,7 +83,7 @@ const UserBuyCablePage: React.FC = () => {
         } catch (err: any) {
             const msg = err.response?.data?.message || "Subscription failed.";
             toast.error(msg);
-            navigate('/app/services/status', { state: { status: 'error', message: msg, transaction: { service: serviceTitle, amount, target: smartcardNumber, timestamp: new Date().toLocaleTimeString() } } });
+            // Intentionally not navigating away so user form input remains
         } finally {
             setLoading(false);
         }

@@ -115,11 +115,9 @@ const UserBuyAirtimePage: React.FC = () => {
                 }
             });
         } catch (err: any) {
-            const msg = err.response?.data?.message || "Purchase failed. Check your connection.";
+            const msg = err.response?.data?.message || "Purchase failed.";
             toast.error(msg);
-            navigate('/app/services/status', {
-                state: { status: 'error', message: msg, transaction: { service: serviceTitle, amount: finalAmount, target: phone, timestamp: new Date().toLocaleTimeString() } }
-            });
+            // We intentionally do not navigate so the user's typed details remain for an easy retry.
         } finally {
             setLoading(false);
         }

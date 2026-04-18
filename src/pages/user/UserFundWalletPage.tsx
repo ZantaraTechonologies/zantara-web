@@ -18,7 +18,11 @@ const UserFundWalletPage: React.FC = () => {
     const [amount, setAmount] = useState('');
     const [method, setMethod] = useState<'card' | 'transfer' | null>(null);
     const [loadingPayment, setLoadingPayment] = useState(false);
-    const { virtualAccount, currency } = useWalletStore();
+    const { virtualAccount, fetchVirtualAccount, currency } = useWalletStore();
+
+    React.useEffect(() => {
+        fetchVirtualAccount();
+    }, []);
 
     const methods = [
         { 
@@ -38,11 +42,7 @@ const UserFundWalletPage: React.FC = () => {
     ];
 
     const handleContinue = () => {
-        if (method === 'transfer') {
-            navigate('/app/wallet/virtual-account');
-        } else {
-            setStep(3); // Show redirect info
-        }
+        setStep(3);
     };
 
     const handlePayment = async () => {
@@ -172,7 +172,7 @@ const UserFundWalletPage: React.FC = () => {
                 </div>
             )}
 
-            {step === 3 && (
+            {step === 3 && method === 'card' && (
                 <div className="bg-white border border-slate-50 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm text-center">
                     <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto animate-bounce">
                         <Smartphone size={32} />
@@ -190,7 +190,7 @@ const UserFundWalletPage: React.FC = () => {
                         <span>AES-256 Encrypted Transfer</span>
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-4 flex flex-col gap-3">
                         <button 
                             disabled={loadingPayment}
                             onClick={handlePayment}
@@ -198,6 +198,46 @@ const UserFundWalletPage: React.FC = () => {
                         >
                             {loadingPayment ? 'Redirecting...' : 'Continue to Payment'}
                         </button>
+                        <button onClick={() => setStep(2)} className="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-900">Cancel</button>
+                    </div>
+                </div>
+            )}
+
+            {step === 3 && method === 'transfer' && (
+                <div className="bg-white border border-emerald-100 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl shadow-emerald-500/5 text-center">
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-black text-slate-900">Direct Bank Transfer</h2>
+                        <p className="text-slate-500 font-medium text-sm">Transfer exactly <span className="text-emerald-600 font-bold">{currency}{Number(amount).toLocaleString()}</span> to the account below.</p>
+                    </div>
+
+                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-6 max-w-sm mx-auto">
+                        <div className="space-y-1">
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Bank Name</p>
+                            <p className="font-extrabold text-slate-900">{virtualAccount?.bankName || 'Wema Bank'}</p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Account Number</p>
+                            <div className="flex items-center justify-center gap-3">
+                                <p className="font-black text-3xl tracking-widest text-emerald-600">{virtualAccount?.accountNumber || 'Pending'}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Account Name</p>
+                            <p className="font-bold text-slate-700">{virtualAccount?.accountName || 'Zantara User'}</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl inline-block text-left text-amber-800 text-[11px] font-bold">
+                        <p>💡 Tip: You can transfer any amount to this account anytime. It is permanently linked to your wallet.</p>
+                    </div>
+
+                    <div className="pt-2">
+                        <button onClick={() => navigate('/app')} className="w-full bg-slate-900 hover:bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] transition-all shadow-lg shadow-slate-200">
+                            I have made the transfer
+                        </button>
+                        <button onClick={() => setStep(2)} className="mt-4 text-[10px] uppercase font-bold text-slate-400 hover:text-slate-900">Cancel</button>
                     </div>
                 </div>
             )}
