@@ -16,8 +16,17 @@ const ProtectedRoute = ({ children }) => {
     if (!isInitialized) {
         return <PageLoader />;
     }
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace state={{ from: location }} />;
+    }
 
-    return isAuthenticated ? children : <Navigate to="/login" replace state={{ from: location }} />;
+    // Enforce transaction PIN setup
+    const isPinSetupPage = location.pathname === '/app/profile/security/pin';
+    if (user && user.isPinSet === false && !isPinSetupPage) {
+        return <Navigate to="/app/profile/security/pin" replace />;
+    }
+
+    return children;
 };
 
 export default ProtectedRoute;

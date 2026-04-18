@@ -60,6 +60,7 @@ import AdminLayout from '../layouts/admin/AdminLayout';
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import AdminRegister from '../pages/admin/AdminRegister';
+import AdminPinSetupPage from '../pages/admin/AdminPinSetupPage';
 import { StatusPage } from '../pages/admin/StatusPage';
 import TransactionsPage from '../pages/admin/TransactionsPage';
 import AdminTransactionDetailPage from '../pages/admin/AdminTransactionDetailPage';
@@ -185,6 +186,7 @@ export default function AppRoutes() {
 
                     {/* ---------- Admin Protected Routes ---------- */}
                     <Route element={<AdminProtectedRoute />}>
+                        <Route path="/admin/pin-setup" element={<AdminPinSetupPage />} />
                         <Route path="/admin" element={<AdminLayout />}>
                             <Route index element={<AdminDashboardPage />} />
                             <Route path="dashboard" element={<Navigate to="/admin" replace />} />

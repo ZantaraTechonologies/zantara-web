@@ -27,6 +27,12 @@ const AdminProtectedRoute = () => {
         return <Navigate to="/not-authorized" replace />;
     }
 
+    // Enforce transaction PIN (Master Override Code) setup for admins
+    const isPinSetupPage = window.location.pathname === '/admin/pin-setup';
+    if (user && user.isPinSet === false && !isPinSetupPage) {
+        return <Navigate to="/admin/pin-setup" replace />;
+    }
+
     return <Outlet />;
 };
 

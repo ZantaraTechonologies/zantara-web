@@ -91,7 +91,11 @@ const UserPinSetupPage: React.FC = () => {
             }
             await fetchMe();
             toast.success(hasPin ? "Transaction PIN updated successfully" : "Transaction PIN created successfully");
-            navigate('/app/profile/security');
+            if (hasPin) {
+                navigate('/app/profile/security');
+            } else {
+                navigate('/app/dashboard');
+            }
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Failed to update PIN");
         } finally {
