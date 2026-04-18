@@ -29,7 +29,7 @@ export default function AdminSupportTicketDetailPage() {
 
     const fetchTicket = async () => {
         try {
-            const { data } = await API.get(`/admin/support/${id}`);
+            const { data } = await API.get(`/admin/support/ticket/${id}`);
             setTicket(data.data);
         } catch (err: any) {
             toast.error(err.message || "Failed to load ticket");
