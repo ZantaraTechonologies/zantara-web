@@ -41,7 +41,7 @@ export async function getBanks(): Promise<any[]> {
 }
 
 export async function resolveAccount(accountNumber: string, bankCode: string): Promise<any> {
-    const { data } = await API.get('/bank-accounts/resolve', { params: { account_number: accountNumber, bank_code: bankCode }});
+    const { data } = await API.get('/bank-accounts/resolve', { params: { accountNumber, bankCode }});
     return data.data || data;
 }
 

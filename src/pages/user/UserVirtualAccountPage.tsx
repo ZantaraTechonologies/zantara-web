@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { toast } from 'react-toastify';
+import { toast } from "react-hot-toast";
 
 const UserVirtualAccountPage: React.FC = () => {
     const navigate = useNavigate();

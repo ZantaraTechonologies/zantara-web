@@ -6,7 +6,7 @@ import { useWalletStore } from "../../store/wallet/walletStore";
 import { useAuthStore } from "../../store/auth/authStore";
 import { useNavigate } from "react-router-dom";
 import SecurePinModal from "../../components/modals/SecurePinModal";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Wifi, Phone, AlertCircle, Info } from "lucide-react";
 import { ServiceSkeleton } from "../../components/feedback/Skeletons";
 

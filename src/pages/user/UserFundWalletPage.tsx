@@ -172,17 +172,27 @@ const UserFundWalletPage: React.FC = () => {
                 </div>
             )}
 
-            {step === 3 && method === 'card' && (
+            {step === 3 && (
                 <div className="bg-white border border-slate-50 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm text-center">
                     <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto animate-bounce">
                         <Smartphone size={32} />
                     </div>
                     
                     <div className="space-y-3">
-                        <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Initiating Secure Gateway</h2>
-                        <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm">
-                            You're being redirected to our secure payment processor (Paystack) to complete your {currency}{Number(amount).toLocaleString()} deposit.
-                        </p>
+                        <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">
+                            Initiating Secure Gateway
+                        </h2>
+                        {method === 'transfer' ? (
+                            <div className="space-y-2">
+                                <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm">
+                                    You will be redirected to Paystack. Select <span className="font-bold text-emerald-600">Bank Transfer</span> to receive your secure, dedicated Wema Bank account number for this NGN{Number(amount).toLocaleString()} deposit.
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm">
+                                You're being redirected to our secure payment processor (Paystack) to complete your {currency}{Number(amount).toLocaleString()} deposit.
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
@@ -199,45 +209,6 @@ const UserFundWalletPage: React.FC = () => {
                             {loadingPayment ? 'Redirecting...' : 'Continue to Payment'}
                         </button>
                         <button onClick={() => setStep(2)} className="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-900">Cancel</button>
-                    </div>
-                </div>
-            )}
-
-            {step === 3 && method === 'transfer' && (
-                <div className="bg-white border border-emerald-100 rounded-2xl p-6 sm:p-8 space-y-8 shadow-xl shadow-emerald-500/5 text-center">
-                    <div className="space-y-2">
-                        <h2 className="text-2xl font-black text-slate-900">Direct Bank Transfer</h2>
-                        <p className="text-slate-500 font-medium text-sm">Transfer exactly <span className="text-emerald-600 font-bold">{currency}{Number(amount).toLocaleString()}</span> to the account below.</p>
-                    </div>
-
-                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-6 max-w-sm mx-auto">
-                        <div className="space-y-1">
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Bank Name</p>
-                            <p className="font-extrabold text-slate-900">{virtualAccount?.bankName || 'Wema Bank'}</p>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Account Number</p>
-                            <div className="flex items-center justify-center gap-3">
-                                <p className="font-black text-3xl tracking-widest text-emerald-600">{virtualAccount?.accountNumber || 'Pending'}</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-1">
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Account Name</p>
-                            <p className="font-bold text-slate-700">{virtualAccount?.accountName || 'Zantara User'}</p>
-                        </div>
-                    </div>
-
-                    <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl inline-block text-left text-amber-800 text-[11px] font-bold">
-                        <p>💡 Tip: You can transfer any amount to this account anytime. It is permanently linked to your wallet.</p>
-                    </div>
-
-                    <div className="pt-2">
-                        <button onClick={() => navigate('/app')} className="w-full bg-slate-900 hover:bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] transition-all shadow-lg shadow-slate-200">
-                            I have made the transfer
-                        </button>
-                        <button onClick={() => setStep(2)} className="mt-4 text-[10px] uppercase font-bold text-slate-400 hover:text-slate-900">Cancel</button>
                     </div>
                 </div>
             )}

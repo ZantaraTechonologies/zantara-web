@@ -4,7 +4,7 @@ import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
 import { useWalletStore } from "../../store/wallet/walletStore";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import SecurePinModal from '../../components/modals/SecurePinModal';
 import { GraduationCap, AlertCircle, Zap, CheckCircle2, User, Search } from 'lucide-react';
 import { ServiceSkeleton } from '../../components/feedback/Skeletons';
