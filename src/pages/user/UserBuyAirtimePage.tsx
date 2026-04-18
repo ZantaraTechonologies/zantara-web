@@ -16,6 +16,13 @@ const NETWORKS = [
     { id: "9mobile", label: "9mobile", color: "bg-teal-500", textColor: "text-white", ring: "ring-teal-500", emoji: "🔵" },
 ] as const;
 
+const NETWORK_PREFIXES: Record<string, string[]> = {
+    mtn: ['0803', '0806', '0814', '0810', '0813', '0816', '0703', '0706', '0903', '0906', '0913', '0916', '0704'],
+    airtel: ['0802', '0808', '0812', '0701', '0708', '0902', '0907', '0901', '0912', '0911'],
+    glo: ['0805', '0807', '0811', '0705', '0905', '0915'],
+    "9mobile": ['0809', '0818', '0817', '0909', '0908'],
+};
+
 const UserBuyAirtimePage: React.FC = () => {
     const { balance, currency, fetchBalance } = useWalletStore();
     const { user } = useAuthStore();
@@ -26,6 +33,43 @@ const UserBuyAirtimePage: React.FC = () => {
     const [amount, setAmount] = useState<number | "">("");
     const [showPinModal, setShowPinModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [networkWarning, setNetworkWarning] = useState(false);
+
+    React.useEffect(() => {
+        if (phone.length >= 4) {
+            const prefix = phone.substring(0, 4);
+            let detectedNetwork: string | null = null;
+            Object.keys(NETWORK_PREFIXES).forEach(net => {
+                if (NETWORK_PREFIXES[net].includes(prefix)) {
+                    detectedNetwork = net;
+                }
+            });
+
+            if (detectedNetwork && detectedNetwork !== network) {
+                 setNetworkWarning(true);
+            } else {
+                 setNetworkWarning(false);
+            }
+        } else {
+            setNetworkWarning(false);
+        }
+    }, [phone, network]);
+
+    const handlePhoneChange = (val: string) => {
+        const cleanVal = val.replace(/\D/g, '').slice(0, 11);
+        setPhone(cleanVal);
+        
+        // Auto select if first 4 digits typed 
+        if (cleanVal.length === 4) {
+             let detectedNetwork: string | null = null;
+             Object.keys(NETWORK_PREFIXES).forEach(net => {
+                 if (NETWORK_PREFIXES[net].includes(cleanVal)) {
+                     detectedNetwork = net;
+                 }
+             });
+             if (detectedNetwork) setNetwork(detectedNetwork);
+        }
+    };
 
     const selectedNetwork = NETWORKS.find(n => n.id === network) || NETWORKS[0];
     const discount = user?.role === 'agent' ? 0.03 : 0;
@@ -117,14 +161,20 @@ const UserBuyAirtimePage: React.FC = () => {
                                     <Input
                                         placeholder="08012345678"
                                         value={phone}
-                                        onChange={(e: any) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                                        onChange={(e: any) => handlePhoneChange(e.target.value)}
                                         className="pl-12"
                                         required maxLength={11} type="tel"
                                     />
                                 </div>
+                                {networkWarning && (
+                                    <p className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mt-2 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
+                                        <AlertCircle size={12} />
+                                        Heads up: Number prefix doesn't match {selectedNetwork.label} (Unless ported)
+                                    </p>
+                                )}
                                 {(user?.phone || user?.phoneNumber) && (
-                                    <button type="button" onClick={() => setPhone(user?.phone || user?.phoneNumber || "")}
-                                        className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest hover:text-emerald-700 flex items-center gap-1.5">
+                                    <button type="button" onClick={() => handlePhoneChange(user?.phone || user?.phoneNumber || "")}
+                                        className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest hover:text-emerald-700 flex items-center gap-1.5 mt-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
                                         Use my registered number
                                     </button>

@@ -35,6 +35,16 @@ export async function addLinkedAccount(accountData: { bankName: string; bankCode
     return data;
 }
 
+export async function getBanks(): Promise<any[]> {
+    const { data } = await API.get("/bank-accounts/banks");
+    return data.data || data;
+}
+
+export async function resolveAccount(accountNumber: string, bankCode: string): Promise<any> {
+    const { data } = await API.get('/bank-accounts/resolve', { params: { account_number: accountNumber, bank_code: bankCode }});
+    return data.data || data;
+}
+
 export async function deleteLinkedAccount(accountId: string): Promise<any> {
     const { data } = await API.delete(`/bank-accounts/${accountId}`);
     return data;

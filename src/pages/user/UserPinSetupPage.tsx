@@ -9,7 +9,7 @@ import { SubmitButton } from '../../components/buy/Buy';
 const UserPinSetupPage: React.FC = () => {
     const navigate = useNavigate();
     const { user, fetchMe } = useAuthStore();
-    
+
     // Safety check just in case user object is lagging
     useEffect(() => {
         if (!user) fetchMe();
@@ -126,7 +126,7 @@ const UserPinSetupPage: React.FC = () => {
             {/* Header */}
             <div className="flex items-center gap-4">
                 {hasPin && (
-                    <button 
+                    <button
                         onClick={handleBack}
                         className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
                     >
@@ -159,7 +159,7 @@ const UserPinSetupPage: React.FC = () => {
                             <span>{hasPin ? 'Update PIN' : 'Save PIN'}</span>
                         </div>
                     </SubmitButton>
-                    
+
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mt-4 block">
                         This PIN will be required for all transactions
                     </p>

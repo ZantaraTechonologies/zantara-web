@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
     ArrowLeft, 
     Plus, 
@@ -11,14 +11,24 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { toast } from 'react-toastify';
+import { getBanks, resolveAccount } from '../../services/wallet/walletService';
+import { toast } from 'react-hot-toast';
 
 const UserLinkedAccountsPage: React.FC = () => {
     const navigate = useNavigate();
     const [isAdding, setIsAdding] = useState(false);
+    
+    // Bank specific states
+    const [banks, setBanks] = useState<{name: string, code: string}[]>([]);
+    const [filteredBanks, setFilteredBanks] = useState<{name: string, code: string}[]>([]);
+    const [bankSearch, setBankSearch] = useState('');
+    const [showBankDropdown, setShowBankDropdown] = useState(false);
+    const [selectedBankCode, setSelectedBankCode] = useState('');
     const [bankName, setBankName] = useState('');
+
     const [accountNumber, setAccountNumber] = useState('');
     const [accountName, setAccountName] = useState('');
+    const [resolving, setResolving] = useState(false);
     
     const { linkedAccounts, fetchLinkedAccounts, addAccount, removeAccount, loading } = useWalletStore();
 
@@ -26,14 +36,54 @@ const UserLinkedAccountsPage: React.FC = () => {
         fetchLinkedAccounts();
     }, []);
 
-    const handleAdd = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            await addAccount({ bankCode: '000', bankName, accountNumber, accountName });
-            setIsAdding(false);
+    // Fetch banks when modal opens
+    useEffect(() => {
+        if (isAdding) {
+            getBanks().then(data => {
+                setBanks(data);
+                setFilteredBanks(data);
+            }).catch(() => toast.error('Failed to load banks'));
+        } else {
             setBankName('');
             setAccountNumber('');
             setAccountName('');
+            setSelectedBankCode('');
+            setBankSearch('');
+            setShowBankDropdown(false);
+        }
+    }, [isAdding]);
+
+    // Handle bank search filter
+    useEffect(() => {
+        setFilteredBanks(banks.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase())));
+    }, [bankSearch, banks]);
+
+    // Auto resolve account number
+    useEffect(() => {
+        if (accountNumber.length === 10 && selectedBankCode) {
+            setResolving(true);
+            setAccountName('');
+            resolveAccount(accountNumber, selectedBankCode).then(res => {
+                setAccountName(res.account_name);
+            }).catch(err => {
+                toast.error(err.response?.data?.message || 'Could not verify account details.');
+            }).finally(() => {
+                setResolving(false);
+            });
+        } else {
+            setAccountName(''); // Clear when typing
+        }
+    }, [accountNumber, selectedBankCode]);
+
+    const handleAdd = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            if (!accountName) {
+                toast.error("Account name must be verified first.");
+                return;
+            }
+            await addAccount({ bankCode: selectedBankCode, bankName, accountNumber, accountName });
+            setIsAdding(false);
             toast.success('Bank account linked successfully!');
         } catch (err) {
             toast.error('Failed to link account. Please check details.');
@@ -70,7 +120,7 @@ const UserLinkedAccountsPage: React.FC = () => {
             </div>
 
             {isAdding ? (
-                <div className="bg-white border border-slate-50 rounded-2xl p-6 sm:p-10 space-y-8 shadow-sm animate-in zoom-in-95 duration-500">
+                <div className="bg-white border border-slate-50 rounded-2xl p-6 sm:p-10 space-y-8 shadow-sm animate-in zoom-in-95 duration-500 relative">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
@@ -85,24 +135,48 @@ const UserLinkedAccountsPage: React.FC = () => {
 
                     <form onSubmit={handleAdd} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-3">
+                            <div className="space-y-3 relative">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Bank Name</label>
                                 <input 
                                     required
                                     type="text" 
-                                    value={bankName}
-                                    onChange={(e) => setBankName(e.target.value)}
-                                    placeholder="e.g. GTBank, Kuda, Zenith"
+                                    value={bankSearch}
+                                    onChange={(e) => {
+                                        setBankSearch(e.target.value);
+                                        setShowBankDropdown(true);
+                                    }}
+                                    onFocus={() => setShowBankDropdown(true)}
+                                    onBlur={() => setTimeout(() => setShowBankDropdown(false), 200)}
+                                    placeholder="Search bank..."
                                     className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-5 font-bold text-slate-900 focus:border-emerald-400 outline-none transition-all"
                                 />
+                                {showBankDropdown && filteredBanks.length > 0 && (
+                                    <div className="absolute z-20 w-full mt-2 max-h-60 overflow-y-auto bg-white border border-slate-100 rounded-2xl shadow-xl top-full left-0">
+                                        {filteredBanks.slice(0, 50).map(bank => (
+                                            <div 
+                                                key={bank.code}
+                                                onClick={() => {
+                                                    setSelectedBankCode(bank.code);
+                                                    setBankName(bank.name);
+                                                    setBankSearch(bank.name);
+                                                    setShowBankDropdown(false);
+                                                }}
+                                                className="p-4 hover:bg-emerald-50 cursor-pointer text-slate-700 font-bold text-sm border-b border-slate-50 last:border-b-0 transition-colors"
+                                            >
+                                                {bank.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Account Number</label>
                                 <input 
                                     required
-                                    type="text" 
+                                    type="text"
+                                    maxLength={10}
                                     value={accountNumber}
-                                    onChange={(e) => setAccountNumber(e.target.value)}
+                                    onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
                                     placeholder="10-digit number"
                                     className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-5 font-bold text-slate-900 focus:border-emerald-400 outline-none transition-all"
                                 />
@@ -111,14 +185,21 @@ const UserLinkedAccountsPage: React.FC = () => {
 
                         <div className="space-y-3">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Account Holder Name (Verified)</label>
-                            <input 
-                                required
-                                type="text" 
-                                value={accountName}
-                                onChange={(e) => setAccountName(e.target.value)}
-                                placeholder="As it appears on your bank"
-                                className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-5 font-bold text-slate-900 focus:border-emerald-400 outline-none transition-all"
-                            />
+                            <div className="relative">
+                                <input 
+                                    required
+                                    readOnly
+                                    type="text" 
+                                    value={accountName}
+                                    placeholder={resolving ? "Verifying identity..." : "Auto-filled upon verification"}
+                                    className="w-full bg-slate-100 border-2 border-slate-50 rounded-2xl p-5 font-bold text-slate-500 outline-none transition-all cursor-not-allowed"
+                                />
+                                {resolving && (
+                                    <div className="absolute right-5 top-1/2 -translate-y-1/2">
+                                        <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent flex items-center justify-center rounded-full animate-spin"></div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-4 p-5 bg-slate-950 rounded-2xl text-emerald-400/80">
@@ -130,10 +211,10 @@ const UserLinkedAccountsPage: React.FC = () => {
 
                         <button 
                             type="submit"
-                            disabled={loading}
-                            className="w-full bg-emerald-400 text-slate-950 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-500/20 disabled:opacity-30"
+                            disabled={loading || resolving || !accountName}
+                            className="w-full bg-emerald-400 text-slate-950 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Verifying Node...' : 'Establish Secure Link'}
+                            {loading ? 'Committing Node...' : 'Establish Secure Link'}
                         </button>
                     </form>
                 </div>

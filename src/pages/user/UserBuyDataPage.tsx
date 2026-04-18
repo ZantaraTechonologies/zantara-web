@@ -17,6 +17,13 @@ const NETWORKS = [
     { id: "9mobile-data", label: "9mobile", color: "bg-teal-500", textColor: "text-white", ring: "ring-teal-500", emoji: "🔵" },
 ] as const;
 
+const NETWORK_PREFIXES: Record<string, string[]> = {
+    "mtn-data": ['0803', '0806', '0814', '0810', '0813', '0816', '0703', '0706', '0903', '0906', '0913', '0916', '0704'],
+    "airtel-data": ['0802', '0808', '0812', '0701', '0708', '0902', '0907', '0901', '0912', '0911'],
+    "glo-data": ['0805', '0807', '0811', '0705', '0905', '0915'],
+    "9mobile-data": ['0809', '0818', '0817', '0909', '0908'],
+};
+
 const PLAN_CATEGORIES = ["All", "Daily", "Weekly", "Monthly", "SME"] as const;
 
 function categorizePlan(name: string): string {
@@ -41,6 +48,44 @@ const UserBuyDataPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>("All");
     const [showPinModal, setShowPinModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [networkWarning, setNetworkWarning] = useState(false);
+
+    useEffect(() => {
+        if (phone.length >= 4) {
+            const prefix = phone.substring(0, 4);
+            let detectedNetwork: string | null = null;
+            Object.keys(NETWORK_PREFIXES).forEach(net => {
+                if (NETWORK_PREFIXES[net].includes(prefix)) {
+                    detectedNetwork = net;
+                }
+            });
+
+            if (detectedNetwork && detectedNetwork !== network) {
+                 setNetworkWarning(true);
+            } else {
+                 setNetworkWarning(false);
+            }
+        } else {
+            setNetworkWarning(false);
+        }
+    }, [phone, network]);
+
+    const handlePhoneChange = (val: string) => {
+        const cleanVal = val.replace(/\D/g, '').slice(0, 11);
+        setPhone(cleanVal);
+        
+        if (cleanVal.length === 4) {
+             let detectedNetwork: string | null = null;
+             Object.keys(NETWORK_PREFIXES).forEach(net => {
+                 if (NETWORK_PREFIXES[net].includes(cleanVal)) {
+                     detectedNetwork = net;
+                 }
+             });
+             if (detectedNetwork) {
+                 setNetwork(detectedNetwork);
+             }
+        }
+    };
 
     useEffect(() => {
         const loadPlans = async () => {
@@ -130,12 +175,18 @@ const UserBuyDataPage: React.FC = () => {
                                 <div className="relative">
                                     <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <Input placeholder="08012345678" value={phone}
-                                        onChange={(e: any) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                                        onChange={(e: any) => handlePhoneChange(e.target.value)}
                                         className="pl-12" required maxLength={11} type="tel" />
                                 </div>
+                                {networkWarning && (
+                                    <p className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mt-2 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
+                                        <AlertCircle size={12} />
+                                        Heads up: Number prefix doesn't match {selectedNetwork.label} (Unless ported)
+                                    </p>
+                                )}
                                 {(user?.phone || user?.phoneNumber) && (
-                                    <button type="button" onClick={() => setPhone(user?.phone || user?.phoneNumber || "")}
-                                        className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest hover:text-emerald-700 flex items-center gap-1.5">
+                                    <button type="button" onClick={() => handlePhoneChange(user?.phone || user?.phoneNumber || "")}
+                                        className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest hover:text-emerald-700 flex items-center gap-1.5 mt-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
                                         Use my registered number
                                     </button>
