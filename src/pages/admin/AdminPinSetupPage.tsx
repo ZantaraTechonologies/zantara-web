@@ -18,7 +18,6 @@ const AdminPinSetupPage: React.FC = () => {
 
     const [pin, setPin] = useState(['', '', '', '']);
     const [confirmPin, setConfirmPin] = useState(['', '', '', '']);
-    const [step, setStep] = useState(hasPin ? 0 : 1); // 1: New, 2: Confirm (Admin intercept is almost always 1)
     const [loading, setLoading] = useState(false);
 
     const pinRefs = useRef<HTMLInputElement[]>([]);
@@ -31,10 +30,10 @@ const AdminPinSetupPage: React.FC = () => {
         }
     }, [hasPin, navigate]);
 
-    const handleChange = (idx: number, val: string, currentStep: number) => {
-        const currentPin = currentStep === 1 ? pin : confirmPin;
-        const setter = currentStep === 1 ? setPin : setConfirmPin;
-        const refs = currentStep === 1 ? pinRefs : confirmRefs;
+    const handleChange = (idx: number, val: string, type: 'new' | 'confirm') => {
+        const currentPin = type === 'new' ? pin : confirmPin;
+        const setter = type === 'new' ? setPin : setConfirmPin;
+        const refs = type === 'new' ? pinRefs : confirmRefs;
 
         if (val.length > 1) val = val.slice(-1);
         if (!/^\d*$/.test(val)) return;
@@ -48,19 +47,12 @@ const AdminPinSetupPage: React.FC = () => {
         }
     };
 
-    const handleKeyDown = (idx: number, e: React.KeyboardEvent, currentStep: number) => {
-        const currentPin = currentStep === 1 ? pin : confirmPin;
-        const refs = currentStep === 1 ? pinRefs : confirmRefs;
+    const handleKeyDown = (idx: number, e: React.KeyboardEvent, type: 'new' | 'confirm') => {
+        const currentPin = type === 'new' ? pin : confirmPin;
+        const refs = type === 'new' ? pinRefs : confirmRefs;
 
         if (e.key === 'Backspace' && !currentPin[idx] && idx > 0) {
             refs.current[idx - 1]?.focus();
-        }
-    };
-
-    const handleNext = () => {
-        if (step === 1) {
-            if (pin.some(d => !d)) { toast.error("ACCESS DENIED: INCOMPLETE CODE"); return; }
-            setStep(2);
         }
     };
 
@@ -69,10 +61,13 @@ const AdminPinSetupPage: React.FC = () => {
         const newPinStr = pin.join('');
         const confirmStr = confirmPin.join('');
 
+        if (pin.some(d => !d)) { toast.error("ACCESS DENIED: INCOMPLETE CODE"); return; }
+        if (confirmPin.some(d => !d)) { toast.error("ACCESS DENIED: UNCONFIRMED CODE"); return; }
+
         if (newPinStr !== confirmStr) {
             toast.error("MISMATCH: CODES DO NOT ALIGN");
             setConfirmPin(['', '', '', '']);
-            setStep(1);
+            confirmRefs.current[0]?.focus();
             return;
         }
 
@@ -88,6 +83,33 @@ const AdminPinSetupPage: React.FC = () => {
             setLoading(false);
         }
     };
+
+    const isSubmitDisabled = pin.some(d => !d) || confirmPin.some(d => !d);
+
+    const renderPinInputRow = (label: string, values: string[], type: 'new' | 'confirm', refsArray: React.MutableRefObject<HTMLInputElement[]>) => (
+        <div className="mb-6 flex flex-col items-center w-full">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 text-center">{label}</label>
+            <div className="flex justify-center gap-4">
+                {values.map((digit, idx) => (
+                    <input
+                        key={`admin-${type}-${idx}`}
+                        ref={(el) => {
+                            if (el) {
+                                refsArray.current[idx] = el;
+                            }
+                        }}
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleChange(idx, e.target.value, type)}
+                        onKeyDown={(e) => handleKeyDown(idx, e, type)}
+                        className="w-14 h-16 bg-slate-950 border border-slate-700 rounded-xl text-center text-2xl font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+                    />
+                ))}
+            </div>
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-['JetBrains_Mono',_monospace]">
@@ -117,12 +139,12 @@ const AdminPinSetupPage: React.FC = () => {
                     </div>
 
                     <div className="p-8 sm:p-12">
-                        <div className="flex flex-col items-center mb-10">
+                        <div className="flex flex-col items-center mb-8">
                             <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 border border-slate-700 shadow-inner p-3">
                                 <Lock className="text-emerald-500/80 w-10 h-10" />
                             </div>
                             <h1 className="text-2xl font-bold text-white mb-2 uppercase tracking-tighter text-center">
-                                {step === 1 ? 'Master Override Code' : 'Verify Master Code'}
+                                Master Override Code
                             </h1>
                             <div className="flex items-center gap-2 text-emerald-400/60 text-[10px] font-bold tracking-[0.3em] uppercase text-center mt-2">
                                 <ShieldAlert size={12} className="shrink-0" />
@@ -130,31 +152,15 @@ const AdminPinSetupPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <form onSubmit={step === 1 ? (e) => { e.preventDefault(); handleNext(); } : handleSave} className="space-y-10">
-                            <div className="flex justify-center gap-4">
-                                {(step === 1 ? pin : confirmPin).map((digit, idx) => (
-                                    <input
-                                        key={`admin-${step}-${idx}`}
-                                        ref={(el) => {
-                                            if (el) {
-                                                if (step === 1) pinRefs.current[idx] = el;
-                                                else confirmRefs.current[idx] = el;
-                                            }
-                                        }}
-                                        type="password"
-                                        inputMode="numeric"
-                                        maxLength={1}
-                                        value={digit}
-                                        onChange={(e) => handleChange(idx, e.target.value, step)}
-                                        onKeyDown={(e) => handleKeyDown(idx, e, step)}
-                                        className="w-14 h-16 bg-slate-950 border border-slate-700 rounded-xl text-center text-2xl font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
-                                    />
-                                ))}
+                        <form onSubmit={handleSave} className="space-y-8">
+                            <div className="flex flex-col items-center">
+                                {renderPinInputRow("New Override Code", pin, 'new', pinRefs)}
+                                {renderPinInputRow("Confirm Override Code", confirmPin, 'confirm', confirmRefs)}
                             </div>
 
                             <button
                                 type="submit"
-                                disabled={loading || (step === 1 ? pin : confirmPin).some(d => !d)}
+                                disabled={loading || isSubmitDisabled}
                                 className="w-full mt-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
@@ -164,8 +170,8 @@ const AdminPinSetupPage: React.FC = () => {
                                     </span>
                                 ) : (
                                     <>
-                                        <span>{step === 1 ? 'Continue' : 'Commit to Database'}</span>
-                                        {step === 1 ? <ArrowRight size={14} /> : <Save size={14} />}
+                                        <span>Commit to Database</span>
+                                        <Save size={14} />
                                     </>
                                 )}
                             </button>

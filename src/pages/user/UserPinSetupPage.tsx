@@ -20,24 +20,16 @@ const UserPinSetupPage: React.FC = () => {
     const [oldPin, setOldPin] = useState(['', '', '', '']);
     const [pin, setPin] = useState(['', '', '', '']);
     const [confirmPin, setConfirmPin] = useState(['', '', '', '']);
-    const [step, setStep] = useState(hasPin ? 0 : 1); // 0: Old, 1: New, 2: Confirm
     const [loading, setLoading] = useState(false);
 
     const oldPinRefs = useRef<HTMLInputElement[]>([]);
     const pinRefs = useRef<HTMLInputElement[]>([]);
     const confirmRefs = useRef<HTMLInputElement[]>([]);
 
-    useEffect(() => {
-        // Reset steps if hasPin state changes dynamically
-        if (hasPin !== undefined) {
-            setStep(hasPin ? 0 : 1);
-        }
-    }, [hasPin]);
-
-    const handleChange = (idx: number, val: string, currentStep: number) => {
-        const currentPin = currentStep === 0 ? oldPin : currentStep === 1 ? pin : confirmPin;
-        const setter = currentStep === 0 ? setOldPin : currentStep === 1 ? setPin : setConfirmPin;
-        const refs = currentStep === 0 ? oldPinRefs : currentStep === 1 ? pinRefs : confirmRefs;
+    const handleChange = (idx: number, val: string, type: 'old' | 'new' | 'confirm') => {
+        const currentPin = type === 'old' ? oldPin : type === 'new' ? pin : confirmPin;
+        const setter = type === 'old' ? setOldPin : type === 'new' ? setPin : setConfirmPin;
+        const refs = type === 'old' ? oldPinRefs : type === 'new' ? pinRefs : confirmRefs;
 
         if (val.length > 1) val = val.slice(-1);
         if (!/^\d*$/.test(val)) return;
@@ -51,22 +43,12 @@ const UserPinSetupPage: React.FC = () => {
         }
     };
 
-    const handleKeyDown = (idx: number, e: React.KeyboardEvent, currentStep: number) => {
-        const currentPin = currentStep === 0 ? oldPin : currentStep === 1 ? pin : confirmPin;
-        const refs = currentStep === 0 ? oldPinRefs : currentStep === 1 ? pinRefs : confirmRefs;
+    const handleKeyDown = (idx: number, e: React.KeyboardEvent, type: 'old' | 'new' | 'confirm') => {
+        const currentPin = type === 'old' ? oldPin : type === 'new' ? pin : confirmPin;
+        const refs = type === 'old' ? oldPinRefs : type === 'new' ? pinRefs : confirmRefs;
 
         if (e.key === 'Backspace' && !currentPin[idx] && idx > 0) {
             refs.current[idx - 1]?.focus();
-        }
-    };
-
-    const handleNext = () => {
-        if (step === 0) {
-            if (oldPin.some(d => !d)) { toast.error("Enter current PIN"); return; }
-            setStep(1);
-        } else if (step === 1) {
-            if (pin.some(d => !d)) { toast.error("Enter new PIN"); return; }
-            setStep(2);
         }
     };
 
@@ -75,10 +57,14 @@ const UserPinSetupPage: React.FC = () => {
         const confirmStr = confirmPin.join('');
         const oldPinStr = oldPin.join('');
 
+        if (hasPin && oldPin.some(d => !d)) { toast.error("Enter current PIN"); return; }
+        if (pin.some(d => !d)) { toast.error("Enter new PIN"); return; }
+        if (confirmPin.some(d => !d)) { toast.error("Confirm your new PIN"); return; }
+
         if (newPinStr !== confirmStr) {
             toast.error("New PINs do not match");
             setConfirmPin(['', '', '', '']);
-            setStep(1);
+            confirmRefs.current[0]?.focus();
             return;
         }
 
@@ -104,71 +90,75 @@ const UserPinSetupPage: React.FC = () => {
     };
 
     const handleBack = () => {
-        if (step === 2) setStep(1);
-        else if (step === 1 && hasPin) setStep(0);
-        else navigate('/app/profile/security');
+        if (!hasPin) return; // If forced during setup, don't allow back to bypass routing block
+        navigate('/app/profile/security');
     };
+
+    const isSubmitDisabled = hasPin ? oldPin.some(d => !d) || pin.some(d => !d) || confirmPin.some(d => !d) : pin.some(d => !d) || confirmPin.some(d => !d);
+
+    const renderPinInputRow = (label: string, values: string[], type: 'old' | 'new' | 'confirm', refsArray: React.MutableRefObject<HTMLInputElement[]>) => (
+        <div className="mb-6 flex flex-col items-center">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">{label}</label>
+            <div className="flex justify-center gap-4">
+                {values.map((digit, idx) => (
+                    <input
+                        key={`${type}-${idx}`}
+                        ref={(el) => {
+                            if (el) {
+                                refsArray.current[idx] = el;
+                            }
+                        }}
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleChange(idx, e.target.value, type)}
+                        onKeyDown={(e) => handleKeyDown(idx, e, type)}
+                        className="w-12 h-14 sm:w-14 sm:h-16 bg-slate-50 border border-slate-100 rounded-2xl text-center text-xl sm:text-2xl font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                    />
+                ))}
+            </div>
+        </div>
+    );
 
     return (
         <div className="max-w-md mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
             <div className="flex items-center gap-4">
-                <button 
-                    onClick={handleBack}
-                    className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
-                >
-                    <ArrowLeft size={20} />
-                </button>
+                {hasPin && (
+                    <button 
+                        onClick={handleBack}
+                        className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                )}
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                        {step === 0 ? 'Current PIN' : step === 1 ? (hasPin ? 'New Transaction PIN' : 'Setup Transaction PIN') : 'Confirm Your PIN'}
+                        {hasPin ? 'Update PIN' : 'Setup Transaction PIN'}
                     </h1>
                     <p className="text-sm text-slate-500 font-medium">
-                        {step === 0 ? 'Enter your existing 4-digit code' : step === 1 ? 'Create a secure 4-digit code' : 'Verify the new code matches'}
+                        Configure your 4-digit security code
                     </p>
                 </div>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-2xl p-8 shadow-xl shadow-slate-200/40 text-center flex flex-col items-center">
-                <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-8 animate-pulse">
-                    {step === 0 ? <Key size={32} /> : <ShieldCheck size={32} />}
+            <div className="bg-white border border-slate-100 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 text-center flex flex-col items-center">
+                <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-8">
+                    <ShieldCheck size={32} />
                 </div>
 
-                <div className="flex justify-center gap-4 mb-8">
-                    {(step === 0 ? oldPin : step === 1 ? pin : confirmPin).map((digit, idx) => (
-                        <input
-                            key={`${step}-${idx}`}
-                            ref={(el) => {
-                                if (el) {
-                                    if (step === 0) oldPinRefs.current[idx] = el;
-                                    else if (step === 1) pinRefs.current[idx] = el;
-                                    else confirmRefs.current[idx] = el;
-                                }
-                            }}
-                            type="password"
-                            inputMode="numeric"
-                            maxLength={1}
-                            value={digit}
-                            onChange={(e) => handleChange(idx, e.target.value, step)}
-                            onKeyDown={(e) => handleKeyDown(idx, e, step)}
-                            className="w-14 h-16 bg-slate-50 border border-slate-100 rounded-2xl text-center text-2xl font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
-                        />
-                    ))}
-                </div>
+                {hasPin && renderPinInputRow("Current PIN", oldPin, 'old', oldPinRefs)}
+                {renderPinInputRow(hasPin ? "New PIN" : "New Transaction PIN", pin, 'new', pinRefs)}
+                {renderPinInputRow("Confirm New PIN", confirmPin, 'confirm', confirmRefs)}
 
-                <div className="w-full space-y-4">
-                    {step === 2 ? (
-                        <SubmitButton onClick={handleSave} loading={loading} disabled={confirmPin.some(d => !d)}>
-                             <div className="flex items-center justify-center gap-2">
-                                <Save size={16} />
-                                <span>{hasPin ? 'Update PIN' : 'Save PIN'}</span>
-                             </div>
-                        </SubmitButton>
-                    ) : (
-                        <SubmitButton onClick={handleNext} disabled={(step === 0 ? oldPin : pin).some(d => !d)}>
-                             Continue
-                        </SubmitButton>
-                    )}
+                <div className="w-full mt-4 space-y-4">
+                    <SubmitButton onClick={handleSave} loading={loading} disabled={isSubmitDisabled}>
+                        <div className="flex items-center justify-center gap-2">
+                            <Save size={16} />
+                            <span>{hasPin ? 'Update PIN' : 'Save PIN'}</span>
+                        </div>
+                    </SubmitButton>
                     
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mt-4 block">
                         This PIN will be required for all transactions
