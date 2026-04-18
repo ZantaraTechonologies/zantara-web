@@ -60,6 +60,7 @@ const UserBuyCablePage: React.FC = () => {
         setVerifiedUser(null);
         setPackages([]);
         setPackageId('');
+        setFormError(null);
     };
 
     const selectedPackage = useMemo(() => packages.find(p => p.variation_code === packageId), [packages, packageId]);
@@ -68,9 +69,25 @@ const UserBuyCablePage: React.FC = () => {
 
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!verifiedUser) { toast.error("Please verify smartcard number first"); return; }
-        if (!packageId) { toast.error("Please select a package"); return; }
-        if (insufficient) { toast.error("Insufficient balance"); return; }
+        setFormError(null);
+        if (!verifiedUser) {
+            const err = "Please verify smartcard number first";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
+        if (!packageId) {
+            const err = "Please select a package";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
+        if (insufficient) {
+            const err = "Insufficient wallet balance";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
         setPinError(null);
         setFormError(null);
         setShowPinModal(true);

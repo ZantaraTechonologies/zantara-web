@@ -58,6 +58,7 @@ const UserBuyAirtimePage: React.FC = () => {
     }, [phone, network]);
 
     const handlePhoneChange = (val: string) => {
+        setFormError(null);
         const cleanVal = val.replace(/\D/g, '').slice(0, 11);
         setPhone(cleanVal);
         
@@ -94,9 +95,12 @@ const UserBuyAirtimePage: React.FC = () => {
 
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
+        setFormError(null);
         const phoneRegex = /^(070|080|081|090|091|071|082|092)\d{8}$/;
         if (!phoneRegex.test(phone)) {
-            toast.error("Enter a valid 11-digit Nigerian phone number");
+            const err = "Enter a valid 11-digit Nigerian phone number";
+            setFormError(err);
+            toast.error(err);
             return;
         }
         if (!validateNetworkPrefix(phone, selectedNetwork.label)) {
@@ -104,15 +108,21 @@ const UserBuyAirtimePage: React.FC = () => {
             // Let the transaction slide through (soft-warning)
         }
         if (!network) {
-            toast.error("Please select a network");
+            const err = "Please select a network";
+            setFormError(err);
+            toast.error(err);
             return;
         }
         if (!amount || Number(amount) < 50) {
-            toast.error("Minimum airtime amount is NGN50");
+            const err = "Minimum airtime amount is NGN50";
+            setFormError(err);
+            toast.error(err);
             return;
         }
         if (insufficient) {
-            toast.error("Insufficient wallet balance");
+            const err = "Insufficient wallet balance";
+            setFormError(err);
+            toast.error(err);
             return;
         }
         setPinError(null);

@@ -11,8 +11,8 @@ import { ServiceSkeleton } from '../../components/feedback/Skeletons';
 
 const EXAM_BODIES = [
     { id: 'waec', serviceID: 'waec', variationCode: 'waecdirect', name: 'WAEC Result', label: 'WAEC Result Checker', emoji: '📗', requiresVerification: false, status: 'available' },
-    { id: 'waec-reg', serviceID: 'waec-registration', variationCode: 'waec-registration', name: 'WAEC Reg', label: 'WAEC Registration', emoji: '📗', requiresVerification: false, status: 'available' },
-    { id: 'jamb-no-mock', serviceID: 'jamb', variationCode: 'utme', name: 'JAMB (No Mock)', label: 'JAMB Without Mock', emoji: '🎓', requiresVerification: true, status: 'available' },
+    { id: 'waec-reg', serviceID: 'waec-registration', variationCode: 'waec-registraion', name: 'WAEC Reg', label: 'WAEC Registration', emoji: '📗', requiresVerification: false, status: 'available' },
+    { id: 'jamb-no-mock', serviceID: 'jamb', variationCode: 'utme-no-mock', name: 'JAMB (No Mock)', label: 'JAMB Without Mock', emoji: '🎓', requiresVerification: true, status: 'available' },
     { id: 'jamb-mock', serviceID: 'jamb', variationCode: 'utme-mock', name: 'JAMB (With Mock)', label: 'JAMB With Mock', emoji: '🎓', requiresVerification: true, status: 'available' },
     { id: 'neco', serviceID: 'neco', variationCode: 'neco', name: 'NECO', label: 'NECO Result Checker', emoji: '📘', requiresVerification: false, status: 'coming-soon' },
     { id: 'nabteb', serviceID: 'nabteb', variationCode: 'nabteb', name: 'NABTEB', label: 'NABTEB Result', emoji: '📙', requiresVerification: false, status: 'coming-soon' },
@@ -52,13 +52,13 @@ const UserBuyExamPinPage: React.FC = () => {
                     setExamVariations(fetched);
                 } else {
                     const FALLBACKS: Record<string, { variation_code: string; name: string; variation_amount: number }[]> = {
-                        'waec':   [{ variation_code: 'waecdirect', name: 'WAEC Result Checker', variation_amount: 3500 }],
-                        'waec-registration': [{ variation_code: 'waec-registration', name: 'WAEC Registration', variation_amount: 4000 }],
+                        'waec':   [{ variation_code: 'waecdirect', name: 'WAEC Result Checker', variation_amount: 3800 }],
+                        'waec-registration': [{ variation_code: 'waec-registraion', name: 'WAEC Registration', variation_amount: 18000 }],
                         'neco':   [{ variation_code: 'neco', name: 'NECO Result Checker', variation_amount: 1000 }],
                         'nabteb': [{ variation_code: 'nabteb', name: 'NABTEB Result Checker', variation_amount: 1000 }],
                         'jamb':   [
-                            { variation_code: 'utme', name: 'JAMB UTME PIN (No Mock)', variation_amount: 3500 },
-                            { variation_code: 'utme-mock', name: 'JAMB UTME PIN (With Mock)', variation_amount: 5000 }
+                            { variation_code: 'utme-no-mock', name: 'JAMB UTME PIN (No Mock)', variation_amount: 6200 },
+                            { variation_code: 'utme-mock', name: 'JAMB UTME PIN (With Mock)', variation_amount: 7700 }
                         ],
                     };
                     setExamVariations(FALLBACKS[serviceId] || []);
@@ -90,7 +90,9 @@ const UserBuyExamPinPage: React.FC = () => {
             setJambProfile(verified);
             toast.success("JAMB profile verified!");
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Could not verify JAMB Profile ID");
+            const msg = err.response?.data?.message || "Could not verify JAMB Profile ID";
+            setFormError(msg);
+            toast.error(msg);
         } finally {
             setVerifyingJamb(false);
         }
@@ -98,20 +100,32 @@ const UserBuyExamPinPage: React.FC = () => {
 
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
+        setFormError(null);
         if (loading) return;
         if (selectedBody.requiresVerification && !jambProfile) {
-            toast.error("Please verify your JAMB Profile ID first");
+            const err = "Please verify your JAMB Profile ID first";
+            setFormError(err);
+            toast.error(err);
             return;
         }
         if (!currentVariation) {
-            toast.error("Package not available. Please wait or try another.");
+            const err = "Package not available. Please wait or try another.";
+            setFormError(err);
+            toast.error(err);
             return;
         }
         if (!totalAmount || totalAmount <= 0) {
-            toast.error("Could not determine purchase price. Please refresh and try again.");
+            const err = "Could not determine purchase price. Please refresh and try again.";
+            setFormError(err);
+            toast.error(err);
             return;
         }
-        if (insufficient) { toast.error("Insufficient balance"); return; }
+        if (insufficient) {
+            const err = "Insufficient wallet balance";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
         setPinError(null);
         setFormError(null);
         setShowPinModal(true);

@@ -88,9 +88,25 @@ const UserBuyElectricityPage: React.FC = () => {
 
     const handleInitiatePurchase = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount || Number(amount) < 500) { toast.error(`Minimum purchase is ${currency}500`); return; }
-        if (Number(amount) > balance) { toast.error("Insufficient wallet balance"); return; }
-        if (!phone) { toast.error("Please enter a phone number"); return; }
+        setFormError(null);
+        if (!amount || Number(amount) < 500) {
+            const err = `Minimum purchase is ${currency}500`;
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
+        if (Number(amount) > balance) {
+            const err = "Insufficient wallet balance";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
+        if (!phone) {
+            const err = "Please enter a phone number";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
         setPinError(null);
         setFormError(null);
         setShowPinModal(true);

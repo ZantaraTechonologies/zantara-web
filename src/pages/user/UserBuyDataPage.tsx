@@ -74,6 +74,7 @@ const UserBuyDataPage: React.FC = () => {
     }, [phone, network]);
 
     const handlePhoneChange = (val: string) => {
+        setFormError(null);
         const cleanVal = val.replace(/\D/g, '').slice(0, 11);
         setPhone(cleanVal);
         
@@ -142,14 +143,30 @@ const UserBuyDataPage: React.FC = () => {
 
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
+        setFormError(null);
         const phoneRegex = /^(070|080|081|090|091|071|082|092)\d{8}$/;
-        if (!phoneRegex.test(phone)) { toast.error("Enter a valid 11-digit Nigerian phone number"); return; }
+        if (!phoneRegex.test(phone)) {
+            const err = "Enter a valid 11-digit Nigerian phone number";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
         if (!validateNetworkPrefix(phone, selectedNetwork.label)) {
             toast('Warning: Number does not map to ' + selectedNetwork.label + '. Verify if ported.', { icon: '⚠️', duration: 4000 });
             // Soft-warning bypass
         }
-        if (!planId) { toast.error("Please select a data plan"); return; }
-        if (insufficient) { toast.error("Insufficient balance"); return; }
+        if (!planId) {
+            const err = "Please select a data plan";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
+        if (insufficient) {
+            const err = "Insufficient wallet balance";
+            setFormError(err);
+            toast.error(err);
+            return;
+        }
         setPinError(null);
         setFormError(null);
         setShowPinModal(true);
