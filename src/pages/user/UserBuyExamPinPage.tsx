@@ -9,15 +9,16 @@ import SecurePinModal from '../../components/modals/SecurePinModal';
 import { GraduationCap, AlertCircle, Zap, CheckCircle2, User, Search } from 'lucide-react';
 import { ServiceSkeleton } from '../../components/feedback/Skeletons';
 
-// JAMB uses billersCode (profile ID) verification before purchase
 const EXAM_BODIES = [
-    { id: 'waec', name: 'WAEC', label: 'WAEC Result Checker', emoji: '📗', requiresVerification: false },
-    { id: 'neco', name: 'NECO', label: 'NECO Result Checker', emoji: '📘', requiresVerification: false },
-    { id: 'nabteb', name: 'NABTEB', label: 'NABTEB Result Checker', emoji: '📙', requiresVerification: false },
-    { id: 'jamb', name: 'JAMB', label: 'JAMB e-PIN / Registration', emoji: '🎓', requiresVerification: true },
+    { id: 'waec', serviceID: 'waec', variationCode: 'waecdirect', name: 'WAEC Result', label: 'WAEC Result Checker', emoji: '📗', requiresVerification: false, status: 'available' },
+    { id: 'waec-reg', serviceID: 'waec-registration', variationCode: 'waec-registration', name: 'WAEC Reg', label: 'WAEC Registration', emoji: '📗', requiresVerification: false, status: 'available' },
+    { id: 'jamb-no-mock', serviceID: 'jamb', variationCode: 'utme', name: 'JAMB (No Mock)', label: 'JAMB Without Mock', emoji: '🎓', requiresVerification: true, status: 'available' },
+    { id: 'jamb-mock', serviceID: 'jamb', variationCode: 'utme-mock', name: 'JAMB (With Mock)', label: 'JAMB With Mock', emoji: '🎓', requiresVerification: true, status: 'available' },
+    { id: 'neco', serviceID: 'neco', variationCode: 'neco', name: 'NECO', label: 'NECO Result Checker', emoji: '📘', requiresVerification: false, status: 'coming-soon' },
+    { id: 'nabteb', serviceID: 'nabteb', variationCode: 'nabteb', name: 'NABTEB', label: 'NABTEB Result', emoji: '📙', requiresVerification: false, status: 'coming-soon' },
 ];
 
-type ExamType = { id: string; name: string; label: string; emoji: string; price?: number; requiresVerification: boolean };
+type ExamType = { id: string; serviceID: string; variationCode: string; name: string; label: string; emoji: string; requiresVerification: boolean; status: 'available' | 'coming-soon' };
 
 const UserBuyExamPinPage: React.FC = () => {
     const { balance, fetchBalance, currency } = useWalletStore();
@@ -37,38 +38,35 @@ const UserBuyExamPinPage: React.FC = () => {
     const [showPinModal, setShowPinModal] = useState(false);
     const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadVariations = async () => {
             setFetching(true);
-            setSelectedVariation('');
             setJambProfile(null);
             try {
-                // Use the correct serviceID for each provider
-                const serviceId = selectedBody.id; // jamb, waec, neco, nabteb
+                const serviceId = selectedBody.serviceID;
                 const res = await vtuService.fetchDataPlans(serviceId);
                 const fetched = res.data?.content?.variations || res.data?.variations || (Array.isArray(res.data) ? res.data : []);
                 if (fetched.length > 0) {
                     setExamVariations(fetched);
-                    setSelectedVariation(fetched[0].variation_code);
                 } else {
-                    // Hardcoded fallbacks for when API returns nothing
                     const FALLBACKS: Record<string, { variation_code: string; name: string; variation_amount: number }[]> = {
-                        waec:   [{ variation_code: 'waec', name: 'WAEC Result Checker', variation_amount: 3500 }],
-                        neco:   [{ variation_code: 'neco', name: 'NECO Result Checker', variation_amount: 1000 }],
-                        nabteb: [{ variation_code: 'nabteb', name: 'NABTEB Result Checker', variation_amount: 1000 }],
-                        jamb:   [{ variation_code: 'utme', name: 'JAMB UTME PIN', variation_amount: 3500 }],
+                        'waec':   [{ variation_code: 'waecdirect', name: 'WAEC Result Checker', variation_amount: 3500 }],
+                        'waec-registration': [{ variation_code: 'waec-registration', name: 'WAEC Registration', variation_amount: 4000 }],
+                        'neco':   [{ variation_code: 'neco', name: 'NECO Result Checker', variation_amount: 1000 }],
+                        'nabteb': [{ variation_code: 'nabteb', name: 'NABTEB Result Checker', variation_amount: 1000 }],
+                        'jamb':   [
+                            { variation_code: 'utme', name: 'JAMB UTME PIN (No Mock)', variation_amount: 3500 },
+                            { variation_code: 'utme-mock', name: 'JAMB UTME PIN (With Mock)', variation_amount: 5000 }
+                        ],
                     };
-                    const fallback = FALLBACKS[selectedBody.id] || [{ variation_code: selectedBody.id, name: selectedBody.label, variation_amount: 3500 }];
-                    setExamVariations(fallback);
-                    setSelectedVariation(fallback[0].variation_code);
+                    setExamVariations(FALLBACKS[serviceId] || []);
                 }
             } catch (err) {
                 console.error("Failed to fetch exam variations", err);
-                // Always fall back to a known price so amount is never 0
-                const fallback = [{ variation_code: selectedBody.id, name: selectedBody.label, variation_amount: 3500 }];
+                const fallback = [{ variation_code: selectedBody.variationCode, name: selectedBody.label, variation_amount: 3500 }];
                 setExamVariations(fallback);
-                setSelectedVariation(fallback[0].variation_code);
             } finally {
                 setFetching(false);
             }
@@ -76,9 +74,10 @@ const UserBuyExamPinPage: React.FC = () => {
         loadVariations();
     }, [selectedBody]);
 
-    const currentVariation = examVariations.find(v => v.variation_code === selectedVariation);
+    // Implicitly find the current variation tied to the selected card
+    const currentVariation = examVariations.find(v => v.variation_code === selectedBody.variationCode);
     const unitPrice = Number(currentVariation?.variation_amount) || 0;
-    const totalAmount = unitPrice * (selectedBody.id === 'jamb' ? 1 : quantity);
+    const totalAmount = unitPrice * (selectedBody.serviceID === 'jamb' ? 1 : quantity);
     const insufficient = totalAmount > balance;
 
     const handleJambVerify = async (e: React.FormEvent) => {
@@ -104,12 +103,17 @@ const UserBuyExamPinPage: React.FC = () => {
             toast.error("Please verify your JAMB Profile ID first");
             return;
         }
+        if (!currentVariation) {
+            toast.error("Package not available. Please wait or try another.");
+            return;
+        }
         if (!totalAmount || totalAmount <= 0) {
             toast.error("Could not determine purchase price. Please refresh and try again.");
             return;
         }
         if (insufficient) { toast.error("Insufficient balance"); return; }
         setPinError(null);
+        setFormError(null);
         setShowPinModal(true);
     };
 
@@ -121,13 +125,13 @@ const UserBuyExamPinPage: React.FC = () => {
         const purchaseAmount = Number(totalAmount) || 0;
         try {
             const payload: any = {
-                serviceID: selectedBody.id,
-                variation_code: selectedVariation,
+                serviceID: selectedBody.serviceID,
+                variation_code: currentVariation!.variation_code,
                 amount: purchaseAmount,
                 phone: '',
                 pin
             };
-            if (selectedBody.id === 'jamb') {
+            if (selectedBody.serviceID === 'jamb') {
                 payload.billersCode = jambProfileId;
                 payload.quantity = 1;
             } else {
@@ -140,6 +144,7 @@ const UserBuyExamPinPage: React.FC = () => {
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
             setPinError(msg);
+            setFormError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -151,20 +156,49 @@ const UserBuyExamPinPage: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* LEFT: Form */}
                 <div className="flex-1 space-y-6">
+                    {formError && (
+                        <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3 text-red-700 animate-in slide-in-from-top-4 duration-500">
+                            <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-sm font-bold">Transaction Error</p>
+                                <p className="text-xs font-medium opacity-90">{formError}</p>
+                            </div>
+                        </div>
+                    )}
                     {/* Exam Body Selector */}
                     <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Examination Body</p>
-                        <div className="flex gap-3 flex-wrap">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Choose Examination</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             {EXAM_BODIES.map(body => (
                                 <button key={body.id} type="button"
-                                    onClick={() => { setSelectedBody(body); setJambProfile(null); setJambProfileId(''); }}
-                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${
+                                    onClick={() => {
+                                        if (body.status === 'coming-soon') {
+                                            toast(body.name + " is coming soon!", { icon: '⏳' });
+                                            setFormError(body.name + " is currently unavailable.");
+                                            return;
+                                        }
+                                        setFormError(null);
+                                        setSelectedBody(body); setJambProfile(null); setJambProfileId('');
+                                    }}
+                                    className={`relative group flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-300 ${
                                         selectedBody.id === body.id
-                                            ? 'bg-slate-900 text-emerald-400 border-transparent shadow-lg scale-105'
-                                            : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-slate-200'
+                                            ? 'bg-slate-900 border-emerald-500 shadow-xl scale-[1.02]'
+                                            : body.status === 'coming-soon'
+                                                ? 'bg-slate-50 border-slate-100 opacity-60 grayscale'
+                                                : 'bg-white border-slate-100 hover:border-slate-200'
                                     }`}>
-                                    <span className="text-base">{body.emoji}</span>
-                                    <span>{body.name}</span>
+                                    <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">{body.emoji}</span>
+                                    <span className={`text-[11px] font-black uppercase tracking-tight text-center ${selectedBody.id === body.id ? 'text-emerald-400' : 'text-slate-700'}`}>
+                                        {body.name}
+                                    </span>
+                                    {body.status === 'coming-soon' && (
+                                        <div className="absolute top-2 right-2 flex items-center gap-1 bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
+                                            <span className="text-[8px] font-black uppercase">SOON</span>
+                                        </div>
+                                    )}
+                                    {selectedBody.id === body.id && (
+                                        <CheckCircle2 size={16} className="absolute top-2 right-2 text-emerald-400" />
+                                    )}
                                 </button>
                             ))}
                         </div>
@@ -174,21 +208,8 @@ const UserBuyExamPinPage: React.FC = () => {
                         <div className="h-24 bg-slate-100 rounded-xl animate-pulse" />
                     ) : (
                         <>
-                            {/* Variation selector */}
-                            {examVariations.length > 1 && (
-                                <Row label="Select Package">
-                                    <Select value={selectedVariation} onChange={(e) => setSelectedVariation(e.target.value)}>
-                                        {examVariations.map(v => (
-                                            <option key={v.variation_code} value={v.variation_code}>
-                                                {v.name} — {currency}{Number(v.variation_amount).toLocaleString()}
-                                            </option>
-                                        ))}
-                                    </Select>
-                                </Row>
-                            )}
-
                             {/* JAMB: Profile Verification */}
-                            {selectedBody.id === 'jamb' && (
+                            {selectedBody.serviceID === 'jamb' && (
                                 <div className="space-y-4">
                                     <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
                                         <p className="text-xs font-bold text-blue-700 mb-1">JAMB Profile Verification Required</p>
@@ -229,7 +250,7 @@ const UserBuyExamPinPage: React.FC = () => {
                             )}
 
                             {/* Non-JAMB: Quantity */}
-                            {selectedBody.id !== 'jamb' && (
+                            {selectedBody.serviceID !== 'jamb' && (
                                 <Row label="Quantity (Max 5)">
                                     <Select value={quantity} onChange={(e) => setQuantity(Number(e.target.value))}>
                                         {[1, 2, 3, 4, 5].map(q => <option key={q} value={q}>{q} Unit{q > 1 ? 's' : ''}</option>)}
@@ -270,7 +291,7 @@ const UserBuyExamPinPage: React.FC = () => {
                                     <span className="text-slate-500">Unit Price</span>
                                     <span className="font-bold text-slate-900">{currency}{unitPrice.toLocaleString()}</span>
                                 </div>
-                                {selectedBody.id !== 'jamb' && (
+                                {selectedBody.serviceID !== 'jamb' && (
                                     <div className="flex justify-between">
                                         <span className="text-slate-500">Quantity</span>
                                         <span className="font-bold text-slate-900">x {quantity}</span>
@@ -292,7 +313,7 @@ const UserBuyExamPinPage: React.FC = () => {
                         </div>
 
                         <form onSubmit={handleInitiate}>
-                            <SubmitButton loading={loading} disabled={loading || insufficient || fetching || !selectedVariation || (selectedBody.requiresVerification && !jambProfile)}>
+                            <SubmitButton loading={loading} disabled={loading || insufficient || fetching || !currentVariation || (selectedBody.requiresVerification && !jambProfile)}>
                                 Purchase PINs
                             </SubmitButton>
                         </form>

@@ -35,6 +35,7 @@ const UserBuyAirtimePage: React.FC = () => {
     const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [networkWarning, setNetworkWarning] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     React.useEffect(() => {
         if (phone.length >= 4) {
@@ -99,8 +100,8 @@ const UserBuyAirtimePage: React.FC = () => {
             return;
         }
         if (!validateNetworkPrefix(phone, selectedNetwork.label)) {
-            toast.error(`The phone number does not match ${selectedNetwork.label} network. (If ported, please verify carefully before proceeding).`);
-            return;
+            toast('Warning: Number does not map to ' + selectedNetwork.label + '. Verify if ported.', { icon: '⚠️', duration: 4000 });
+            // Let the transaction slide through (soft-warning)
         }
         if (!network) {
             toast.error("Please select a network");
@@ -115,6 +116,7 @@ const UserBuyAirtimePage: React.FC = () => {
             return;
         }
         setPinError(null);
+        setFormError(null);
         setShowPinModal(true);
     };
 
@@ -142,6 +144,7 @@ const UserBuyAirtimePage: React.FC = () => {
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
             setPinError(msg);
+            setFormError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -154,6 +157,15 @@ const UserBuyAirtimePage: React.FC = () => {
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* LEFT: Form */}
                     <div className="flex-1 space-y-6">
+                        {formError && (
+                            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3 text-red-700 animate-in slide-in-from-top-4 duration-500">
+                                <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-bold">Transaction Error</p>
+                                    <p className="text-xs font-medium opacity-90">{formError}</p>
+                                </div>
+                            </div>
+                        )}
                         {/* Network Icon Pills */}
                         <div>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Network Provider</p>
@@ -178,7 +190,16 @@ const UserBuyAirtimePage: React.FC = () => {
 
                         {/* Phone Number */}
                         <Row label="Recipient Number">
-                            <div className="space-y-2">
+                            <div className="space-y-4">
+                                {networkWarning && (
+                                    <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl flex items-start gap-2 text-amber-700 animate-in fade-in zoom-in duration-300">
+                                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-xs font-bold">Network Mismatch Detected</p>
+                                            <p className="text-[10px] font-medium opacity-90">This number typically belongs to another provider. If it was ported to {selectedNetwork.label}, you may proceed.</p>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="relative">
                                     <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <Input
@@ -189,12 +210,6 @@ const UserBuyAirtimePage: React.FC = () => {
                                         required maxLength={11} type="tel"
                                     />
                                 </div>
-                                {networkWarning && (
-                                    <p className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mt-2 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
-                                        <AlertCircle size={12} />
-                                        Heads up: Number prefix doesn't match {selectedNetwork.label} (Unless ported)
-                                    </p>
-                                )}
                                 {(user?.phone || user?.phoneNumber) && (
                                     <button type="button" onClick={() => handlePhoneChange(user?.phone || user?.phoneNumber || "")}
                                         className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest hover:text-emerald-700 flex items-center gap-1.5 mt-2">

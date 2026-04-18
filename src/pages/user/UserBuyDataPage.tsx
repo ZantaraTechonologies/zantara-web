@@ -51,6 +51,7 @@ const UserBuyDataPage: React.FC = () => {
     const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [networkWarning, setNetworkWarning] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     useEffect(() => {
         if (phone.length >= 4) {
@@ -144,12 +145,13 @@ const UserBuyDataPage: React.FC = () => {
         const phoneRegex = /^(070|080|081|090|091|071|082|092)\d{8}$/;
         if (!phoneRegex.test(phone)) { toast.error("Enter a valid 11-digit Nigerian phone number"); return; }
         if (!validateNetworkPrefix(phone, selectedNetwork.label)) {
-            toast.error(`The phone number does not match ${selectedNetwork.label} network.`);
-            return;
+            toast('Warning: Number does not map to ' + selectedNetwork.label + '. Verify if ported.', { icon: '⚠️', duration: 4000 });
+            // Soft-warning bypass
         }
         if (!planId) { toast.error("Please select a data plan"); return; }
         if (insufficient) { toast.error("Insufficient balance"); return; }
         setPinError(null);
+        setFormError(null);
         setShowPinModal(true);
     };
 
@@ -166,6 +168,7 @@ const UserBuyDataPage: React.FC = () => {
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
             setPinError(msg);
+            setFormError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -178,6 +181,15 @@ const UserBuyDataPage: React.FC = () => {
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* LEFT */}
                     <div className="flex-1 space-y-6">
+                        {formError && (
+                            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3 text-red-700 animate-in slide-in-from-top-4 duration-500">
+                                <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-bold">Transaction Error</p>
+                                    <p className="text-xs font-medium opacity-90">{formError}</p>
+                                </div>
+                            </div>
+                        )}
                         {/* Network Icons */}
                         <div>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Network Provider</p>
@@ -206,10 +218,13 @@ const UserBuyDataPage: React.FC = () => {
                                         className="pl-12" required maxLength={11} type="tel" />
                                 </div>
                                 {networkWarning && (
-                                    <p className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mt-2 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
-                                        <AlertCircle size={12} />
-                                        Heads up: Number prefix doesn't match {selectedNetwork.label} (Unless ported)
-                                    </p>
+                                    <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl flex items-start gap-2 text-amber-700 animate-in fade-in zoom-in duration-300 mt-3">
+                                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="text-xs font-bold">Network Mismatch Detected</p>
+                                            <p className="text-[10px] font-medium opacity-90">This number typically belongs to another provider. If it was ported to {selectedNetwork.label}, you may proceed.</p>
+                                        </div>
+                                    </div>
                                 )}
                                 {(user?.phone || user?.phoneNumber) && (
                                     <button type="button" onClick={() => handlePhoneChange(user?.phone || user?.phoneNumber || "")}

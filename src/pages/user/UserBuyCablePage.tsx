@@ -30,6 +30,7 @@ const UserBuyCablePage: React.FC = () => {
     const [showPinModal, setShowPinModal] = useState(false);
     const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     const selectedProvider = STATIC_PROVIDERS.find(p => p.id === provider) || STATIC_PROVIDERS[0];
 
@@ -39,13 +40,16 @@ const UserBuyCablePage: React.FC = () => {
         setVerifying(true);
         setFetchingPackages(true);
         try {
+            setFormError(null);
             const res = await vtuService.verifyMerchant({ serviceID: provider, billersCode: smartcardNumber });
             setVerifiedUser(res.data?.content || res.data);
             const pkgRes = await vtuService.fetchDataPlans(provider);
             setPackages(pkgRes.data?.content?.variations || pkgRes.data?.variations || (Array.isArray(pkgRes.data) ? pkgRes.data : []));
             toast.success("Card verified successfully");
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Verification failed");
+            const msg = err.response?.data?.message || "Verification failed";
+            setFormError(msg);
+            toast.error(msg);
         } finally {
             setVerifying(false);
             setFetchingPackages(false);
@@ -68,6 +72,7 @@ const UserBuyCablePage: React.FC = () => {
         if (!packageId) { toast.error("Please select a package"); return; }
         if (insufficient) { toast.error("Insufficient balance"); return; }
         setPinError(null);
+        setFormError(null);
         setShowPinModal(true);
     };
 
@@ -87,6 +92,7 @@ const UserBuyCablePage: React.FC = () => {
         } catch (err: any) {
             const msg = err.response?.data?.message || "Subscription failed.";
             setPinError(msg);
+            setFormError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -98,6 +104,15 @@ const UserBuyCablePage: React.FC = () => {
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* LEFT: Form */}
                 <div className="flex-1 space-y-6">
+                    {formError && (
+                        <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3 text-red-700 animate-in slide-in-from-top-4 duration-500">
+                            <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-sm font-bold">Transaction Error</p>
+                                <p className="text-xs font-medium opacity-90">{formError}</p>
+                            </div>
+                        </div>
+                    )}
                     {/* Provider Icons */}
                     <div>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">TV Provider</p>

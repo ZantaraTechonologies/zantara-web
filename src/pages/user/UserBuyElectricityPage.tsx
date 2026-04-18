@@ -41,6 +41,7 @@ const UserBuyElectricityPage: React.FC = () => {
     const [showPinModal, setShowPinModal] = useState(false);
     const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadProviders = async () => {
@@ -66,6 +67,7 @@ const UserBuyElectricityPage: React.FC = () => {
         if (!meterNumber || verifying) return;
         setVerifying(true);
         try {
+            setFormError(null);
             const res = await vtuService.verifyMerchant({ serviceID: provider, billersCode: meterNumber, type: meterType });
             const verified = res.data?.content || res.data;
             setVerifiedUser(verified);
@@ -74,13 +76,15 @@ const UserBuyElectricityPage: React.FC = () => {
             setStep(2);
             toast.success("Meter verified successfully");
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Could not verify meter number");
+            const msg = err.response?.data?.message || "Meter verification failed";
+            setFormError(msg);
+            toast.error(msg);
         } finally {
             setVerifying(false);
         }
     };
 
-    const handleReset = () => { setStep(1); setVerifiedUser(null); setPhone(''); };
+    const handleReset = () => { setStep(1); setVerifiedUser(null); setPhone(''); setFormError(null); };
 
     const handleInitiatePurchase = (e: React.FormEvent) => {
         e.preventDefault();
@@ -88,6 +92,7 @@ const UserBuyElectricityPage: React.FC = () => {
         if (Number(amount) > balance) { toast.error("Insufficient wallet balance"); return; }
         if (!phone) { toast.error("Please enter a phone number"); return; }
         setPinError(null);
+        setFormError(null);
         setShowPinModal(true);
     };
 
@@ -106,6 +111,7 @@ const UserBuyElectricityPage: React.FC = () => {
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
             setPinError(msg);
+            setFormError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -120,6 +126,15 @@ const UserBuyElectricityPage: React.FC = () => {
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* LEFT: Form */}
                     <div className="flex-1 space-y-6">
+                        {formError && (
+                            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3 text-red-700 animate-in slide-in-from-top-4 duration-500">
+                                <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-bold">Transaction Error</p>
+                                    <p className="text-xs font-medium opacity-90">{formError}</p>
+                                </div>
+                            </div>
+                        )}
                         {step === 1 ? (
                             <form onSubmit={handleVerify} className="space-y-5">
                                 <Row label="Electricity Provider">
