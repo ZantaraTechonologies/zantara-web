@@ -14,10 +14,12 @@ export default function PaystackReturn() {
         const reference = params.get("reference");
 
         async function finish() {
+            let type = 'funding';
             let success = false;
             try {
                 const { data } = await API.get("/wallet/verify", { params: { reference } });
                 success = (data?.status === "success") || (data?.status === "approved");
+                type = data?.type || data?.metadata?.type || 'funding';
             } catch {
                 // verification failed — navigate with failed status
             }
@@ -25,9 +27,18 @@ export default function PaystackReturn() {
             if (success) {
                 // Refresh wallet balance immediately so the wallet page shows the new amount
                 await fetchBalance();
-                navigate("/app/wallet?funded=1", { replace: true });
+                
+                if (type === 'investment_buy') {
+                    navigate("/app/investments?success=1", { replace: true });
+                } else {
+                    navigate("/app/wallet?funded=1", { replace: true });
+                }
             } else {
-                navigate("/app/wallet?funded=0", { replace: true });
+                if (type === 'investment_buy') {
+                    navigate("/app/investments?success=0", { replace: true });
+                } else {
+                    navigate("/app/wallet?funded=0", { replace: true });
+                }
             }
         }
 

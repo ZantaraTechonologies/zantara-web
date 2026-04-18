@@ -26,7 +26,10 @@ import { useWalletStore } from '../../store/wallet/walletStore';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import SecurePinModal from '../../components/modals/SecurePinModal';
+import InvestmentTransferModal from '../../components/modals/InvestmentTransferModal';
+import { paymentService } from '../../services/payment/paymentService';
 import { toast } from 'react-hot-toast';
+import { CreditCard, Building2 } from 'lucide-react';
 
 const InvestmentPage: React.FC = () => {
     const { data: summary, isLoading: summaryLoading } = useInvestmentSummary();
@@ -46,11 +49,55 @@ const InvestmentPage: React.FC = () => {
 
     const [activeModal, setActiveModal] = useState<'buy' | 'reinvest' | 'redeem' | 'exit' | null>(null);
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+    
+    // New payment states
+    const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'card' | 'transfer'>('wallet');
+    const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+    const [transferDetails, setTransferDetails] = useState<any>(null);
+    const [initializingPayment, setInitializingPayment] = useState(false);
 
     const isLoading = summaryLoading || historyLoading;
     const historyItems = historyRes?.data || [];
 
-    const handleActionClick = (action: 'buy' | 'reinvest' | 'redeem' | 'exit') => {
+    const handleActionClick = async (action: 'buy' | 'reinvest' | 'redeem' | 'exit') => {
+        if (action === 'buy' && paymentMethod !== 'wallet') {
+            const qty = Number(buyQty);
+            const sharePrice = summary?.settings?.sharePrice || 0;
+            const totalCost = qty * sharePrice;
+
+            if (qty <= 0) {
+                toast.error('Please enter a valid quantity');
+                return;
+            }
+
+            try {
+                setInitializingPayment(true);
+                const isTransfer = paymentMethod === 'transfer';
+                const res = await paymentService.initializePayment(
+                    totalCost, 
+                    'investment_buy', 
+                    { qty }, 
+                    isTransfer
+                );
+
+                if (isTransfer) {
+                    setTransferDetails({
+                        ...res,
+                        amount: totalCost,
+                        currency: currency
+                    });
+                    setIsTransferModalOpen(true);
+                } else if (res.authorization_url) {
+                    window.location.href = res.authorization_url;
+                }
+            } catch (err: any) {
+                toast.error(err.response?.data?.message || 'Failed to initialize payment');
+            } finally {
+                setInitializingPayment(false);
+            }
+            return;
+        }
+
         setActiveModal(action);
         setIsPinModalOpen(true);
     };
@@ -275,12 +322,41 @@ const InvestmentPage: React.FC = () => {
                             onChange={(e) => setBuyQty(e.target.value)}
                             className="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white rounded-2xl p-5 text-lg font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
                         />
+
+                        {/* Payment Method Selector */}
+                        <div className="space-y-3">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Payment Method</p>
+                            <div className="grid grid-cols-3 gap-3">
+                                <button 
+                                    onClick={() => setPaymentMethod('wallet')}
+                                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${paymentMethod === 'wallet' ? 'bg-emerald-50 border-emerald-500 text-emerald-600' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-100'}`}
+                                >
+                                    <Wallet size={20} />
+                                    <span className="text-[9px] font-bold uppercase tracking-tight">Wallet</span>
+                                </button>
+                                <button 
+                                    onClick={() => setPaymentMethod('card')}
+                                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${paymentMethod === 'card' ? 'bg-emerald-50 border-emerald-500 text-emerald-600' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-100'}`}
+                                >
+                                    <CreditCard size={20} />
+                                    <span className="text-[9px] font-bold uppercase tracking-tight">Card</span>
+                                </button>
+                                <button 
+                                    onClick={() => setPaymentMethod('transfer')}
+                                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${paymentMethod === 'transfer' ? 'bg-emerald-50 border-emerald-500 text-emerald-600' : 'bg-slate-50 border-transparent text-slate-400 hover:border-slate-100'}`}
+                                >
+                                    <Building2 size={20} />
+                                    <span className="text-[9px] font-bold uppercase tracking-tight">Transfer</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <button 
-                            disabled={!buyQty || Number(buyQty) < (settings?.minSharesPerPurchase || 1) || buyPending}
+                            disabled={!buyQty || Number(buyQty) < (settings?.minSharesPerPurchase || 1) || buyPending || initializingPayment}
                             onClick={() => handleActionClick('buy')}
                             className="w-full bg-emerald-500 text-slate-950 py-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-emerald-400 disabled:opacity-50 transition-all active:scale-[0.98]"
                         >
-                            {buyPending ? 'Processing...' : (Number(buyQty) > 0 && Number(buyQty) < (settings?.minSharesPerPurchase || 1)) ? `Min ${settings?.minSharesPerPurchase} Shares Required` : 'Purchase Shares Now'}
+                            {initializingPayment ? 'Initializing...' : buyPending ? 'Processing...' : (Number(buyQty) > 0 && Number(buyQty) < (settings?.minSharesPerPurchase || 1)) ? `Min ${settings?.minSharesPerPurchase} Shares Required` : 'Purchase Shares Now'}
                             <ArrowRight size={18} />
                         </button>
                         <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium px-1">
@@ -453,6 +529,12 @@ const InvestmentPage: React.FC = () => {
                 onClose={() => setIsPinModalOpen(false)} 
                 onConfirm={handlePinConfirm}
                 loading={buyPending || reinvestPending || redeemPending || exitPending}
+            />
+
+            <InvestmentTransferModal 
+                isOpen={isTransferModalOpen}
+                onClose={() => setIsTransferModalOpen(false)}
+                details={transferDetails}
             />
         </div>
     );
