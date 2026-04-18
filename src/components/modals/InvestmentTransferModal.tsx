@@ -41,20 +41,20 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
                 <div className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                     <div className="p-10 text-center space-y-6">
-                        <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-500 mx-auto shadow-inner animate-bounce">
+                        <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-500 mx-auto shadow-inner animate-pulse">
                             <CheckCircle2 size={40} />
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-xl font-bold text-slate-900">Notification Received!</h3>
+                            <h3 className="text-xl font-bold text-slate-900">Awaiting Payment Detection</h3>
                             <p className="text-sm text-slate-500 leading-relaxed">
-                                Our payment operations team has been notified. We will verify your transfer and credit your portfolio within <span className="text-emerald-600 font-bold">5-15 minutes</span>.
+                                Our system is currently monitoring for your deposit. Once the payment is detected, your investment portfolio will be <span className="text-emerald-600 font-bold">automatically updated</span>.
                             </p>
                         </div>
                         <button 
                             onClick={onClose}
                             className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200"
                         >
-                            Back to Portfolio
+                            Return to Portfolio
                         </button>
                     </div>
                 </div>
