@@ -42,7 +42,14 @@ export const replyToTicket = async (id: string, message: string): Promise<Ticket
 };
 
 export const getTicketById = async (id: string): Promise<Ticket> => {
-    const { data } = await API.get(`/support/${id}`);
+    // Try standard endpoint
+    try {
+        const { data } = await API.get(`/support/${id}`);
+        if (data.data) return data.data;
+    } catch (err) {}
+
+    // Fallback to /support/tickets/:id which is a common pattern in this app
+    const { data } = await API.get(`/support/tickets/${id}`);
     return data.data;
 };
 

@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 
 const SupportTicketDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { data: ticket, isLoading, isError } = useTicketDetails(id!);
+    const { data: ticket, isLoading, isError, error } = useTicketDetails(id!);
     const { mutate: sendReply, isPending: isReplying } = useReplyToTicket();
     const [reply, setReply] = useState('');
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -42,15 +42,31 @@ const SupportTicketDetailsPage: React.FC = () => {
                 <div className="space-y-2">
                     <h2 className="text-xl font-bold text-slate-900">Ticket Not Found</h2>
                     <p className="text-sm text-slate-500 max-w-xs mx-auto">
-                        We couldn't retrieve the details for this ticket. It may have been removed or the ID is incorrect.
+                        {isError 
+                            ? (error as any)?.response?.data?.message || 'We encountered a problem retrieving this ticket.'
+                            : "We couldn't retrieve the details for this ticket. It may have been removed or the ID is incorrect."
+                        }
                     </p>
+                    {isError && (
+                        <p className="text-[10px] text-slate-400 font-mono mt-2 uppercase tracking-widest">
+                            Status: {(error as any)?.response?.status || 'Unknown'}
+                        </p>
+                    )}
                 </div>
-                <Link 
-                    to="/app/support" 
-                    className="bg-slate-950 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-slate-200"
-                >
-                    Return to Support Center
-                </Link>
+                <div className="flex items-center gap-3">
+                    <Link 
+                        to="/app/support" 
+                        className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
+                    >
+                        Back
+                    </Link>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="bg-slate-950 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-slate-200"
+                    >
+                        Retry
+                    </button>
+                </div>
             </div>
         );
     }
