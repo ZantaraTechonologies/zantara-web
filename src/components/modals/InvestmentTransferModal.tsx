@@ -36,7 +36,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
                 {/* Header */}
                 <div className="bg-slate-950 p-6 flex items-center justify-between text-white">
                     <div className="flex items-center gap-3">
@@ -53,7 +53,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                     </button>
                 </div>
 
-                <div className="p-8 space-y-6">
+                <div className="p-8 space-y-6 overflow-y-auto custom-scrollbar">
                     {/* Instructions */}
                     <div className="text-center space-y-2">
                         <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 mx-auto shadow-inner">
@@ -107,12 +107,20 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                         </p>
                     </div>
 
-                    <button 
-                        onClick={onClose}
-                        className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200"
-                    >
-                        I have made the transfer
-                    </button>
+                    <div className="flex flex-col gap-3">
+                        <button 
+                            onClick={onClose}
+                            className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200"
+                        >
+                            I have made the transfer
+                        </button>
+                        <button 
+                            onClick={onClose}
+                            className="w-full bg-white border border-slate-200 text-slate-400 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 hover:text-slate-900 transition-all"
+                        >
+                            Cancel
+                        </button>
+                    </div>
                 </div>
 
                 <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-2">

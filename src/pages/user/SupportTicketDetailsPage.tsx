@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 
 const SupportTicketDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { data: ticket, isLoading } = useTicketDetails(id!);
+    const { data: ticket, isLoading, isError } = useTicketDetails(id!);
     const { mutate: sendReply, isPending: isReplying } = useReplyToTicket();
     const [reply, setReply] = useState('');
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -33,7 +33,37 @@ const SupportTicketDetailsPage: React.FC = () => {
         );
     }
 
-    if (!ticket) return null;
+    if (isError || !ticket) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-6 animate-in fade-in duration-500">
+                <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center text-red-500 shadow-sm">
+                    <AlertCircle size={40} />
+                </div>
+                <div className="space-y-2">
+                    <h2 className="text-xl font-bold text-slate-900">Ticket Not Found</h2>
+                    <p className="text-sm text-slate-500 max-w-xs mx-auto">
+                        We couldn't retrieve the details for this ticket. It may have been removed or the ID is incorrect.
+                    </p>
+                </div>
+                <Link 
+                    to="/app/support" 
+                    className="bg-slate-950 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-slate-200"
+                >
+                    Return to Support Center
+                </Link>
+            </div>
+        );
+    }
+
+    const safeFormatDate = (dateStr: string) => {
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return 'Invalid Date';
+            return format(date, 'MMM dd, hh:mm a');
+        } catch {
+            return 'Invalid Date';
+        }
+    };
 
     return (
         <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-140px)] animate-in fade-in duration-500">
@@ -75,7 +105,7 @@ const SupportTicketDetailsPage: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">You • {format(new Date(ticket.createdAt), 'MMM dd, hh:mm a')}</span>
+                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-1">You • {safeFormatDate(ticket.createdAt)}</span>
                     </div>
 
                     {/* Replies */}
@@ -91,7 +121,7 @@ const SupportTicketDetailsPage: React.FC = () => {
                                     <p>{res.message}</p>
                                 </div>
                                 <span className={`text-[10px] font-bold text-slate-300 uppercase tracking-widest px-2`}>
-                                    {isAdmin ? 'Zantara Agent' : 'You'} • {format(new Date(res.createdAt), 'MMM dd, hh:mm a')}
+                                    {isAdmin ? 'Zantara Agent' : 'You'} • {safeFormatDate(res.createdAt)}
                                 </span>
                             </div>
                         );
