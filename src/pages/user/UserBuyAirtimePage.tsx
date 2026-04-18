@@ -28,10 +28,11 @@ const UserBuyAirtimePage: React.FC = () => {
     const { user } = useAuthStore();
     const navigate = useNavigate();
 
-    const [network, setNetwork] = useState(NETWORKS[0].id);
+    const [network, setNetwork] = useState<string>(NETWORKS[0].id);
     const [phone, setPhone] = useState("");
     const [amount, setAmount] = useState<number | "">("");
     const [showPinModal, setShowPinModal] = useState(false);
+    const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [networkWarning, setNetworkWarning] = useState(false);
 
@@ -76,28 +77,51 @@ const UserBuyAirtimePage: React.FC = () => {
     const finalAmount = Number(amount || 0) * (1 - discount);
     const insufficient = finalAmount > balance;
 
+    const validateNetworkPrefix = (phone: string, network: string) => {
+        const prefixes: Record<string, string[]> = {
+            mtn: ['0803', '0806', '0814', '0810', '0813', '0816', '0703', '0706', '0903', '0906', '0913', '0916', '0704', '0702'],
+            airtel: ['0802', '0808', '0812', '0701', '0708', '0902', '0907', '0901', '0912', '0911', '0904'],
+            glo: ['0805', '0807', '0811', '0705', '0905', '0915'],
+            mobile9: ['0809', '0817', '0818', '0909', '0908'],
+        };
+        const ntwk = network.toLowerCase().replace('9mobile', 'mobile9'); // Normalize 9mobile
+        const list = prefixes[ntwk] || [];
+        if (list.length === 0) return true; // If network not mapped, skip
+        const prefix = phone.substring(0, 4);
+        return list.includes(prefix);
+    };
+
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
         const phoneRegex = /^(070|080|081|090|091|071|082|092)\d{8}$/;
         if (!phoneRegex.test(phone)) {
-            toast.error("Please enter a valid 11-digit Nigerian phone number");
+            toast.error("Enter a valid 11-digit Nigerian phone number");
             return;
         }
-        if (!amount || Number(amount) < 100) {
-            toast.error(`Minimum airtime purchase is ${currency}100`);
+        if (!validateNetworkPrefix(phone, selectedNetwork.label)) {
+            toast.error(`The phone number does not match ${selectedNetwork.label} network. (If ported, please verify carefully before proceeding).`);
+            return;
+        }
+        if (!network) {
+            toast.error("Please select a network");
+            return;
+        }
+        if (!amount || Number(amount) < 50) {
+            toast.error("Minimum airtime amount is NGN50");
             return;
         }
         if (insufficient) {
             toast.error("Insufficient wallet balance");
             return;
         }
+        setPinError(null);
         setShowPinModal(true);
     };
 
     const handleConfirm = async (pin: string) => {
         if (loading) return;
         setLoading(true);
-        setShowPinModal(false);
+        setPinError(null);
         const serviceTitle = `${selectedNetwork.label} Airtime VTU`;
         try {
             const res = await vtuService.buyAirtime({
@@ -107,6 +131,7 @@ const UserBuyAirtimePage: React.FC = () => {
                 pin
             });
             await fetchBalance();
+            setShowPinModal(false);
             navigate('/app/services/status', {
                 state: {
                     status: 'success',
@@ -116,8 +141,8 @@ const UserBuyAirtimePage: React.FC = () => {
             });
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
+            setPinError(msg);
             toast.error(msg);
-            // We intentionally do not navigate so the user's typed details remain for an easy retry.
         } finally {
             setLoading(false);
         }
@@ -244,8 +269,14 @@ const UserBuyAirtimePage: React.FC = () => {
                 </div>
             </form>
 
-            <SecurePinModal isOpen={showPinModal} onClose={() => setShowPinModal(false)}
-                onConfirm={handleConfirm} loading={loading} title={`Verify ${selectedNetwork.label} Airtime`} />
+            <SecurePinModal
+                isOpen={showPinModal}
+                onClose={() => { setShowPinModal(false); setPinError(null); }}
+                onConfirm={handleConfirm}
+                loading={loading}
+                error={pinError}
+                title={`Verify ${selectedNetwork.label} Airtime`}
+            />
         </PurchaseLayout>
     );
 };

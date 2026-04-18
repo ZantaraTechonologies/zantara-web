@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ShieldCheck, X, Lock } from 'lucide-react';
+import { ShieldCheck, X, Lock, AlertCircle } from 'lucide-react';
 
 interface SecurePinModalProps {
     isOpen: boolean;
@@ -7,6 +7,7 @@ interface SecurePinModalProps {
     onConfirm: (pin: string) => void;
     loading?: boolean;
     title?: string;
+    error?: string | null;
 }
 
 const SecurePinModal: React.FC<SecurePinModalProps> = ({ 
@@ -14,7 +15,8 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
     onClose, 
     onConfirm, 
     loading = false,
-    title = "Transaction Security"
+    title = "Transaction Security",
+    error
 }) => {
     const [pin, setPin] = useState(['', '', '', '']);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -84,7 +86,13 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {error && (
+                            <div className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center justify-center gap-2 text-red-600 animate-in fade-in zoom-in slide-in-from-top-4 duration-300">
+                                <AlertCircle size={16} className="shrink-0" />
+                                <span className="text-xs font-bold">{error}</span>
+                            </div>
+                        )}
                         <div className="flex justify-center gap-3">
                             {pin.map((digit, idx) => (
                                 <input

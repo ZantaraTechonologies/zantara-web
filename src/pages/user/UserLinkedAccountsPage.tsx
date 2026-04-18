@@ -82,18 +82,23 @@ const UserLinkedAccountsPage: React.FC = () => {
                 toast.error("Account name must be verified first.");
                 return;
             }
+            const isDuplicate = linkedAccounts.some(acc => acc.accountNumber === accountNumber);
+            if (isDuplicate) {
+                toast.error("This account number is already linked.");
+                return;
+            }
             await addAccount({ bankCode: selectedBankCode, bankName, accountNumber, accountName });
             setIsAdding(false);
             toast.success('Bank account linked successfully!');
-        } catch (err) {
-            toast.error('Failed to link account. Please check details.');
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to link account. Please check details.');
         }
     };
 
     const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to unlink this bank account?')) {
             await removeAccount(id);
-            toast.info('Account unlinked.');
+            toast('Account unlinked.', { icon: 'ℹ️' });
         }
     };
 

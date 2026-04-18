@@ -65,6 +65,11 @@ export async function initPaystackServer(amount: number, callback_url?: string):
     return data;
 }
 
+export async function initDirectTransfer(amount: number): Promise<any> {
+    const { data } = await API.post("/paystack/initialize", { amount, metadata: { type: 'funding' }, isDirectTransfer: true });
+    return data;
+}
+
 export async function verifyFunding(reference: string): Promise<any> {
     const { data } = await API.get(`/wallet/verify?reference=${reference}`);
     return data;

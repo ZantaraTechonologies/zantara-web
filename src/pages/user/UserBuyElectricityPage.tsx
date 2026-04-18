@@ -39,6 +39,7 @@ const UserBuyElectricityPage: React.FC = () => {
     const [verifiedUser, setVerifiedUser] = useState<any>(null);
     const [step, setStep] = useState(1);
     const [showPinModal, setShowPinModal] = useState(false);
+    const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -86,24 +87,26 @@ const UserBuyElectricityPage: React.FC = () => {
         if (!amount || Number(amount) < 500) { toast.error(`Minimum purchase is ${currency}500`); return; }
         if (Number(amount) > balance) { toast.error("Insufficient wallet balance"); return; }
         if (!phone) { toast.error("Please enter a phone number"); return; }
+        setPinError(null);
         setShowPinModal(true);
     };
 
     const handleConfirmPurchase = async (pin: string) => {
         if (loading) return;
         setLoading(true);
-        setShowPinModal(false);
+        setPinError(null);
         const providerName = providers.find(p => p.id === provider)?.name;
         const serviceTitle = `${providerName} (${meterType.toUpperCase()})`;
         const purchaseAmount = Number(amount);
         try {
             const res = await vtuService.buyElectricity({ serviceID: provider, billersCode: meterNumber, variation_code: meterType, amount: purchaseAmount, phone, pin });
             await fetchBalance();
+            setShowPinModal(false);
             navigate('/app/services/status', { state: { status: 'success', message: res.message || 'Power purchase successful.', transaction: { service: serviceTitle, amount: purchaseAmount, target: meterNumber, reference: res.data?.reference || res.data?.requestId, timestamp: new Date().toLocaleTimeString(), token: res.data?.token || res.token } } });
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
+            setPinError(msg);
             toast.error(msg);
-            // Intentionally not navigating away so user form input remains
         } finally {
             setLoading(false);
         }
@@ -246,8 +249,14 @@ const UserBuyElectricityPage: React.FC = () => {
                 </div>
             )}
 
-            <SecurePinModal isOpen={showPinModal} onClose={() => setShowPinModal(false)}
-                onConfirm={handleConfirmPurchase} loading={loading} title="Power Settlement" />
+            <SecurePinModal
+                isOpen={showPinModal}
+                onClose={() => { setShowPinModal(false); setPinError(null); }}
+                onConfirm={handleConfirmPurchase}
+                loading={loading}
+                error={pinError}
+                title="Verify Power Payment"
+            />
         </PurchaseLayout>
     );
 };

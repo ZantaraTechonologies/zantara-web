@@ -35,6 +35,7 @@ const UserBuyExamPinPage: React.FC = () => {
     const [jambProfile, setJambProfile] = useState<any>(null);
 
     const [showPinModal, setShowPinModal] = useState(false);
+    const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -108,13 +109,14 @@ const UserBuyExamPinPage: React.FC = () => {
             return;
         }
         if (insufficient) { toast.error("Insufficient balance"); return; }
+        setPinError(null);
         setShowPinModal(true);
     };
 
     const handleConfirm = async (pin: string) => {
         if (loading) return;
         setLoading(true);
-        setShowPinModal(false);
+        setPinError(null);
         const serviceTitle = `${selectedBody.name} - ${currentVariation?.name || selectedBody.label}`;
         const purchaseAmount = Number(totalAmount) || 0;
         try {
@@ -133,11 +135,12 @@ const UserBuyExamPinPage: React.FC = () => {
             }
             const res = await vtuService.buyExamPin(payload);
             await fetchBalance();
+            setShowPinModal(false);
             navigate('/app/services/status', { state: { status: 'success', message: res.message || 'PIN purchase successful.', transaction: { service: serviceTitle, amount: purchaseAmount, target: selectedBody.name, reference: res.data?.reference || res.data?.requestId, timestamp: new Date().toLocaleTimeString() } } });
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
+            setPinError(msg);
             toast.error(msg);
-            // Intentionally not navigating away so user form input remains
         } finally {
             setLoading(false);
         }
@@ -302,8 +305,12 @@ const UserBuyExamPinPage: React.FC = () => {
                 </div>
             </div>
 
-            <SecurePinModal isOpen={showPinModal} onClose={() => setShowPinModal(false)}
-                onConfirm={handleConfirm} loading={loading}
+            <SecurePinModal
+                isOpen={showPinModal}
+                onClose={() => { setShowPinModal(false); setPinError(null); }}
+                onConfirm={handleConfirm}
+                loading={loading}
+                error={pinError}
                 title={`Verify ${selectedBody.name} Purchase`} />
         </PurchaseLayout>
     );

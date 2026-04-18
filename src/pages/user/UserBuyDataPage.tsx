@@ -40,13 +40,15 @@ const UserBuyDataPage: React.FC = () => {
     const { user } = useAuthStore();
     const navigate = useNavigate();
 
-    const [network, setNetwork] = useState(NETWORKS[0].id);
+    const [network, setNetwork] = useState<string>(NETWORKS[0].id);
     const [phone, setPhone] = useState("");
     const [plans, setPlans] = useState<any[]>([]);
     const [planId, setPlanId] = useState("");
     const [fetchingPlans, setFetchingPlans] = useState(false);
+    const [purchasePlan, setPurchasePlan] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<string>("All");
     const [showPinModal, setShowPinModal] = useState(false);
+    const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [networkWarning, setNetworkWarning] = useState(false);
 
@@ -112,34 +114,59 @@ const UserBuyDataPage: React.FC = () => {
         return plans.filter(p => categorizePlan(p.name || "") === activeTab);
     }, [plans, activeTab]);
 
-    const selectedPlan = useMemo(() => plans.find(p => p.variation_code === planId), [plans, planId]);
+    const selectedPlan = useMemo(() => {
+        const p = plans.find(p => p.variation_code === planId);
+        if (p) setPurchasePlan(p);
+        return p;
+    }, [plans, planId]);
+    
     const discount = user?.role === 'agent' ? 0.05 : 0;
     const originalAmount = Number(selectedPlan?.variation_amount || 0);
     const finalAmount = originalAmount * (1 - discount);
     const insufficient = finalAmount > balance;
 
+    const validateNetworkPrefix = (phone: string, network: string) => {
+        const prefixes: Record<string, string[]> = {
+            mtn: ['0803', '0806', '0814', '0810', '0813', '0816', '0703', '0706', '0903', '0906', '0913', '0916', '0704', '0702'],
+            airtel: ['0802', '0808', '0812', '0701', '0708', '0902', '0907', '0901', '0912', '0911', '0904'],
+            glo: ['0805', '0807', '0811', '0705', '0905', '0915'],
+            mobile9: ['0809', '0817', '0818', '0909', '0908'],
+        };
+        const ntwk = network.toLowerCase().replace('9mobile', 'mobile9');
+        const list = prefixes[ntwk] || [];
+        if (list.length === 0) return true;
+        const prefix = phone.substring(0, 4);
+        return list.includes(prefix);
+    };
+
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
         const phoneRegex = /^(070|080|081|090|091|071|082|092)\d{8}$/;
         if (!phoneRegex.test(phone)) { toast.error("Enter a valid 11-digit Nigerian phone number"); return; }
+        if (!validateNetworkPrefix(phone, selectedNetwork.label)) {
+            toast.error(`The phone number does not match ${selectedNetwork.label} network.`);
+            return;
+        }
         if (!planId) { toast.error("Please select a data plan"); return; }
-        if (insufficient) { toast.error("Insufficient wallet balance"); return; }
+        if (insufficient) { toast.error("Insufficient balance"); return; }
+        setPinError(null);
         setShowPinModal(true);
     };
 
     const handleConfirm = async (pin: string) => {
         if (loading) return;
         setLoading(true);
-        setShowPinModal(false);
-        const serviceTitle = `${selectedNetwork.label} Data - ${selectedPlan?.name}`;
+        setPinError(null);
+        const serviceTitle = `${selectedNetwork.label} Data VTU`;
         try {
-            const res = await vtuService.buyData({ serviceID: network, variation_code: planId, phone, amount: finalAmount, pin });
+            const res = await vtuService.buyData({ serviceID: network, variation_code: purchasePlan.variation_code, amount: Number(purchasePlan.variation_amount), phone, pin });
             await fetchBalance();
-            navigate('/app/services/status', { state: { status: 'success', message: res.message || 'Data purchase successful.', transaction: { service: serviceTitle, amount: finalAmount, target: phone, reference: res.data?.reference || res.data?.requestId, timestamp: new Date().toLocaleTimeString() } } });
+            setShowPinModal(false);
+            navigate('/app/services/status', { state: { status: 'success', message: res.message || 'Data purchase successful.', transaction: { service: serviceTitle, amount: Number(purchasePlan.variation_amount), target: phone, reference: res.data?.reference || res.data?.requestId, timestamp: new Date().toLocaleTimeString() } } });
         } catch (err: any) {
             const msg = err.response?.data?.message || "Purchase failed.";
+            setPinError(msg);
             toast.error(msg);
-            // We intentionally do not navigate so the user's typed details remain for an easy retry.
         } finally {
             setLoading(false);
         }
@@ -294,8 +321,14 @@ const UserBuyDataPage: React.FC = () => {
                 </div>
             </form>
 
-            <SecurePinModal isOpen={showPinModal} onClose={() => setShowPinModal(false)}
-                onConfirm={handleConfirm} loading={loading} title={`Verify ${selectedNetwork.label} Data`} />
+            <SecurePinModal
+                isOpen={showPinModal}
+                onClose={() => { setShowPinModal(false); setPinError(null); }}
+                onConfirm={handleConfirm}
+                loading={loading}
+                error={pinError}
+                title={`Verify ${selectedNetwork.label} Data`}
+            />
         </PurchaseLayout>
     );
 };

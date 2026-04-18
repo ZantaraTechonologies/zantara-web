@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useTransactionDetails } from '../../hooks/useWallet';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 
 const TransactionDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -226,7 +226,7 @@ const TransactionDetailsPage: React.FC = () => {
                     <h4 className="text-sm font-bold text-slate-900">Need help with this?</h4>
                     <p className="text-[11px] text-slate-500 font-medium leading-relaxed">If you have any issues with this transaction, please contact our support team with the Reference ID above. Most issues are resolved within 24 hours.</p>
                     <button 
-                        onClick={() => navigate(`/app/support/create?txId=${tx.id || tx._id}`)}
+                        onClick={() => navigate(`/app/support/create?txId=${tx.id}`)}
                         className="text-[10px] font-black uppercase tracking-widest text-blue-600 mt-2 hover:underline"
                     >
                         Open Support Ticket

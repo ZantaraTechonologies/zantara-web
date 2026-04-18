@@ -28,6 +28,7 @@ const UserBuyCablePage: React.FC = () => {
     const [verifiedUser, setVerifiedUser] = useState<any>(null);
     const [fetchingPackages, setFetchingPackages] = useState(false);
     const [showPinModal, setShowPinModal] = useState(false);
+    const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     const selectedProvider = STATIC_PROVIDERS.find(p => p.id === provider) || STATIC_PROVIDERS[0];
@@ -63,15 +64,17 @@ const UserBuyCablePage: React.FC = () => {
 
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!verifiedUser) { toast.error("Please verify smartcard number first"); return; }
         if (!packageId) { toast.error("Please select a package"); return; }
         if (insufficient) { toast.error("Insufficient balance"); return; }
+        setPinError(null);
         setShowPinModal(true);
     };
 
     const handleConfirm = async (pin: string) => {
         if (loading) return;
         setLoading(true);
-        setShowPinModal(false);
+        setPinError(null);
         const serviceTitle = `${selectedProvider.name} - ${selectedPackage?.name}`;
         try {
             const res = await vtuService.buyCable({
@@ -79,11 +82,12 @@ const UserBuyCablePage: React.FC = () => {
                 amount, phone: verifiedUser?.Customer_Phone || '', subscription_type: 'change', pin
             });
             await fetchBalance();
+            setShowPinModal(false);
             navigate('/app/services/status', { state: { status: 'success', message: res.message || 'Subscription successful.', transaction: { service: serviceTitle, amount, target: smartcardNumber, reference: res.data?.reference || res.data?.requestId, timestamp: new Date().toLocaleTimeString() } } });
         } catch (err: any) {
             const msg = err.response?.data?.message || "Subscription failed.";
+            setPinError(msg);
             toast.error(msg);
-            // Intentionally not navigating away so user form input remains
         } finally {
             setLoading(false);
         }
@@ -240,9 +244,14 @@ const UserBuyCablePage: React.FC = () => {
                 </div>
             </div>
 
-            <SecurePinModal isOpen={showPinModal} onClose={() => setShowPinModal(false)}
-                onConfirm={handleConfirm} loading={loading}
-                title={`Verify ${selectedProvider.name} Payment`} />
+            <SecurePinModal
+                isOpen={showPinModal}
+                onClose={() => { setShowPinModal(false); setPinError(null); }}
+                onConfirm={handleConfirm}
+                loading={loading}
+                error={pinError}
+                title={`Confirm ${selectedProvider.name} Payment`}
+            />
         </PurchaseLayout>
     );
 };

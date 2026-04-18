@@ -11,6 +11,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import * as walletService from '../../services/wallet/walletService';
+import { toast } from 'react-hot-toast';
 
 const UserFundWalletPage: React.FC = () => {
     const navigate = useNavigate();
@@ -18,6 +19,7 @@ const UserFundWalletPage: React.FC = () => {
     const [amount, setAmount] = useState('');
     const [method, setMethod] = useState<'card' | 'transfer' | null>(null);
     const [loadingPayment, setLoadingPayment] = useState(false);
+    const [transferDetails, setTransferDetails] = useState<any>(null);
     const { virtualAccount, fetchVirtualAccount, currency } = useWalletStore();
 
     React.useEffect(() => {
@@ -41,8 +43,21 @@ const UserFundWalletPage: React.FC = () => {
         }
     ];
 
-    const handleContinue = () => {
-        setStep(3);
+    const handleContinue = async () => {
+        if (method === 'transfer') {
+            try {
+                setLoadingPayment(true);
+                const details = await walletService.initDirectTransfer(Number(amount));
+                setTransferDetails(details);
+                setStep(3);
+            } catch (err: any) {
+                toast.error(err.response?.data?.error || err.response?.data?.message || 'Failed to generate virtual account details.');
+            } finally {
+                setLoadingPayment(false);
+            }
+        } else {
+            setStep(3);
+        }
     };
 
     const handlePayment = async () => {
@@ -162,11 +177,11 @@ const UserFundWalletPage: React.FC = () => {
                             Back
                         </button>
                         <button 
-                            disabled={!method}
+                            disabled={!method || loadingPayment}
                             onClick={handleContinue}
                             className="flex-[2] bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
                         >
-                            Confirm Selection
+                            {loadingPayment ? 'Processing...' : 'Confirm Selection'}
                         </button>
                     </div>
                 </div>
@@ -178,38 +193,57 @@ const UserFundWalletPage: React.FC = () => {
                         <Smartphone size={32} />
                     </div>
                     
-                    <div className="space-y-3">
-                        <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">
-                            Initiating Secure Gateway
-                        </h2>
-                        {method === 'transfer' ? (
-                            <div className="space-y-2">
+                    {method === 'transfer' && transferDetails ? (
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Direct Bank Transfer</h2>
+                            <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 text-left space-y-4">
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Account Number</p>
+                                    <p className="text-2xl font-black text-slate-900">{transferDetails.account_number}</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bank Name</p>
+                                        <p className="font-bold text-slate-700">{transferDetails.bank_name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Amount</p>
+                                        <p className="font-bold text-slate-700">{currency}{Number(amount).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Account Name</p>
+                                    <p className="font-bold text-slate-700">{transferDetails.account_name}</p>
+                                </div>
+                            </div>
+                            <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl text-left">
+                                <p className="text-blue-600 text-xs font-bold mb-1">Transfer exactly {currency}{Number(amount).toLocaleString()}</p>
+                                <p className="text-[10px] text-blue-500">The account above is dedicated to this transaction and expires in 60 minutes. Your wallet will be credited automatically once payment is received.</p>
+                            </div>
+                            <button onClick={() => navigate('/app/services/status', { state: { status: 'processing', message: 'Waiting for transfer...', transaction: { service: 'Wallet Funding', amount: Number(amount) } } })} className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200">
+                                I have made the transfer
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            <div className="space-y-3">
+                                <h2 className="text-2xl font-bold text-slate-900 uppercase tracking-tight">Initiating Secure Gateway</h2>
                                 <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm">
-                                    You will be redirected to Paystack. Select <span className="font-bold text-emerald-600">Bank Transfer</span> to receive your secure, dedicated Wema Bank account number for this NGN{Number(amount).toLocaleString()} deposit.
+                                    You're being redirected to our secure payment processor (Paystack) to complete your {currency}{Number(amount).toLocaleString()} deposit.
                                 </p>
                             </div>
-                        ) : (
-                            <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm">
-                                You're being redirected to our secure payment processor (Paystack) to complete your {currency}{Number(amount).toLocaleString()} deposit.
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
-                        <ShieldCheck size={14} />
-                        <span>AES-256 Encrypted Transfer</span>
-                    </div>
-
-                    <div className="pt-4 flex flex-col gap-3">
-                        <button 
-                            disabled={loadingPayment}
-                            onClick={handlePayment}
-                            className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-50"
-                        >
-                            {loadingPayment ? 'Redirecting...' : 'Continue to Payment'}
-                        </button>
-                        <button onClick={() => setStep(2)} className="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-900">Cancel</button>
-                    </div>
+                            <div className="flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+                                <ShieldCheck size={14} />
+                                <span>AES-256 Encrypted Transfer</span>
+                            </div>
+                            <div className="pt-4 flex flex-col gap-3">
+                                <button disabled={loadingPayment} onClick={handlePayment} className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-50">
+                                    {loadingPayment ? 'Redirecting...' : 'Continue to Payment'}
+                                </button>
+                                <button onClick={() => setStep(2)} className="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-900">Cancel</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
