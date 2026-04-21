@@ -30,7 +30,10 @@ import Navbar from "../../components/navigation/Navbar";
 import { useAdminAuth } from "../../hooks/useAdminAuth";
 import { hasAnyRole } from "../../utils/access";
 
+import { useSiteSettings } from "../../app/SiteSettingsContext";
+
 export default function AdminLayout() {
+    const { settings } = useSiteSettings();
     const navigate = useNavigate();
     const location = useLocation();
     const { admin } = useAdminAuth();
@@ -93,7 +96,7 @@ export default function AdminLayout() {
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-5">
                         <div className="bg-white/5 rounded-xl p-4 mb-5 border border-white/5">
                             <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em] mb-2">Institutional</div>
-                            <div className="text-white font-bold truncate text-sm">Zantara Admin</div>
+                            <div className="text-white font-bold truncate text-sm">{settings.SITE_NAME} Admin</div>
                             <div className="text-slate-500 text-[11px] font-medium truncate mt-1">Operator: ROOT</div>
                         </div>
 

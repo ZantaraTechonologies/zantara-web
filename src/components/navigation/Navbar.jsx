@@ -3,7 +3,10 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/auth/authStore";
 import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight, HelpCircle, BadgeDollarSign, BadgePercent, WalletCards, BarChart3, History, ChevronRight, Settings, PieChart } from "lucide-react";
 
+import { useSiteSettings } from "../../app/SiteSettingsContext";
+
 export default function Navbar() {
+    const { settings } = useSiteSettings();
     const { isAuthenticated, logout, user } = useAuthStore();
     const [open, setOpen] = useState(false);
     const location = useLocation();
@@ -53,8 +56,8 @@ export default function Navbar() {
                 <div className="flex items-center justify-between gap-8">
                     {/* Brand */}
                     <Link to={isAdmin ? "/admin/dashboard" : "/"} className="flex items-center gap-3">
-                        <img src="/app_store_icon.png" alt="Zantara Logo" className="w-8 h-8 rounded-lg shadow-lg" />
-                        <span className="text-xl font-bold text-slate-900 tracking-tight uppercase">Zantara {isAdmin && <span className="text-emerald-500 ml-1">Admin</span>}</span>
+                        <img src="/app_store_icon.png" alt="Logo" className="w-8 h-8 rounded-lg shadow-lg" />
+                        <span className="text-xl font-bold text-slate-900 tracking-tight uppercase">{settings.SITE_NAME} {isAdmin && <span className="text-emerald-500 ml-1">Admin</span>}</span>
                     </Link>
 
                     {/* Desktop nav (Conditional) */}

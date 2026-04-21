@@ -1,27 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    Settings, 
-    Save, 
-    RefreshCcw, 
-    Shield, 
-    Zap,
-    Network,
-    Bell,
-    Lock,
-    Database,
-    CloudIcon,
-    PieChart,
-    BarChart3,
-    Cpu
+  Settings, 
+  Globe, 
+  Users, 
+  Save, 
+  RefreshCw, 
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import apiClient from '../../services/api/apiClient';
-import { CardSkeleton } from '../../components/feedback/Skeletons';
-import { useWalletStore } from '../../store/wallet/walletStore';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const AdminSettingsPage: React.FC = () => {
-    const [settings, setSettings] = useState<any>(null);
-    const { currency } = useWalletStore();
+    const [settings, setSettings] = useState({
+        SITE_NAME: '',
+        REFERRAL_RATE: 0
+    });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -32,11 +26,12 @@ const AdminSettingsPage: React.FC = () => {
     const loadSettings = async () => {
         setLoading(true);
         try {
-            const res = await apiClient.get('/admin/settings');
-            // Backend returns { success: true, data: settingsMap }
-            setSettings(res.data?.data ?? res.data);
-        } catch (err) {
-            toast.error("Failed to load system settings");
+            const res = await apiClient.get('/admin/settings/business');
+            if (res.data.success) {
+                setSettings(res.data.data);
+            }
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to load settings");
         } finally {
             setLoading(false);
         }
@@ -46,92 +41,121 @@ const AdminSettingsPage: React.FC = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            // Backend only accepts one { key, value } at a time
-            const settingKeys = ['maintenanceMode', 'minWithdrawal'];
-            await Promise.all(
-                settingKeys.map((k) =>
-                    settings[k] !== undefined
-                        ? apiClient.post('/admin/settings', { key: k, value: settings[k] })
-                        : Promise.resolve()
-                )
-            );
-            toast.success("Settings synchronized");
+            const res = await apiClient.post('/admin/settings/business', settings);
+            if (res.data.success) {
+                toast.success("Settings saved successfully!");
+                // Also update local storage or context if site name is stored there
+                await loadSettings();
+            }
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Failed to update system parameters");
+            toast.error(err.response?.data?.message || "Failed to update settings");
         } finally {
             setSaving(false);
         }
     };
 
-    if (loading) return <div className="grid grid-cols-1 md:grid-cols-2 gap-6"><CardSkeleton /><CardSkeleton /></div>;
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+            </div>
+        );
+    }
 
     return (
-        <form onSubmit={handleSave} className="space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="p-6 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">System Parameters</h1>
-                    <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">Infrastructure & Service configuration</p>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                        Business Settings
+                    </h1>
+                    <p className="text-gray-400 text-sm mt-1">
+                        Configure your platform's identity and growth parameters.
+                    </p>
                 </div>
-
-                <div className="flex items-center gap-3">
-                    <button 
-                        type="button"
-                        onClick={loadSettings}
-                        className="p-3 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white transition-all"
-                    >
-                        <RefreshCcw size={18} />
-                    </button>
-                    <button 
-                        disabled={saving}
-                        className="flex items-center gap-2 px-6 py-3 bg-emerald-500 rounded-2xl text-[10px] font-bold text-slate-950 uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 disabled:opacity-50"
-                    >
-                        <Save size={16} />
-                        {saving ? "Syncing..." : "Commit Changes"}
-                    </button>
-                </div>
+                <button 
+                    onClick={loadSettings}
+                    className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 transition-all border border-gray-700/50"
+                >
+                    <RefreshCw className="w-5 h-5" />
+                </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white/5 border border-white/5 rounded-3xl p-8 space-y-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-white/5 pb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-emerald-500">
-                                <Cpu size={20} />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-white">Platform Core</h3>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Global system thresholds</p>
-                            </div>
+            <form onSubmit={handleSave} className="space-y-6">
+                {/* Site Identity Card */}
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-primary/30 transition-all duration-300">
+                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                            <Globe className="w-5 h-5" />
                         </div>
-
-                        <div className="flex items-center gap-4 bg-white/5 px-6 py-3 rounded-2xl border border-white/5">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Maintenance</label>
-                            <button 
-                                type="button"
-                                onClick={() => setSettings({...settings, maintenanceMode: !settings?.maintenanceMode})}
-                                className={`w-12 h-6 rounded-full transition-all relative ${settings?.maintenanceMode ? 'bg-red-500' : 'bg-white/10'}`}
-                            >
-                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${settings?.maintenanceMode ? 'left-7' : 'left-1'}`} />
-                            </button>
-                            <span className="text-[10px] font-black text-white uppercase tracking-tighter">{settings?.maintenanceMode ? 'LOCKED' : 'OPEN'}</span>
-                        </div>
+                        <h2 className="text-xl font-semibold text-white">Site Identity</h2>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Minimum Withdrawal ({currency})</label>
+                    <div className="p-6 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">Platform Name</label>
                             <input 
-                                type="number" 
-                                value={settings?.minWithdrawal || 0}
-                                onChange={(e) => setSettings({...settings, minWithdrawal: Number(e.target.value)})}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-bold"
+                                type="text" 
+                                value={settings.SITE_NAME}
+                                onChange={(e) => setSettings({ ...settings, SITE_NAME: e.target.value })}
+                                placeholder="Enter your business name (e.g. Zantara)"
+                                className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
                             />
+                            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                This name appears in email footers, page titles, and receipts.
+                            </p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        </form>
+                {/* Referral & Growth Card */}
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-blue-500/30 transition-all duration-300">
+                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                            <Users className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-white">Growth & Referrals</h2>
+                    </div>
+                    <div className="p-6 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">Default Commission Rate (%)</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">%</span>
+                                <input 
+                                    type="number" 
+                                    step="0.001"
+                                    value={settings.REFERRAL_RATE}
+                                    onChange={(e) => setSettings({ ...settings, REFERRAL_RATE: Number(e.target.value) })}
+                                    className="w-full bg-black/40 border border-gray-700 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all"
+                                    placeholder="0.01"
+                                />
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                                <CheckCircle className="w-3 h-3 text-green-500/50" />
+                                Percentage of purchase profit earned by referrers on every transaction. (e.g. 0.01 = 1% of margin)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex items-center justify-end pt-4">
+                    <button 
+                        type="submit"
+                        disabled={saving}
+                        className="flex items-center gap-2 px-8 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 shadow-lg shadow-primary/20"
+                    >
+                        {saving ? (
+                            <RefreshCw className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <Save className="w-5 h-5" />
+                        )}
+                        {saving ? "Saving Changes..." : "Save Settings"}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 

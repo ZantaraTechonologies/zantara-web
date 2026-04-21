@@ -8,6 +8,8 @@ import { Toaster } from 'react-hot-toast';
 
 import AppRoutes from './routes/AppRoutes';
 
+import { SiteSettingsProvider } from './app/SiteSettingsContext';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { refetchOnWindowFocus: false, retry: 1, staleTime: 30_000 },
@@ -20,8 +22,10 @@ if (!container) throw new Error('Root container #root not found');
 createRoot(container).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AppRoutes />
-      <Toaster position="top-right" />
+      <SiteSettingsProvider>
+        <AppRoutes />
+        <Toaster position="top-right" />
+      </SiteSettingsProvider>
     </QueryClientProvider>
   </StrictMode>
 );
