@@ -68,6 +68,81 @@ const AdminServicesRoutingPage: React.FC = () => {
         }
     };
 
+    const handleSyncCosts = async () => {
+        setLoading(true);
+        try {
+            const providerName = 'VTPass'; // This could be made dynamic
+            // List of service IDs to sync (MTN Data, Dstv, etc.)
+            const serviceIDs = [
+                'mtn-data', 'airtel-data', 'glo-data', 'etisalat-data', 
+                'dstv', 'gotv', 'startimes', 'showmax',
+                'waec', 'waec-registration', 'jamb'
+            ];
+
+            const res = await apiClient.post('/admin/services/sync-costs', {
+                providerName,
+                serviceIDs
+            });
+
+            if (res.data.success) {
+                toast.success(`Successfully synced ${res.data.updated} services from ${providerName}`);
+                await loadServices(); // Reload data to show new costs
+            } else {
+                toast.error(res.data.message || "Sync failed");
+            }
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Sync request failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleImportServices = async () => {
+        setLoading(true);
+        try {
+            const providerName = 'VTPass';
+            
+            // Map our UI tabs to vendor category identifiers
+            let categoryIdentifier = '';
+            if (categoryFilter === 'data') categoryIdentifier = 'data';
+            else if (categoryFilter === 'airtime') categoryIdentifier = 'airtime';
+            else if (categoryFilter === 'tv') categoryIdentifier = 'tv-subscription';
+            else if (categoryFilter === 'pin') categoryIdentifier = 'education';
+            else if (categoryFilter === 'electricity') categoryIdentifier = 'electricity-bill';
+
+            if (!categoryIdentifier && categoryFilter !== 'all') {
+                toast.error("Please select a specific category to import");
+                setLoading(false);
+                return;
+            }
+
+            const payload: any = { providerName };
+            if (categoryIdentifier) {
+                payload.categoryIdentifier = categoryIdentifier;
+            } else {
+                // For 'all', we trigger multiple specific ones in the backend (or just one big list)
+                payload.serviceIDs = [
+                    'mtn-data', 'airtel-data', 'glo-data', 'glo-sme-data', 'etisalat-data',
+                    'dstv', 'gotv', 'startimes', 'showmax',
+                    'waec', 'waec-registration', 'jamb'
+                ];
+            }
+
+            const res = await apiClient.post('/admin/services/import', payload);
+
+            if (res.data.success) {
+                toast.success(`Import complete! Found ${res.data.newlyCreated} new providers/plans. Skipped ${res.data.skipped} existing.`);
+                await loadServices();
+            } else {
+                toast.error(res.data.message || "Import failed");
+            }
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Import request failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const filteredServices = services.filter(s => {
         const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.code.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = categoryFilter === 'all' || s.category === categoryFilter;
@@ -91,6 +166,21 @@ const AdminServicesRoutingPage: React.FC = () => {
                         className="p-3 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white transition-all"
                     >
                         <RefreshCcw size={18} />
+                    </button>
+                    <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" />
+                    <button 
+                        onClick={handleSyncCosts}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-500 font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-500/20 transition-all shadow-lg shadow-emerald-500/5 group"
+                    >
+                        <RefreshCcw size={14} className="group-hover:rotate-180 transition-transform duration-500" />
+                        Sync Costs
+                    </button>
+                    <button 
+                        onClick={handleImportServices}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white hover:bg-white/10 transition-all font-bold text-[10px] uppercase tracking-widest"
+                    >
+                        <ArrowUpRight size={14} />
+                        Auto-Import
                     </button>
                     <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" />
                     <div className="relative">
