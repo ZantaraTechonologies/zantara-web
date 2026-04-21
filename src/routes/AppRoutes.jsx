@@ -79,6 +79,8 @@ import AdminProfitAnalyticsPage from '../pages/admin/finance/AdminProfitAnalytic
 import AdminCommissionSettingsPage from '../pages/admin/finance/AdminCommissionSettingsPage';
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
+import AdminProvidersPage from '../pages/admin/AdminProvidersPage';
+import AdminServicesRoutingPage from '../pages/admin/AdminServicesRoutingPage';
 import AdminShareholdersPage from '../pages/admin/AdminShareholdersPage';
 import AdminProfilePage from '../pages/admin/AdminProfilePage';
 
@@ -221,6 +223,8 @@ export default function AppRoutes() {
                                 {/* System — SuperAdmin Only */}
                                 <Route path="audit-logs" element={<AdminAuditLogsPage />} />
                                 <Route path="settings" element={<AdminSettingsPage />} />
+                                <Route path="providers" element={<AdminProvidersPage />} />
+                                <Route path="services-routing" element={<AdminServicesRoutingPage />} />
                             </Route>
                         </Route>
                     </Route>
