@@ -84,12 +84,17 @@ const CatalogInfrastructureTab: React.FC = () => {
                 : `/admin/hierarchy/${activeTab}`;
             
             const method = editingItem ? 'put' : 'post';
-            await apiClient[method](endpoint, formData);
+            const payload = { ...formData };
+            if (activeTab === 'types' && payload.aliases) {
+                payload.aliases = payload.aliases.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+            }
+
+            await apiClient[method](endpoint, payload);
             
             toast.success(`${activeTab.slice(0, -1)} ${editingItem ? 'updated' : 'created'} successfully`);
             setShowModal(false);
             setEditingItem(null);
-            setFormData({ name: '', status: true, categoryId: '', typeIds: [] });
+            setFormData({ name: '', status: true, categoryId: '', typeIds: [], aliases: '' });
             loadData();
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Operation failed");
@@ -145,7 +150,7 @@ const CatalogInfrastructureTab: React.FC = () => {
                     <button 
                         onClick={() => {
                             setEditingItem(null);
-                            setFormData({ name: '', status: true, categoryId: '', typeIds: [] });
+                            setFormData({ name: '', status: true, categoryId: '', typeIds: [], aliases: '' });
                             setShowModal(true);
                         }}
                         className="flex items-center gap-2 px-8 py-3.5 bg-white text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform"
@@ -228,6 +233,7 @@ const CatalogInfrastructureTab: React.FC = () => {
                                                 status: item.status,
                                                 categoryId: item.categoryId?._id || item.categoryId || '',
                                                 typeIds: item.typeIds?.map((t: any) => t._id || t) || [],
+                                                aliases: item.aliases ? item.aliases.join(', ') : '',
                                             });
                                             setShowModal(true);
                                         }}
@@ -267,18 +273,32 @@ const CatalogInfrastructureTab: React.FC = () => {
                             </div>
 
                             {activeTab === 'types' && (
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Parent Category</label>
-                                    <select 
-                                        required
-                                        value={formData.categoryId}
-                                        onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold appearance-none italic"
-                                    >
-                                        <option value="">Select Category...</option>
-                                        {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
-                                    </select>
-                                </div>
+                                <>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Parent Category</label>
+                                        <select 
+                                            required
+                                            value={formData.categoryId}
+                                            onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
+                                            className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold appearance-none italic"
+                                        >
+                                            <option value="">Select Category...</option>
+                                            {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Aliases (Comma separated)</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="e.g. airtime, topup, airtime-vtu"
+                                            value={formData.aliases || ''}
+                                            onChange={(e) => setFormData({...formData, aliases: e.target.value})}
+                                            className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold italic"
+                                        />
+                                        <p className="text-[8px] text-slate-600 font-black uppercase tracking-widest mt-1 ml-1 italic">These names will also point to this category in the mobile app</p>
+                                    </div>
+                                </>
                             )}
 
                             {activeTab === 'brands' && (
