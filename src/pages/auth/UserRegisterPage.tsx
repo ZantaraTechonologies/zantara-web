@@ -17,7 +17,7 @@ const UserRegisterPage: React.FC = () => {
         email: '',
         phone: '',
         password: '',
-        referralCode: '',
+        referrerCode: '',
         agreeToTerms: false
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +30,7 @@ const UserRegisterPage: React.FC = () => {
     useEffect(() => {
         const ref = searchParams.get('ref');
         if (ref) {
-            setFormData(prev => ({ ...prev, referralCode: ref }));
+            setFormData(prev => ({ ...prev, referrerCode: ref }));
             console.info(`[Auth] Referral code detected from URL: ${ref}`);
         }
     }, [searchParams]);
@@ -62,7 +62,7 @@ const UserRegisterPage: React.FC = () => {
                 email: formData.email,
                 phone: formData.phone,
                 password: formData.password,
-                referralCode: formData.referralCode
+                referrerCode: formData.referrerCode
             });
             console.info(`[Auth] Registration successful for: ${formData.email}`);
             toast.success('Registration successful! Welcome to Zantara.');
@@ -187,9 +187,9 @@ const UserRegisterPage: React.FC = () => {
                                     <UserPlus size={18} />
                                 </div>
                                 <input
-                                    name="referralCode"
+                                    name="referrerCode"
                                     type="text"
-                                    value={formData.referralCode}
+                                    value={formData.referrerCode}
                                     onChange={handleChange}
                                     className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
                                     placeholder="Enter referral code"
