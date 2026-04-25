@@ -24,6 +24,9 @@ import {
     PieChart,
     Cpu,
     Zap,
+    Tags,
+    Network,
+    Layers,
     LucideIcon
 } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
@@ -55,8 +58,7 @@ export default function AdminLayout() {
     // All admins can see these operational pages
     const baseMenuItems: MenuItem[] = [
         { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { path: "/admin/users", label: "User Management", icon: Users },
-        { path: "/admin/kyc", label: "KYC Queue", icon: ShieldCheck },
+        { path: "/admin/personnel/hub", label: "Personnel Hub", icon: Users },
         { path: "/admin/transactions", label: "Transactions", icon: ListOrdered },
         { path: "/admin/withdrawals", label: "Withdrawals", icon: Banknote },
         { path: "/admin/support", label: "Support Tickets", icon: MessageSquare },
@@ -67,16 +69,13 @@ export default function AdminLayout() {
     // Only superAdmins see these sensitive pages
     const superAdminMenuItems: MenuItem[] = [
         { type: "header", label: "Business & Finance" },
-        { path: "/admin/business/overview", label: "Business Overview", icon: BadgeDollarSign },
-        { path: "/admin/business/earnings", label: "Earnings Analytics", icon: BadgePercent },
+        { path: "/admin/business/intelligence", label: "Intelligence Hub", icon: Zap },
         { path: "/admin/business/commissions", label: "Financial Protocols", icon: ShieldCheck },
         { path: "/admin/business/wallet", label: "System Liquidity", icon: WalletCards },
-        { path: "/admin/business/treasury", label: "Treasury Ledger", icon: Receipt },
-        { path: "/admin/business/profit", label: "Profit Analytics", icon: BarChart3 },
         { path: "/admin/business/shareholders", label: "Shareholders", icon: PieChart },
+        { type: "header", label: "Inventory" },
+        { path: "/admin/catalog/hub", label: "Service Center", icon: Layers },
         { type: "header", label: "System" },
-        { path: "/admin/services-routing", label: "Service Routing", icon: Zap },
-        { path: "/admin/providers", label: "API Vendors", icon: Cpu },
         { path: "/admin/status", label: "System Status", icon: Activity },
         { path: "/admin/audit-logs", label: "Audit Logs", icon: FileText },
         { path: "/admin/settings", label: "Settings", icon: Settings },

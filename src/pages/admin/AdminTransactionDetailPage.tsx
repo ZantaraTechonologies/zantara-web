@@ -260,6 +260,71 @@ export default function AdminTransactionDetailPage() {
                         </div>
                     </div>
 
+                    {/* Financial Reconciliation Explorer */}
+                    <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm space-y-4">
+                        <div className="flex items-center justify-between ml-1">
+                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Financial Reconciliation</h4>
+                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
+                                txn.accountingSource === 'actual' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
+                            }`}>
+                                {txn.accountingSource || 'Estimated'} Source
+                            </span>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between p-3 bg-slate-950 rounded-2xl text-white">
+                                <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">User Paid</span>
+                                <span className="text-sm font-black italic">₦{(txn.amount || 0).toLocaleString()}</span>
+                            </div>
+
+                            <div className="p-4 bg-slate-50 rounded-2xl space-y-3 border border-slate-100">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Settlement Cost</span>
+                                    <span className="text-xs font-bold text-slate-700">₦{(txn.costPrice || 0).toLocaleString()}</span>
+                                </div>
+                                {txn.accountingSource === 'actual' && (
+                                    <>
+                                        <div className="flex items-center justify-between pl-2 border-l-2 border-emerald-500/20">
+                                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Provider Unit Price</span>
+                                            <span className="text-[10px] font-bold text-slate-500">₦{(txn.providerUnitPrice || 0).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between pl-2 border-l-2 border-emerald-500/20">
+                                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Provider Discount</span>
+                                            <span className="text-[10px] font-bold text-emerald-500">-₦{(txn.vendorCommission || 0).toLocaleString()}</span>
+                                        </div>
+                                        {txn.convenienceFee > 0 && (
+                                            <div className="flex items-center justify-between pl-2 border-l-2 border-rose-500/20">
+                                                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Conv. Fee</span>
+                                                <span className="text-[10px] font-bold text-rose-400">+₦{txn.convenienceFee.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                                {txn.accountingSource !== 'actual' && txn.pricingSnapshot && (
+                                    <div className="flex items-center justify-between pl-2 border-l-2 border-slate-200">
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Base Cost (Est.)</span>
+                                        <span className="text-[10px] font-bold text-slate-500">₦{txn.pricingSnapshot.baseCostPrice}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-emerald-500 rounded-2xl text-slate-950 shadow-lg shadow-emerald-500/10">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-70">Platform Yield</span>
+                                    <span className="text-[8px] font-bold uppercase tracking-tighter opacity-50">Net Realized Profit</span>
+                                </div>
+                                <span className="text-lg font-black tracking-tighter">₦{(txn.profit || 0).toLocaleString()}</span>
+                            </div>
+
+                            {txn.commission > 0 && (
+                                <div className="flex items-center justify-between p-3 bg-rose-50 rounded-xl border border-rose-100">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-rose-500">Referral Payout</span>
+                                    <span className="text-[10px] font-bold text-rose-500">-₦{txn.commission}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Metadata Explorer */}
                     <div className="bg-slate-950 rounded-[2rem] p-6 shadow-xl shadow-slate-200 overflow-hidden relative group">
                         <div className="absolute top-0 right-0 p-4 opacity-10">

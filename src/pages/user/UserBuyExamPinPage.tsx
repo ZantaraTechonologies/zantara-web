@@ -1,133 +1,152 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
-import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
+import { Row, Input, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
 import { useWalletStore } from "../../store/wallet/walletStore";
+import { useAuthStore } from "../../store/auth/authStore";
 import { useNavigate } from "react-router-dom";
+import SecurePinModal from "../../components/modals/SecurePinModal";
 import { toast } from "react-hot-toast";
-import SecurePinModal from '../../components/modals/SecurePinModal';
-import { GraduationCap, AlertCircle, Zap, CheckCircle2, User, Search } from 'lucide-react';
-import { ServiceSkeleton } from '../../components/feedback/Skeletons';
-
-const EXAM_BODIES = [
-    { id: 'waec', serviceID: 'waec', variationCode: 'waecdirect', name: 'WAEC Result', label: 'WAEC Result Checker', emoji: '📗', requiresVerification: false, status: 'available' },
-    { id: 'waec-reg', serviceID: 'waec-registration', variationCode: 'waec-registraion', name: 'WAEC Reg', label: 'WAEC Registration', emoji: '📗', requiresVerification: false, status: 'available' },
-    { id: 'jamb-no-mock', serviceID: 'jamb', variationCode: 'utme-no-mock', name: 'JAMB (No Mock)', label: 'JAMB Without Mock', emoji: '🎓', requiresVerification: true, status: 'available' },
-    { id: 'jamb-mock', serviceID: 'jamb', variationCode: 'utme-mock', name: 'JAMB (With Mock)', label: 'JAMB With Mock', emoji: '🎓', requiresVerification: true, status: 'available' },
-    { id: 'neco', serviceID: 'neco', variationCode: 'neco', name: 'NECO', label: 'NECO Result Checker', emoji: '📘', requiresVerification: false, status: 'coming-soon' },
-    { id: 'nabteb', serviceID: 'nabteb', variationCode: 'nabteb', name: 'NABTEB', label: 'NABTEB Result', emoji: '📙', requiresVerification: false, status: 'coming-soon' },
-];
-
-type ExamType = { id: string; serviceID: string; variationCode: string; name: string; label: string; emoji: string; requiresVerification: boolean; status: 'available' | 'coming-soon' };
+import { GraduationCap, Info, AlertCircle, UserCheck } from "lucide-react";
+import apiClient from "../../services/api/apiClient";
 
 const UserBuyExamPinPage: React.FC = () => {
-    const { balance, fetchBalance, currency } = useWalletStore();
+    const { balance, currency, fetchBalance } = useWalletStore();
+    const { user } = useAuthStore();
     const navigate = useNavigate();
 
-    const [fetching, setFetching] = useState(true);
-    const [examVariations, setExamVariations] = useState<any[]>([]);
-    const [selectedBody, setSelectedBody] = useState(EXAM_BODIES[0]);
-    const [selectedVariation, setSelectedVariation] = useState('');
-    const [quantity, setQuantity] = useState(1);
+    // DYNAMIC IDENTITIES
+    const [identities, setIdentities] = useState<any[]>([]);
+    const [selectedIdentity, setSelectedIdentity] = useState<any | null>(null);
+    const [identitiesLoading, setIdentitiesLoading] = useState(true);
 
-    // JAMB profile verification
-    const [jambProfileId, setJambProfileId] = useState('');
-    const [verifyingJamb, setVerifyingJamb] = useState(false);
-    const [jambProfile, setJambProfile] = useState<any>(null);
-
+    const [plans, setPlans] = useState<any[]>([]);
+    const [planId, setPlanId] = useState("");
+    const [quantity, setQuantity] = useState("1");
+    const [fetchingPlans, setFetchingPlans] = useState(false);
+    const [purchasePlan, setPurchasePlan] = useState<any>(null);
     const [showPinModal, setShowPinModal] = useState(false);
     const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
+    const [previewPricing, setPreviewPricing] = useState<any>(null);
+    const [previewLoading, setPreviewLoading] = useState(false);
+    const [previewError, setPreviewError] = useState(false);
+
+    // JAMB Specific
+    const [profileCode, setProfileCode] = useState("");
+    const [customerName, setCustomerName] = useState<string | null>(null);
+    const [verifying, setVerifying] = useState(false);
+    const isJamb = selectedIdentity?.slug?.toLowerCase().includes("jamb") || selectedIdentity?.name?.toLowerCase().includes("jamb");
 
     useEffect(() => {
-        const loadVariations = async () => {
-            setFetching(true);
-            setJambProfile(null);
+        const loadIdentities = async () => {
+            setIdentitiesLoading(true);
             try {
-                const serviceId = selectedBody.serviceID;
-                const res = await vtuService.fetchDataPlans(serviceId);
-                const fetched = res.data?.content?.variations || res.data?.variations || (Array.isArray(res.data) ? res.data : []);
-                if (fetched.length > 0) {
-                    setExamVariations(fetched);
-                } else {
-                    const FALLBACKS: Record<string, { variation_code: string; name: string; variation_amount: number }[]> = {
-                        'waec':   [{ variation_code: 'waecdirect', name: 'WAEC Result Checker', variation_amount: 3800 }],
-                        'waec-registration': [{ variation_code: 'waec-registraion', name: 'WAEC Registration', variation_amount: 18000 }],
-                        'neco':   [{ variation_code: 'neco', name: 'NECO Result Checker', variation_amount: 1000 }],
-                        'nabteb': [{ variation_code: 'nabteb', name: 'NABTEB Result Checker', variation_amount: 1000 }],
-                        'jamb':   [
-                            { variation_code: 'utme-no-mock', name: 'JAMB UTME PIN (No Mock)', variation_amount: 6200 },
-                            { variation_code: 'utme-mock', name: 'JAMB UTME PIN (With Mock)', variation_amount: 7700 }
-                        ],
-                    };
-                    setExamVariations(FALLBACKS[serviceId] || []);
+                const res = await apiClient.get('/services/identities?category=pin');
+                setIdentities(res.data.data);
+                if (res.data.data.length > 0) {
+                    setSelectedIdentity(res.data.data[0]);
                 }
             } catch (err) {
-                console.error("Failed to fetch exam variations", err);
-                const fallback = [{ variation_code: selectedBody.variationCode, name: selectedBody.label, variation_amount: 3500 }];
-                setExamVariations(fallback);
+                toast.error("Failed to load providers");
             } finally {
-                setFetching(false);
+                setIdentitiesLoading(false);
             }
         };
-        loadVariations();
-    }, [selectedBody]);
+        loadIdentities();
+    }, []);
 
-    // Implicitly find the current variation tied to the selected card
-    const currentVariation = examVariations.find(v => v.variation_code === selectedBody.variationCode);
-    const unitPrice = Number(currentVariation?.variation_amount) || 0;
-    const totalAmount = unitPrice * (selectedBody.serviceID === 'jamb' ? 1 : quantity);
-    const insufficient = totalAmount > balance;
+    useEffect(() => {
+        if (!selectedIdentity) return;
+        const loadPlans = async () => {
+            setFetchingPlans(true);
+            setPlanId("");
+            setProfileCode("");
+            setCustomerName(null);
+            try {
+                const res = await vtuService.fetchDataPlans(selectedIdentity.slug);
+                const fetchedPlans = res.data?.variations || (Array.isArray(res.data) ? res.data : []);
+                setPlans(fetchedPlans);
+            } catch (err) {
+                toast.error("Could not load packages.");
+            } finally {
+                setFetchingPlans(false);
+            }
+        };
+        loadPlans();
+    }, [selectedIdentity]);
 
-    const handleJambVerify = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!jambProfileId || verifyingJamb) return;
-        setVerifyingJamb(true);
+    const handleVerifyProfile = async () => {
+        if (!profileCode || !selectedIdentity) return;
+        setVerifying(true);
+        setCustomerName(null);
         try {
-            const res = await vtuService.verifyMerchant({ serviceID: 'jamb', billersCode: jambProfileId });
-            const verified = res.data?.content || res.data;
-            setJambProfile(verified);
-            toast.success("JAMB profile verified!");
+            const res = await vtuService.verifyJambProfile(selectedIdentity.slug, profileCode);
+            if (res.data?.content?.Customer_Name) {
+                setCustomerName(res.data.content.Customer_Name);
+                toast.success(`Verified: ${res.data.content.Customer_Name}`);
+            } else {
+                toast.error("Could not verify profile code.");
+            }
         } catch (err: any) {
-            const msg = err.response?.data?.message || "Could not verify JAMB Profile ID";
-            setFormError(msg);
-            toast.error(msg);
+            toast.error(err.response?.data?.message || "Verification failed");
         } finally {
-            setVerifyingJamb(false);
+            setVerifying(false);
         }
     };
 
+    const currentPlan = useMemo(() => {
+        const p = plans.find(p => p.variation_code === planId);
+        if (p) setPurchasePlan(p);
+        return p;
+    }, [plans, planId]);
+    
+    const originalAmount = Number(currentPlan?.variation_amount || 0) * Number(quantity);
+    const finalAmount = previewPricing?.data?.salePrice || 0;
+    const insufficient = finalAmount > balance && originalAmount > 0;
+
+    useEffect(() => {
+        if (currentPlan && currentPlan.variation_code) {
+            const fetchPreview = async () => {
+                setPreviewLoading(true);
+                setPreviewPricing(null);
+                setPreviewError(false);
+                try {
+                    const unitAmount = Number(currentPlan.variation_amount) || 0;
+                    const res = await vtuService.previewPrice(undefined, unitAmount, currentPlan.variation_code, Number(quantity));
+                    if (res && res.success) {
+                        setPreviewPricing(res);
+                    } else {
+                        setPreviewError(true);
+                    }
+                } catch (e) {
+                    setPreviewError(true);
+                } finally {
+                    setPreviewLoading(false);
+                }
+            };
+            fetchPreview();
+        } else {
+            setPreviewPricing(null);
+            setPreviewError(false);
+        }
+    }, [currentPlan, quantity]);
+
     const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
-        setFormError(null);
-        if (loading) return;
-        if (selectedBody.requiresVerification && !jambProfile) {
-            const err = "Please verify your JAMB Profile ID first";
-            setFormError(err);
-            toast.error(err);
+        if (!planId) {
+            toast.error("Select an examination board");
             return;
         }
-        if (!currentVariation) {
-            const err = "Package not available. Please wait or try another.";
-            setFormError(err);
-            toast.error(err);
-            return;
-        }
-        if (!totalAmount || totalAmount <= 0) {
-            const err = "Could not determine purchase price. Please refresh and try again.";
-            setFormError(err);
-            toast.error(err);
+        if (isJamb && !customerName) {
+            toast.error("Please verify JAMB profile code first");
             return;
         }
         if (insufficient) {
-            const err = "Insufficient wallet balance";
-            setFormError(err);
-            toast.error(err);
+            toast.error("Insufficient wallet balance");
             return;
         }
-        setPinError(null);
-        setFormError(null);
         setShowPinModal(true);
     };
 
@@ -135,210 +154,210 @@ const UserBuyExamPinPage: React.FC = () => {
         if (loading) return;
         setLoading(true);
         setPinError(null);
-        const serviceTitle = `${selectedBody.name} - ${currentVariation?.name || selectedBody.label}`;
-        const purchaseAmount = Number(totalAmount) || 0;
         try {
-            const payload: any = {
-                serviceID: selectedBody.serviceID,
-                variation_code: currentVariation!.variation_code,
-                amount: purchaseAmount,
-                phone: '',
-                pin
-            };
-            if (selectedBody.serviceID === 'jamb') {
-                payload.billersCode = jambProfileId;
-                payload.quantity = 1;
-            } else {
-                payload.quantity = quantity;
-            }
-            const res = await vtuService.buyExamPin(payload);
+            const res = await vtuService.buyExamPin({ 
+                serviceID: selectedIdentity.slug, 
+                variation_code: purchasePlan.variation_code, 
+                amount: Number(purchasePlan.variation_amount), 
+                quantity: Number(quantity),
+                phone: user?.phone || "08000000000", 
+                billersCode: isJamb ? profileCode : undefined,
+                pin, 
+                expectedPrice: finalAmount 
+            });
             await fetchBalance();
             setShowPinModal(false);
-            navigate('/app/services/status', { state: { status: 'success', message: res.message || 'PIN purchase successful.', transaction: { service: serviceTitle, amount: purchaseAmount, target: selectedBody.name, reference: res.data?.reference || res.data?.requestId, timestamp: new Date().toLocaleTimeString() } } });
+            navigate('/app/services/status', { 
+                state: { 
+                    status: 'success', 
+                    message: res.message || 'PIN purchased successful.', 
+                    transaction: { 
+                        service: `${selectedIdentity.name} ${purchasePlan.name}`, 
+                        amount: finalAmount, 
+                        target: isJamb ? profileCode : (user?.phone || user?.email), 
+                        reference: res.data?.reference || res.data?.requestId, 
+                        token: res.data?.token || res.data?.purchased_code,
+                        timestamp: new Date().toLocaleTimeString() 
+                    } 
+                } 
+            });
         } catch (err: any) {
-            const msg = err.response?.data?.message || "Purchase failed.";
-            setPinError(msg);
-            setFormError(msg);
-            toast.error(msg);
+            setPinError(err.response?.data?.message || "Purchase failed.");
+            toast.error(err.response?.data?.message || "Purchase failed.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <PurchaseLayout title="Educational PINs" subtitle="Secure official exam checkers and JAMB registration tokens.">
-            <div className="flex flex-col lg:flex-row gap-8">
-                {/* LEFT: Form */}
-                <div className="flex-1 space-y-6">
-                    {formError && (
-                        <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3 text-red-700 animate-in slide-in-from-top-4 duration-500">
-                            <AlertCircle size={20} className="shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-sm font-bold">Transaction Error</p>
-                                <p className="text-xs font-medium opacity-90">{formError}</p>
-                            </div>
-                        </div>
-                    )}
-                    {/* Exam Body Selector */}
-                    <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Choose Examination</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {EXAM_BODIES.map(body => (
-                                <button key={body.id} type="button"
-                                    onClick={() => {
-                                        if (body.status === 'coming-soon') {
-                                            toast(body.name + " is coming soon!", { icon: '⏳' });
-                                            setFormError(body.name + " is currently unavailable.");
-                                            return;
-                                        }
-                                        setFormError(null);
-                                        setSelectedBody(body); setJambProfile(null); setJambProfileId('');
-                                    }}
-                                    className={`relative group flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-300 ${
-                                        selectedBody.id === body.id
-                                            ? 'bg-slate-900 border-emerald-500 shadow-xl scale-[1.02]'
-                                            : body.status === 'coming-soon'
-                                                ? 'bg-slate-50 border-slate-100 opacity-60 grayscale'
-                                                : 'bg-white border-slate-100 hover:border-slate-200'
-                                    }`}>
-                                    <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">{body.emoji}</span>
-                                    <span className={`text-[11px] font-black uppercase tracking-tight text-center ${selectedBody.id === body.id ? 'text-emerald-400' : 'text-slate-700'}`}>
-                                        {body.name}
-                                    </span>
-                                    {body.status === 'coming-soon' && (
-                                        <div className="absolute top-2 right-2 flex items-center gap-1 bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
-                                            <span className="text-[8px] font-black uppercase">SOON</span>
-                                        </div>
-                                    )}
-                                    {selectedBody.id === body.id && (
-                                        <CheckCircle2 size={16} className="absolute top-2 right-2 text-emerald-400" />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {fetching ? (
-                        <div className="h-24 bg-slate-100 rounded-xl animate-pulse" />
-                    ) : (
-                        <>
-                            {/* JAMB: Profile Verification */}
-                            {selectedBody.serviceID === 'jamb' && (
-                                <div className="space-y-4">
-                                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
-                                        <p className="text-xs font-bold text-blue-700 mb-1">JAMB Profile Verification Required</p>
-                                        <p className="text-[10px] text-blue-600 font-medium">Enter your JAMB Profile ID to verify your candidacy before purchasing.</p>
+        <PurchaseLayout title="Exam PINs" subtitle="Purchase registration and result checking pins instantly.">
+            <form onSubmit={handleInitiate}>
+                <div className="flex flex-col lg:flex-row gap-8">
+                    {/* LEFT */}
+                    <div className="flex-1 space-y-6">
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Examination Board</p>
+                            <div className="flex gap-3 flex-wrap">
+                                {identitiesLoading ? (
+                                    <div className="flex gap-3">
+                                        {Array(3).fill(0).map((_, i) => <div key={i} className="w-24 h-24 bg-slate-100 rounded-2xl animate-pulse" />)}
                                     </div>
-                                    {!jambProfile ? (
-                                        <form onSubmit={handleJambVerify} className="flex gap-3">
-                                            <div className="flex-1 relative">
-                                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                                <Input placeholder="Enter JAMB Profile ID" value={jambProfileId}
-                                                    onChange={(e: any) => setJambProfileId(e.target.value.trim())}
-                                                    className="pl-10" required />
+                                ) : identities.map(identity => (
+                                    <button key={identity._id} type="button" onClick={() => setSelectedIdentity(identity)}
+                                        className={`relative overflow-hidden flex flex-col items-center justify-center gap-2 p-3 w-24 h-24 rounded-2xl font-bold text-sm transition-all border-2 ${
+                                            selectedIdentity?._id === identity._id
+                                                ? 'bg-emerald-50 border-emerald-500 shadow-lg scale-105 text-emerald-900'
+                                                : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                                        }`}>
+                                        {identity.brandId?.logoUrl ? (
+                                            <img src={identity.brandId.logoUrl} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-white shadow-sm" />
+                                        ) : (
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-lg ${selectedIdentity?._id === identity._id ? 'bg-emerald-200 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
+                                                {identity.name.substring(0, 2).toUpperCase()}
                                             </div>
-                                            <SubmitButton loading={verifyingJamb} disabled={verifyingJamb || !jambProfileId}>
-                                                Verify
-                                            </SubmitButton>
-                                        </form>
-                                    ) : (
-                                        <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl space-y-2">
-                                            <div className="flex items-center gap-2 text-emerald-600">
-                                                <CheckCircle2 size={16} />
-                                                <span className="text-xs font-bold">Profile Verified</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <User size={15} className="text-emerald-500 shrink-0" />
-                                                <div>
-                                                    <p className="text-[9px] text-emerald-600/60 font-bold uppercase tracking-widest">Candidate Name</p>
-                                                    <p className="font-bold text-slate-900 text-sm">{jambProfile?.Candidate_Name || jambProfile?.name || 'Verified'}</p>
-                                                </div>
-                                            </div>
-                                            <button type="button" onClick={() => { setJambProfile(null); setJambProfileId(''); }}
-                                                className="text-[10px] font-bold text-emerald-600 underline uppercase tracking-widest">
-                                                Change Profile ID
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Non-JAMB: Quantity */}
-                            {selectedBody.serviceID !== 'jamb' && (
-                                <Row label="Quantity (Max 5)">
-                                    <Select value={quantity} onChange={(e) => setQuantity(Number(e.target.value))}>
-                                        {[1, 2, 3, 4, 5].map(q => <option key={q} value={q}>{q} Unit{q > 1 ? 's' : ''}</option>)}
-                                    </Select>
-                                </Row>
-                            )}
-                        </>
-                    )}
-
-                    <div className="bg-slate-50 p-4 rounded-2xl flex items-start gap-3 border border-slate-100">
-                        <AlertCircle size={16} className="text-slate-400 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
-                            PINs are delivered as secure tokens and also saved in your Zantara transaction history for future access.
-                        </p>
-                    </div>
-                </div>
-
-                {/* RIGHT: Summary */}
-                <div className="lg:w-72">
-                    <div className="sticky top-4 bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-5">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Summary</p>
-
-                        <div className="bg-slate-900 text-white p-5 rounded-xl flex items-center gap-4">
-                            <span className="text-3xl">{selectedBody.emoji}</span>
-                            <div>
-                                <p className="font-black text-base">{selectedBody.name}</p>
-                                <p className="text-slate-400 text-xs">{selectedBody.label}</p>
+                                        )}
+                                        <span className="text-[11px] text-center leading-tight truncate w-full">{identity.name}</span>
+                                        {selectedIdentity?._id === identity._id && (
+                                            <div className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full shadow-sm shadow-emerald-500/50 animate-pulse"></div>
+                                        )}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        {!fetching && currentVariation && (
-                            <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-slate-500">Package</span>
-                                    <span className="font-bold text-slate-900 text-right max-w-[130px] leading-tight">{currentVariation.name}</span>
+                        <div className="space-y-3">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Package</p>
+                            {fetchingPlans ? (
+                                <div className="space-y-2">
+                                    {Array(2).fill(0).map((_, i) => <div key={i} className="h-12 bg-slate-50 rounded-xl animate-pulse" />)}
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-slate-500">Unit Price</span>
-                                    <span className="font-bold text-slate-900">{currency}{unitPrice.toLocaleString()}</span>
+                            ) : (
+                                <div className="space-y-2">
+                                    {plans.length === 0 ? (
+                                        <p className="text-xs text-slate-400 text-center py-4 border border-dashed border-slate-200 rounded-xl">No PIN packages found</p>
+                                    ) : (
+                                        plans.map((plan: any) => (
+                                            <button key={plan.variation_code} type="button"
+                                                onClick={() => setPlanId(plan.variation_code)}
+                                                className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
+                                                    planId === plan.variation_code
+                                                        ? 'border-rose-500 bg-rose-50'
+                                                        : 'border-slate-100 bg-slate-50 text-slate-700 hover:border-slate-200'
+                                                }`}>
+                                                <span className="font-bold text-xs">{plan.name}</span>
+                                                <span className="font-extrabold text-xs">{currency}{Number(plan.variation_amount).toLocaleString()}</span>
+                                            </button>
+                                        ))
+                                    )}
                                 </div>
-                                {selectedBody.serviceID !== 'jamb' && (
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500">Quantity</span>
-                                        <span className="font-bold text-slate-900">x {quantity}</span>
+                            )}
+                        </div>
+
+                        {isJamb && (
+                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <UserCheck size={14} className="text-rose-500" />
+                                    <span>JAMB Profile Verification</span>
+                                </p>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex-1">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Enter 10-digit Profile Code" 
+                                            value={profileCode}
+                                            onChange={(e) => {
+                                                setProfileCode(e.target.value);
+                                                setCustomerName(null);
+                                            }}
+                                            className="w-full p-4 bg-white border-2 border-slate-100 rounded-xl font-bold focus:border-rose-500 outline-none transition-all text-sm"
+                                        />
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={handleVerifyProfile}
+                                        disabled={!profileCode || verifying || !!customerName}
+                                        className="px-6 py-4 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    >
+                                        {verifying ? 'Verifying...' : customerName ? 'Verified' : 'Verify'}
+                                    </button>
+                                </div>
+                                {customerName && (
+                                    <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+                                        <p className="text-xs text-emerald-700 font-bold">Candidate: {customerName}</p>
                                     </div>
                                 )}
-                                <div className="border-t border-slate-200 pt-2 flex justify-between">
-                                    <span className="font-bold text-slate-700">Total</span>
-                                    <span className="font-extrabold text-emerald-600 text-lg">{currency}{totalAmount.toLocaleString()}</span>
-                                </div>
                             </div>
                         )}
 
-                        <div className="border-t border-slate-100 pt-3 space-y-1">
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Wallet Balance</p>
-                            <p className={`text-base font-extrabold ${insufficient ? 'text-red-500' : 'text-slate-900'}`}>
-                                {currency}{balance.toLocaleString()}
+                        <Row label="Quantity">
+                            <div className="flex items-center gap-4">
+                                <input 
+                                    type="number" 
+                                    min="1" 
+                                    max="10"
+                                    value={quantity}
+                                    onChange={(e) => setQuantity(e.target.value)}
+                                    className="w-20 p-3 bg-white border-2 border-slate-100 rounded-xl font-bold text-center text-lg focus:border-rose-500 outline-none transition-all"
+                                />
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">Bulk purchase supported</p>
+                            </div>
+                        </Row>
+
+                        <div className="p-4 bg-slate-50 rounded-2xl flex gap-3 items-start border border-slate-100">
+                            <Info size={16} className="text-slate-400 shrink-0 mt-0.5" />
+                            <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                                Purchased PINs are stored in your history. Verify board selection before payment.
                             </p>
-                            {insufficient && <p className="text-[10px] text-red-500 font-bold">Insufficient balance</p>}
                         </div>
+                    </div>
 
-                        <form onSubmit={handleInitiate}>
-                            <SubmitButton loading={loading} disabled={loading || insufficient || fetching || !currentVariation || (selectedBody.requiresVerification && !jambProfile)}>
-                                Purchase PINs
+                    {/* RIGHT: Order Summary */}
+                    <div className="lg:w-72 space-y-4">
+                        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-4 sticky top-4">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Summary</p>
+
+                            <div className="bg-white border border-slate-100 p-4 rounded-xl flex items-center justify-center font-bold text-slate-900">
+                                {selectedIdentity?.name || '—'}
+                            </div>
+
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">Board</span>
+                                    <span className="font-bold text-slate-900 text-right max-w-[120px] truncate leading-tight">{currentPlan?.name || '—'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">Qty</span>
+                                    <span className="font-bold text-slate-900">x{quantity}</span>
+                                </div>
+                                
+                                <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
+                                    <span className="font-bold text-slate-700">Total</span>
+                                    <div className="text-right">
+                                        {previewLoading ? (
+                                             <div className="w-16 h-5 bg-slate-200 animate-pulse rounded"></div>
+                                        ) : previewError ? (
+                                             <span className="text-xs text-red-500 font-bold">Unavailable</span>
+                                        ) : (
+                                            <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-slate-100 pt-3 space-y-1">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Wallet Balance</p>
+                                <p className={`text-base font-extrabold ${insufficient ? 'text-red-500' : 'text-slate-900'}`}>
+                                    {currency}{balance.toLocaleString()}
+                                </p>
+                            </div>
+
+                            <SubmitButton loading={loading} disabled={loading || insufficient || fetchingPlans || !planId || previewLoading || previewError}>
+                                Buy PIN
                             </SubmitButton>
-                        </form>
-
-                        <div className="flex items-center gap-2 text-emerald-600 justify-center">
-                            <Zap size={14} />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Instant Digital Delivery</span>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
 
             <SecurePinModal
                 isOpen={showPinModal}
@@ -346,7 +365,8 @@ const UserBuyExamPinPage: React.FC = () => {
                 onConfirm={handleConfirm}
                 loading={loading}
                 error={pinError}
-                title={`Verify ${selectedBody.name} Purchase`} />
+                title={`Verify Exam PIN Purchase`}
+            />
         </PurchaseLayout>
     );
 };

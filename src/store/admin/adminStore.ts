@@ -12,6 +12,7 @@ interface AdminState {
     pendingKycCount: number;
     pendingWithdrawalsCount: number;
     failedTxsToday: number;
+    todayProfit: number;
 }
 
 export const useAdminStore = create<AdminState>((set) => ({
@@ -21,6 +22,7 @@ export const useAdminStore = create<AdminState>((set) => ({
     pendingKycCount: 0,
     pendingWithdrawalsCount: 0,
     failedTxsToday: 0,
+    todayProfit: 0,
 
     fetchDashboardStats: async (days = 7) => {
         set({ loadingStats: true, error: null });
@@ -33,6 +35,7 @@ export const useAdminStore = create<AdminState>((set) => ({
                 pendingKycCount: data?.pendingKyc || 0,
                 pendingWithdrawalsCount: data?.pendingWithdrawals || 0,
                 failedTxsToday: data?.failedTxsToday || 0,
+                todayProfit: data?.todayProfit || 0,
                 loadingStats: false 
             });
         } catch (err: any) {

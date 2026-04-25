@@ -64,25 +64,20 @@ import AdminPinSetupPage from '../pages/admin/AdminPinSetupPage';
 import { StatusPage } from '../pages/admin/StatusPage';
 import TransactionsPage from '../pages/admin/TransactionsPage';
 import AdminTransactionDetailPage from '../pages/admin/AdminTransactionDetailPage';
-import AdminUsersPage from '../pages/admin/AdminUsersPage';
 import AdminUserDetailPage from '../pages/admin/AdminUserDetailPage';
-import AdminKycQueuePage from '../pages/admin/AdminKycQueuePage';
 import AdminWithdrawalsPage from '../pages/admin/AdminWithdrawalsPage';
 import AdminSupportTicketsPage from '../pages/admin/AdminSupportTicketsPage';
 import AdminSupportTicketDetailPage from '../pages/admin/AdminSupportTicketDetailPage';
 import AdminNotificationsControlPage from '../pages/admin/AdminNotificationsControlPage';
-import AdminEarningsPage from '../pages/admin/AdminEarningsPage';
-import AdminBusinessOverviewPage from '../pages/admin/finance/AdminBusinessOverviewPage';
+import AdminFinancialHubPage from '../pages/admin/finance/hub/AdminFinancialHubPage';
 import AdminSystemWalletPage from '../pages/admin/finance/AdminSystemWalletPage';
-import AdminUnifiedOutflowPage from '../pages/admin/finance/AdminUnifiedOutflowPage';
-import AdminProfitAnalyticsPage from '../pages/admin/finance/AdminProfitAnalyticsPage';
 import AdminCommissionSettingsPage from '../pages/admin/finance/AdminCommissionSettingsPage';
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
-import AdminProvidersPage from '../pages/admin/AdminProvidersPage';
-import AdminServicesRoutingPage from '../pages/admin/AdminServicesRoutingPage';
 import AdminShareholdersPage from '../pages/admin/AdminShareholdersPage';
 import AdminProfilePage from '../pages/admin/AdminProfilePage';
+import AdminServiceHubPage from '../pages/admin/catalog/hub/AdminServiceHubPage';
+import AdminPersonnelHubPage from '../pages/admin/personnel/hub/AdminPersonnelHubPage';
 
 // System Pages
 import NotFound from '../pages/system/NotFound';
@@ -193,10 +188,14 @@ export default function AppRoutes() {
                             <Route index element={<AdminDashboardPage />} />
                             <Route path="dashboard" element={<Navigate to="/admin" replace />} />
                             
-                            <Route path="users" element={<AdminUsersPage />} />
+                            <Route path="users" element={<Navigate to="/admin/personnel/hub" replace />} />
                             <Route path="users/:id" element={<AdminUserDetailPage />} />
                             
-                            <Route path="kyc" element={<AdminKycQueuePage />} />
+                            <Route path="kyc" element={<Navigate to="/admin/personnel/hub" state={{ activeTab: 'verification' }} replace />} />
+                            
+                            <Route path="personnel">
+                                <Route path="hub" element={<AdminPersonnelHubPage />} />
+                            </Route>
                             <Route path="transactions" element={<TransactionsPage />} />
                             <Route path="transactions/:id" element={<AdminTransactionDetailPage />} />
                             <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
@@ -209,13 +208,14 @@ export default function AppRoutes() {
                             {/* Business & Finance — SuperAdmin Only */}
                             <Route element={<RequireAccess anyRole={["superAdmin"]} />}>
                                 <Route path="business">
-                                    <Route path="earnings" element={<AdminEarningsPage />} />
-                                    <Route path="overview" element={<AdminBusinessOverviewPage />} />
+                                    <Route path="intelligence" element={<AdminFinancialHubPage />} />
+                                    <Route path="overview" element={<Navigate to="intelligence" state={{ consolidated: true }} replace />} />
                                     <Route path="wallet" element={<AdminSystemWalletPage />} />
-                                    <Route path="treasury" element={<AdminUnifiedOutflowPage />} />
-                                    <Route path="ledger" element={<Navigate to="../treasury" replace />} />
-                                    <Route path="expenses" element={<Navigate to="../treasury" replace />} />
-                                    <Route path="profit" element={<AdminProfitAnalyticsPage />} />
+                                    <Route path="treasury" element={<Navigate to="intelligence" state={{ consolidated: true }} replace />} />
+                                    <Route path="ledger" element={<Navigate to="intelligence" state={{ consolidated: true }} replace />} />
+                                    <Route path="expenses" element={<Navigate to="intelligence" state={{ consolidated: true }} replace />} />
+                                    <Route path="profit" element={<Navigate to="intelligence" state={{ consolidated: true }} replace />} />
+                                    <Route path="earnings" element={<Navigate to="intelligence" state={{ consolidated: true }} replace />} />
                                     <Route path="commissions" element={<AdminCommissionSettingsPage />} />
                                     <Route path="shareholders" element={<AdminShareholdersPage />} />
                                 </Route>
@@ -223,8 +223,18 @@ export default function AppRoutes() {
                                 {/* System — SuperAdmin Only */}
                                 <Route path="audit-logs" element={<AdminAuditLogsPage />} />
                                 <Route path="settings" element={<AdminSettingsPage />} />
-                                <Route path="providers" element={<AdminProvidersPage />} />
-                                <Route path="services-routing" element={<AdminServicesRoutingPage />} />
+                                <Route path="providers" element={<Navigate to="/admin/catalog/hub" state={{ activeTab: 'vendors' }} replace />} />
+                                <Route path="services-routing" element={<Navigate to="/admin/catalog/hub" replace />} />
+                                
+                                <Route path="catalog">
+                                    <Route path="hub" element={<AdminServiceHubPage />} />
+                                </Route>
+                                
+                                {/* Batch 3: Normalized Hierarchy & Pricing Management */}
+                                <Route path="hierarchy">
+                                    <Route path="pricing-rules" element={<Navigate to="/admin/catalog/hub" state={{ activeTab: 'pricing' }} replace />} />
+                                    <Route path="provider-offers" element={<Navigate to="/admin/catalog/hub" state={{ activeTab: 'fulfillment' }} replace />} />
+                                </Route>
                             </Route>
                         </Route>
                     </Route>

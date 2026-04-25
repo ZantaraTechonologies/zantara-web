@@ -38,6 +38,9 @@ export type Txn = {
     refId?: string; // fallback ID
     type?: string; // e.g., funding, purchase, Commission
     meta?: Record<string, any>;
+    profit?: number;
+    costPrice?: number;
+    accountingSource?: 'actual' | 'estimated';
 };
 
 // Helper widgets
@@ -280,7 +283,8 @@ export default function TransactionsPage() {
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Date</th>
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Client</th>
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Protocol</th>
-                                <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Amount</th>
+                                <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">User Paid</th>
+                                <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Platform Yield</th>
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Status</th>
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Reference</th>
                                 <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Actions</th>
@@ -338,6 +342,16 @@ export default function TransactionsPage() {
                                         </td>
                                         <td className={`px-4 py-3 text-right font-bold text-sm ${isCredit ? 'text-emerald-500' : 'text-rose-500'}`}>
                                             {isCredit ? '+' : '-'}{currency(r.amount || 0).replace('NGN', '₦')}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-xs font-bold text-slate-700">{currency(r.profit || 0).replace('NGN', '₦')}</span>
+                                                <span className={`text-[8px] font-black uppercase tracking-tighter px-1.5 rounded ${
+                                                    r.accountingSource === 'actual' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
+                                                }`}>
+                                                    {r.accountingSource || 'estimated'}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td className="px-4 py-3">
                                             <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest ${

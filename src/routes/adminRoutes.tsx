@@ -1,12 +1,11 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import RequireAccess from "./guards/RequireAccess";
 import AdminLayout from "../layouts/admin/AdminLayout";
 import AdminLogin from "../pages/admin/AdminLoginPage";
 import AdminRegister from "../pages/admin/AdminRegister";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
-import AdminUsersPage from "../pages/admin/AdminUsersPage";
 import AdminUserDetailPage from "../pages/admin/AdminUserDetailPage";
-import AdminKycQueuePage from "../pages/admin/AdminKycQueuePage";
+import AdminPersonnelHubPage from "../pages/admin/personnel/hub/AdminPersonnelHubPage";
 import AdminWithdrawalsPage from "../pages/admin/AdminWithdrawalsPage";
 import AdminSupportTicketsPage from "../pages/admin/AdminSupportTicketsPage";
 import AdminSupportTicketDetailPage from "../pages/admin/AdminSupportTicketDetailPage";
@@ -16,13 +15,9 @@ import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import { StatusPage } from "../pages/admin/StatusPage";
 import TransactionsPage from "../pages/admin/TransactionsPage";
 import AdminTransactionDetailPage from "../pages/admin/AdminTransactionDetailPage";
-import AdminBusinessOverviewPage from "../pages/admin/finance/AdminBusinessOverviewPage";
 import AdminSystemWalletPage from "../pages/admin/finance/AdminSystemWalletPage";
-import AdminBusinessLedgerPage from "../pages/admin/finance/AdminBusinessLedgerPage";
-import AdminProfitAnalyticsPage from "../pages/admin/finance/AdminProfitAnalyticsPage";
-import AdminExpensesPage from "../pages/admin/finance/AdminExpensesPage";
 import AdminCommissionSettingsPage from "../pages/admin/finance/AdminCommissionSettingsPage";
-import AdminEarningsPage from "../pages/admin/AdminEarningsPage";
+import AdminFinancialHubPage from "../pages/admin/finance/hub/AdminFinancialHubPage";
 
 export const router = createBrowserRouter([
   // Public admin auth pages
@@ -38,9 +33,15 @@ export const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { path: "dashboard", element: <AdminDashboardPage /> },
-          { path: "users", element: <AdminUsersPage /> },
+          { path: "users", element: <Navigate to="/admin/personnel/hub" replace /> },
           { path: "users/:id", element: <AdminUserDetailPage /> },
-          { path: "kyc", element: <AdminKycQueuePage /> },
+          { path: "kyc", element: <Navigate to="/admin/personnel/hub" state={{ activeTab: 'verification' }} replace /> },
+          { 
+            path: "personnel",
+            children: [
+              { path: "hub", element: <AdminPersonnelHubPage /> }
+            ]
+          },
           { path: "withdrawals", element: <AdminWithdrawalsPage /> },
           { path: "support", element: <AdminSupportTicketsPage /> },
           { path: "support/:id", element: <AdminSupportTicketDetailPage /> },
@@ -50,13 +51,15 @@ export const router = createBrowserRouter([
           { path: "status", element: <StatusPage /> },
           { path: "transactions", element: <TransactionsPage /> },
           { path: "transactions/:id", element: <AdminTransactionDetailPage /> },
-          { path: "business/overview", element: <AdminBusinessOverviewPage /> },
+          { path: "business/overview", element: <Navigate to="/admin/business/intelligence" state={{ consolidated: true }} replace /> },
           { path: "business/wallet", element: <AdminSystemWalletPage /> },
-          { path: "business/ledger", element: <AdminBusinessLedgerPage /> },
-          { path: "business/expenses", element: <AdminExpensesPage /> },
-          { path: "business/profit", element: <AdminProfitAnalyticsPage /> },
+          { path: "business/ledger", element: <Navigate to="/admin/business/intelligence" state={{ consolidated: true }} replace /> },
+          { path: "business/expenses", element: <Navigate to="/admin/business/intelligence" state={{ consolidated: true }} replace /> },
+          { path: "business/profit", element: <Navigate to="/admin/business/intelligence" state={{ consolidated: true }} replace /> },
+          { path: "business/treasury", element: <Navigate to="/admin/business/intelligence" state={{ consolidated: true }} replace /> },
           { path: "business/commissions", element: <AdminCommissionSettingsPage /> },
-          { path: "business/earnings", element: <AdminEarningsPage /> },
+          { path: "business/earnings", element: <Navigate to="/admin/business/intelligence" state={{ consolidated: true }} replace /> },
+          { path: "business/intelligence", element: <AdminFinancialHubPage /> },
         ],
       },
     ],

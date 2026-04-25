@@ -1,292 +1,362 @@
 import React, { useState, useEffect } from "react";
 import PurchaseLayout from "../../layouts/user/PurchaseLayout";
-import { Row, Input, Select, SubmitButton } from "../../components/buy/Buy";
+import { Row, Input, SubmitButton } from "../../components/buy/Buy";
 import * as vtuService from "../../services/vtu/vtuService";
 import { useWalletStore } from "../../store/wallet/walletStore";
+import { useAuthStore } from "../../store/auth/authStore";
 import { useNavigate } from "react-router-dom";
+import SecurePinModal from "../../components/modals/SecurePinModal";
 import { toast } from "react-hot-toast";
-import SecurePinModal from '../../components/modals/SecurePinModal';
-import { User, Zap, AlertCircle, CheckCircle2, Phone, MapPin } from 'lucide-react';
-import { ServiceSkeleton } from '../../components/feedback/Skeletons';
+import { Lightbulb, Zap, Phone, AlertCircle, Info, UserCheck } from "lucide-react";
+import apiClient from "../../services/api/apiClient";
 
-const FALLBACK_PROVIDERS = [
-    { id: 'ikeja-electric', name: 'Ikeja Electric (IKEDC)' },
-    { id: 'eko-electric', name: 'Eko Electric (EKEDC)' },
-    { id: 'abuja-electric', name: 'Abuja Electric (AEDC)' },
-    { id: 'kano-electric', name: 'Kano Electric (KEDCO)' },
-    { id: 'phed', name: 'Port Harcourt Elec. (PHED)' },
-    { id: 'jos-electric', name: 'Jos Electric (JED)' },
-    { id: 'kaduna-electric', name: 'Kaduna Electric (KAEDCO)' },
-    { id: 'enugu-electric', name: 'Enugu Electric (EEDC)' },
-    { id: 'ibadan-electric', name: 'Ibadan Electric (IBEDC)' },
-    { id: 'benin-electric', name: 'Benin Electric (BEDC)' },
-    { id: 'aba-power', name: 'Aba Power (ABA)' },
+const METER_TYPES = [
+    { id: "prepaid", label: "Prepaid" },
+    { id: "postpaid", label: "Postpaid" },
 ];
 
 const UserBuyElectricityPage: React.FC = () => {
     const { balance, currency, fetchBalance } = useWalletStore();
+    const { user } = useAuthStore();
     const navigate = useNavigate();
 
-    const [providers, setProviders] = useState(FALLBACK_PROVIDERS);
-    const [fetchingProviders, setFetchingProviders] = useState(true);
-    const [provider, setProvider] = useState(FALLBACK_PROVIDERS[0].id);
-    const [meterNumber, setMeterNumber] = useState('');
-    const [meterType, setMeterType] = useState('prepaid');
-    const [amount, setAmount] = useState<number | ''>('');
-    const [phone, setPhone] = useState('');
+    const [identities, setIdentities] = useState<any[]>([]);
+    const [selectedIdentity, setSelectedIdentity] = useState<any | null>(null);
+    const [identitiesLoading, setIdentitiesLoading] = useState(true);
 
-    const [verifying, setVerifying] = useState(false);
-    const [verifiedUser, setVerifiedUser] = useState<any>(null);
-    const [step, setStep] = useState(1);
+    const [meterNumber, setMeterNumber] = useState("");
+    const [meterType, setMeterType] = useState("prepaid");
+    const [amount, setAmount] = useState("");
     const [showPinModal, setShowPinModal] = useState(false);
     const [pinError, setPinError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [formError, setFormError] = useState<string | null>(null);
+    const [verifying, setVerifying] = useState(false);
+    const [customerName, setCustomerName] = useState<string | null>(null);
+    const [previewPricing, setPreviewPricing] = useState<any>(null);
+    const [previewLoading, setPreviewLoading] = useState(false);
+    const [previewError, setPreviewError] = useState(false);
 
     useEffect(() => {
-        const loadProviders = async () => {
+        const loadIdentities = async () => {
+            setIdentitiesLoading(true);
             try {
-                const res = await vtuService.fetchDataPlans('electricity-bill');
-                const fetched = res.data?.content?.variations || res.data?.variations || (Array.isArray(res.data) ? res.data : []);
-                if (fetched.length > 0) {
-                    const formatted = fetched.map((f: any) => ({ id: f.serviceID || f.id || f.variation_code, name: f.name || f.variation_name }));
-                    setProviders(formatted);
-                    setProvider(formatted[0].id);
+                const res = await apiClient.get('/services/identities?category=electricity');
+                setIdentities(res.data.data);
+                if (res.data.data.length > 0) {
+                    setSelectedIdentity(res.data.data[0]);
                 }
             } catch (err) {
-                console.error("Failed to fetch electricity providers", err);
+                toast.error("Failed to load providers");
             } finally {
-                setFetchingProviders(false);
+                setIdentitiesLoading(false);
             }
         };
-        loadProviders();
+        loadIdentities();
     }, []);
 
-    const handleVerify = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!meterNumber || verifying) return;
+    // Reset verification on input changes
+    useEffect(() => {
+        setCustomerName(null);
+    }, [meterType, selectedIdentity]);
+
+    const handleVerifyMeter = async () => {
+        if (!meterNumber || !selectedIdentity) return;
         setVerifying(true);
+        setCustomerName(null);
         try {
-            setFormError(null);
-            const res = await vtuService.verifyMerchant({ serviceID: provider, billersCode: meterNumber, type: meterType });
-            const verified = res.data?.content || res.data;
-            setVerifiedUser(verified);
-            // Auto-fill phone from verified data
-            if (verified?.Customer_Phone) setPhone(verified.Customer_Phone);
-            setStep(2);
-            toast.success("Meter verified successfully");
+            const res = await vtuService.verifyMeter(selectedIdentity.slug, meterNumber, meterType);
+            if (res.data?.content?.Customer_Name) {
+                setCustomerName(res.data.content.Customer_Name);
+                toast.success(`Verified: ${res.data.content.Customer_Name}`);
+            } else {
+                toast.error("Could not verify meter number.");
+            }
         } catch (err: any) {
-            const msg = err.response?.data?.message || "Meter verification failed";
-            setFormError(msg);
-            toast.error(msg);
+            toast.error(err.response?.data?.message || "Verification failed");
         } finally {
             setVerifying(false);
         }
     };
 
-    const handleReset = () => { setStep(1); setVerifiedUser(null); setPhone(''); setFormError(null); };
+    const finalAmount = previewPricing?.data?.salePrice || 0;
+    const insufficient = finalAmount > balance && Number(amount) > 0;
 
-    const handleInitiatePurchase = (e: React.FormEvent) => {
+    useEffect(() => {
+        const amt = Number(amount);
+        if (amt >= 500 && selectedIdentity) {
+            const fetchPreview = async () => {
+                setPreviewLoading(true);
+                setPreviewPricing(null);
+                setPreviewError(false);
+                try {
+                    const res = await vtuService.previewPrice(undefined, amt, selectedIdentity.slug);
+                    if (res && res.success) {
+                        setPreviewPricing(res);
+                    } else {
+                        setPreviewError(true);
+                    }
+                } catch (e) {
+                    setPreviewError(true);
+                } finally {
+                    setPreviewLoading(false);
+                }
+            };
+            const timer = setTimeout(fetchPreview, 500);
+            return () => clearTimeout(timer);
+        } else {
+            setPreviewPricing(null);
+            setPreviewError(false);
+        }
+    }, [amount, selectedIdentity]);
+
+    const handleInitiate = (e: React.FormEvent) => {
         e.preventDefault();
-        setFormError(null);
-        if (!amount || Number(amount) < 500) {
-            const err = `Minimum purchase is ${currency}500`;
-            setFormError(err);
-            toast.error(err);
+        if (!meterNumber) {
+            toast.error("Enter meter number");
             return;
         }
-        if (Number(amount) > balance) {
-            const err = "Insufficient wallet balance";
-            setFormError(err);
-            toast.error(err);
+        if (Number(amount) < 500) {
+            toast.error("Minimum amount is ₦500");
             return;
         }
-        if (!phone) {
-            const err = "Please enter a phone number";
-            setFormError(err);
-            toast.error(err);
+        if (insufficient) {
+            toast.error("Insufficient wallet balance");
             return;
         }
-        setPinError(null);
-        setFormError(null);
+        if (!customerName) {
+            toast.error("Please verify meter number first");
+            return;
+        }
         setShowPinModal(true);
     };
 
-    const handleConfirmPurchase = async (pin: string) => {
+    const handleConfirm = async (pin: string) => {
         if (loading) return;
         setLoading(true);
         setPinError(null);
-        const providerName = providers.find(p => p.id === provider)?.name;
-        const serviceTitle = `${providerName} (${meterType.toUpperCase()})`;
-        const purchaseAmount = Number(amount);
         try {
-            const res = await vtuService.buyElectricity({ serviceID: provider, billersCode: meterNumber, variation_code: meterType, amount: purchaseAmount, phone, pin });
+            const res = await vtuService.buyElectricity({ 
+                serviceID: selectedIdentity.slug, 
+                meter_number: meterNumber, 
+                billersCode: meterNumber,
+                meter_type: meterType,
+                variation_code: meterType,
+                amount: Number(amount), 
+                phone: user?.phone || meterNumber, 
+                pin, 
+                expectedPrice: finalAmount 
+            });
             await fetchBalance();
             setShowPinModal(false);
-            navigate('/app/services/status', { state: { status: 'success', message: res.message || 'Power purchase successful.', transaction: { service: serviceTitle, amount: purchaseAmount, target: meterNumber, reference: res.data?.reference || res.data?.requestId, timestamp: new Date().toLocaleTimeString(), token: res.data?.token || res.token } } });
+            navigate('/app/services/status', { 
+                state: { 
+                    status: 'success', 
+                    message: res.message || 'Payment successful.', 
+                    transaction: { 
+                        service: `${selectedIdentity.name} (${meterType.toUpperCase()})`, 
+                        amount: Number(amount), 
+                        target: meterNumber, 
+                        reference: res.data?.reference || res.data?.requestId, 
+                        token: res.data?.token,
+                        timestamp: new Date().toLocaleTimeString() 
+                    } 
+                } 
+            });
         } catch (err: any) {
-            const msg = err.response?.data?.message || "Purchase failed.";
-            setPinError(msg);
-            setFormError(msg);
-            toast.error(msg);
+            setPinError(err.response?.data?.message || "Payment failed.");
+            toast.error(err.response?.data?.message || "Payment failed.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <PurchaseLayout title="Electricity Bills" subtitle={step === 1 ? "Verify your meter to proceed." : "Confirm details and enter amount."}>
-            {fetchingProviders ? (
-                <ServiceSkeleton />
-            ) : (
+        <PurchaseLayout title="Electricity Bill" subtitle="Pay your utility bills instantly.">
+            <form onSubmit={handleInitiate}>
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* LEFT: Form */}
+                    {/* LEFT */}
                     <div className="flex-1 space-y-6">
-                        {formError && (
-                            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3 text-red-700 animate-in slide-in-from-top-4 duration-500">
-                                <AlertCircle size={20} className="shrink-0 mt-0.5" />
-                                <div>
-                                    <p className="text-sm font-bold">Transaction Error</p>
-                                    <p className="text-xs font-medium opacity-90">{formError}</p>
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">DISCO Provider</p>
+                            <div className="relative">
+                                {identitiesLoading ? (
+                                    <div className="h-14 bg-slate-100 rounded-xl animate-pulse" />
+                                ) : (
+                                    <select
+                                        value={selectedIdentity?._id || ''}
+                                        onChange={(e) => {
+                                            const id = identities.find(i => i._id === e.target.value);
+                                            if (id) setSelectedIdentity(id);
+                                        }}
+                                        className="w-full appearance-none bg-slate-50 border-2 border-slate-100 px-4 py-4 rounded-xl font-bold text-sm text-slate-700 outline-none focus:border-slate-900 focus:bg-white transition-all cursor-pointer"
+                                    >
+                                        <option value="" disabled>Select DISCO Provider</option>
+                                        {identities.map(identity => (
+                                            <option key={identity._id} value={identity._id}>
+                                                {identity.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                                 </div>
                             </div>
-                        )}
-                        {step === 1 ? (
-                            <form onSubmit={handleVerify} className="space-y-5">
-                                <Row label="Electricity Provider">
-                                    <Select value={provider} onChange={(e) => { setProvider(e.target.value); handleReset(); }}>
-                                        {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                    </Select>
-                                </Row>
-                                <Row label="Meter Type">
-                                    <Select value={meterType} onChange={(e) => { setMeterType(e.target.value); handleReset(); }}>
-                                        <option value="prepaid">Prepaid</option>
-                                        <option value="postpaid">Postpaid</option>
-                                    </Select>
-                                </Row>
-                                <Row label="Meter Number">
-                                    <div className="relative">
-                                        <Zap size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <Input placeholder="Enter meter number" value={meterNumber}
-                                            onChange={(e: any) => { const val = e.target.value.replace(/\D/g, '').slice(0, 15); setMeterNumber(val); handleReset(); }}
-                                            className="pl-12" required maxLength={15} type="tel" />
-                                    </div>
-                                </Row>
-                                <SubmitButton loading={verifying} disabled={verifying || !meterNumber}>
-                                    Verify Meter
-                                </SubmitButton>
-                            </form>
-                        ) : (
-                            <form onSubmit={handleInitiatePurchase} className="space-y-5 animate-in slide-in-from-bottom-4 duration-500">
-                                <Row label={`Amount (${currency})`}>
-                                    <div className="relative">
-                                        <Zap size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <Input type="number" placeholder={`Min ${currency}500`} value={amount}
-                                            onChange={(e: any) => setAmount(e.target.value)} className="pl-12" required />
-                                    </div>
-                                </Row>
-                                <Row label="Phone Number (for token delivery)">
-                                    <div className="relative">
-                                        <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <Input placeholder="08012345678" value={phone}
-                                            onChange={(e: any) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
-                                            className="pl-12" required maxLength={11} type="tel" />
-                                    </div>
-                                </Row>
+                        </div>
 
-                                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Wallet Balance</p>
-                                        <p className={`font-extrabold ${Number(amount) > balance ? 'text-red-500' : 'text-slate-900'}`}>
-                                            {currency}{balance.toLocaleString()}
-                                        </p>
-                                    </div>
-                                    <SubmitButton loading={loading} disabled={loading || !amount || Number(amount) > balance || !phone}>
-                                        Pay {currency}{Number(amount || 0).toLocaleString()}
-                                    </SubmitButton>
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Meter Type</p>
+                            <div className="flex p-1.5 bg-slate-100 rounded-2xl w-full max-w-sm">
+                                {METER_TYPES.map(type => (
+                                    <button key={type.id} type="button" onClick={() => setMeterType(type.id)}
+                                        className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${
+                                            meterType === type.id
+                                                ? 'bg-slate-900 text-white shadow-lg'
+                                                : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                    >
+                                        {type.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Row label="Meter Number">
+                            <div className="space-y-4">
+                                <div className="relative">
+                                    <Zap size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <Input placeholder="Enter meter number" value={meterNumber}
+                                        onChange={(e: any) => {
+                                            setMeterNumber(e.target.value.replace(/\D/g, ''));
+                                            setCustomerName(null);
+                                        }}
+                                        className="pl-12 pr-24" required type="tel" />
+                                    <button 
+                                        type="button"
+                                        onClick={handleVerifyMeter}
+                                        disabled={verifying || !meterNumber || !!customerName}
+                                        className={`absolute right-2 top-1/2 -translate-y-1/2 px-4 py-4 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+                                            customerName 
+                                                ? 'bg-emerald-100 text-emerald-600 cursor-default' 
+                                                : 'bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50'
+                                        }`}
+                                    >
+                                        {verifying ? '...' : customerName ? 'Verified' : 'Verify'}
+                                    </button>
                                 </div>
-                            </form>
-                        )}
+                                {customerName && (
+                                    <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center">
+                                            <UserCheck size={16} className="text-emerald-700" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-tighter">Customer Name</p>
+                                            <p className="text-sm font-black text-emerald-900 uppercase">{customerName}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </Row>
 
-                        <div className="flex items-start gap-4 p-4 bg-amber-50 rounded-2xl border border-amber-100">
-                            <AlertCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-amber-700 font-medium leading-relaxed">
-                                Tokens are generated instantly. Ensure your meter is connected to receive the credit. Minimum purchase is {currency}500.
+                        <Row label="Recharge Amount">
+                            <div className="space-y-4">
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+                                        <span className="text-slate-400 font-black text-lg">{currency}</span>
+                                    </div>
+                                    <Input placeholder="0.00" value={amount}
+                                        onChange={(e: any) => setAmount(e.target.value.replace(/\D/g, ''))}
+                                        className="pl-16 font-black text-2xl h-10 bg-slate-50 border-slate-100 focus:bg-white" required type="tel" />
+                                </div>
+                                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                                    {[1000, 2000, 5000, 10000, 20000].map(val => (
+                                        <button key={val} type="button" onClick={() => setAmount(val.toString())}
+                                            className="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-200 transition-all shrink-0">
+                                            {currency}{val.toLocaleString()}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </Row>
+
+                        <div className="p-5 bg-slate-50 rounded-2xl flex gap-4 items-start border border-slate-100">
+                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-slate-100">
+                                <Info size={18} className="text-indigo-500" />
+                            </div>
+                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                                Tokens are sent via SMS and displayed on the status page. Minimum payment is <span className="font-bold text-slate-900">{currency}500</span>. Ensure your meter number is correct.
                             </p>
                         </div>
                     </div>
 
-                    {/* RIGHT: Meter Info Panel */}
-                    <div className="lg:w-72 space-y-4">
-                        <div className="sticky top-4 space-y-4">
-                            {/* Provider summary */}
-                            <div className="bg-slate-900 text-white p-5 rounded-2xl space-y-2">
-                                <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                                    <Zap size={14} className="text-amber-400" />
-                                    Electricity Provider
-                                </div>
-                                <p className="font-bold text-base">{providers.find(p => p.id === provider)?.name}</p>
-                                <span className={`inline-block text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${meterType === 'prepaid' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                                    {meterType}
-                                </span>
+                    {/* RIGHT: Order Summary */}
+                    <div className="lg:w-80 space-y-4">
+                        <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-6 sticky top-4 shadow-sm">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Order Summary</p>
+
+                            <div className="bg-white border border-slate-100 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm">
+                                {selectedIdentity?.brandId?.logoUrl ? (
+                                    <img src={selectedIdentity.brandId.logoUrl} className="w-12 h-12 object-contain" alt="" />
+                                ) : (
+                                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-400">ID</div>
+                                )}
+                                <span className="font-black text-slate-900 text-center leading-tight">{selectedIdentity?.name || '—'}</span>
                             </div>
 
-                            {/* Verified meter info */}
-                            {verifiedUser ? (
-                                <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl space-y-4">
-                                    <div className="flex items-center gap-2 text-emerald-600">
-                                        <CheckCircle2 size={18} />
-                                        <span className="text-xs font-bold uppercase tracking-widest">Meter Verified</span>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-3">
-                                            <User size={15} className="text-emerald-500 mt-0.5 shrink-0" />
-                                            <div>
-                                                <p className="text-[9px] text-emerald-600/60 font-bold uppercase tracking-widest">Customer Name</p>
-                                                <p className="font-bold text-slate-900 text-sm">{verifiedUser.Customer_Name || 'N/A'}</p>
-                                            </div>
-                                        </div>
-                                        {verifiedUser.Address && (
-                                            <div className="flex items-start gap-3">
-                                                <MapPin size={15} className="text-emerald-500 mt-0.5 shrink-0" />
-                                                <div>
-                                                    <p className="text-[9px] text-emerald-600/60 font-bold uppercase tracking-widest">Address</p>
-                                                    <p className="text-xs font-medium text-slate-600 leading-tight">{verifiedUser.Address}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {verifiedUser.Customer_Phone && (
-                                            <div className="flex items-start gap-3">
-                                                <Phone size={15} className="text-emerald-500 mt-0.5 shrink-0" />
-                                                <div>
-                                                    <p className="text-[9px] text-emerald-600/60 font-bold uppercase tracking-widest">Phone</p>
-                                                    <p className="font-bold text-slate-900 font-mono text-sm">{verifiedUser.Customer_Phone}</p>
-                                                </div>
-                                            </div>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase">Meter No</span>
+                                    <span className="font-bold text-slate-900 font-mono text-sm tracking-tighter">{meterNumber || '—'}</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase">Type</span>
+                                    <span className="font-black text-slate-900 uppercase text-xs">{meterType}</span>
+                                </div>
+                                
+                                <div className="pt-2 flex justify-between items-center">
+                                    <span className="font-black text-slate-400 text-[10px] uppercase tracking-widest">Total Pay</span>
+                                    <div className="text-right">
+                                        {previewLoading ? (
+                                             <div className="w-20 h-6 bg-slate-200 animate-pulse rounded-lg"></div>
+                                        ) : previewError ? (
+                                             <span className="text-xs text-red-500 font-bold">Unavailable</span>
+                                        ) : (
+                                            <span className="font-black text-slate-900 text-xl tracking-tight">{currency}{finalAmount.toLocaleString()}</span>
                                         )}
                                     </div>
-                                    <button type="button" onClick={handleReset} className="text-[10px] font-bold text-emerald-600 underline uppercase tracking-widest">
-                                        Change Meter
-                                    </button>
                                 </div>
-                            ) : (
-                                <div className="bg-slate-50 border border-dashed border-slate-200 p-10 rounded-2xl text-center">
-                                    <Zap size={32} className="text-slate-200 mx-auto mb-3" />
-                                    <p className="text-slate-400 text-xs font-medium">Meter details will appear here after verification.</p>
-                                </div>
-                            )}
+                            </div>
+
+                            <div className="border-t border-slate-200/60 pt-4 space-y-1">
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Wallet Balance</p>
+                                <p className={`text-xl font-black tracking-tight ${insufficient ? 'text-red-500' : 'text-slate-900'}`}>
+                                    {currency}{balance.toLocaleString()}
+                                </p>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading || insufficient || !selectedIdentity || !meterNumber || !amount || !customerName || previewLoading || previewError}
+                                className={`w-full py-5 rounded-2xl font-black text-sm uppercase tracking-[0.1em] transition-all duration-300 shadow-xl ${
+                                    loading || insufficient || !selectedIdentity || !meterNumber || !amount || !customerName || previewLoading || previewError
+                                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                                        : 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-[1.02] active:scale-95 shadow-slate-900/20'
+                                }`}
+                            >
+                                {loading ? 'Processing...' : 'Pay Utility Bill'}
+                            </button>
                         </div>
                     </div>
                 </div>
-            )}
+            </form>
 
             <SecurePinModal
                 isOpen={showPinModal}
                 onClose={() => { setShowPinModal(false); setPinError(null); }}
-                onConfirm={handleConfirmPurchase}
+                onConfirm={handleConfirm}
                 loading={loading}
                 error={pinError}
-                title="Verify Power Payment"
+                title={`Verify Electricity Payment`}
             />
         </PurchaseLayout>
     );

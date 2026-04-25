@@ -8,9 +8,11 @@ import {
     Share2, 
     Download,
     ChevronRight,
-    ShieldCheck
+    ShieldCheck,
+    Info
 } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
+import { toast } from 'react-hot-toast';
 
 const TransactionStatusPage: React.FC = () => {
     const location = useLocation();
@@ -116,6 +118,33 @@ const TransactionStatusPage: React.FC = () => {
                         </div>
                     </div>
 
+                    {transaction.token && (
+                        <div className="pt-8 border-t border-slate-50 space-y-4">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Generated Token / PIN</p>
+                            <div className="bg-emerald-50 border-2 border-dashed border-emerald-200 p-6 rounded-2xl flex flex-col items-center justify-center gap-3 group relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-100 rounded-bl-[2rem] flex items-center justify-center text-emerald-500 opacity-20 group-hover:opacity-40 transition-opacity">
+                                    <ShieldCheck size={32} />
+                                </div>
+                                <span className="text-3xl font-black text-emerald-700 tracking-[0.2em] font-mono break-all text-center">
+                                    {transaction.token.replace(/[^\d]/g, '')}
+                                </span>
+                                <button 
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(transaction.token.replace(/[^\d]/g, ''));
+                                        toast.success("Token copied to clipboard!");
+                                    }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-white text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all border border-emerald-100"
+                                >
+                                    <Share2 size={12} />
+                                    Copy Token
+                                </button>
+                            </div>
+                            <p className="text-[10px] text-slate-400 font-medium text-center italic">
+                                Input this code directly into your meter to recharge.
+                            </p>
+                        </div>
+                    )}
+
                     <div className="pt-8 border-t border-slate-50 flex items-center justify-between">
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reference Node</p>
@@ -128,13 +157,13 @@ const TransactionStatusPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {isTimeout && (
-                        <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl flex gap-3 items-start">
-                             <Clock size={16} className="text-amber-600 shrink-0 mt-0.5" />
-                             <p className="text-[10px] font-medium text-amber-800 leading-relaxed uppercase tracking-wider">
-                                System Notice: Network latency detected. Please do not retry. Your wallet will update automatically once verified.
-                             </p>
-                        </div>
+                    {!transaction.token && isSuccess && (
+                         <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex gap-3 items-start">
+                              <Info size={16} className="text-slate-400 shrink-0 mt-0.5" />
+                              <p className="text-[10px] font-medium text-slate-500 leading-relaxed uppercase tracking-wider">
+                                 Note: This service (Cable/Postpaid) is fulfilled automatically. Your subscription/account status will update within a few minutes.
+                              </p>
+                         </div>
                     )}
                 </div>
             </div>

@@ -8,6 +8,30 @@ const log = (msg: string, data?: any) => {
     }
 };
 
+export const fetchCatalog = async () => {
+    log(`Fetch catalog v2 started`);
+    try {
+        const res = await apiClient.get(`/v2/catalog`, { timeout: VTU_TIMEOUT });
+        log(`Fetch catalog v2 success`);
+        return res.data;
+    } catch (err) {
+        log(`Fetch catalog list failed`, err);
+        throw err;
+    }
+};
+
+export const previewPrice = async (serviceId: string | undefined, amount?: number, serviceCode?: string, quantity?: number) => {
+    log(`Preview price started: ${serviceId || serviceCode}`);
+    try {
+        const res = await apiClient.post(`/v1/pricing/calculate`, { serviceId, amount, serviceCode, quantity }, { timeout: VTU_TIMEOUT });
+        log(`Preview price success: ${serviceId || serviceCode}`);
+        return res.data;
+    } catch (err) {
+        log(`Preview price failed: ${serviceId || serviceCode}`, err);
+        throw err;
+    }
+};
+
 export const fetchDataPlans = async (serviceID: string) => {
     log(`Fetch plans started: ${serviceID}`);
     try {
@@ -20,26 +44,29 @@ export const fetchDataPlans = async (serviceID: string) => {
     }
 };
 
-export const verifyMeter = async (serviceID: string, billersCode: string) => {
-    log(`Meter verification started: ${serviceID} | ${billersCode}`);
+export const verifyMeter = async (serviceID: string, billersCode: string, type?: string) => {
     try {
-        const res = await apiClient.post('/services/electricity/verify/meter', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
-        log(`Meter verification success: ${serviceID}`);
+        const res = await apiClient.post('/services/electricity/verify/meter', { serviceID, billersCode, type }, { timeout: VTU_TIMEOUT });
         return res.data;
     } catch (err) {
-        log(`Meter verification failed: ${serviceID}`, err);
         throw err;
     }
 };
 
 export const verifySmartcard = async (serviceID: string, billersCode: string) => {
-    log(`Smartcard verification started: ${serviceID} | ${billersCode}`);
     try {
-        const res = await apiClient.post('/services/electricity/verify/meter', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
-        log(`Smartcard verification success: ${serviceID}`);
+        const res = await apiClient.post('/services/cable/verify/smartcard', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
         return res.data;
     } catch (err) {
-        log(`Smartcard verification failed: ${serviceID}`, err);
+        throw err;
+    }
+};
+
+export const verifyJambProfile = async (serviceID: string, billersCode: string) => {
+    try {
+        const res = await apiClient.post('/services/exam/verify/profile', { serviceID, billersCode }, { timeout: VTU_TIMEOUT });
+        return res.data;
+    } catch (err) {
         throw err;
     }
 };
