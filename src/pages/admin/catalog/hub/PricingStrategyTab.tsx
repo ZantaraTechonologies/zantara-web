@@ -133,6 +133,26 @@ const PricingStrategyTab: React.FC = () => {
         }
     };
 
+    const getTargetName = (rule: any) => {
+        if (rule.targetType === 'global') return 'Global Catalog';
+        
+        const id = rule.targetId;
+        if (!id) return 'Unknown Target';
+
+        switch (rule.targetType) {
+            case 'category':
+                return metadata.categories.find((c: any) => c._id === id)?.name || id;
+            case 'service_type':
+                return metadata.types.find((t: any) => t._id === id)?.name || id;
+            case 'identity':
+                return metadata.identities.find((i: any) => i._id === id)?.name || id;
+            case 'service':
+                return metadata.services.find((s: any) => s._id === id)?.name || id;
+            default:
+                return 'Specific Scope';
+        }
+    };
+
     if (loading) return <div className="h-[40vh] flex items-center justify-center"><RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" /></div>;
 
     return (
@@ -230,11 +250,7 @@ const PricingStrategyTab: React.FC = () => {
                                     </div>
                                     <div>
                                         <h4 className="text-lg font-black text-white tracking-tighter capitalize italic">
-                                            {rule.targetType === 'global' ? 'Global'
-                                                : rule.targetType === 'category' ? 'Category'
-                                                : rule.targetType === 'service_type' ? 'Service Type'
-                                                : rule.targetType === 'identity' ? 'Service Identity'
-                                                : 'Variant (SKU)'} Markup
+                                            {getTargetName(rule)} <span className="text-indigo-400/50 not-italic text-xs ml-2">Markup</span>
                                         </h4>
                                         <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">Rule Priority: {rule.priority}</p>
                                     </div>
