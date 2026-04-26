@@ -62,6 +62,7 @@ const CatalogRegistryTab: React.FC = () => {
     const [selectedIdentity, setSelectedIdentity] = useState<Identity | null>(null);
     const [plans, setPlans] = useState<Plan[]>([]);
     const [plansLoading, setPlansLoading] = useState(false);
+    const [variantSearchTerm, setVariantSearchTerm] = useState('');
     
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -294,12 +295,24 @@ const CatalogRegistryTab: React.FC = () => {
                                         <p className="text-slate-600 text-[9px] font-black uppercase tracking-widest mt-0.5 italic">Specific product definitions under this identity</p>
                                     </div>
                                 </div>
-                                <button 
-                                    onClick={() => setShowVariantModal(true)}
-                                    className="flex items-center gap-2 px-6 py-2.5 bg-indigo-500 text-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 hover:scale-105 transition-transform"
-                                >
-                                    <PlusCircle size={14} /> Add Variant
-                                </button>
+                                <div className="flex items-center gap-4">
+                                    <div className="relative">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Search variants..."
+                                            value={variantSearchTerm}
+                                            onChange={(e) => setVariantSearchTerm(e.target.value)}
+                                            className="bg-slate-950/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-[10px] text-white focus:outline-none focus:border-indigo-500/50 transition-all w-56 font-bold"
+                                        />
+                                        <Search size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
+                                    </div>
+                                    <button 
+                                        onClick={() => setShowVariantModal(true)}
+                                        className="flex items-center gap-2 px-6 py-2.5 bg-indigo-500 text-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 hover:scale-105 transition-transform"
+                                    >
+                                        <PlusCircle size={14} /> Add Variant
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="overflow-x-auto">
@@ -316,20 +329,20 @@ const CatalogRegistryTab: React.FC = () => {
                                     <tbody className="divide-y divide-white/5">
                                         {plansLoading ? (
                                             Array(3).fill(0).map((_, i) => <tr key={i}><td colSpan={5} className="py-12 text-center text-slate-700 animate-pulse font-black uppercase tracking-widest text-[10px]">Updating Registry...</td></tr>)
-                                        ) : plans.length === 0 ? (
+                                        ) : plans.filter(p => 
+                                            p.name.toLowerCase().includes(variantSearchTerm.toLowerCase()) ||
+                                            p.code.toLowerCase().includes(variantSearchTerm.toLowerCase())
+                                        ).length === 0 ? (
                                             <tr>
                                                 <td colSpan={5} className="py-24 text-center">
                                                     <Archive size={40} className="text-slate-800 mx-auto mb-4" />
-                                                    <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">No variants defined for this identity</p>
-                                                    <button 
-                                                        onClick={() => setShowVariantModal(true)}
-                                                        className="inline-flex items-center gap-3 px-8 py-4 bg-indigo-500 text-slate-950 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform"
-                                                    >
-                                                        <PlusCircle size={16} /> Add First Variant
-                                                    </button>
+                                                    <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">No variants found matching your search</p>
                                                 </td>
                                             </tr>
-                                        ) : plans.map((plan) => (
+                                        ) : plans.filter(p => 
+                                            p.name.toLowerCase().includes(variantSearchTerm.toLowerCase()) ||
+                                            p.code.toLowerCase().includes(variantSearchTerm.toLowerCase())
+                                        ).map((plan) => (
                                             <tr key={plan._id} className="group hover:bg-white/[0.02] transition-colors">
                                                 <td className="py-6 px-8">
                                                     <p className="text-sm font-black text-white tracking-tight italic">{plan.name}</p>
