@@ -658,7 +658,7 @@ const CatalogRegistryTab: React.FC = () => {
             {/* Manual Registration Modal */}
             {showCreateModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-950/80 animate-in fade-in duration-300">
-                    <div className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                    <div className="w-full max-w-2xl max-h-[90vh] bg-slate-900 border border-white/10 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
                         <div className="p-10 border-b border-white/5 bg-white/[0.01] flex justify-between items-center">
                             <div>
                                 <h3 className="text-2xl font-black text-white tracking-tighter italic">Register New Service Identity</h3>
@@ -667,7 +667,7 @@ const CatalogRegistryTab: React.FC = () => {
                             <button onClick={() => setShowCreateModal(false)} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
                         </div>
                         
-                        <form onSubmit={handleCreateIdentity} className="p-10 space-y-8">
+                        <form onSubmit={handleCreateIdentity} className="p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Service Family Name</label>
@@ -819,7 +819,7 @@ const CatalogRegistryTab: React.FC = () => {
             {/* Edit Identity Modal */}
             {showEditModal && editData && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-950/80 animate-in fade-in duration-300">
-                    <div className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                    <div className="w-full max-w-2xl max-h-[90vh] bg-slate-900 border border-white/10 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
                         <div className="p-10 border-b border-white/5 bg-white/[0.01] flex justify-between items-center">
                             <div>
                                 <h3 className="text-2xl font-black text-white tracking-tighter italic">Edit Service Identity</h3>
@@ -828,7 +828,7 @@ const CatalogRegistryTab: React.FC = () => {
                             <button onClick={() => setShowEditModal(false)} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
                         </div>
                         
-                        <form onSubmit={handleUpdateIdentity} className="p-10 space-y-8">
+                        <form onSubmit={handleUpdateIdentity} className="p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Service Family Name</label>

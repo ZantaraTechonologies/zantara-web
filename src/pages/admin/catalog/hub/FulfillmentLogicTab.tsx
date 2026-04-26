@@ -43,6 +43,8 @@ const FulfillmentLogicTab: React.FC = () => {
         costPrice: 0,
         priority: 0
     });
+    const [variantSearch, setVariantSearch] = useState('');
+    const [showVariantList, setShowVariantList] = useState(false);
     const { currency } = useWalletStore();
 
     useEffect(() => {
@@ -478,7 +480,7 @@ const FulfillmentLogicTab: React.FC = () => {
             {/* Mapping Modal */}
             {showMappingModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-950/80 animate-in fade-in duration-300">
-                    <div className="w-full max-w-xl bg-slate-900 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                    <div className="w-full max-w-xl max-h-[90vh] bg-slate-900 border border-white/10 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
                         <div className="p-10 border-b border-white/5 bg-white/[0.01] flex justify-between items-center">
                             <div>
                                 <h3 className="text-2xl font-black text-white tracking-tighter italic">Establish Route Mapping</h3>
@@ -487,17 +489,61 @@ const FulfillmentLogicTab: React.FC = () => {
                             <button onClick={() => setShowMappingModal(false)} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
                         </div>
                         
-                        <form onSubmit={handleCreateMapping} className="p-10 space-y-8">
+                        <form onSubmit={handleCreateMapping} className="p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Select Variant</label>
-                                <select 
-                                    required
-                                    value={mappingForm.serviceId}
-                                    onChange={(e) => setMappingForm({...mappingForm, serviceId: e.target.value})}
-                                    className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold appearance-none"
-                                >
-                                    {variants.map((v: any) => <option key={v._id} value={v._id}>{v.name} ({v.code})</option>)}
-                                </select>
+                                <div className="relative">
+                                    <div 
+                                        onClick={() => setShowVariantList(!showVariantList)}
+                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white font-bold cursor-pointer flex justify-between items-center italic"
+                                    >
+                                        <span>{mappingForm.serviceId ? variants.find(v => v._id === mappingForm.serviceId)?.name : 'Select Variant...'}</span>
+                                        <ChevronRight size={16} className={`transition-transform ${showVariantList ? 'rotate-90' : ''}`} />
+                                    </div>
+                                    
+                                    {showVariantList && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                                            <div className="p-3 border-b border-white/5 bg-white/[0.02]">
+                                                <div className="relative">
+                                                    <input 
+                                                        autoFocus
+                                                        type="text" 
+                                                        placeholder="Search variants..."
+                                                        value={variantSearch}
+                                                        onChange={(e) => setVariantSearch(e.target.value)}
+                                                        className="w-full bg-slate-950 border border-white/5 rounded-xl p-3 pl-10 text-[11px] text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                                    />
+                                                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
+                                                </div>
+                                            </div>
+                                            <div className="max-h-[200px] overflow-y-auto custom-scrollbar">
+                                                {variants.filter(v => 
+                                                    v.name.toLowerCase().includes(variantSearch.toLowerCase()) || 
+                                                    v.code.toLowerCase().includes(variantSearch.toLowerCase())
+                                                ).map((v: any) => (
+                                                    <button
+                                                        key={v._id}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setMappingForm({...mappingForm, serviceId: v._id});
+                                                            setShowVariantList(false);
+                                                            setVariantSearch('');
+                                                        }}
+                                                        className="w-full text-left px-5 py-3.5 hover:bg-white/5 transition-colors border-b border-white/[0.02] last:border-0"
+                                                    >
+                                                        <p className="text-[11px] font-black text-white italic leading-tight">{v.name}</p>
+                                                        <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">{v.code}</p>
+                                                    </button>
+                                                ))}
+                                                {variants.length === 0 && (
+                                                    <div className="p-8 text-center">
+                                                        <p className="text-[10px] font-black text-slate-600 uppercase italic">No variants found</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-6">
