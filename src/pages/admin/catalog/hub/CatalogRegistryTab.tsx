@@ -82,12 +82,10 @@ const CatalogRegistryTab: React.FC = () => {
     const [editData, setEditData] = useState<any>(null);
 
     const [showVariantModal, setShowVariantModal] = useState(false);
+    const [editingVariant, setEditingVariant] = useState<Plan | null>(null);
     const [variantFormData, setVariantFormData] = useState({
         name: '',
         code: '',
-        price: 0,
-        resellerPrice: 0,
-        costPrice: 0,
         status: true
     });
 
@@ -182,31 +180,39 @@ const CatalogRegistryTab: React.FC = () => {
         }
     };
 
-    const handleCreateVariant = async (e: React.FormEvent) => {
+    const handleSaveVariant = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedIdentity) return;
 
         setIsProcessing(true);
         try {
-            const payload = {
-                ...variantFormData,
-                identityId: selectedIdentity._id,
-                categoryId: selectedIdentity.categoryId?._id,
-                typeId: selectedIdentity.typeId?._id,
-                brandId: selectedIdentity.brandId?._id,
-                category: selectedIdentity.typeId?.name.toLowerCase().includes('data') ? 'data' : 
-                          selectedIdentity.typeId?.name.toLowerCase().includes('airtime') ? 'airtime' :
-                          selectedIdentity.typeId?.name.toLowerCase().includes('tv') ? 'tv' :
-                          selectedIdentity.typeId?.name.toLowerCase().includes('electricity') ? 'electricity' : 'pin'
-            };
-
-            await apiClient.post('/admin/services', payload);
-            toast.success("Variant added to identity");
+            if (editingVariant) {
+                // Update Existing
+                await apiClient.put(`/admin/services/${editingVariant._id}`, variantFormData);
+                toast.success("Variant updated");
+            } else {
+                // Create New
+                const payload = {
+                    ...variantFormData,
+                    identityId: selectedIdentity._id,
+                    categoryId: selectedIdentity.categoryId?._id,
+                    typeId: selectedIdentity.typeId?._id,
+                    brandId: selectedIdentity.brandId?._id,
+                    category: selectedIdentity.typeId?.name.toLowerCase().includes('data') ? 'data' : 
+                              selectedIdentity.typeId?.name.toLowerCase().includes('airtime') ? 'airtime' :
+                              selectedIdentity.typeId?.name.toLowerCase().includes('tv') ? 'tv' :
+                              selectedIdentity.typeId?.name.toLowerCase().includes('electricity') ? 'electricity' : 'pin'
+                };
+                await apiClient.post('/admin/services', payload);
+                toast.success("Variant added to identity");
+            }
+            
             setShowVariantModal(false);
-            setVariantFormData({ name: '', code: '', price: 0, resellerPrice: 0, costPrice: 0, status: true });
+            setEditingVariant(null);
+            setVariantFormData({ name: '', code: '', status: true });
             loadPlans(selectedIdentity._id);
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Failed to add variant");
+            toast.error(err.response?.data?.message || "Operation failed");
         } finally {
             setIsProcessing(false);
         }
@@ -355,7 +361,30 @@ const CatalogRegistryTab: React.FC = () => {
                                                     <div className={`w-2 h-2 rounded-full ${plan.status ? 'bg-emerald-500' : 'bg-slate-700'}`}></div>
                                                 </td>
                                                 <td className="py-6 px-8 text-right">
-                                                    <button className="p-2.5 rounded-xl bg-white/5 text-slate-600 hover:text-white transition-all"><MoreVertical size={16} /></button>
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button 
+                                                            onClick={() => {
+                                                                setEditingVariant(plan);
+                                                                setVariantFormData({ name: plan.name, code: plan.code, status: plan.status });
+                                                                setShowVariantModal(true);
+                                                            }}
+                                                            className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white transition-all hover:bg-indigo-500/20"
+                                                        >
+                                                            <Edit3 size={14} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={async () => {
+                                                                if (window.confirm("Delete this variant?")) {
+                                                                    await apiClient.delete(`/admin/services/${plan._id}`);
+                                                                    loadPlans(selectedIdentity._id);
+                                                                    toast.success("Variant deleted");
+                                                                }
+                                                            }}
+                                                            className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-rose-500 transition-all hover:bg-rose-500/10"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -732,13 +761,13 @@ const CatalogRegistryTab: React.FC = () => {
                     <div className="w-full max-w-xl bg-slate-900 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                         <div className="p-10 border-b border-white/5 bg-white/[0.01] flex justify-between items-center">
                             <div>
-                                <h3 className="text-2xl font-black text-white tracking-tighter italic">Add Product Variant</h3>
-                                <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">Define a specific plan under {selectedIdentity?.name}</p>
+                                <h3 className="text-2xl font-black text-white tracking-tighter italic">{editingVariant ? 'Edit Variant' : 'Add Product Variant'}</h3>
+                                <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">{editingVariant ? 'Update' : 'Define'} a specific plan under {selectedIdentity?.name}</p>
                             </div>
-                            <button onClick={() => setShowVariantModal(false)} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
+                            <button onClick={() => { setShowVariantModal(false); setEditingVariant(null); }} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
                         </div>
                         
-                        <form onSubmit={handleCreateVariant} className="p-10 space-y-8">
+                        <form onSubmit={handleSaveVariant} className="p-10 space-y-8">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2 col-span-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Variant Display Name</label>
@@ -764,12 +793,23 @@ const CatalogRegistryTab: React.FC = () => {
                                 </div>
                             </div>
 
+                            <div className="flex items-center gap-3">
+                                <button 
+                                    type="button"
+                                    onClick={() => setVariantFormData({...variantFormData, status: !variantFormData.status})}
+                                    className={`w-12 h-6 rounded-full relative transition-all ${variantFormData.status ? 'bg-emerald-500' : 'bg-slate-800'}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${variantFormData.status ? 'left-7' : 'left-1'}`}></div>
+                                </button>
+                                <span className="text-[10px] font-black text-white uppercase tracking-widest italic">{variantFormData.status ? 'Active' : 'Disabled'}</span>
+                            </div>
+
                             <button 
                                 type="submit"
                                 disabled={isProcessing}
                                 className="w-full py-5 bg-indigo-500 text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
                             >
-                                {isProcessing ? "Adding to Registry..." : "Save Variant"}
+                                {isProcessing ? (editingVariant ? "Updating..." : "Adding to Registry...") : (editingVariant ? "Save Changes" : "Save Variant")}
                             </button>
                         </form>
                     </div>
