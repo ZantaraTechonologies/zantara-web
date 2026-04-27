@@ -178,6 +178,16 @@ const CatalogRegistryTab: React.FC = () => {
         } finally {
             setIsProcessing(false);
         }
+    const handleDeleteIdentity = async (id: string, name: string) => {
+        if (!window.confirm(`Are you sure you want to delete ${name}? This will remove all associated plans and fulfillment mappings.`)) return;
+        
+        try {
+            await apiClient.delete(`/admin/hierarchy/identities/${id}`);
+            setIdentities(identities.filter(i => i._id !== id));
+            toast.success("Service identity deleted");
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Deletion failed");
+        }
     };
 
     const handleSaveVariant = async (e: React.FormEvent) => {
@@ -590,6 +600,12 @@ const CatalogRegistryTab: React.FC = () => {
                                                         className="p-2.5 rounded-xl bg-white/5 text-slate-600 hover:text-white border border-white/5 transition-colors"
                                                     >
                                                         <Edit3 size={16} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteIdentity(identity._id, identity.name)}
+                                                        className="p-2.5 rounded-xl bg-white/5 text-slate-600 hover:text-rose-500 border border-white/5 transition-all hover:bg-rose-500/10"
+                                                    >
+                                                        <Trash2 size={16} />
                                                     </button>
                                                 </div>
                                             </td>
