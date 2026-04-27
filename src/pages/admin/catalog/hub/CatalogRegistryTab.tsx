@@ -154,7 +154,7 @@ const CatalogRegistryTab: React.FC = () => {
             await apiClient.post('/admin/hierarchy/identities', formData);
             toast.success("Service Identity registered successfully");
             setShowCreateModal(false);
-            setFormData({ name: '', internalCode: '', categoryId: '', typeId: '', brandId: '', fulfillmentMode: 'sync' });
+            setFormData({ name: '', internalCode: '', categoryId: '', typeId: '', brandId: '', providerCode: '', fulfillmentMode: 'sync' });
             loadIdentities();
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Registration failed");
@@ -178,6 +178,8 @@ const CatalogRegistryTab: React.FC = () => {
         } finally {
             setIsProcessing(false);
         }
+    };
+
     const handleDeleteIdentity = async (id: string, name: string) => {
         if (!window.confirm(`Are you sure you want to delete ${name}? This will remove all associated plans and fulfillment mappings.`)) return;
         
