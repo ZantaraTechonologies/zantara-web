@@ -235,11 +235,41 @@ const PricingStrategyTab: React.FC = () => {
                 {rules.map((rule) => (
                     <div key={rule._id} className={`bg-slate-900/50 border rounded-[2.5rem] p-8 transition-all ${rule.status ? 'border-white/5' : 'border-rose-500/10 opacity-60'}`}>
                         {editingRuleId === rule._id ? (
-                            <div className="space-y-6 animate-in fade-in duration-300">
-                                <div className="grid grid-cols-3 gap-6">
-                                    <input type="number" value={editForm.markupValue} onChange={(e) => setEditForm({...editForm, markupValue: Number(e.target.value)})} className="bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs" />
-                                    <button onClick={handleUpdateRule} className="bg-indigo-500 text-slate-950 font-black text-[10px] uppercase rounded-xl">Save</button>
-                                    <button onClick={() => setEditingRuleId(null)} className="bg-white/5 text-slate-500 font-black text-[10px] uppercase rounded-xl">Cancel</button>
+                            <div className="space-y-6 animate-in fade-in duration-300 w-full">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-2">Logic</label>
+                                        <select 
+                                            value={editForm.markupType} 
+                                            onChange={(e) => setEditForm({...editForm, markupType: e.target.value})} 
+                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50"
+                                        >
+                                            <option value="percent">Percent (%)</option>
+                                            <option value="fixed">Fixed (₦)</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-2">Value</label>
+                                        <input 
+                                            type="number" 
+                                            value={editForm.markupValue} 
+                                            onChange={(e) => setEditForm({...editForm, markupValue: Number(e.target.value)})} 
+                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-2">Priority</label>
+                                        <input 
+                                            type="number" 
+                                            value={editForm.priority} 
+                                            onChange={(e) => setEditForm({...editForm, priority: Number(e.target.value)})} 
+                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50" 
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button onClick={handleUpdateRule} className="flex-1 h-12 bg-indigo-500 text-slate-950 font-black text-[10px] uppercase rounded-xl hover:scale-105 transition-transform">Save</button>
+                                        <button onClick={() => setEditingRuleId(null)} className="flex-1 h-12 bg-white/5 text-slate-500 font-black text-[10px] uppercase rounded-xl hover:bg-white/10 transition-colors">Cancel</button>
+                                    </div>
                                 </div>
                             </div>
                         ) : (
