@@ -103,7 +103,7 @@ const UserBuyExamPinPage: React.FC = () => {
     }, [plans, planId]);
     
     const originalAmount = Number(currentPlan?.variation_amount || 0) * Number(quantity);
-    const finalAmount = previewPricing?.data?.salePrice || 0;
+    const finalAmount = previewPricing?.data?.salePrice || originalAmount;
     const insufficient = finalAmount > balance && originalAmount > 0;
 
     useEffect(() => {
@@ -335,7 +335,7 @@ const UserBuyExamPinPage: React.FC = () => {
                                     <div className="text-right">
                                         {previewLoading ? (
                                              <div className="w-16 h-5 bg-slate-200 animate-pulse rounded"></div>
-                                        ) : previewError ? (
+                                        ) : (previewError && finalAmount === 0) ? (
                                              <span className="text-xs text-red-500 font-bold">Unavailable</span>
                                         ) : (
                                             <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
@@ -351,7 +351,7 @@ const UserBuyExamPinPage: React.FC = () => {
                                 </p>
                             </div>
 
-                            <SubmitButton loading={loading} disabled={loading || insufficient || fetchingPlans || !planId || previewLoading || previewError}>
+                            <SubmitButton loading={loading} disabled={loading || insufficient || fetchingPlans || !planId || previewLoading || (previewError && finalAmount === 0)}>
                                 Buy PIN
                             </SubmitButton>
                         </div>
