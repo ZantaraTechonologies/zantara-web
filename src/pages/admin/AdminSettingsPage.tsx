@@ -14,7 +14,8 @@ import toast from 'react-hot-toast';
 const AdminSettingsPage: React.FC = () => {
     const [settings, setSettings] = useState({
         SITE_NAME: '',
-        REFERRAL_RATE: 0
+        REFERRAL_RATE: 0,
+        APP_LOCK_TIMEOUT_MINUTES: 3
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -134,6 +135,32 @@ const AdminSettingsPage: React.FC = () => {
                             <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                                 <CheckCircle className="w-3 h-3 text-green-500/50" />
                                 Percentage of purchase profit earned by referrers on every transaction. (e.g. 0.01 = 1% of margin)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Mobile App Security Card */}
+                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-teal-500/30 transition-all duration-300">
+                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-teal-500/10 text-teal-500">
+                            <Settings className="w-5 h-5" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-white">Mobile App Security</h2>
+                    </div>
+                    <div className="p-6 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">App Lock Timeout (Minutes)</label>
+                            <input 
+                                type="number" 
+                                min="1"
+                                value={settings.APP_LOCK_TIMEOUT_MINUTES}
+                                onChange={(e) => setSettings({ ...settings, APP_LOCK_TIMEOUT_MINUTES: parseInt(e.target.value) || 3 })}
+                                className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-all"
+                            />
+                            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                The time (in minutes) before the mobile app locks itself after being minimized.
                             </p>
                         </div>
                     </div>
