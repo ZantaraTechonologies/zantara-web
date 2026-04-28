@@ -23,6 +23,25 @@ function categorizePlan(name: string): string {
     return "Monthly"; 
 }
 
+const sortNetworks = (networks: any[]) => {
+    const order = ['mtn', 'airtel', 'glo', '9mobile', 'etisalat'];
+    return [...networks].sort((a, b) => {
+        const slugA = (a.slug || a.name || '').toLowerCase();
+        const slugB = (b.slug || b.name || '').toLowerCase();
+        
+        let indexA = order.findIndex(net => slugA.includes(net));
+        let indexB = order.findIndex(net => slugB.includes(net));
+        
+        if (indexA === 4) indexA = 3; // Treat etisalat as 9mobile
+        if (indexB === 4) indexB = 3;
+        
+        if (indexA === -1) indexA = 999;
+        if (indexB === -1) indexB = 999;
+        
+        return indexA - indexB;
+    });
+};
+
 const UserBuyDataPage: React.FC = () => {
     const { balance, currency, fetchBalance } = useWalletStore();
     const { user } = useAuthStore();
@@ -52,9 +71,11 @@ const UserBuyDataPage: React.FC = () => {
             setIdentitiesLoading(true);
             try {
                 const res = await apiClient.get('/services/identities?category=data');
-                setIdentities(res.data.data);
-                if (res.data.data.length > 0) {
-                    setSelectedIdentity(res.data.data[0]);
+                let list = res.data.data || [];
+                list = sortNetworks(list);
+                setIdentities(list);
+                if (list.length > 0) {
+                    setSelectedIdentity(list[0]);
                 }
             } catch (err) {
                 toast.error("Failed to load providers");
