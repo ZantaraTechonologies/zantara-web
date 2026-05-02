@@ -20,8 +20,6 @@ import {
 import { 
     getCommissionSettings, 
     updateCommissionSettings, 
-    getAgentSettings, 
-    updateAgentSettings,
     getCommissionCaps,
     updateCommissionCaps,
     getSystemSettings,
@@ -37,10 +35,8 @@ const AdminCommissionSettingsPage: React.FC = () => {
     
     // Settings state
     const [commSettings, setCommSettings] = useState<any>({ defaultCommissionRate: 0.01 });
-    const [agentSettings, setAgentSettings] = useState<any>({ defaultAgentDiscountRate: 0.0 });
     const [capSettings, setCapSettings] = useState<any>({ 
-        maxReferralProfitShare: 0.9,
-        maxAgentReferralShare: 0.5 
+        maxReferralProfitShare: 0.9
     });
     const [systemSettings, setSystemSettings] = useState<any>(null);
 
@@ -50,9 +46,8 @@ const AdminCommissionSettingsPage: React.FC = () => {
     const loadAllSettings = async () => {
         try {
             setLoading(true);
-            const [comm, agent, caps, system] = await Promise.all([
+            const [comm, caps, system] = await Promise.all([
                 getCommissionSettings(),
-                getAgentSettings(),
                 getCommissionCaps(),
                 getSystemSettings()
             ]);
@@ -60,13 +55,10 @@ const AdminCommissionSettingsPage: React.FC = () => {
             if (comm?.success && typeof comm.defaultCommissionRate === 'number') {
                 setCommSettings({ defaultCommissionRate: comm.defaultCommissionRate });
             }
-            if (agent?.success && typeof agent.defaultAgentDiscountRate === 'number') {
-                setAgentSettings({ defaultAgentDiscountRate: agent.defaultAgentDiscountRate });
-            }
+
             if (caps?.success) {
                 setCapSettings({
-                    maxReferralProfitShare: caps.maxReferralProfitShare ?? 0.9,
-                    maxAgentReferralShare: caps.maxAgentReferralShare ?? 0.5
+                    maxReferralProfitShare: caps.maxReferralProfitShare ?? 0.9
                 });
             }
             if (system?.data) {
@@ -102,17 +94,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
         }
     };
 
-    const handleSaveAgent = async () => {
-        try {
-            setSaving('agent');
-            const res = await updateAgentSettings(agentSettings);
-            if (res.success) toast.success("Agent discount protocol updated");
-        } catch (err: any) {
-            toast.error(err.message || "Update failed");
-        } finally {
-            setSaving(null);
-        }
-    };
+
 
     const handleSaveCaps = async () => {
         try {
@@ -159,12 +141,9 @@ const AdminCommissionSettingsPage: React.FC = () => {
 
     // Calculation Helpers for Preview
     const calcReferral = previewProfit * commSettings.defaultCommissionRate;
-    const cappedReferral = Math.min(calcReferral, previewProfit * capSettings.maxReferralProfitShare);
+    const cappedReferral = Math.min(calcReferral, previewProfit * (capSettings?.maxReferralProfitShare ?? 0.9));
     
-    const calcAgent = previewProfit * agentSettings.defaultAgentDiscountRate;
-    const cappedAgent = Math.min(calcAgent, previewProfit * capSettings.maxAgentReferralShare);
-
-    const platformNet = previewProfit - cappedReferral - cappedAgent;
+    const platformNet = previewProfit - cappedReferral;
 
     if (loading) {
         return (
@@ -339,55 +318,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* --- AGENT PROTOCOL --- */}
-                <div className="bg-slate-900/50 border border-white/5 rounded-[2rem] p-7 space-y-7 relative overflow-hidden group">
-                    <div className="absolute top-[-20px] right-[-20px] opacity-[0.03] text-blue-500 transition-transform group-hover:scale-110 duration-[2s]">
-                        <TrendingUp size={250} />
-                    </div>
 
-                    <div className="relative z-10 flex items-center justify-between border-b border-white/10 pb-6">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 shadow-xl shadow-blue-500/5">
-                                <TrendingUp size={22} />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-black text-white tracking-tight italic">Reseller Whitelisting</h3>
-                                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Wholesale pricing protocol</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-6 relative z-10">
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                                <label>Agent Discount Rate (%)</label>
-                                <span className="text-blue-500 bg-blue-500/10 px-3 py-1 rounded-lg border border-blue-500/20">Wholesale</span>
-                            </div>
-                            <div className="relative">
-                                <input 
-                                    type="number"
-                                    step="0.1"
-                                    value={Number(((agentSettings?.defaultAgentDiscountRate ?? 0) * 100).toFixed(2))}
-                                    onChange={(e) => setAgentSettings({ ...agentSettings, defaultAgentDiscountRate: Number(e.target.value) / 100 })}
-                                    className="w-full h-16 bg-slate-950 border border-white/10 rounded-2xl px-6 text-xl text-white font-black outline-none focus:border-blue-500/50 transition-all"
-                                    placeholder="0.0"
-                                />
-                                <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-black">% of Profit</div>
-                            </div>
-                            <p className="text-[10px] text-slate-600 font-bold leading-relaxed italic">
-                                * Agents receive this percentage of the profit margin as a direct price reduction.
-                            </p>
-                        </div>
-
-                        <button 
-                            onClick={handleSaveAgent}
-                            disabled={saving === 'agent'}
-                            className="w-full h-16 bg-blue-600 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-blue-50 transition-all hover:text-blue-600 flex items-center justify-center gap-3 shadow-2xl shadow-blue-600/10"
-                        >
-                            {saving === 'agent' ? <Loader2 className="animate-spin" size={20} /> : <><Save size={20} /> Activate Pricing Protocol</>}
-                        </button>
-                    </div>
-                </div>
 
                 {/* --- INTEGRITY CAPS --- */}
                 <div className="bg-slate-900 border border-white/5 rounded-[2rem] p-7 space-y-7 relative overflow-hidden group shadow-2xl">
@@ -420,22 +351,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-2 text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] ml-1">
-                                    <AlertTriangle size={14} />
-                                    <span>Max Agent Cap</span>
-                                </div>
-                                <div className="relative">
-                                    <input 
-                                        type="number"
-                                        step="0.01"
-                                        value={Number(((capSettings?.maxAgentReferralShare ?? 0.5) * 100).toFixed(2))}
-                                        onChange={(e) => setCapSettings({...capSettings, maxAgentReferralShare: Number(e.target.value) / 100})}
-                                        className="w-full h-16 bg-slate-950 border border-white/10 rounded-2xl px-6 text-xl text-white font-black outline-none focus:border-rose-500/50 transition-all font-mono"
-                                    />
-                                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 font-black">%</div>
-                                </div>
-                            </div>
+
                         </div>
 
                         <button 
@@ -498,15 +414,6 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                     </div>
                                     <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden p-px">
                                         <div className="bg-emerald-500/30 h-full transition-all duration-1000 rounded-full" style={{ width: `${(cappedReferral / previewProfit) * 100}%` }} />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-600">
-                                        <span>Agent Discount</span>
-                                        <span className="text-blue-400 font-bold italic">₦{cappedAgent.toFixed(2)}</span>
-                                    </div>
-                                    <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden p-px">
-                                        <div className="bg-blue-500/30 h-full transition-all duration-1000 rounded-full" style={{ width: `${(cappedAgent / previewProfit) * 100}%` }} />
                                     </div>
                                 </div>
                             </div>
