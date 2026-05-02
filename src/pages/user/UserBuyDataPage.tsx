@@ -11,6 +11,23 @@ import { Wifi, Phone, AlertCircle, Info, TriangleAlert } from "lucide-react";
 import { ServiceSkeleton } from "../../components/feedback/Skeletons";
 import apiClient from "../../services/api/apiClient";
 import { detectNetwork } from "../../utils/phoneValidation";
+import mtnLogo from "../../assets/mtn.png";
+import airtelLogo from "../../assets/airtel.png";
+import gloLogo from "../../assets/glo.png";
+import mobile9Logo from "../../assets/9mobile.png";
+
+const NETWORK_ASSETS: Record<string, string> = {
+    mtn: mtnLogo,
+    airtel: airtelLogo,
+    glo: gloLogo,
+    '9mobile': mobile9Logo,
+    etisalat: mobile9Logo,
+};
+
+const getNetworkAsset = (slug: string) => {
+    const key = Object.keys(NETWORK_ASSETS).find(k => (slug || '').toLowerCase().includes(k));
+    return key ? NETWORK_ASSETS[key] : null;
+};
 
 const PLAN_CATEGORIES = ["All", "Daily", "Weekly", "Monthly", "SME"] as const;
 
@@ -251,7 +268,9 @@ const UserBuyDataPage: React.FC = () => {
                                                 ? 'bg-emerald-50 border-emerald-500 shadow-lg scale-105 text-emerald-900'
                                                 : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
                                         }`}>
-                                        {net.brandId?.logoUrl ? (
+                                        {getNetworkAsset(net.slug) ? (
+                                            <img src={getNetworkAsset(net.slug) as string} alt={net.name} className="w-10 h-10 object-contain rounded-full bg-white shadow-sm" />
+                                        ) : net.brandId?.logoUrl ? (
                                             <img src={net.brandId.logoUrl} alt={net.name} className="w-10 h-10 object-contain rounded-full bg-white shadow-sm" />
                                         ) : (
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-lg ${selectedIdentity?._id === net._id ? 'bg-emerald-200 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
