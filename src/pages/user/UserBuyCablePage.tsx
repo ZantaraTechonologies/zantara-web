@@ -302,9 +302,17 @@ const UserBuyCablePage: React.FC = () => {
                                     <span className="text-slate-500">Decoder ID</span>
                                     <span className="font-bold text-slate-900 font-mono">{smartcard || '—'}</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-slate-500">Package</span>
-                                    <span className="font-bold text-slate-900 text-right max-w-[120px] truncate leading-tight">{selectedPlan?.name || '—'}</span>
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Package</span>
+                                        <span className="font-bold text-slate-900 text-right max-w-[120px] truncate leading-tight">{selectedPlan?.name || '—'}</span>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/10">
+                                            <TrendingUp size={10} />
+                                            Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
+                                        </span>
+                                    </div>
                                 </div>
                                 
                                 <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
@@ -315,13 +323,7 @@ const UserBuyCablePage: React.FC = () => {
                                         ) : previewError ? (
                                              <span className="text-xs text-red-500 font-bold">Unavailable</span>
                                         ) : (
-                                            <div className="flex flex-col items-end">
-                                                <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
-                                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 border border-emerald-500/10">
-                                                    <TrendingUp size={10} />
-                                                    Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
-                                                </span>
-                                            </div>
+                                            <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
                                         )}
                                     </div>
                                 </div>

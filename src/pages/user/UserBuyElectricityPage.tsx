@@ -304,10 +304,19 @@ const UserBuyElectricityPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
-                                    <span className="text-[11px] font-bold text-slate-400 uppercase">Meter No</span>
-                                    <span className="font-bold text-slate-900 font-mono text-sm tracking-tighter">{meterNumber || '—'}</span>
+                                <div className="space-y-1">
+                                    <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
+                                        <span className="text-[11px] font-bold text-slate-400 uppercase">Meter No</span>
+                                        <span className="font-bold text-slate-900 font-mono text-sm tracking-tighter">{meterNumber || '—'}</span>
+                                    </div>
+                                    <div className="flex justify-end pr-1">
+                                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/10">
+                                            <TrendingUp size={10} />
+                                            Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
+                                        </span>
+                                    </div>
                                 </div>
+                                
                                 <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
                                     <span className="text-[11px] font-bold text-slate-400 uppercase">Type</span>
                                     <span className="font-black text-slate-900 uppercase text-xs">{meterType}</span>
@@ -321,13 +330,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                         ) : previewError ? (
                                              <span className="text-xs text-red-500 font-bold">Unavailable</span>
                                         ) : (
-                                            <div className="flex flex-col items-end">
-                                                <span className="font-black text-slate-900 text-xl tracking-tight">{currency}{finalAmount.toLocaleString()}</span>
-                                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 border border-emerald-500/10">
-                                                    <TrendingUp size={10} />
-                                                    Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
-                                                </span>
-                                            </div>
+                                            <span className="font-black text-slate-900 text-xl tracking-tight">{currency}{finalAmount.toLocaleString()}</span>
                                         )}
                                     </div>
                                 </div>
