@@ -15,7 +15,8 @@ import {
     PieChart,
     LogOut,
     BarChart3,
-    Clock
+    Clock,
+    Activity
 } from 'lucide-react';
 import { 
     useAdminShareholderOverview, 
