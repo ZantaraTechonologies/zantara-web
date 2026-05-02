@@ -42,7 +42,7 @@ const AdminDashboardPage: React.FC = () => {
         { label: 'PENDING KYC', value: stats?.pendingKyc?.toString() || '0', trend: 'URGENT', trendUp: false, detail: 'Action Required', alert: (stats?.pendingKyc || 0) > 0, link: '/admin/kyc' },
         { label: 'WITHDRAWALS', value: stats?.pendingWithdrawals?.toString() || '0', trend: `${currency}${stats?.withdrawalVolume?.toLocaleString() || '0'}`, trendUp: true, detail: null, link: '/admin/withdrawals' },
         { label: 'FAILED TODAY', value: stats?.failedTxsToday?.toString() || '0', trend: 'CHECK LOGS', trendUp: false, detail: null, critical: (stats?.failedTxsToday || 0) > 0, link: '/admin/transactions' },
-        { label: 'TODAY\'S PROFIT', value: `${currency}${stats?.todayProfit?.toLocaleString() || '0'}`, trend: 'REALIZED', trendUp: true, detail: 'Net Platform Yield', link: '/admin/finance/hub' },
+        { label: 'TODAY\'S PROFIT', value: `${currency}${stats?.todayProfit?.toLocaleString() || '0'}`, trend: 'REALIZED', trendUp: true, detail: 'Net Platform Yield', link: '/admin/business/intelligence' },
         { label: 'OPEN TICKETS', value: stats?.openTickets?.toString() || '0', trend: 'SUPPORT', trendUp: true, detail: null, link: '/admin/support' },
     ];
 
