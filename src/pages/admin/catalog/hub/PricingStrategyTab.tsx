@@ -216,13 +216,27 @@ const PricingStrategyTab: React.FC = () => {
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Value</label>
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Markup Value</label>
                             <input 
                                 type="number"
                                 value={newRule.markupValue}
                                 onChange={(e) => setNewRule({...newRule, markupValue: Number(e.target.value)})}
                                 className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-indigo-500/50"
                             />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Apply To Role</label>
+                            <select 
+                                value={newRule.userRole}
+                                onChange={(e) => setNewRule({...newRule, userRole: e.target.value})}
+                                className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                            >
+                                <option value="all">All Users</option>
+                                <option value="user">Standard Users</option>
+                                <option value="agent">Agents</option>
+                                <option value="shareholder">Shareholders</option>
+                                <option value="reseller">Resellers</option>
+                            </select>
                         </div>
                     </div>
                     <div className="mt-8 flex justify-end">
@@ -258,6 +272,20 @@ const PricingStrategyTab: React.FC = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
+                                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-2">Apply To Role</label>
+                                        <select 
+                                            value={editForm.userRole} 
+                                            onChange={(e) => setEditForm({...editForm, userRole: e.target.value})} 
+                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50"
+                                        >
+                                            <option value="all">All Users</option>
+                                            <option value="user">Standard Users</option>
+                                            <option value="agent">Agents</option>
+                                            <option value="shareholder">Shareholders</option>
+                                            <option value="reseller">Resellers</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
                                         <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-2">Priority</label>
                                         <input 
                                             type="number" 
@@ -282,7 +310,12 @@ const PricingStrategyTab: React.FC = () => {
                                         <h4 className="text-lg font-black text-white tracking-tighter capitalize italic">
                                             {getTargetName(rule)} <span className="text-indigo-400/50 not-italic text-xs ml-2">Markup</span>
                                         </h4>
-                                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">Rule Priority: {rule.priority}</p>
+                                        <div className="flex items-center gap-3 mt-1">
+                                            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Rule Priority: {rule.priority}</p>
+                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${rule.userRole === 'all' ? 'bg-slate-800 text-slate-400' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'}`}>
+                                                Role: {rule.userRole}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-10">
