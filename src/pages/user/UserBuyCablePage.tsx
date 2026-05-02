@@ -7,7 +7,7 @@ import { useAuthStore } from "../../store/auth/authStore";
 import { useNavigate } from "react-router-dom";
 import SecurePinModal from "../../components/modals/SecurePinModal";
 import { toast } from "react-hot-toast";
-import { Monitor, Tv, Phone, AlertCircle, Info, Search, UserCheck } from "lucide-react";
+import { Monitor, Tv, Phone, AlertCircle, Info, Search, UserCheck, TrendingUp } from "lucide-react";
 import { ServiceSkeleton } from "../../components/feedback/Skeletons";
 import apiClient from "../../services/api/apiClient";
 
@@ -315,7 +315,13 @@ const UserBuyCablePage: React.FC = () => {
                                         ) : previewError ? (
                                              <span className="text-xs text-red-500 font-bold">Unavailable</span>
                                         ) : (
-                                            <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
+                                            <div className="flex flex-col items-end">
+                                                <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
+                                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 border border-emerald-500/10">
+                                                    <TrendingUp size={10} />
+                                                    Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
+                                                </span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>

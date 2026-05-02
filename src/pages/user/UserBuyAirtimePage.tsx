@@ -320,11 +320,9 @@ const UserBuyAirtimePage: React.FC = () => {
                                         ) : (
                                             <div className="flex flex-col items-end">
                                                 <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
-                                                {previewPricing?.data?.savings > 0 && (
-                                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 border border-emerald-500/10">
-                                                        Saved {currency}{previewPricing.data.savings.toLocaleString()}
-                                                    </span>
-                                                )}
+                                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 border border-emerald-500/10">
+                                                    Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
+                                                </span>
                                             </div>
                                         )}
                                     </div>

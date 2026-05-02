@@ -7,7 +7,7 @@ import { useAuthStore } from "../../store/auth/authStore";
 import { useNavigate } from "react-router-dom";
 import SecurePinModal from "../../components/modals/SecurePinModal";
 import { toast } from "react-hot-toast";
-import { GraduationCap, Info, AlertCircle, UserCheck } from "lucide-react";
+import { GraduationCap, Info, AlertCircle, UserCheck, TrendingUp } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
 
 const UserBuyExamPinPage: React.FC = () => {
@@ -338,7 +338,13 @@ const UserBuyExamPinPage: React.FC = () => {
                                         ) : (previewError && finalAmount === 0) ? (
                                              <span className="text-xs text-red-500 font-bold">Unavailable</span>
                                         ) : (
-                                            <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
+                                            <div className="flex flex-col items-end">
+                                                <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
+                                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 border border-emerald-500/10">
+                                                    <TrendingUp size={10} />
+                                                    Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
+                                                </span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
