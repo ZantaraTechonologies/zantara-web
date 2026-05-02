@@ -318,7 +318,14 @@ const UserBuyAirtimePage: React.FC = () => {
                                         ) : Number(amount) < 50 ? (
                                             <span className="font-extrabold text-slate-400">—</span>
                                         ) : (
-                                            <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
+                                            <div className="flex flex-col items-end">
+                                                <span className="font-extrabold text-slate-900">{currency}{finalAmount.toLocaleString()}</span>
+                                                {previewPricing?.data?.savings > 0 && (
+                                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1 flex items-center gap-1 border border-emerald-500/10">
+                                                        Saved {currency}{previewPricing.data.savings.toLocaleString()}
+                                                    </span>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
