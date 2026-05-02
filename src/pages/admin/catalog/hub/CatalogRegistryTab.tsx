@@ -76,7 +76,8 @@ const CatalogRegistryTab: React.FC = () => {
         typeId: '',
         brandId: '',
         providerCode: '',
-        fulfillmentMode: 'sync'
+        fulfillmentMode: 'sync',
+        suggestedRetailPrice: ''
     });
 
     const [editData, setEditData] = useState<any>(null);
@@ -86,7 +87,8 @@ const CatalogRegistryTab: React.FC = () => {
     const [variantFormData, setVariantFormData] = useState({
         name: '',
         code: '',
-        status: true
+        status: true,
+        suggestedRetailPrice: ''
     });
 
     useEffect(() => {
@@ -154,7 +156,7 @@ const CatalogRegistryTab: React.FC = () => {
             await apiClient.post('/admin/hierarchy/identities', formData);
             toast.success("Service Identity registered successfully");
             setShowCreateModal(false);
-            setFormData({ name: '', internalCode: '', categoryId: '', typeId: '', brandId: '', providerCode: '', fulfillmentMode: 'sync' });
+            setFormData({ name: '', internalCode: '', categoryId: '', typeId: '', brandId: '', providerCode: '', fulfillmentMode: 'sync', suggestedRetailPrice: '' });
             loadIdentities();
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Registration failed");
@@ -221,7 +223,7 @@ const CatalogRegistryTab: React.FC = () => {
             
             setShowVariantModal(false);
             setEditingVariant(null);
-            setVariantFormData({ name: '', code: '', status: true });
+            setVariantFormData({ name: '', code: '', status: true, suggestedRetailPrice: '' });
             loadPlans(selectedIdentity._id);
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Operation failed");
@@ -291,7 +293,10 @@ const CatalogRegistryTab: React.FC = () => {
                         <div className="flex items-center gap-3">
                             <button 
                                 onClick={() => {
-                                    setEditData({ ...selectedIdentity });
+                                    setEditData({ 
+                                        ...selectedIdentity,
+                                        suggestedRetailPrice: (selectedIdentity as any).suggestedRetailPrice || ''
+                                    });
                                     setShowEditModal(true);
                                 }}
                                 className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black text-white uppercase tracking-widest border border-white/5 transition-all"
@@ -377,7 +382,12 @@ const CatalogRegistryTab: React.FC = () => {
                                                         <button 
                                                             onClick={() => {
                                                                 setEditingVariant(plan);
-                                                                setVariantFormData({ name: plan.name, code: plan.code, status: plan.status });
+                                                                setVariantFormData({ 
+                                                                    name: plan.name, 
+                                                                    code: plan.code, 
+                                                                    status: plan.status,
+                                                                    suggestedRetailPrice: (plan as any).suggestedRetailPrice || ''
+                                                                });
                                                                 setShowVariantModal(true);
                                                             }}
                                                             className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white transition-all hover:bg-indigo-500/20"
@@ -596,7 +606,10 @@ const CatalogRegistryTab: React.FC = () => {
                                                     )}
                                                     <button 
                                                         onClick={() => {
-                                                            setEditData({ ...identity });
+                                                            setEditData({ 
+                                                                ...identity,
+                                                                suggestedRetailPrice: (identity as any).suggestedRetailPrice || ''
+                                                            });
                                                             setShowEditModal(true);
                                                         }}
                                                         className="p-2.5 rounded-xl bg-white/5 text-slate-600 hover:text-white border border-white/5 transition-colors"
@@ -719,6 +732,16 @@ const CatalogRegistryTab: React.FC = () => {
                                         className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
+                                <div className="space-y-2 col-span-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Suggested Retail Price (Market Price Reference)</label>
+                                    <input 
+                                        type="number" 
+                                        placeholder="e.g., 1000"
+                                        value={formData.suggestedRetailPrice}
+                                        onChange={(e) => setFormData({...formData, suggestedRetailPrice: e.target.value})}
+                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-3 gap-6">
@@ -809,6 +832,16 @@ const CatalogRegistryTab: React.FC = () => {
                                         className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold uppercase"
                                     />
                                 </div>
+                                <div className="space-y-2 col-span-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Suggested Retail Price (Market Price Reference)</label>
+                                    <input 
+                                        type="number" 
+                                        placeholder="e.g., 500"
+                                        value={variantFormData.suggestedRetailPrice}
+                                        onChange={(e) => setVariantFormData({...variantFormData, suggestedRetailPrice: e.target.value})}
+                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                    />
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-3">
@@ -875,6 +908,16 @@ const CatalogRegistryTab: React.FC = () => {
                                         value={editData.providerCode || ''}
                                         placeholder="e.g., mtn-data"
                                         onChange={(e) => setEditData({...editData, providerCode: e.target.value})}
+                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                    />
+                                </div>
+                                <div className="space-y-2 col-span-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Suggested Retail Price (Market Price Reference)</label>
+                                    <input 
+                                        type="number" 
+                                        placeholder="e.g., 1000"
+                                        value={editData.suggestedRetailPrice || ''}
+                                        onChange={(e) => setEditData({...editData, suggestedRetailPrice: e.target.value})}
                                         className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
