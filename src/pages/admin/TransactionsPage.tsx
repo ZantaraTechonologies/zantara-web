@@ -39,6 +39,7 @@ export type Txn = {
     type?: string; // e.g., funding, purchase, Commission
     meta?: Record<string, any>;
     profit?: number;
+    netProfitAfterCommission?: number;
     costPrice?: number;
     accountingSource?: 'actual' | 'estimated';
 };
@@ -345,7 +346,7 @@ export default function TransactionsPage() {
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <div className="flex flex-col items-end">
-                                                <span className="text-xs font-bold text-slate-700">{currency(r.profit || 0).replace('NGN', '₦')}</span>
+                                                <span className="text-xs font-bold text-slate-700">{currency(r.netProfitAfterCommission ?? r.profit ?? 0).replace('NGN', '₦')}</span>
                                                 <span className={`text-[8px] font-black uppercase tracking-tighter px-1.5 rounded ${
                                                     r.accountingSource === 'actual' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
                                                 }`}>

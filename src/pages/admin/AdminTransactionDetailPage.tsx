@@ -313,7 +313,7 @@ export default function AdminTransactionDetailPage() {
                                     <span className="text-[10px] font-black uppercase tracking-widest opacity-70">Platform Yield</span>
                                     <span className="text-[8px] font-bold uppercase tracking-tighter opacity-50">Net Realized Profit</span>
                                 </div>
-                                <span className="text-lg font-black tracking-tighter">₦{(txn.profit || 0).toLocaleString()}</span>
+                                <span className="text-lg font-black tracking-tighter">₦{(txn.netProfitAfterCommission ?? txn.profit ?? 0).toLocaleString()}</span>
                             </div>
 
                             {txn.commission > 0 && (
