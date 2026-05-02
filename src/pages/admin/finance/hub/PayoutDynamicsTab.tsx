@@ -55,7 +55,6 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
 
     const statsCards = [
         { label: "Referral Payouts", value: overview?.totalReferralPayouts || 0, icon: Users, color: "emerald", desc: "Cumulative commissions disbursed" },
-        { label: "Agent Profits", value: overview?.totalAgentProfits || 0, icon: Briefcase, color: "blue", desc: "Net yield from reseller activity" },
         { label: "Capped Events", value: overview?.cappedCommissionsCount || 0, icon: ShieldCheck, color: "amber", desc: "Margin-protected transactions" },
         { label: "Skipped (Low Margin)", value: overview?.skippedCommissionsCount || 0, icon: Zap, color: "slate", desc: "Zero-yield commission bypass" },
     ];
@@ -103,7 +102,6 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
                             </div>
                             <div className="flex bg-slate-800/50 p-1 rounded-2xl border border-slate-700">
                                 <button onClick={() => setActiveTab('referrers')} className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'referrers' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-500'}`}>Referrers</button>
-                                <button onClick={() => setActiveTab('agents')} className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${activeTab === 'agents' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-500'}`}>Agents</button>
                             </div>
                         </div>
                         <div className="overflow-x-auto">
@@ -117,7 +115,7 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {(activeTab === 'referrers' ? performers?.topReferrers : performers?.topAgents)?.map((row: any, i: number) => (
+                                    {performers?.topReferrers?.map((row: any, i: number) => (
                                         <tr key={i} className="group hover:bg-white/[0.02] transition-colors">
                                             <td className="px-8 py-6">
                                                 <span className={`text-[10px] font-black w-7 h-7 flex items-center justify-center rounded-xl border ${i < 3 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-lg' : 'bg-slate-800 text-slate-500'}`}>{i + 1}</span>
@@ -167,10 +165,7 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
                                 <div className="space-y-1"><p className="text-[10px] font-black text-slate-500 uppercase">Standard Cap</p><h4 className="text-2xl font-black text-white tracking-tighter tabular-nums">{(caps?.maxReferralProfitShare * 100).toFixed(0)}%</h4></div>
                                 <Info size={14} className="text-slate-600" />
                             </div>
-                            <div className="bg-slate-800/40 border border-slate-800 p-5 rounded-3xl flex items-center justify-between">
-                                <div className="space-y-1"><p className="text-[10px] font-black text-slate-500 uppercase">Agent Performer Cap</p><h4 className="text-2xl font-black text-white tracking-tighter tabular-nums">{(caps?.maxAgentReferralShare * 100).toFixed(0)}%</h4></div>
-                                <Info size={14} className="text-slate-600" />
-                            </div>
+
                         </div>
                         <div className="mt-10 p-6 bg-slate-800/20 border border-slate-800 rounded-[2rem] space-y-4">
                             <p className="text-[11px] text-slate-400 font-bold leading-relaxed italic opacity-80">Global integrity protocols prevent platform loss by dynamically capping payouts when service margins shrink.</p>

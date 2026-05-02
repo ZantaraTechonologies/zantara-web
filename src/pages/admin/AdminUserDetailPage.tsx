@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import * as adminService from '../../services/admin/adminService';
-import { updateUserCommissionRate, updateUserAgentDiscount } from '../../services/admin/adminBusinessService';
+import { updateUserCommissionRate } from '../../services/admin/adminBusinessService';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { toast } from 'react-toastify';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
@@ -47,7 +47,6 @@ const AdminUserDetailPage: React.FC = () => {
     
     // Pricing Overrides State
     const [customCommRate, setCustomCommRate] = useState<number | ''>('');
-    const [customAgentDiscount, setCustomAgentDiscount] = useState<number | ''>('');
 
     const getTransactionConfig = (type: string) => {
         switch (type) {
@@ -91,12 +90,6 @@ const AdminUserDetailPage: React.FC = () => {
                 setCustomCommRate(userData.commissionRate * 100);
             } else {
                 setCustomCommRate('');
-            }
-            
-            if (userData.agentDiscountRate !== undefined && userData.agentDiscountRate !== null) {
-                setCustomAgentDiscount(userData.agentDiscountRate * 100);
-            } else {
-                setCustomAgentDiscount('');
             }
         } catch (err) {
             toast.error("User not found");
@@ -143,13 +136,9 @@ const AdminUserDetailPage: React.FC = () => {
         if (!user || processing) return;
         setProcessing(true);
         try {
-            // Update Commission Rate
             const commValue = customCommRate === '' ? null : Number(customCommRate) / 100;
-            const agentValue = customAgentDiscount === '' ? null : Number(customAgentDiscount) / 100;
-
             await Promise.all([
-                updateUserCommissionRate(user._id, { commissionRate: commValue }),
-                updateUserAgentDiscount(user._id, { agentDiscountRate: agentValue })
+                updateUserCommissionRate(user._id, { commissionRate: commValue })
             ]);
 
             toast.success("Pricing protocols updated for user");
@@ -288,25 +277,7 @@ const AdminUserDetailPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                                        <label>Agent Discount (%)</label>
-                                        <span className={customAgentDiscount === '' ? 'text-slate-600' : 'text-blue-500'}>
-                                            {customAgentDiscount === '' ? 'Using Default' : 'Custom Override'}
-                                        </span>
-                                    </div>
-                                    <div className="relative">
-                                        <input 
-                                            type="number"
-                                            step="0.1"
-                                            value={customAgentDiscount}
-                                            onChange={(e) => setCustomAgentDiscount(e.target.value === '' ? '' : Number(e.target.value))}
-                                            className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50 transition-all"
-                                            placeholder="System Default"
-                                        />
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-600">%</div>
-                                    </div>
-                                </div>
+
 
                                 <button
                                     onClick={handleSavePricingOverrides}
