@@ -321,18 +321,16 @@ const UserBuyExamPinPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-2 text-sm">
-                                <div className="flex flex-col gap-1">
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500">Board</span>
-                                        <span className="font-bold text-slate-900 text-right max-w-[120px] truncate leading-tight">{currentPlan?.name || '—'}</span>
-                                    </div>
-                                    <div className="flex justify-end">
-                                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/10">
-                                            <TrendingUp size={10} />
-                                            Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
-                                        </span>
-                                    </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">Board</span>
+                                    <span className="font-bold text-slate-900 text-right max-w-[120px] truncate leading-tight">{currentPlan?.name || '—'}</span>
                                 </div>
+                                {previewPricing?.data?.savings > 0 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Discount</span>
+                                        <span className="font-bold text-emerald-600">-{currency}{previewPricing.data.savings.toLocaleString()}</span>
+                                    </div>
+                                )}
                                 
                                 <div className="flex justify-between">
                                     <span className="text-slate-500">Qty</span>

@@ -304,18 +304,16 @@ const UserBuyElectricityPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <div className="space-y-1">
-                                    <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
-                                        <span className="text-[11px] font-bold text-slate-400 uppercase">Meter No</span>
-                                        <span className="font-bold text-slate-900 font-mono text-sm tracking-tighter">{meterNumber || '—'}</span>
-                                    </div>
-                                    <div className="flex justify-end pr-1">
-                                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/10">
-                                            <TrendingUp size={10} />
-                                            Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
-                                        </span>
-                                    </div>
+                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
+                                    <span className="text-[11px] font-bold text-slate-400 uppercase">Meter No</span>
+                                    <span className="font-bold text-slate-900 font-mono text-sm tracking-tighter">{meterNumber || '—'}</span>
                                 </div>
+                                {previewPricing?.data?.savings > 0 && (
+                                    <div className="flex justify-between items-center px-2 py-1 mt-1">
+                                        <span className="text-[11px] font-bold text-slate-400 uppercase">Discount</span>
+                                        <span className="font-bold text-emerald-600 text-sm tracking-tighter">-{currency}{previewPricing.data.savings.toLocaleString()}</span>
+                                    </div>
+                                )}
                                 
                                 <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
                                     <span className="text-[11px] font-bold text-slate-400 uppercase">Type</span>

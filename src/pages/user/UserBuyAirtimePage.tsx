@@ -303,17 +303,16 @@ const UserBuyAirtimePage: React.FC = () => {
                                     <span className="text-slate-500">Recipient</span>
                                     <span className="font-bold text-slate-900 font-mono">{phone || '—'}</span>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-500">Value</span>
-                                        <span className="font-bold text-slate-900">{currency}{Number(amount || 0).toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-end">
-                                        <span className="text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/10">
-                                            Your Discount: {currency}{(previewPricing?.data?.savings || 0).toLocaleString()}
-                                        </span>
-                                    </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">Value</span>
+                                    <span className="font-bold text-slate-900">{currency}{Number(amount || 0).toLocaleString()}</span>
                                 </div>
+                                {previewPricing?.data?.savings > 0 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-slate-500">Discount</span>
+                                        <span className="font-bold text-emerald-600">-{currency}{previewPricing.data.savings.toLocaleString()}</span>
+                                    </div>
+                                )}
                                 
                                 <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
                                     <span className="font-bold text-slate-700">Total</span>
