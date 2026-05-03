@@ -23,7 +23,7 @@ export const updatePin = async (data: { oldPin: string, newPin: string }) => {
 };
 
 export const uploadKYC = async (formData: FormData) => {
-    const res = await apiClient.post('/auth/upload-kyc', formData, {
+    const res = await apiClient.post('/kyc/submit', formData, {
         timeout: 60000, // Longer timeout for uploads
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -33,11 +33,20 @@ export const uploadKYC = async (formData: FormData) => {
 };
 
 export const getKYCStatus = async () => {
-    const res = await apiClient.get('/auth/kyc-status', { timeout: USER_TIMEOUT });
+    const res = await apiClient.get('/kyc/my-status', { timeout: USER_TIMEOUT });
     return res.data;
 };
 
 export const getKYCLevels = async () => {
-    const res = await apiClient.get('/auth/kyc-levels', { timeout: USER_TIMEOUT });
-    return res.data;
+    // Backend doesn't have a dedicated levels endpoint yet, 
+    // using a hardcoded response similar to mobile app to maintain consistency
+    return {
+        data: {
+            levels: [
+                { level: 1, name: 'Tier 1', limit: 50000, requirements: ['Email', 'Phone'] },
+                { level: 2, name: 'Tier 2', limit: 200000, requirements: ['NIN/BVN'] },
+                { level: 3, name: 'Tier 3', limit: 5000000, requirements: ['Utility Bill'] }
+            ]
+        }
+    };
 };

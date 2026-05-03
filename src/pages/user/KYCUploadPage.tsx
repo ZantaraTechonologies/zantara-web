@@ -19,6 +19,7 @@ const KYCUploadPage: React.FC = () => {
     const navigate = useNavigate();
     
     const [docType, setDocType] = useState('NIN');
+    const [docNumber, setDocNumber] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -37,7 +38,6 @@ const KYCUploadPage: React.FC = () => {
                     const ctx = canvas.getContext('2d');
                     if (!ctx) return reject('Canvas error');
 
-                    // Resize if too large
                     let width = img.width;
                     let height = img.height;
                     const max = 1200;
@@ -67,22 +67,18 @@ const KYCUploadPage: React.FC = () => {
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
-            // Validate size (5MB)
             if (selectedFile.size > 5 * 1024 * 1024) {
                 toast.error("File is too large. Maximum size is 5MB.");
                 return;
             }
-
-            // Validate type
             const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
             if (!allowedTypes.includes(selectedFile.type)) {
                 toast.error("Invalid file type. Please upload JPEG, PNG, or PDF.");
                 return;
             }
-
             setFile(selectedFile);
             setPreview(selectedFile.type === 'application/pdf' 
-                ? 'https://cdn-icons-png.flaticon.com/512/337/337946.png' // PDF Placeholder
+                ? 'https://cdn-icons-png.flaticon.com/512/337/337946.png'
                 : URL.createObjectURL(selectedFile)
             );
         }
@@ -90,29 +86,33 @@ const KYCUploadPage: React.FC = () => {
 
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!file) return;
+        if (!file || !docNumber) {
+            toast.error("Please fill in all fields");
+            return;
+        }
 
         setLoading(true);
         try {
             const formData = new FormData();
             
+            // Tier 2 is the standard for ID upload in this screen
+            formData.append('tier', '2');
+            formData.append('documentType', docType);
+            formData.append('documentNumber', docNumber);
+
             if (file.type === 'application/pdf') {
-                formData.append('document', file, `kyc_${docType.toLowerCase()}.pdf`);
+                formData.append('documentImage', file, `kyc_${docType.toLowerCase()}.pdf`);
             } else {
-                // High-fidelity requirement metadata implementation
                 try {
                     const compressedBlob = await compressImage(file);
-                    formData.append('document', compressedBlob, `kyc_${docType.toLowerCase()}.jpg`);
+                    formData.append('documentImage', compressedBlob, `kyc_${docType.toLowerCase()}.jpg`);
                 } catch (compErr) {
-                    console.warn("Compression failed, uploading original", compErr);
-                    formData.append('document', file, file.name);
+                    formData.append('documentImage', file, file.name);
                 }
             }
-
-            formData.append('type', docType);
             
             await userService.uploadKYC(formData);
-            toast.success("Document uploaded for verification");
+            toast.success("Document submitted for verification");
             navigate('/app/kyc/status');
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Upload failed. Please try again.");
@@ -147,6 +147,16 @@ const KYCUploadPage: React.FC = () => {
                             <option value="International Passport">International Passport</option>
                             <option value="Voters Card">PVC / Voter's Card</option>
                         </Select>
+                    </Row>
+
+                    <Row label="Document Number">
+                        <input 
+                            type="text" 
+                            value={docNumber}
+                            onChange={(e) => setDocNumber(e.target.value)}
+                            placeholder="Enter the ID number"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-sm font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"
+                        />
                     </Row>
 
                     <Row label="Document Image">
@@ -201,7 +211,7 @@ const KYCUploadPage: React.FC = () => {
                             </span>
                          </div>
                          <div className="w-full sm:w-auto">
-                            <SubmitButton loading={loading} disabled={!file}>
+                            <SubmitButton loading={loading} disabled={!file || !docNumber}>
                                 Submit for Verification
                             </SubmitButton>
                          </div>

@@ -20,10 +20,29 @@ const KYCLevelsPage: React.FC = () => {
     const navigate = useNavigate();
     const [levels, setLevels] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const currentLevel = user?.kycStatus === 'verified' ? 2 : (user?.kycStatus === 'pending' ? 1 : 1);
+    const [kycData, setKycData] = useState<any>(null);
+    const currentLevel = user?.kycLevel || 1;
 
     useEffect(() => {
-        const kycStatus = user?.kycStatus || 'none';
+        const fetchStatus = async () => {
+            setLoading(true);
+            try {
+                const res = await userService.getKYCStatus();
+                setKycData(res.data);
+            } catch (err) {
+                console.error("Failed to fetch KYC status");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStatus();
+    }, []);
+
+    useEffect(() => {
+        if (!levels.length && !kycData && !loading) return;
+
+        const kycStatus = kycData?.status || 'none';
+        const kycTier = kycData?.tier || 1;
         
         const tier1 = { 
             level: 1, 
@@ -38,7 +57,7 @@ const KYCLevelsPage: React.FC = () => {
             name: 'Verified', 
             limit: `${currency}500,000 Daily`, 
             requirements: ['Government ID (NIN/BVN)', 'Residential Address'],
-            status: kycStatus === 'verified' ? 'active' : (kycStatus === 'pending' ? 'pending' : 'available')
+            status: (user?.kycLevel >= 2) ? 'active' : (kycStatus === 'pending' && kycTier === 2 ? 'pending' : 'available')
         };
 
         const tier3 = { 
@@ -46,11 +65,11 @@ const KYCLevelsPage: React.FC = () => {
             name: 'Premium', 
             limit: `${currency}5,000,000 Daily`, 
             requirements: ['Utility Bill', 'Face Verification'],
-            status: kycStatus === 'verified' ? 'available' : 'locked'
+            status: (user?.kycLevel >= 3) ? 'active' : (kycStatus === 'pending' && kycTier === 3 ? 'pending' : (user?.kycLevel >= 2 ? 'available' : 'locked'))
         };
 
         setLevels([tier1, tier2, tier3]);
-    }, [user]);
+    }, [user, kycData]);
 
     const getStatusIcon = (status: string) => {
         switch (status) {
