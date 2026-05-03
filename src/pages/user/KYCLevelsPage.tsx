@@ -40,10 +40,8 @@ const KYCLevelsPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (!levels.length && !kycData && !loading) return;
-
         const kycStatus = kycData?.status || 'none';
-        const kycTier = kycData?.tier || 1;
+        const kycTier = kycData?.tier || 0;
         
         const tier1 = { 
             level: 1, 
