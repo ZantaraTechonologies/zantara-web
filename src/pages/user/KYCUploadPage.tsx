@@ -101,13 +101,13 @@ const KYCUploadPage: React.FC = () => {
             formData.append('documentNumber', docNumber);
 
             if (file.type === 'application/pdf') {
-                formData.append('documentImage', file, `kyc_${docType.toLowerCase()}.pdf`);
+                formData.append('document', file, `kyc_${docType.toLowerCase()}.pdf`);
             } else {
                 try {
                     const compressedBlob = await compressImage(file);
-                    formData.append('documentImage', compressedBlob, `kyc_${docType.toLowerCase()}.jpg`);
+                    formData.append('document', compressedBlob, `kyc_${docType.toLowerCase()}.jpg`);
                 } catch (compErr) {
-                    formData.append('documentImage', file, file.name);
+                    formData.append('document', file, file.name);
                 }
             }
             
