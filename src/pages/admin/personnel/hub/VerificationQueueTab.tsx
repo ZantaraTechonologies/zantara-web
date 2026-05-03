@@ -3,7 +3,8 @@ import {
     Shield, 
     Clock, 
     Eye,
-    ArrowRight
+    ArrowRight,
+    User as UserIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import * as adminService from '../../../../services/admin/adminService';
