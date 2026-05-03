@@ -78,6 +78,7 @@ import AdminShareholdersPage from '../pages/admin/AdminShareholdersPage';
 import AdminProfilePage from '../pages/admin/AdminProfilePage';
 import AdminServiceHubPage from '../pages/admin/catalog/hub/AdminServiceHubPage';
 import AdminPersonnelHubPage from '../pages/admin/personnel/hub/AdminPersonnelHubPage';
+import AdminKycDetailPage from '../pages/admin/AdminKycDetailPage';
 
 // System Pages
 import NotFound from '../pages/system/NotFound';
@@ -192,6 +193,7 @@ export default function AppRoutes() {
                             <Route path="users/:id" element={<AdminUserDetailPage />} />
                             
                             <Route path="kyc" element={<Navigate to="/admin/personnel/hub" state={{ activeTab: 'verification' }} replace />} />
+                            <Route path="kyc/:id" element={<AdminKycDetailPage />} />
                             
                             <Route path="personnel">
                                 <Route path="hub" element={<AdminPersonnelHubPage />} />
