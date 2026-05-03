@@ -27,6 +27,11 @@ export const fetchKycQueue = async (params = {}) => {
     return response.data;
 };
 
+export const fetchKycDetail = async (id: string) => {
+    const response = await apiClient.get(`${BASE_URL}/kyc/${id}`);
+    return response.data;
+};
+
 export const approveKyc = async (id: string, notes: string) => {
     const response = await apiClient.post(`${BASE_URL}/kyc/approve/${id}`, { notes });
     return response.data;

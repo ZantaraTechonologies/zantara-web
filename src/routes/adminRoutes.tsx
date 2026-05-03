@@ -18,6 +18,7 @@ import AdminTransactionDetailPage from "../pages/admin/AdminTransactionDetailPag
 import AdminSystemWalletPage from "../pages/admin/finance/AdminSystemWalletPage";
 import AdminCommissionSettingsPage from "../pages/admin/finance/AdminCommissionSettingsPage";
 import AdminFinancialHubPage from "../pages/admin/finance/hub/AdminFinancialHubPage";
+import AdminKycDetailPage from "../pages/admin/AdminKycDetailPage";
 
 export const router = createBrowserRouter([
   // Public admin auth pages
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
           { path: "users", element: <Navigate to="/admin/personnel/hub" replace /> },
           { path: "users/:id", element: <AdminUserDetailPage /> },
           { path: "kyc", element: <Navigate to="/admin/personnel/hub" state={{ activeTab: 'verification' }} replace /> },
+          { path: "kyc/:id", element: <AdminKycDetailPage /> },
           { 
             path: "personnel",
             children: [

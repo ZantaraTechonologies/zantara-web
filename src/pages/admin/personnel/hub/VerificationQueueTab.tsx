@@ -57,65 +57,92 @@ const VerificationQueueTab: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {loading ? (
-                    Array(6).fill(0).map((_, i) => (
-                        <div key={i} className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-8 h-64 animate-pulse"></div>
-                    ))
-                ) : queue.length === 0 ? (
-                    <div className="col-span-full py-32 bg-slate-900/20 border border-dashed border-white/10 rounded-[3rem] flex flex-col items-center justify-center space-y-6">
-                        <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center text-slate-800">
-                            <Shield size={40} />
-                        </div>
-                        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em]">Queue is currently empty</p>
-                    </div>
-                ) : (
-                    queue.map((item) => (
-                        <div key={item.id} className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-8 hover:border-emerald-500/30 transition-all group flex flex-col justify-between space-y-8">
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                                        <Shield size={22} className="text-indigo-400" />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-black text-white tracking-tight italic truncate max-w-[140px]">{item.userName}</p>
-                                        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{item.docType}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 text-slate-600">
-                                    <Clock size={12} />
-                                    <span className="text-[10px] font-black uppercase tracking-tighter italic">{item.submittedAt}</span>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-950 p-5 rounded-3xl flex items-center justify-between border border-white/5">
-                                <div className="space-y-1">
-                                    <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Protocol Check</p>
-                                    <p className={`text-[10px] font-black italic tracking-tight ${item.riskLevel === 'high' ? 'text-red-500' : 'text-emerald-500'}`}>
-                                        {item.riskLevel?.toUpperCase() || 'NORMAL'} RISK
-                                    </p>
-                                </div>
-                                <div className="w-14 h-14 rounded-2xl bg-white/5 overflow-hidden border border-white/10 shadow-2xl">
-                                    {item.docPreview ? (
-                                        <img src={item.docPreview} alt="Preview" className="w-full h-full object-cover opacity-40 group-hover:opacity-100 transition-opacity" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                            <Eye size={18} className="text-slate-800" />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <button 
-                                onClick={() => navigate(`/admin/kyc/${item.id}`)}
-                                className="w-full py-4 bg-white/5 text-slate-500 group-hover:bg-white group-hover:text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-white/5 transition-all flex items-center justify-center gap-3"
-                            >
-                                Start Validation
-                                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                            </button>
-                        </div>
-                    ))
-                )}
+            <div className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b border-white/5 bg-white/[0.02]">
+                                <th className="text-left py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">User</th>
+                                <th className="text-left py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Document</th>
+                                <th className="text-left py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Risk Status</th>
+                                <th className="text-left py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Submitted At</th>
+                                <th className="text-right py-6 px-8 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                            {loading ? (
+                                Array(5).fill(0).map((_, i) => (
+                                    <tr key={i}>
+                                        <td colSpan={5} className="p-0">
+                                            <ListSkeleton count={1} />
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : queue.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="py-24 text-center">
+                                        <Shield size={40} className="text-slate-800 mx-auto mb-4" />
+                                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">No Verification Requests in Queue</p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                queue.map((item) => (
+                                    <tr key={item._id} className="group hover:bg-white/[0.02] transition-colors">
+                                        <td className="py-6 px-8">
+                                            <div className="flex items-center gap-5">
+                                                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform">
+                                                    <UserIcon size={20} className="text-slate-500" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-black text-white tracking-tight italic">
+                                                        {item.userId?.name || 'Unknown User'}
+                                                    </p>
+                                                    <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tight">
+                                                        {item.userId?.email || 'No Email'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-8">
+                                            <div className="space-y-1.5">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-[10px] font-black text-white uppercase tracking-widest">{item.documentType}</p>
+                                                    <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/10 text-[8px] font-black uppercase">Tier {item.tier}</span>
+                                                </div>
+                                                <p className="text-[10px] font-mono text-slate-600 tracking-tighter italic">Preview Available</p>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-8">
+                                            <div className="space-y-1">
+                                                <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Protocol Check</p>
+                                                <p className={`text-[10px] font-black italic tracking-tight ${item.riskLevel === 'high' ? 'text-red-500' : 'text-emerald-500'}`}>
+                                                    {item.riskLevel?.toUpperCase() || 'NORMAL'} RISK
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-8">
+                                            <div className="flex items-center gap-2 text-slate-500">
+                                                <Clock size={12} />
+                                                <span className="text-[10px] font-black uppercase tracking-tighter italic">
+                                                    {new Date(item.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 px-8 text-right">
+                                            <button 
+                                                onClick={() => navigate(`/admin/kyc/${item._id}`)}
+                                                className="px-6 py-2.5 rounded-2xl bg-white/5 text-slate-500 group-hover:text-slate-950 group-hover:bg-white transition-all border border-white/5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 ml-auto"
+                                            >
+                                                Validate
+                                                <ArrowRight size={14} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
