@@ -155,7 +155,7 @@ const KYCLevelsPage: React.FC = () => {
 
                             {lvl.status === 'available' && (
                                 <button 
-                                    onClick={() => navigate('/app/kyc/upload')}
+                                    onClick={() => navigate('/app/kyc/upload', { state: { tier: lvl.level } })}
                                     className="w-full mt-6 py-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200"
                                 >
                                     Upgrade to Level {lvl.level}

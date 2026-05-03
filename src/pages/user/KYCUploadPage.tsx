@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import * as userService from '../../services/user/userService';
 import { toast } from 'react-toastify';
 import { 
@@ -17,9 +17,12 @@ import { SubmitButton, Row, Select } from '../../components/buy/Buy';
 
 const KYCUploadPage: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const tier = location.state?.tier || 2;
     
-    const [docType, setDocType] = useState('NIN');
+    const [docType, setDocType] = useState(tier === 3 ? 'Utility Bill' : 'NIN');
     const [docNumber, setDocNumber] = useState('');
+    const [address, setAddress] = useState('');
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -86,8 +89,16 @@ const KYCUploadPage: React.FC = () => {
 
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Basic validation
         if (!file || !docNumber) {
             toast.error("Please fill in all fields");
+            return;
+        }
+
+        // Tier 3 specific validation
+        if (tier === 3 && !address) {
+            toast.error("Please provide your residential address");
             return;
         }
 
@@ -95,10 +106,13 @@ const KYCUploadPage: React.FC = () => {
         try {
             const formData = new FormData();
             
-            // Tier 2 is the standard for ID upload in this screen
-            formData.append('tier', '2');
+            formData.append('tier', tier.toString());
             formData.append('documentType', docType);
             formData.append('documentNumber', docNumber);
+            
+            if (address) {
+                formData.append('address', address);
+            }
 
             if (file.type === 'application/pdf') {
                 formData.append('document', file, `kyc_${docType.toLowerCase()}.pdf`);
@@ -132,34 +146,59 @@ const KYCUploadPage: React.FC = () => {
                     <ArrowLeft size={20} />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Level 2 Verification</h1>
-                    <p className="text-sm text-slate-500 font-medium">Upload government-issued identification</p>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Tier {tier} Verification</h1>
+                    <p className="text-sm text-slate-500 font-medium">
+                        {tier === 3 ? 'Upload proof of residence' : 'Upload government-issued identification'}
+                    </p>
                 </div>
             </div>
 
             <form onSubmit={handleUpload} className="space-y-8">
                 <div className="bg-white border border-slate-100 rounded-2xl p-8 shadow-xl shadow-slate-200/40 space-y-8">
-                    <Row label="Document Category">
+                    {tier === 3 && (
+                        <Row label="Residential Address">
+                            <input 
+                                type="text" 
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                placeholder="Enter your full house address"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-sm font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"
+                            />
+                        </Row>
+                    )}
+
+                    <Row label={tier === 3 ? "Bill Category" : "Document Category"}>
                         <Select value={docType} onChange={(e) => setDocType(e.target.value)}>
-                            <option value="NIN">National ID (NIN)</option>
-                            <option value="BVN">BVN Slip</option>
-                            <option value="Driver License">Driver's License</option>
-                            <option value="International Passport">International Passport</option>
-                            <option value="Voters Card">PVC / Voter's Card</option>
+                            {tier === 3 ? (
+                                <>
+                                    <option value="Electricity Bill">Electricity Bill</option>
+                                    <option value="Water Bill">Water Bill</option>
+                                    <option value="Waste Bill">Waste / Environment Bill</option>
+                                    <option value="Tenancy Agreement">Tenancy Agreement</option>
+                                </>
+                            ) : (
+                                <>
+                                    <option value="NIN">National ID (NIN)</option>
+                                    <option value="BVN">BVN Slip</option>
+                                    <option value="Driver License">Driver's License</option>
+                                    <option value="International Passport">International Passport</option>
+                                    <option value="Voters Card">PVC / Voter's Card</option>
+                                </>
+                            )}
                         </Select>
                     </Row>
 
-                    <Row label="Document Number">
+                    <Row label={tier === 3 ? "Bill Reference Number" : "Identification Number"}>
                         <input 
                             type="text" 
                             value={docNumber}
                             onChange={(e) => setDocNumber(e.target.value)}
-                            placeholder="Enter the ID number"
+                            placeholder={tier === 3 ? "Enter meter number or account ID" : "Enter the ID number"}
                             className="w-full bg-slate-50 border border-slate-100 rounded-xl px-6 py-4 text-sm font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition-all"
                         />
                     </Row>
 
-                    <Row label="Document Image">
+                    <Row label={tier === 3 ? "Utility Bill Image" : "Document Image"}>
                         {!preview ? (
                             <div 
                                 onClick={() => fileInputRef.current?.click()}
@@ -223,12 +262,17 @@ const KYCUploadPage: React.FC = () => {
             <div className="space-y-4">
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-2">Verification Checklist</h4>
                 <div className="grid gap-3">
-                    {[
+                    {(tier === 3 ? [
+                        'Bill must not be older than 3 months',
+                        'Address on bill must match provided address',
+                        'Owner name or meter number must be clear',
+                        'Image must be original (no photocopies)'
+                    ] : [
                         'Document must be original (no photocopies)',
                         'All four corners of the ID must be visible',
                         'Details must be clear and legible',
                         'Document must be currently valid (not expired)'
-                    ].map((item, idx) => (
+                    ]).map((item, idx) => (
                         <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-3">
                             <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
                             <p className="text-xs text-slate-600 font-medium">{item}</p>
