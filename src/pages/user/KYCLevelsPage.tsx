@@ -13,6 +13,7 @@ import {
     TrendingUp
 } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
+import * as userService from '../../services/user/userService';
 
 const KYCLevelsPage: React.FC = () => {
     const { user } = useAuthStore();
