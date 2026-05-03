@@ -36,8 +36,8 @@ export const router = createBrowserRouter([
           { path: "dashboard", element: <AdminDashboardPage /> },
           { path: "users", element: <Navigate to="/admin/personnel/hub" replace /> },
           { path: "users/:id", element: <AdminUserDetailPage /> },
-          { path: "kyc", element: <Navigate to="/admin/personnel/hub" state={{ activeTab: 'verification' }} replace /> },
           { path: "kyc/:id", element: <AdminKycDetailPage /> },
+          { path: "kyc", element: <Navigate to="/admin/personnel/hub" state={{ activeTab: 'verification' }} replace /> },
           { 
             path: "personnel",
             children: [
