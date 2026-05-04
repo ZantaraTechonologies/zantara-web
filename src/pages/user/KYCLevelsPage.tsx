@@ -43,19 +43,21 @@ const KYCLevelsPage: React.FC = () => {
         const kycStatus = kycData?.status || 'none';
         const kycTier = kycData?.tier || 0;
         
+        const isTier1Verified = user?.isPhoneVerified && user?.isEmailVerified;
+        
         const tier1 = { 
             level: 1, 
             name: 'Starter', 
             limit: `${currency}50,000 Daily`, 
             requirements: ['Phone Verification', 'Email Verification'],
-            status: 'active'
+            status: isTier1Verified ? 'active' : 'available'
         };
 
         const tier2 = { 
             level: 2, 
             name: 'Verified', 
             limit: `${currency}500,000 Daily`, 
-            requirements: ['Government ID (NIN/BVN)', 'Residential Address'],
+            requirements: ['Government ID (NIN/BVN/License)'],
             status: (user?.kycLevel >= 2) ? 'active' : (kycStatus === 'pending' && kycTier === 2 ? 'pending' : 'available')
         };
 
@@ -63,7 +65,7 @@ const KYCLevelsPage: React.FC = () => {
             level: 3, 
             name: 'Premium', 
             limit: `${currency}5,000,000 Daily`, 
-            requirements: ['Utility Bill', 'Face Verification'],
+            requirements: ['Utility Bill (Electricity/Water)', 'Residential Address Verification'],
             status: (user?.kycLevel >= 3) ? 'active' : (kycStatus === 'pending' && kycTier === 3 ? 'pending' : (user?.kycLevel >= 2 ? 'available' : 'locked'))
         };
 
