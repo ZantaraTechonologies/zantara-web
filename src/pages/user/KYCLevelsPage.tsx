@@ -58,7 +58,7 @@ const KYCLevelsPage: React.FC = () => {
             name: 'Verified', 
             limit: `${currency}500,000 Daily`, 
             requirements: ['Government ID (NIN/BVN/License)'],
-            status: (user?.kycLevel >= 2) ? 'active' : (kycStatus === 'pending' && kycTier === 2 ? 'pending' : 'available')
+            status: (user?.kycLevel >= 2) ? 'active' : (kycStatus === 'pending' && kycTier === 2 ? 'pending' : (kycStatus === 'rejected' && kycTier === 2 ? 'rejected' : 'available'))
         };
 
         const tier3 = { 
@@ -66,7 +66,7 @@ const KYCLevelsPage: React.FC = () => {
             name: 'Premium', 
             limit: `${currency}5,000,000 Daily`, 
             requirements: ['Utility Bill (Electricity/Water)', 'Residential Address Verification'],
-            status: (user?.kycLevel >= 3) ? 'active' : (kycStatus === 'pending' && kycTier === 3 ? 'pending' : (user?.kycLevel >= 2 ? 'available' : 'locked'))
+            status: (user?.kycLevel >= 3) ? 'active' : (kycStatus === 'pending' && kycTier === 3 ? 'pending' : (kycStatus === 'rejected' && kycTier === 3 ? 'rejected' : (user?.kycLevel >= 2 ? 'available' : 'locked')))
         };
 
         setLevels([tier1, tier2, tier3]);
@@ -167,6 +167,25 @@ const KYCLevelsPage: React.FC = () => {
                             {lvl.status === 'pending' && (
                                 <div className="w-full mt-6 py-4 bg-orange-50 text-orange-600 rounded-xl font-bold text-xs uppercase tracking-widest text-center border border-orange-100 shadow-sm">
                                     Review in Progress
+                                </div>
+                            )}
+
+                            {lvl.status === 'rejected' && (
+                                <div className="mt-6 space-y-3">
+                                    <div className="w-full py-4 bg-rose-50 text-rose-600 rounded-xl font-bold text-xs uppercase tracking-widest text-center border border-rose-100 shadow-sm">
+                                        Verification Rejected
+                                    </div>
+                                    {kycData?.rejectionReason && (
+                                        <p className="text-[10px] text-rose-500 font-medium px-2 italic text-center">
+                                            Reason: {kycData.rejectionReason}
+                                        </p>
+                                    )}
+                                    <button 
+                                        onClick={() => navigate('/app/kyc/upload', { state: { tier: lvl.level } })}
+                                        className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-rose-500 transition-all shadow-lg"
+                                    >
+                                        Try Again
+                                    </button>
                                 </div>
                             )}
                         </div>
