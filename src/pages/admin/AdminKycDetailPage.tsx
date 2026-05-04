@@ -50,8 +50,8 @@ const AdminKycDetailPage: React.FC = () => {
             await adminService.approveKyc(kyc._id, "Approved by admin");
             toast.success("KYC Approved Successfully");
             navigate('/admin/personnel/hub', { state: { activeTab: 'verification' } });
-        } catch (err) {
-            toast.error("Failed to approve KYC");
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to approve KYC");
         } finally {
             setProcessing(false);
         }
@@ -65,8 +65,8 @@ const AdminKycDetailPage: React.FC = () => {
             await adminService.rejectKyc(kyc._id, rejectionReason);
             toast.success("KYC Rejected");
             navigate('/admin/personnel/hub', { state: { activeTab: 'verification' } });
-        } catch (err) {
-            toast.error("Failed to reject KYC");
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to reject KYC");
         } finally {
             setProcessing(false);
             setShowRejectModal(false);
