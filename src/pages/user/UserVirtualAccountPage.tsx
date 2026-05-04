@@ -16,17 +16,31 @@ import { toast } from "react-hot-toast";
 
 const UserVirtualAccountPage: React.FC = () => {
     const navigate = useNavigate();
-    const { virtualAccount, fetchVirtualAccount, loading } = useWalletStore();
+    const { virtualAccount, fetchVirtualAccount, generateAccounts, loading } = useWalletStore();
+    const [generating, setGenerating] = React.useState(false);
 
     useEffect(() => {
         fetchVirtualAccount();
     }, []);
 
     const copyToClipboard = (text: string) => {
+        if (!text || text.includes('Not Generated')) return;
         navigator.clipboard.writeText(text);
         toast.success('Address copied to clipboard', {
             icon: <Copy size={16} />
         });
+    };
+
+    const handleGenerate = async () => {
+        try {
+            setGenerating(true);
+            await generateAccounts();
+            toast.success('Virtual accounts generated successfully');
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to generate accounts');
+        } finally {
+            setGenerating(false);
+        }
     };
 
     return (
@@ -64,26 +78,40 @@ const UserVirtualAccountPage: React.FC = () => {
                         <div className="space-y-2 group">
                             <p className="text-slate-500 font-black uppercase tracking-widest text-[9px]">Bank Institution</p>
                             <div className="flex items-center justify-between">
-                                <h2 className="text-2xl font-black">{virtualAccount?.bankName || 'WEMA BANK PLC'}</h2>
-                                <button onClick={() => copyToClipboard(virtualAccount?.bankName || 'WEMA BANK PLC')} className="text-slate-600 hover:text-emerald-400 transition-colors opacity-0 group-hover:opacity-100"><Copy size={16} /></button>
+                                <h2 className="text-2xl font-black">{virtualAccount?.bankName || 'Not Generated'}</h2>
+                                <button onClick={() => copyToClipboard(virtualAccount?.bankName || '')} className="text-slate-600 hover:text-emerald-400 transition-colors opacity-0 group-hover:opacity-100"><Copy size={16} /></button>
                             </div>
                         </div>
 
                         <div className="space-y-1.5 group">
                             <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Account Identifier</p>
                             <div className="flex items-center justify-between">
-                                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-[0.1em] text-emerald-400">{virtualAccount?.accountNumber || '0123456789'}</h2>
-                                <button onClick={() => copyToClipboard(virtualAccount?.accountNumber || '0123456789')} className="text-emerald-400 hover:text-white transition-colors"><Copy size={20} /></button>
+                                <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-[0.1em] ${virtualAccount?.accountNumber ? 'text-emerald-400' : 'text-slate-700'}`}>
+                                    {virtualAccount?.accountNumber || '----------'}
+                                </h2>
+                                {virtualAccount?.accountNumber && (
+                                    <button onClick={() => copyToClipboard(virtualAccount?.accountNumber)} className="text-emerald-400 hover:text-white transition-colors"><Copy size={20} /></button>
+                                )}
                             </div>
                         </div>
 
-                        <div className="space-y-2 group">
-                            <p className="text-slate-500 font-black uppercase tracking-widest text-[9px]">Account Name</p>
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-bold tracking-tight">{virtualAccount?.accountName || 'Zantara / User'}</h2>
-                                <button onClick={() => copyToClipboard(virtualAccount?.accountName || 'Zantara / User')} className="text-slate-600 hover:text-emerald-400 transition-colors opacity-0 group-hover:opacity-100"><Copy size={16} /></button>
+                        {!virtualAccount ? (
+                            <button 
+                                onClick={handleGenerate}
+                                disabled={generating}
+                                className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-800 text-slate-950 font-black rounded-xl transition-all transform active:scale-95 shadow-lg shadow-emerald-500/20"
+                            >
+                                {generating ? 'GENERATING...' : 'GENERATE VIRTUAL ACCOUNTS'}
+                            </button>
+                        ) : (
+                            <div className="space-y-2 group">
+                                <p className="text-slate-500 font-black uppercase tracking-widest text-[9px]">Account Name</p>
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-bold tracking-tight">{virtualAccount?.accountName}</h2>
+                                    <button onClick={() => copyToClipboard(virtualAccount?.accountName)} className="text-slate-600 hover:text-emerald-400 transition-colors opacity-0 group-hover:opacity-100"><Copy size={16} /></button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     <div className="relative z-10 pt-8 border-t border-white/5 flex items-center justify-between">

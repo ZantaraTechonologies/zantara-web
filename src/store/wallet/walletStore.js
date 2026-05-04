@@ -5,7 +5,8 @@ import {
     getLinkedAccounts, 
     addLinkedAccount, 
     deleteLinkedAccount, 
-    getMyWithdrawals 
+    getMyWithdrawals,
+    generateVirtualAccounts
 } from '../../services/wallet/walletService';
 
 export const useWalletStore = create((set, get) => ({
@@ -82,6 +83,19 @@ export const useWalletStore = create((set, get) => ({
             set({ withdrawals: data });
         } catch (error) {
             console.error('Failed to fetch withdrawals', error);
+        }
+    },
+
+    generateAccounts: async () => {
+        set({ loading: true });
+        try {
+            await generateVirtualAccounts();
+            await get().fetchVirtualAccount();
+            set({ loading: false });
+        } catch (error) {
+            console.error('Failed to generate virtual accounts:', error);
+            set({ error: error.message, loading: false });
+            throw error;
         }
     },
 

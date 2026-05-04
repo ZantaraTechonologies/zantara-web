@@ -74,3 +74,8 @@ export async function verifyFunding(reference: string): Promise<any> {
     const { data } = await API.get(`/wallet/verify?reference=${reference}`);
     return data;
 }
+
+export async function generateVirtualAccounts(): Promise<any> {
+    const { data } = await API.post("/monnify/generate-virtual-accounts");
+    return data;
+}

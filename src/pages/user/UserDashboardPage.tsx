@@ -20,7 +20,8 @@ import {
     Wallet,
     Activity,
     X,
-    Trophy
+    Trophy,
+    Building2
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
@@ -74,7 +75,9 @@ const UserDashboardPage: React.FC = () => {
         currency, 
         fetchBalance,
         fetchVirtualAccount,
-        fetchLinkedAccounts
+        fetchLinkedAccounts,
+        generateAccounts,
+        virtualAccount
     } = useWalletStore();
     
     const earningsRes = useEarningsSummary();
@@ -106,6 +109,14 @@ const UserDashboardPage: React.FC = () => {
             fetchLinkedAccounts()
         ]).finally(() => setInitialLoading(false));
     }, []);
+
+    // Auto-generate virtual accounts if empty
+    useEffect(() => {
+        if (!initialLoading && (!virtualAccount || Object.keys(virtualAccount).length === 0)) {
+            console.log('Silently generating virtual accounts...');
+            generateAccounts().catch(err => console.error('Silent VA generation failed:', err));
+        }
+    }, [initialLoading, !!virtualAccount]);
 
     useEffect(() => {
         if (promoBroadcasts.length > 0) {
@@ -255,6 +266,43 @@ const UserDashboardPage: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Primary Content Area */}
                 <div className="lg:col-span-8 space-y-8">
+                    {/* Virtual Account Banner (Pro-Tip) */}
+                    {virtualAccount && (
+                        <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex items-center justify-between group hover:border-emerald-200 transition-all shadow-sm">
+                            <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 bg-white rounded-2xl border border-slate-100 flex items-center justify-center text-emerald-500 shadow-inner group-hover:scale-110 transition-transform">
+                                    <Building2 size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-0.5">Instant Funding Account</p>
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="text-base font-bold text-slate-900 tracking-tight">{virtualAccount.bankName}</h3>
+                                        <span className="text-slate-300">•</span>
+                                        <div className="flex items-center gap-2">
+                                            <code className="text-sm font-bold text-slate-600 tracking-widest">{virtualAccount.accountNumber}</code>
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    copyToClipboard(virtualAccount.accountNumber, 'Account number copied!');
+                                                }}
+                                                className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"
+                                            >
+                                                <Copy size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <Link 
+                                to="/app/wallet/virtual-account" 
+                                className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-emerald-500 transition-colors"
+                            >
+                                <span>Details</span>
+                                <ChevronRight size={16} />
+                            </Link>
+                        </div>
+                    )}
+
                     {/* Action Grid */}
                     <section>
                         <div className="flex items-center justify-between mb-6">
