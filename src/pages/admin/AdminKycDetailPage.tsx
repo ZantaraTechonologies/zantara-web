@@ -102,22 +102,31 @@ const AdminKycDetailPage: React.FC = () => {
                 {/* Left Side: Document View */}
                 <div className="lg:col-span-7 space-y-6">
                     <div className="bg-slate-900 border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl group relative">
-                        <div className="absolute top-6 right-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <a 
-                                href={kyc.documentImage} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="p-3 bg-white text-slate-950 rounded-2xl shadow-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform"
-                            >
-                                <ExternalLink size={14} />
-                                View Full Image
-                            </a>
-                        </div>
-                        <img 
-                            src={kyc.documentImage} 
-                            alt="KYC Document" 
-                            className="w-full h-auto min-h-[400px] object-contain bg-black/40"
-                        />
+                        {kyc.documentImage ? (
+                            <>
+                                <div className="absolute top-6 right-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <a 
+                                        href={kyc.documentImage} 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        className="p-3 bg-white text-slate-950 rounded-2xl shadow-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform"
+                                    >
+                                        <ExternalLink size={14} />
+                                        View Full Image
+                                    </a>
+                                </div>
+                                <img 
+                                    src={kyc.documentImage} 
+                                    alt="KYC Document" 
+                                    className="w-full h-auto min-h-[400px] object-contain bg-black/40"
+                                />
+                            </>
+                        ) : (
+                            <div className="w-full min-h-[400px] flex flex-col items-center justify-center space-y-4 bg-slate-950/20">
+                                <FileText size={64} className="text-slate-800" />
+                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">No Document Image Uploaded</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -165,6 +174,12 @@ const AdminKycDetailPage: React.FC = () => {
                                         <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Document Number</p>
                                         <p className="text-sm font-mono text-slate-300 tracking-wider">{kyc.documentNumber}</p>
                                     </div>
+                                    {kyc.address && (
+                                        <div className="space-y-1 pt-2 border-t border-white/5">
+                                            <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Residential Address</p>
+                                            <p className="text-sm text-slate-300 leading-relaxed font-medium italic">{kyc.address}</p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex items-center gap-4 text-slate-500">

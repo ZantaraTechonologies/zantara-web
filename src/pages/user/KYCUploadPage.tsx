@@ -91,8 +91,8 @@ const KYCUploadPage: React.FC = () => {
         e.preventDefault();
         
         // Basic validation
-        if (!file || !docNumber) {
-            toast.error("Please fill in all fields");
+        if (((tier > 1) && !file) || !docNumber) {
+            toast.error(tier > 1 ? "Please fill in all fields" : "Please provide the identification number");
             return;
         }
 
@@ -114,14 +114,16 @@ const KYCUploadPage: React.FC = () => {
                 formData.append('address', address);
             }
 
-            if (file.type === 'application/pdf') {
-                formData.append('document', file, `kyc_${docType.toLowerCase()}.pdf`);
-            } else {
-                try {
-                    const compressedBlob = await compressImage(file);
-                    formData.append('document', compressedBlob, `kyc_${docType.toLowerCase()}.jpg`);
-                } catch (compErr) {
-                    formData.append('document', file, file.name);
+            if (file) {
+                if (file.type === 'application/pdf') {
+                    formData.append('document', file, `kyc_${docType.toLowerCase()}.pdf`);
+                } else {
+                    try {
+                        const compressedBlob = await compressImage(file);
+                        formData.append('document', compressedBlob, `kyc_${docType.toLowerCase()}.jpg`);
+                    } catch (compErr) {
+                        formData.append('document', file, file.name);
+                    }
                 }
             }
             
