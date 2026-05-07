@@ -79,6 +79,7 @@ export default function AdminLayout() {
         { path: "/admin/status", label: "System Status", icon: Activity },
         { path: "/admin/audit-logs", label: "Audit Logs", icon: FileText },
         { path: "/admin/settings", label: "Settings", icon: Settings },
+        { path: "/admin/settings/notifications", label: "Notification Settings", icon: Bell },
     ];
 
     const menuItems: MenuItem[] = isSuperAdmin
