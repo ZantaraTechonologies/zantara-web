@@ -75,6 +75,7 @@ import AdminCommissionSettingsPage from '../pages/admin/finance/AdminCommissionS
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage';
 import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
 import AdminNotificationSettingsPage from '../pages/admin/AdminNotificationSettingsPage';
+import AdminNotificationDiagnosticsPage from '../pages/admin/AdminNotificationDiagnosticsPage';
 import AdminShareholdersPage from '../pages/admin/AdminShareholdersPage';
 import AdminProfilePage from '../pages/admin/AdminProfilePage';
 import AdminServiceHubPage from '../pages/admin/catalog/hub/AdminServiceHubPage';
@@ -227,6 +228,7 @@ export default function AppRoutes() {
                                 <Route path="audit-logs" element={<AdminAuditLogsPage />} />
                                 <Route path="settings" element={<AdminSettingsPage />} />
                                 <Route path="settings/notifications" element={<AdminNotificationSettingsPage />} />
+                                <Route path="settings/notifications/diagnostics" element={<AdminNotificationDiagnosticsPage />} />
                                 <Route path="providers" element={<Navigate to="/admin/catalog/hub" state={{ activeTab: 'vendors' }} replace />} />
                                 <Route path="services-routing" element={<Navigate to="/admin/catalog/hub" replace />} />
                                 
