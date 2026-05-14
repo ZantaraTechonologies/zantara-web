@@ -13,6 +13,7 @@ import AdminNotificationsControlPage from "../pages/admin/AdminNotificationsCont
 import AdminAuditLogsPage from "../pages/admin/AdminAuditLogsPage";
 import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import AdminNotificationSettingsPage from "../pages/admin/AdminNotificationSettingsPage";
+import AdminNotificationDiagnosticsPage from "../pages/admin/AdminNotificationDiagnosticsPage";
 import { StatusPage } from "../pages/admin/StatusPage";
 import TransactionsPage from "../pages/admin/TransactionsPage";
 import AdminTransactionDetailPage from "../pages/admin/AdminTransactionDetailPage";
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
           { path: "audit", element: <AdminAuditLogsPage /> },
           { path: "settings", element: <AdminSettingsPage /> },
           { path: "settings/notifications", element: <AdminNotificationSettingsPage /> },
+          { path: "settings/notifications/diagnostics", element: <AdminNotificationDiagnosticsPage /> },
           { path: "status", element: <StatusPage /> },
           { path: "transactions", element: <TransactionsPage /> },
           { path: "transactions/:id", element: <AdminTransactionDetailPage /> },

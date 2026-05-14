@@ -12,7 +12,9 @@ import {
     LogIn,
     Wallet,
     Megaphone,
+    Activity
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/apiClient';
 import toast from 'react-hot-toast';
 
@@ -161,13 +163,22 @@ const AdminNotificationSettingsPage: React.FC = () => {
                         Control which SMS and email notifications are sent to users for each activity.
                     </p>
                 </div>
-                <button
-                    onClick={loadSettings}
-                    className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 transition-all border border-gray-700/50"
-                    title="Refresh"
-                >
-                    <RefreshCw className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-3">
+                    <Link
+                        to="/admin/settings/notifications/diagnostics"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 transition-all border border-emerald-500/20"
+                    >
+                        <Activity className="w-4 h-4" />
+                        <span className="text-sm font-semibold">Diagnostics & Testing</span>
+                    </Link>
+                    <button
+                        onClick={loadSettings}
+                        className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 transition-all border border-gray-700/50"
+                        title="Refresh"
+                    >
+                        <RefreshCw className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
