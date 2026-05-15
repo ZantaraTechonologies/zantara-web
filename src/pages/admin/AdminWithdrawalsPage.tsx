@@ -87,7 +87,7 @@ const AdminWithdrawalsPage: React.FC = () => {
                                     <td colSpan={5} className="py-20 text-center text-slate-500 text-xs font-bold uppercase tracking-[0.2em]">Empty Ledger</td>
                                 </tr>
                             ) : withdrawals.map((item) => (
-                                <tr key={item.id} className="group hover:bg-white/5 transition-colors">
+                                <tr key={item._id || item.id} className="group hover:bg-white/5 transition-colors">
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
@@ -117,7 +117,7 @@ const AdminWithdrawalsPage: React.FC = () => {
                                     </td>
                                     <td className="py-4 px-6 text-right">
                                         <button 
-                                            onClick={() => navigate(`/admin/withdrawals/${item.id}`)}
+                                            onClick={() => navigate(`/admin/withdrawals/${item._id || item.id}`)}
                                             className="px-4 py-2 rounded-xl bg-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-white hover:bg-emerald-500 border border-white/10 transition-all"
                                         >
                                             Review
