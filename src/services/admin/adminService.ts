@@ -52,6 +52,11 @@ export const fetchWithdrawals = async (params = {}) => {
     return response.data;
 };
 
+export const fetchWithdrawalDetails = async (id: string) => {
+    const response = await apiClient.get(`${BASE_URL}/withdrawals/${id}`);
+    return response.data;
+};
+
 export const processWithdrawal = async (id: string, action: 'approve' | 'reject', reason?: string) => {
     const response = await apiClient.post(`${BASE_URL}/withdrawals/${id}/process`, { action, reason });
     return response.data;

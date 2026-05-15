@@ -7,6 +7,7 @@ import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import AdminUserDetailPage from "../pages/admin/AdminUserDetailPage";
 import AdminPersonnelHubPage from "../pages/admin/personnel/hub/AdminPersonnelHubPage";
 import AdminWithdrawalsPage from "../pages/admin/AdminWithdrawalsPage";
+import AdminWithdrawalDetailPage from "../pages/admin/AdminWithdrawalDetailPage";
 import AdminSupportTicketsPage from "../pages/admin/AdminSupportTicketsPage";
 import AdminSupportTicketDetailPage from "../pages/admin/AdminSupportTicketDetailPage";
 import AdminNotificationsControlPage from "../pages/admin/AdminNotificationsControlPage";
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
             ]
           },
           { path: "withdrawals", element: <AdminWithdrawalsPage /> },
+          { path: "withdrawals/:id", element: <AdminWithdrawalDetailPage /> },
           { path: "support", element: <AdminSupportTicketsPage /> },
           { path: "support/:id", element: <AdminSupportTicketDetailPage /> },
           { path: "notifications", element: <AdminNotificationsControlPage /> },
