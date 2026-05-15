@@ -66,6 +66,7 @@ import TransactionsPage from '../pages/admin/TransactionsPage';
 import AdminTransactionDetailPage from '../pages/admin/AdminTransactionDetailPage';
 import AdminUserDetailPage from '../pages/admin/AdminUserDetailPage';
 import AdminWithdrawalsPage from '../pages/admin/AdminWithdrawalsPage';
+import AdminWithdrawalDetailPage from '../pages/admin/AdminWithdrawalDetailPage';
 import AdminSupportTicketsPage from '../pages/admin/AdminSupportTicketsPage';
 import AdminSupportTicketDetailPage from '../pages/admin/AdminSupportTicketDetailPage';
 import AdminNotificationsControlPage from '../pages/admin/AdminNotificationsControlPage';
@@ -203,6 +204,7 @@ export default function AppRoutes() {
                             <Route path="transactions" element={<TransactionsPage />} />
                             <Route path="transactions/:id" element={<AdminTransactionDetailPage />} />
                             <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
+                            <Route path="withdrawals/:id" element={<AdminWithdrawalDetailPage />} />
                             <Route path="support" element={<AdminSupportTicketsPage />} />
                             <Route path="support/:id" element={<AdminSupportTicketDetailPage />} />
                             <Route path="notifications" element={<AdminNotificationsControlPage />} />
