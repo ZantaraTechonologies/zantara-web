@@ -21,7 +21,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
     
     const [withdrawal, setWithdrawal] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [processing, setProcessing] = useState(false);
+    const [processingAction, setProcessingAction] = useState<'approve' | 'reject' | null>(null);
     const [adminNote, setAdminNote] = useState('');
 
     useEffect(() => {
@@ -49,7 +49,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
             return;
         }
 
-        setProcessing(true);
+        setProcessingAction(action);
         try {
             await adminService.processWithdrawal(id!, action, adminNote);
             toast.success(`Withdrawal ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
@@ -57,7 +57,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
         } catch (err: any) {
             toast.error(err.response?.data?.error || `Failed to ${action} withdrawal`);
         } finally {
-            setProcessing(false);
+            setProcessingAction(null);
         }
     };
 
@@ -193,19 +193,19 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                         <div className="flex gap-4">
                             <button
                                 onClick={() => handleProcess('approve')}
-                                disabled={processing}
+                                disabled={processingAction !== null}
                                 className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                {processing && <Loader2 className="w-5 h-5 animate-spin" />}
-                                {processing ? 'Processing...' : 'Approve Payout'}
+                                {processingAction === 'approve' && <Loader2 className="w-5 h-5 animate-spin" />}
+                                {processingAction === 'approve' ? 'Processing...' : 'Approve Payout'}
                             </button>
                             <button
                                 onClick={() => handleProcess('reject')}
-                                disabled={processing}
+                                disabled={processingAction !== null}
                                 className="flex-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                {processing && <Loader2 className="w-5 h-5 animate-spin" />}
-                                {processing ? 'Processing...' : 'Reject Request'}
+                                {processingAction === 'reject' && <Loader2 className="w-5 h-5 animate-spin" />}
+                                {processingAction === 'reject' ? 'Processing...' : 'Reject Request'}
                             </button>
                         </div>
                     </div>
