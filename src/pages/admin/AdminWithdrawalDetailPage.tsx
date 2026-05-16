@@ -7,7 +7,8 @@ import {
     Clock, 
     Banknote, 
     User, 
-    ShieldAlert
+    ShieldAlert,
+    Loader2
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import * as adminService from '../../services/admin/adminService';
@@ -193,16 +194,18 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                             <button
                                 onClick={() => handleProcess('approve')}
                                 disabled={processing}
-                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-4 rounded-xl transition-colors disabled:opacity-50"
+                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                Approve Payout
+                                {processing && <Loader2 className="w-5 h-5 animate-spin" />}
+                                {processing ? 'Processing...' : 'Approve Payout'}
                             </button>
                             <button
                                 onClick={() => handleProcess('reject')}
                                 disabled={processing}
-                                className="flex-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-bold py-4 rounded-xl transition-colors disabled:opacity-50"
+                                className="flex-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                Reject Request
+                                {processing && <Loader2 className="w-5 h-5 animate-spin" />}
+                                {processing ? 'Processing...' : 'Reject Request'}
                             </button>
                         </div>
                     </div>

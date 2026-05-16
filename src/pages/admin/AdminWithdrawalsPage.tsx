@@ -94,8 +94,8 @@ const AdminWithdrawalsPage: React.FC = () => {
                                                 <User size={18} className="text-slate-400" />
                                             </div>
                                             <div className="space-y-0.5">
-                                                <p className="text-sm font-bold text-white tracking-tight">{item.userName || 'Unknown User'}</p>
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{item.email}</p>
+                                                <p className="text-sm font-bold text-white tracking-tight">{item.userId?.name || 'Unknown User'}</p>
+                                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{item.userId?.email || 'N/A'}</p>
                                             </div>
                                         </div>
                                     </td>
