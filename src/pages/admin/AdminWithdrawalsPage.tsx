@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import * as adminService from '../../services/admin/adminService';
 import { ListSkeleton } from '../../components/feedback/Skeletons';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 
 const AdminWithdrawalsPage: React.FC = () => {
     const navigate = useNavigate();

@@ -10,7 +10,7 @@ import {
     ShieldAlert,
     Loader2
 } from 'lucide-react';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import * as adminService from '../../services/admin/adminService';
 import { useWalletStore } from '../../store/wallet/walletStore';
 
@@ -192,6 +192,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
 
                         <div className="flex gap-4">
                             <button
+                                type="button"
                                 onClick={() => handleProcess('approve')}
                                 disabled={processingAction !== null}
                                 className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
@@ -200,9 +201,10 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                                 {processingAction === 'approve' ? 'Processing...' : 'Approve Payout'}
                             </button>
                             <button
+                                type="button"
                                 onClick={() => handleProcess('reject')}
                                 disabled={processingAction !== null}
-                                className="flex-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {processingAction === 'reject' && <Loader2 className="w-5 h-5 animate-spin" />}
                                 {processingAction === 'reject' ? 'Processing...' : 'Reject Request'}
