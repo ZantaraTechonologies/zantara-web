@@ -49,7 +49,7 @@ const AdminWithdrawalsPage: React.FC = () => {
                 </div>
 
                 <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
-                    {['pending', 'completed', 'failed'].map((s) => (
+                    {['pending', 'completed', 'rejected'].map((s) => (
                         <button 
                             key={s}
                             onClick={() => setFilter(s)}

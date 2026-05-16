@@ -51,7 +51,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
         setProcessing(true);
         try {
             await adminService.processWithdrawal(id!, action, adminNote);
-            toast.success(`Withdrawal ${action}d successfully`);
+            toast.success(`Withdrawal ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
             loadWithdrawalDetails();
         } catch (err: any) {
             toast.error(err.response?.data?.error || `Failed to ${action} withdrawal`);
