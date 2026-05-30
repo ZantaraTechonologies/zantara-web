@@ -24,6 +24,10 @@ const AdminSettingsPage: React.FC = () => {
             increment: 500,
             feePerIncrement: 20,
             value: 0
+        },
+        WITHDRAWAL_FEE_CONFIG: {
+            type: 'percentage',
+            value: 10
         }
     });
     const [loading, setLoading] = useState(true);
@@ -42,6 +46,9 @@ const AdminSettingsPage: React.FC = () => {
                 const fetched = res.data.data;
                 if (!fetched.TRANSFER_FEE_CONFIG) {
                     fetched.TRANSFER_FEE_CONFIG = { type: 'tiered', increment: 500, feePerIncrement: 20, value: 0 };
+                }
+                if (!fetched.WITHDRAWAL_FEE_CONFIG) {
+                    fetched.WITHDRAWAL_FEE_CONFIG = { type: 'percentage', value: 10 };
                 }
                 setSettings(fetched);
             }
@@ -159,71 +166,153 @@ const AdminSettingsPage: React.FC = () => {
                         <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
                             <Settings className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-semibold text-white">Wallet & Internal Transfers</h2>
+                        <h2 className="text-xl font-semibold text-white">Wallet &amp; Internal Transfers</h2>
                     </div>
-                    <div className="p-6 space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2">Fee Type</label>
-                            <select 
-                                value={settings.TRANSFER_FEE_CONFIG?.type || 'tiered'}
-                                onChange={(e) => setSettings({ 
-                                    ...settings, 
-                                    TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, type: e.target.value } 
-                                })}
-                                className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
-                            >
-                                <option value="tiered">Tiered (e.g. ₦20 per ₦500)</option>
-                                <option value="flat">Flat Fee (Fixed amount)</option>
-                                <option value="percentage">Percentage (%)</option>
-                            </select>
-                        </div>
+                    <div className="p-6 space-y-8">
 
-                        {settings.TRANSFER_FEE_CONFIG?.type === 'tiered' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">Increment (₦)</label>
-                                    <input 
-                                        type="number" 
-                                        value={settings.TRANSFER_FEE_CONFIG?.increment}
-                                        onChange={(e) => setSettings({ 
-                                            ...settings, 
-                                            TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, increment: Number(e.target.value) } 
-                                        })}
-                                        className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">Fee per Increment (₦)</label>
-                                    <input 
-                                        type="number" 
-                                        value={settings.TRANSFER_FEE_CONFIG?.feePerIncrement}
-                                        onChange={(e) => setSettings({ 
-                                            ...settings, 
-                                            TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, feePerIncrement: Number(e.target.value) } 
-                                        })}
-                                        className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {(settings.TRANSFER_FEE_CONFIG?.type === 'flat' || settings.TRANSFER_FEE_CONFIG?.type === 'percentage') && (
+                        {/* --- Transfer Fee Section --- */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-orange-400 inline-block"></span>
+                                Internal Transfer Fee
+                            </h3>
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">
-                                    {settings.TRANSFER_FEE_CONFIG?.type === 'flat' ? 'Flat Fee (₦)' : 'Fee Percentage (%)'}
-                                </label>
-                                <input 
-                                    type="number" 
-                                    step="0.01"
-                                    value={settings.TRANSFER_FEE_CONFIG?.value}
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Fee Type</label>
+                                <select 
+                                    value={settings.TRANSFER_FEE_CONFIG?.type || 'tiered'}
                                     onChange={(e) => setSettings({ 
                                         ...settings, 
-                                        TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, value: Number(e.target.value) } 
+                                        TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, type: e.target.value } 
                                     })}
                                     className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
-                                />
+                                >
+                                    <option value="tiered">Tiered (e.g. ₦20 per ₦500)</option>
+                                    <option value="flat">Flat Fee (Fixed amount)</option>
+                                    <option value="percentage">Percentage (%)</option>
+                                </select>
                             </div>
-                        )}
+
+                            {settings.TRANSFER_FEE_CONFIG?.type === 'tiered' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">Increment (₦)</label>
+                                        <input 
+                                            type="number" 
+                                            value={settings.TRANSFER_FEE_CONFIG?.increment}
+                                            onChange={(e) => setSettings({ 
+                                                ...settings, 
+                                                TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, increment: Number(e.target.value) } 
+                                            })}
+                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">Fee per Increment (₦)</label>
+                                        <input 
+                                            type="number" 
+                                            value={settings.TRANSFER_FEE_CONFIG?.feePerIncrement}
+                                            onChange={(e) => setSettings({ 
+                                                ...settings, 
+                                                TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, feePerIncrement: Number(e.target.value) } 
+                                            })}
+                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {(settings.TRANSFER_FEE_CONFIG?.type === 'flat' || settings.TRANSFER_FEE_CONFIG?.type === 'percentage') && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                                        {settings.TRANSFER_FEE_CONFIG?.type === 'flat' ? 'Flat Fee (₦)' : 'Fee Percentage (%)'}
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        step="0.01"
+                                        value={settings.TRANSFER_FEE_CONFIG?.value}
+                                        onChange={(e) => setSettings({ 
+                                            ...settings, 
+                                            TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, value: Number(e.target.value) } 
+                                        })}
+                                        className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-gray-800" />
+
+                        {/* --- Withdrawal Fee Section --- */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold text-red-400 uppercase tracking-wider flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-400 inline-block"></span>
+                                Bank Withdrawal Fee
+                            </h3>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">Fee Type</label>
+                                <select 
+                                    value={settings.WITHDRAWAL_FEE_CONFIG?.type || 'percentage'}
+                                    onChange={(e) => setSettings({ 
+                                        ...settings, 
+                                        WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, type: e.target.value } 
+                                    })}
+                                    className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                >
+                                    <option value="tiered">Tiered (e.g. ₦20 per ₦500)</option>
+                                    <option value="flat">Flat Fee (Fixed amount)</option>
+                                    <option value="percentage">Percentage (%)</option>
+                                </select>
+                            </div>
+
+                            {settings.WITHDRAWAL_FEE_CONFIG?.type === 'tiered' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">Increment (₦)</label>
+                                        <input 
+                                            type="number" 
+                                            value={settings.WITHDRAWAL_FEE_CONFIG?.increment ?? 500}
+                                            onChange={(e) => setSettings({ 
+                                                ...settings, 
+                                                WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, increment: Number(e.target.value) } 
+                                            })}
+                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">Fee per Increment (₦)</label>
+                                        <input 
+                                            type="number" 
+                                            value={settings.WITHDRAWAL_FEE_CONFIG?.feePerIncrement ?? 20}
+                                            onChange={(e) => setSettings({ 
+                                                ...settings, 
+                                                WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, feePerIncrement: Number(e.target.value) } 
+                                            })}
+                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {(settings.WITHDRAWAL_FEE_CONFIG?.type === 'flat' || settings.WITHDRAWAL_FEE_CONFIG?.type === 'percentage') && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                                        {settings.WITHDRAWAL_FEE_CONFIG?.type === 'flat' ? 'Flat Fee (₦)' : 'Fee Percentage (%)'}
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        step="0.01"
+                                        value={settings.WITHDRAWAL_FEE_CONFIG?.value ?? 10}
+                                        onChange={(e) => setSettings({ 
+                                            ...settings, 
+                                            WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, value: Number(e.target.value) } 
+                                        })}
+                                        className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
                     </div>
                 </div>
 
