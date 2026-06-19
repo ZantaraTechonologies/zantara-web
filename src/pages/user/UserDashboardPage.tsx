@@ -21,7 +21,10 @@ import {
     Activity,
     X,
     Trophy,
-    Building2
+    Building2,
+    Megaphone,
+    AlertTriangle,
+    CheckCircle2
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
@@ -94,12 +97,12 @@ const UserDashboardPage: React.FC = () => {
 
     const { data: notifData } = useNotifications();
     const notifications = Array.isArray(notifData) ? notifData : [];
+    // Pick the most recent active broadcast to show as the welcome modal
     const activeBroadcasts = notifications.filter((n: any) => n.isBroadcast);
-    const bannerBroadcasts = activeBroadcasts.filter((n: any) => n.broadcastType === 'critical' || n.broadcastType === 'warning');
-    const promoBroadcasts = activeBroadcasts.filter((n: any) => n.broadcastType === 'success' || n.broadcastType === 'info');
+    const latestBroadcast = activeBroadcasts[0] ?? null;
 
-    const [showPromo, setShowPromo] = useState(false);
-    const [currentPromo, setCurrentPromo] = useState<any>(null);
+    const [showBroadcast, setShowBroadcast] = useState(false);
+    const [currentBroadcast, setCurrentBroadcast] = useState<any>(null);
 
     useEffect(() => {
         // Initial data sync
@@ -118,23 +121,28 @@ const UserDashboardPage: React.FC = () => {
         }
     }, [initialLoading, !!virtualAccount]);
 
+    // Show broadcast modal every time the dashboard loads (no session gate)
     useEffect(() => {
-        if (promoBroadcasts.length > 0) {
-            const promo = promoBroadcasts[0];
-            const seenPromo = sessionStorage.getItem(`seen_promo_${promo._id}`);
-            if (!seenPromo) {
-                setCurrentPromo(promo);
-                setShowPromo(true);
-            }
+        if (latestBroadcast) {
+            setCurrentBroadcast(latestBroadcast);
+            setShowBroadcast(true);
         }
-    }, [promoBroadcasts.length]);
+    }, [latestBroadcast?._id]);
 
-    const handleClosePromo = () => {
-        if (currentPromo) {
-            sessionStorage.setItem(`seen_promo_${currentPromo._id}`, 'true');
+    const getBroadcastConfig = (type: string) => {
+        switch (type) {
+            case 'critical':
+                return { headerClass: 'from-red-600 to-red-400', icon: AlertTriangle, badge: 'CRITICAL ALERT', btnClass: 'bg-red-500 hover:bg-red-600' };
+            case 'warning':
+                return { headerClass: 'from-amber-600 to-amber-400', icon: AlertTriangle, badge: 'IMPORTANT', btnClass: 'bg-amber-500 hover:bg-amber-600' };
+            case 'success':
+                return { headerClass: 'from-emerald-700 to-emerald-500', icon: CheckCircle2, badge: 'ANNOUNCEMENT', btnClass: 'bg-emerald-600 hover:bg-emerald-700' };
+            default:
+                return { headerClass: 'from-emerald-800 to-emerald-500', icon: Megaphone, badge: 'BROADCAST', btnClass: 'bg-emerald-600 hover:bg-emerald-700' };
         }
-        setShowPromo(false);
     };
+
+    const handleCloseBroadcast = () => setShowBroadcast(false);
 
     if (initialLoading) return <DashboardSkeleton />;
 
@@ -171,51 +179,61 @@ const UserDashboardPage: React.FC = () => {
 
     return (
         <div className="px-4 py-4 sm:px-6 lg:px-8 space-y-6 animate-in fade-in duration-700 font-sans relative">
-            {/* Promo Modal Overlay */}
-            {showPromo && currentPromo && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl animate-in zoom-in-95 duration-300">
-                        <button 
-                            onClick={handleClosePromo}
-                            className="absolute top-4 right-4 z-20 p-2 bg-black/10 hover:bg-black/20 text-white rounded-full transition-colors backdrop-blur-md"
-                        >
-                            <X size={20} />
-                        </button>
-                        <div className="bg-emerald-500 p-8 text-center relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 blur-3xl -mr-10 -mt-10 rounded-full"></div>
-                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 blur-2xl -ml-10 -mb-10 rounded-full"></div>
-                            <div className="relative z-10 w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center border border-white/30 shadow-xl mb-4">
-                                <Trophy size={32} className="text-white" />
-                            </div>
-                            <h2 className="relative z-10 text-2xl font-black text-white tracking-tight">{currentPromo.title}</h2>
-                        </div>
-                        <div className="p-8 text-center space-y-6">
-                            <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap">
-                                {currentPromo.message}
-                            </p>
-                            <button 
-                                onClick={handleClosePromo}
-                                className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-emerald-500 transition-colors shadow-lg active:scale-95"
-                            >
-                                Got it, thanks!
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
-            {/* Bulletin Banners */}
-            {bannerBroadcasts.map((banner: any) => (
-                <div key={banner._id} className={`flex items-start gap-4 p-4 rounded-3xl border mb-6 shadow-sm ${banner.broadcastType === 'critical' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
-                    <div className={`p-3 rounded-2xl shrink-0 ${banner.broadcastType === 'critical' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}`}>
-                        <ShieldAlert size={20} />
+            {/* Broadcast Modal — shows on every dashboard visit */}
+            {showBroadcast && currentBroadcast && (() => {
+                const cfg = getBroadcastConfig(currentBroadcast.broadcastType || 'info');
+                const Icon = cfg.icon;
+                return (
+                    <div
+                        className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+                        onClick={(e) => { if (e.target === e.currentTarget) handleCloseBroadcast(); }}
+                    >
+                        <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative">
+                            {/* Dismiss X */}
+                            <button
+                                onClick={handleCloseBroadcast}
+                                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-black/20 hover:bg-black/35 text-white rounded-full transition-colors"
+                            >
+                                <X size={16} />
+                            </button>
+
+                            {/* Colored Header */}
+                            <div className={`bg-gradient-to-br ${cfg.headerClass} px-8 pt-10 pb-8 relative overflow-hidden flex flex-col items-center text-center`}>
+                                <div className="absolute top-0 right-0 w-36 h-36 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-xl" />
+
+                                {/* Badge */}
+                                <div className="relative z-10 flex items-center gap-1.5 bg-white/20 text-white text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-5">
+                                    <Icon size={10} />
+                                    {cfg.badge}
+                                </div>
+
+                                {/* Icon circle */}
+                                <div className="relative z-10 w-20 h-20 rounded-full bg-white/20 border-2 border-white/35 flex items-center justify-center mb-5 shadow-lg">
+                                    <Icon size={36} className="text-white" />
+                                </div>
+
+                                <h2 className="relative z-10 text-xl font-black text-white tracking-tight leading-tight">{currentBroadcast.title}</h2>
+                            </div>
+
+                            {/* Body */}
+                            <div className="px-8 py-7 space-y-6">
+                                <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-wrap">{currentBroadcast.message}</p>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">From Zantara</p>
+                                    <button
+                                        onClick={handleCloseBroadcast}
+                                        className={`${cfg.btnClass} text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-colors shadow-md active:scale-95`}
+                                    >
+                                        Got it!
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex-1 mt-0.5">
-                        <h3 className="font-bold text-sm tracking-tight">{banner.title}</h3>
-                        <p className="text-xs font-medium mt-1 text-slate-700 leading-relaxed whitespace-pre-wrap">{banner.message}</p>
-                    </div>
-                </div>
-            ))}
+                );
+            })()}
 
             {/* Top Identity Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-slate-50 shadow-sm">
