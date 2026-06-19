@@ -9,51 +9,43 @@ const getBroadcastConfig = (type: string) => {
     switch (type) {
         case 'critical':
             return {
-                headerBg: 'bg-red-500',
-                headerBg2: 'from-red-600 to-red-400',
                 icon: AlertTriangle,
                 badge: 'CRITICAL ALERT',
-                badgeColor: 'bg-red-100 text-red-600 border-red-200',
-                border: 'border-l-red-500',
-                accentBg: 'bg-red-50',
-                btnBg: 'bg-red-500 hover:bg-red-600',
-                iconBg: 'bg-red-100 text-red-500',
+                badgeColor: 'bg-red-100/70 text-red-600 border border-red-200',
+                border: 'border-l-4 border-l-red-500 bg-red-50/30',
+                btnBg: 'bg-red-500 hover:bg-red-600 focus:ring-red-200',
+                iconBg: 'bg-red-100 text-red-500 border border-red-200',
+                bg: 'bg-red-50/50 border-b border-red-100/50',
             };
         case 'warning':
             return {
-                headerBg: 'bg-amber-500',
-                headerBg2: 'from-amber-600 to-amber-400',
                 icon: AlertTriangle,
-                badge: 'IMPORTANT',
-                badgeColor: 'bg-amber-100 text-amber-700 border-amber-200',
-                border: 'border-l-amber-500',
-                accentBg: 'bg-amber-50',
-                btnBg: 'bg-amber-500 hover:bg-amber-600',
-                iconBg: 'bg-amber-100 text-amber-500',
+                badge: 'IMPORTANT UPDATE',
+                badgeColor: 'bg-amber-100/70 text-amber-700 border border-amber-200',
+                border: 'border-l-4 border-l-amber-500 bg-amber-50/30',
+                btnBg: 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-200',
+                iconBg: 'bg-amber-100 text-amber-500 border border-amber-200',
+                bg: 'bg-amber-50/50 border-b border-amber-100/50',
             };
         case 'success':
             return {
-                headerBg: 'bg-emerald-600',
-                headerBg2: 'from-emerald-700 to-emerald-500',
                 icon: CheckCircle2,
-                badge: 'ANNOUNCEMENT',
-                badgeColor: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                border: 'border-l-emerald-600',
-                accentBg: 'bg-emerald-50',
-                btnBg: 'bg-emerald-600 hover:bg-emerald-700',
-                iconBg: 'bg-emerald-100 text-emerald-500',
+                badge: 'SUCCESS',
+                badgeColor: 'bg-emerald-100/70 text-emerald-700 border border-emerald-200',
+                border: 'border-l-4 border-l-emerald-500 bg-emerald-50/20',
+                btnBg: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-200',
+                iconBg: 'bg-emerald-100 text-emerald-500 border border-emerald-200',
+                bg: 'bg-emerald-50/50 border-b border-emerald-100/50',
             };
         default: // info
             return {
-                headerBg: 'bg-emerald-600',
-                headerBg2: 'from-emerald-800 to-emerald-500',
                 icon: Megaphone,
-                badge: 'BROADCAST',
-                badgeColor: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                border: 'border-l-emerald-600',
-                accentBg: 'bg-emerald-50/40',
-                btnBg: 'bg-emerald-600 hover:bg-emerald-700',
-                iconBg: 'bg-emerald-100 text-emerald-500',
+                badge: 'ANNOUNCEMENT',
+                badgeColor: 'bg-emerald-100/70 text-emerald-700 border border-emerald-200',
+                border: 'border-l-4 border-l-emerald-500 bg-emerald-50/20',
+                btnBg: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-200',
+                iconBg: 'bg-emerald-100 text-emerald-500 border border-emerald-200',
+                bg: 'bg-emerald-50/50 border-b border-emerald-100/50',
             };
     }
 };
@@ -64,43 +56,35 @@ const BroadcastModal: React.FC<{ item: any; onClose: () => void }> = ({ item, on
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4 animate-in fade-in duration-200"
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
+            <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative border border-slate-100">
                 {/* Dismiss */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-black/20 hover:bg-black/35 text-white rounded-full transition-colors"
+                    className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-slate-100 border border-slate-200/60 text-slate-500 rounded-full transition-colors focus:outline-none"
                 >
                     <X size={16} />
                 </button>
 
-                {/* Colored Header */}
-                <div className={`${cfg.headerBg} bg-gradient-to-br ${cfg.headerBg2} px-8 pt-10 pb-8 relative overflow-hidden flex flex-col items-center text-center`}>
-                    <div className="absolute top-0 right-0 w-36 h-36 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-xl" />
-
+                {/* Light Header */}
+                <div className={`${cfg.bg} px-8 pt-8 pb-6 flex flex-col items-center text-center`}>
                     {/* Badge */}
-                    <div className="relative z-10 flex items-center gap-1.5 bg-white/20 text-white text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-5">
+                    <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.15em] mb-4 ${cfg.badgeColor}`}>
                         <Icon size={10} />
                         {cfg.badge}
                     </div>
 
-                    {/* Icon circle */}
-                    <div className="relative z-10 w-20 h-20 rounded-full bg-white/20 border-2 border-white/35 flex items-center justify-center mb-5 shadow-lg">
-                        <Icon size={36} className="text-white" />
-                    </div>
-
-                    <h2 className="relative z-10 text-xl font-black text-white tracking-tight leading-tight">{item.title}</h2>
+                    <h2 className="text-xl font-bold text-slate-800 tracking-tight leading-tight">{item.title}</h2>
                 </div>
 
                 {/* Body */}
-                <div className="px-8 py-7 space-y-6">
-                    <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-wrap">{item.message}</p>
+                <div className="px-8 py-6 space-y-6">
+                    <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">{item.message}</p>
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-slate-300">
+                    <div className="flex items-center justify-between pt-2">
+                        <div className="flex items-center gap-1.5 text-slate-400">
                             <Calendar size={12} />
                             <span className="text-[10px] font-bold uppercase tracking-widest">
                                 {format(new Date(item.createdAt), 'MMM dd, yyyy')}
@@ -108,7 +92,7 @@ const BroadcastModal: React.FC<{ item: any; onClose: () => void }> = ({ item, on
                         </div>
                         <button
                             onClick={onClose}
-                            className={`${cfg.btnBg} text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-colors shadow-md active:scale-95`}
+                            className={`${cfg.btnBg} text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm focus:outline-none focus:ring-2`}
                         >
                             Got it!
                         </button>

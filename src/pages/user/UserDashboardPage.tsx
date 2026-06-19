@@ -97,12 +97,10 @@ const UserDashboardPage: React.FC = () => {
 
     const { data: notifData } = useNotifications();
     const notifications = Array.isArray(notifData) ? notifData : [];
-    // Pick the most recent active broadcast to show as the welcome modal
     const activeBroadcasts = notifications.filter((n: any) => n.isBroadcast);
-    const latestBroadcast = activeBroadcasts[0] ?? null;
 
     const [showBroadcast, setShowBroadcast] = useState(false);
-    const [currentBroadcast, setCurrentBroadcast] = useState<any>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
         // Initial data sync
@@ -121,24 +119,58 @@ const UserDashboardPage: React.FC = () => {
         }
     }, [initialLoading, !!virtualAccount]);
 
-    // Show broadcast modal every time the dashboard loads (no session gate)
+    // Show broadcast modal when we have active broadcasts (runs once when notifications load/change)
     useEffect(() => {
-        if (latestBroadcast) {
-            setCurrentBroadcast(latestBroadcast);
+        if (activeBroadcasts.length > 0) {
+            setActiveIndex(0);
             setShowBroadcast(true);
         }
-    }, [latestBroadcast?._id]);
+    }, [activeBroadcasts.map((b: any) => b._id).join(',')]);
+
+    const currentBroadcast = activeBroadcasts[activeIndex] ?? null;
 
     const getBroadcastConfig = (type: string) => {
         switch (type) {
             case 'critical':
-                return { headerClass: 'from-red-600 to-red-400', icon: AlertTriangle, badge: 'CRITICAL ALERT', btnClass: 'bg-red-500 hover:bg-red-600' };
+                return {
+                    bg: 'bg-red-50/50 border-b border-red-100/50',
+                    badgeClass: 'bg-red-100/70 text-red-600 border border-red-200',
+                    icon: AlertTriangle,
+                    iconColor: 'text-red-500',
+                    iconBg: 'bg-red-100/60',
+                    badge: 'CRITICAL ALERT',
+                    btnClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-200',
+                };
             case 'warning':
-                return { headerClass: 'from-amber-600 to-amber-400', icon: AlertTriangle, badge: 'IMPORTANT', btnClass: 'bg-amber-500 hover:bg-amber-600' };
+                return {
+                    bg: 'bg-amber-50/50 border-b border-amber-100/50',
+                    badgeClass: 'bg-amber-100/70 text-amber-700 border border-amber-200',
+                    icon: AlertTriangle,
+                    iconColor: 'text-amber-600',
+                    iconBg: 'bg-amber-100/60',
+                    badge: 'IMPORTANT UPDATE',
+                    btnClass: 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-200',
+                };
             case 'success':
-                return { headerClass: 'from-emerald-700 to-emerald-500', icon: CheckCircle2, badge: 'ANNOUNCEMENT', btnClass: 'bg-emerald-600 hover:bg-emerald-700' };
+                return {
+                    bg: 'bg-emerald-50/50 border-b border-emerald-100/50',
+                    badgeClass: 'bg-emerald-100/70 text-emerald-700 border border-emerald-200',
+                    icon: CheckCircle2,
+                    iconColor: 'text-emerald-600',
+                    iconBg: 'bg-emerald-100/60',
+                    badge: 'SUCCESS',
+                    btnClass: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-200',
+                };
             default:
-                return { headerClass: 'from-emerald-800 to-emerald-500', icon: Megaphone, badge: 'BROADCAST', btnClass: 'bg-emerald-600 hover:bg-emerald-700' };
+                return {
+                    bg: 'bg-emerald-50/50 border-b border-emerald-100/50',
+                    badgeClass: 'bg-emerald-100/70 text-emerald-700 border border-emerald-200',
+                    icon: Megaphone,
+                    iconColor: 'text-emerald-600',
+                    iconBg: 'bg-emerald-100/60',
+                    badge: 'ANNOUNCEMENT',
+                    btnClass: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-200',
+                };
         }
     };
 
@@ -184,49 +216,59 @@ const UserDashboardPage: React.FC = () => {
             {showBroadcast && currentBroadcast && (() => {
                 const cfg = getBroadcastConfig(currentBroadcast.broadcastType || 'info');
                 const Icon = cfg.icon;
+                const isLast = activeIndex === activeBroadcasts.length - 1;
                 return (
                     <div
-                        className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4 animate-in fade-in duration-200"
                         onClick={(e) => { if (e.target === e.currentTarget) handleCloseBroadcast(); }}
                     >
-                        <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative">
+                        <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative border border-slate-100">
                             {/* Dismiss X */}
                             <button
                                 onClick={handleCloseBroadcast}
-                                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-black/20 hover:bg-black/35 text-white rounded-full transition-colors"
+                                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-slate-100 border border-slate-200/60 text-slate-500 rounded-full transition-colors focus:outline-none"
                             >
                                 <X size={16} />
                             </button>
 
-                            {/* Colored Header */}
-                            <div className={`bg-gradient-to-br ${cfg.headerClass} px-8 pt-10 pb-8 relative overflow-hidden flex flex-col items-center text-center`}>
-                                <div className="absolute top-0 right-0 w-36 h-36 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-xl" />
-
+                            {/* Light Header */}
+                            <div className={`${cfg.bg} px-8 pt-8 pb-6 flex flex-col items-center text-center`}>
                                 {/* Badge */}
-                                <div className="relative z-10 flex items-center gap-1.5 bg-white/20 text-white text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full mb-5">
+                                <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.15em] mb-4 ${cfg.badgeClass}`}>
                                     <Icon size={10} />
                                     {cfg.badge}
                                 </div>
 
-                                {/* Icon circle */}
-                                <div className="relative z-10 w-20 h-20 rounded-full bg-white/20 border-2 border-white/35 flex items-center justify-center mb-5 shadow-lg">
-                                    <Icon size={36} className="text-white" />
-                                </div>
-
-                                <h2 className="relative z-10 text-xl font-black text-white tracking-tight leading-tight">{currentBroadcast.title}</h2>
+                                <h2 className="text-xl font-bold text-slate-800 tracking-tight leading-tight">{currentBroadcast.title}</h2>
                             </div>
 
                             {/* Body */}
-                            <div className="px-8 py-7 space-y-6">
-                                <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-wrap">{currentBroadcast.message}</p>
-                                <div className="flex items-center justify-between">
-                                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">From Zantara</p>
+                            <div className="px-8 py-6 space-y-6">
+                                <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">{currentBroadcast.message}</p>
+                                
+                                <div className="flex items-center justify-between pt-2">
+                                    {/* Pagination Dots */}
+                                    <div className="flex items-center gap-1.5">
+                                        {activeBroadcasts.length > 1 && activeBroadcasts.map((_, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => setActiveIndex(i)}
+                                                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-4 bg-emerald-600' : 'bg-slate-200 hover:bg-slate-300'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                    
                                     <button
-                                        onClick={handleCloseBroadcast}
-                                        className={`${cfg.btnClass} text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-colors shadow-md active:scale-95`}
+                                        onClick={() => {
+                                            if (!isLast) {
+                                                setActiveIndex(prev => prev + 1);
+                                            } else {
+                                                handleCloseBroadcast();
+                                            }
+                                        }}
+                                        className={`${cfg.btnClass} text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm focus:outline-none focus:ring-2`}
                                     >
-                                        Got it!
+                                        {isLast ? 'Got it!' : 'Next'}
                                     </button>
                                 </div>
                             </div>
