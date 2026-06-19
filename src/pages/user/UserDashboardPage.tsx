@@ -133,43 +133,43 @@ const UserDashboardPage: React.FC = () => {
         switch (type) {
             case 'critical':
                 return {
-                    bg: 'bg-red-50/50 border-b border-red-100/50',
-                    badgeClass: 'bg-red-100/70 text-red-600 border border-red-200',
+                    headerBg: 'bg-red-600',
+                    badgeClass: 'bg-red-500 text-white',
                     icon: AlertTriangle,
-                    iconColor: 'text-red-500',
-                    iconBg: 'bg-red-100/60',
+                    iconColor: 'text-white',
                     badge: 'CRITICAL ALERT',
-                    btnClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-200',
+                    btnClass: 'bg-red-600 hover:bg-red-700 focus:ring-red-300',
+                    accentDot: 'bg-red-600',
                 };
             case 'warning':
                 return {
-                    bg: 'bg-amber-50/50 border-b border-amber-100/50',
-                    badgeClass: 'bg-amber-100/70 text-amber-700 border border-amber-200',
+                    headerBg: 'bg-amber-500',
+                    badgeClass: 'bg-amber-400 text-white',
                     icon: AlertTriangle,
-                    iconColor: 'text-amber-600',
-                    iconBg: 'bg-amber-100/60',
+                    iconColor: 'text-white',
                     badge: 'IMPORTANT UPDATE',
-                    btnClass: 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-200',
+                    btnClass: 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-300',
+                    accentDot: 'bg-amber-500',
                 };
             case 'success':
                 return {
-                    bg: 'bg-emerald-50/50 border-b border-emerald-100/50',
-                    badgeClass: 'bg-emerald-100/70 text-emerald-700 border border-emerald-200',
+                    headerBg: 'bg-emerald-600',
+                    badgeClass: 'bg-emerald-500 text-white',
                     icon: CheckCircle2,
-                    iconColor: 'text-emerald-600',
-                    iconBg: 'bg-emerald-100/60',
+                    iconColor: 'text-white',
                     badge: 'SUCCESS',
-                    btnClass: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-200',
+                    btnClass: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-300',
+                    accentDot: 'bg-emerald-600',
                 };
             default:
                 return {
-                    bg: 'bg-emerald-50/50 border-b border-emerald-100/50',
-                    badgeClass: 'bg-emerald-100/70 text-emerald-700 border border-emerald-200',
+                    headerBg: 'bg-[#136A63]',
+                    badgeClass: 'bg-[#0f5950] text-white',
                     icon: Megaphone,
-                    iconColor: 'text-emerald-600',
-                    iconBg: 'bg-emerald-100/60',
+                    iconColor: 'text-white',
                     badge: 'ANNOUNCEMENT',
-                    btnClass: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-200',
+                    btnClass: 'bg-[#136A63] hover:bg-[#0f5950] focus:ring-emerald-300',
+                    accentDot: 'bg-[#136A63]',
                 };
         }
     };
@@ -219,41 +219,40 @@ const UserDashboardPage: React.FC = () => {
                 const isLast = activeIndex === activeBroadcasts.length - 1;
                 return (
                     <div
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
                         onClick={(e) => { if (e.target === e.currentTarget) handleCloseBroadcast(); }}
                     >
-                        <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative border border-slate-100">
+                        <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.35)] animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative">
                             {/* Dismiss X */}
                             <button
                                 onClick={handleCloseBroadcast}
-                                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-slate-100 border border-slate-200/60 text-slate-500 rounded-full transition-colors focus:outline-none"
+                                className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors focus:outline-none"
                             >
                                 <X size={16} />
                             </button>
 
-                            {/* Light Header */}
-                            <div className={`${cfg.bg} px-8 pt-8 pb-6 flex flex-col items-center text-center`}>
+                            {/* Solid Coloured Header */}
+                            <div className={`${cfg.headerBg} px-8 pt-8 pb-7 flex flex-col items-center text-center`}>
                                 {/* Badge */}
-                                <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.15em] mb-4 ${cfg.badgeClass}`}>
-                                    <Icon size={10} />
+                                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.15em] mb-4 ${cfg.badgeClass}`}>
+                                    <Icon size={10} className={cfg.iconColor} />
                                     {cfg.badge}
                                 </div>
-
-                                <h2 className="text-xl font-bold text-slate-800 tracking-tight leading-tight">{currentBroadcast.title}</h2>
+                                <h2 className="text-xl font-bold text-white tracking-tight leading-tight">{currentBroadcast.title}</h2>
                             </div>
 
                             {/* Body */}
-                            <div className="px-8 py-6 space-y-6">
-                                <p className="text-slate-600 text-sm font-medium leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">{currentBroadcast.message}</p>
+                            <div className="px-8 py-7 space-y-5">
+                                <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">{currentBroadcast.message}</p>
                                 
-                                <div className="flex items-center justify-between pt-2">
+                                <div className="flex items-center justify-between pt-1">
                                     {/* Pagination Dots */}
                                     <div className="flex items-center gap-1.5">
                                         {activeBroadcasts.length > 1 && activeBroadcasts.map((_, i) => (
                                             <button
                                                 key={i}
                                                 onClick={() => setActiveIndex(i)}
-                                                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-4 bg-emerald-600' : 'bg-slate-200 hover:bg-slate-300'}`}
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? `w-5 ${cfg.accentDot}` : 'w-1.5 bg-slate-300 hover:bg-slate-400'}`}
                                             />
                                         ))}
                                     </div>
@@ -266,9 +265,9 @@ const UserDashboardPage: React.FC = () => {
                                                 handleCloseBroadcast();
                                             }
                                         }}
-                                        className={`${cfg.btnClass} text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm focus:outline-none focus:ring-2`}
+                                        className={`${cfg.btnClass} text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md focus:outline-none focus:ring-2`}
                                     >
-                                        {isLast ? 'Got it!' : 'Next'}
+                                        {isLast ? 'Got it!' : 'Next →'}
                                     </button>
                                 </div>
                             </div>
