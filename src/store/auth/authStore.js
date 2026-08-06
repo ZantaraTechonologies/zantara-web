@@ -59,10 +59,10 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    login: async (credentials, rememberMe = true) => {
+    login: async (credentials, rememberMe = false) => {
         set({ loading: true, error: null });
         try {
-            const data = await authService.login(credentials);
+            const data = await authService.login({ ...credentials, rememberMe });
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
             const user = data.user || data.data?.user || (data.id || data._id ? data : null);
