@@ -304,7 +304,7 @@ const UserBuyCablePage: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-slate-500">Package</span>
-                                    <span className="font-bold text-slate-900 text-right max-w-[120px] truncate leading-tight">{selectedPackage?.name || '—'}</span>
+                                    <span className="font-bold text-slate-900 text-right max-w-[120px] truncate leading-tight">{selectedPlan?.name || '—'}</span>
                                 </div>
                                 {previewPricing?.data?.savings > 0 && (
                                     <div className="flex justify-between">
