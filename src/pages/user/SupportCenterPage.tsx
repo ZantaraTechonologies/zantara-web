@@ -41,7 +41,7 @@ const SupportCenterPage: React.FC = () => {
                 
                 <Link 
                     to="/app/support/create"
-                    className="flex items-center gap-2 bg-slate-950 text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-xl hover:bg-emerald-500 hover:text-slate-950 transition-all active:scale-95 w-fit"
+                    className="flex items-center gap-2 bg-brand-emerald text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-btn hover:bg-brand-emerald-600 transition-all active:scale-95 w-fit"
                 >
                     <Plus size={18} />
                     New Support Ticket
@@ -50,7 +50,7 @@ const SupportCenterPage: React.FC = () => {
 
             {/* Quick Links / Help */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4 hover:border-emerald-100 transition-colors cursor-pointer group">
+                <div className="bg-surface p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4 hover:border-emerald-100 transition-colors cursor-pointer group">
                     <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shrink-0">
                         <HelpCircle size={24} className="text-emerald-500" />
                     </div>
@@ -59,7 +59,7 @@ const SupportCenterPage: React.FC = () => {
                         <p className="text-xs text-slate-400 mt-1">Get instant answers to common questions about funding and services.</p>
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4 hover:border-emerald-100 transition-colors cursor-pointer group">
+                <div className="bg-surface p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4 hover:border-emerald-100 transition-colors cursor-pointer group">
                     <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0">
                         <MessageSquare size={24} className="text-slate-400" />
                     </div>
@@ -71,7 +71,7 @@ const SupportCenterPage: React.FC = () => {
             </div>
 
             {/* Ticket List */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[400px]">
+            <div className="bg-surface rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col min-h-[400px]">
                 <div className="p-6 border-b border-slate-50 flex items-center gap-3">
                     <Clock size={18} className="text-slate-400" />
                     <h3 className="text-sm font-bold text-slate-800">Support History</h3>

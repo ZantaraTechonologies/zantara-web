@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/auth/authStore';
 import { PageLoader } from '../../components/feedback/Skeletons';
 
 const AuthRoute = ({ children }) => {
-    const { isAuthenticated, loading, isInitialized, fetchMe } = useAuthStore();
+    const { isAuthenticated, isInitialized, fetchMe } = useAuthStore();
     const location = useLocation();
     const from = location.state?.from?.pathname;
 

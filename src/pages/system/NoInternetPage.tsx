@@ -18,17 +18,17 @@ const NoInternetPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
+        <div className="min-h-screen bg-surface flex items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
             <div className="max-w-md w-full space-y-10">
                 <div className="relative">
-                    <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto border border-slate-100 shadow-sm relative z-10">
-                        <WifiOff size={32} className="text-slate-300" />
+                    <div className="w-20 h-20 bg-brand-mint rounded-2xl flex items-center justify-center mx-auto border border-brand-emerald/20 shadow-sm relative z-10">
+                        <WifiOff size={32} className="text-brand-emerald" />
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="space-y-1">
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Connection Lost</h1>
+                        <h1 className="text-2xl font-black text-brand-navy tracking-tight">Connection Lost</h1>
                         <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-[280px] mx-auto text-center italic">
                              "We couldn't establish a secure pathway to our servers. Check your data or Wi-Fi."
                         </p>
@@ -37,7 +37,7 @@ const NoInternetPage: React.FC = () => {
                     <button 
                         onClick={handleRetry}
                         disabled={retrying}
-                        className="w-full max-w-[200px] bg-slate-950 text-white py-4 rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 mx-auto"
+                        className="w-full max-w-[200px] bg-brand-emerald hover:bg-brand-emerald-600 text-white py-4 rounded-2xl font-bold text-sm shadow-btn active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 mx-auto"
                     >
                         <RefreshCw size={18} className={retrying ? "animate-spin" : ""} />
                         {retrying ? "Reconnecting..." : "Retry Connection"}

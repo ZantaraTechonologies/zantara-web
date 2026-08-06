@@ -153,7 +153,7 @@ const InvestmentPage: React.FC = () => {
     const settings = summary?.settings;
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
+        <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-500 pb-12">
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Shareholder Portfolio</h1>
@@ -163,55 +163,55 @@ const InvestmentPage: React.FC = () => {
             {/* Main Dashboard Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Portfolio Summary Card */}
-                <div className="lg:col-span-2 bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+                <div className="lg:col-span-2 bg-surface border border-slate-100 rounded-3xl p-6 text-slate-900 shadow-card relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-brand-emerald-100/60 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-brand-emerald-100 transition-all duration-700"></div>
                     
-                    <div className="relative z-10 space-y-10">
+                    <div className="relative z-10 space-y-6">
                         <div className="flex justify-between items-start">
                             <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em]">Total Value</span>
-                                <h2 className="text-6xl font-black tracking-tighter">
+                                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.3em]">Total Value</span>
+                                <h2 className="text-4xl font-black tracking-tighter text-slate-900">
                                     {currency}{(summary.sharesOwned * (settings?.sharePrice || 0)).toLocaleString()}
                                 </h2>
                             </div>
-                            <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
-                                <span className="text-xs font-bold text-emerald-400">{summary.sharesOwned} Shares owned</span>
+                            <div className="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100">
+                                <span className="text-xs font-bold text-emerald-600">{summary.sharesOwned} Shares owned</span>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 py-8 border-y border-white/5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 py-8 border-y border-slate-100">
                             <div>
-                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Lifetime Dividends</p>
-                                <p className="text-2xl font-black text-emerald-400">{currency}{summary.totalDividendsEarned.toLocaleString()}</p>
+                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Lifetime Dividends</p>
+                                <p className="text-2xl font-black text-slate-900">{currency}{summary.totalDividendsEarned.toLocaleString()}</p>
                             </div>
                             <div>
-                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Dividend Balance</p>
-                                <p className="text-2xl font-black">{currency}{summary.dividendBalance.toLocaleString()}</p>
+                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Dividend Balance</p>
+                                <p className="text-2xl font-black text-slate-900">{currency}{summary.dividendBalance.toLocaleString()}</p>
                             </div>
                             <div>
-                                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-2">Referral Balance</p>
-                                <p className="text-2xl font-black text-amber-400">{currency}{summary.referralBalance.toLocaleString()}</p>
+                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Referral Balance</p>
+                                <p className="text-2xl font-black text-slate-900">{currency}{summary.referralBalance.toLocaleString()}</p>
                             </div>
                         </div>
 
-                        <div className="space-y-4 pt-4 border-t border-white/5">
+                        <div className="space-y-4 pt-4 border-t border-slate-100">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
-                                <div className="flex flex-wrap items-center gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
+                                <div className="flex flex-wrap items-center gap-2 p-1 bg-slate-50 rounded-xl border border-slate-100">
                                     <button 
                                         onClick={() => { setRedeemSource('dividend'); setRedeemAmount(''); }}
-                                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'dividend' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'dividend' ? 'bg-brand-emerald text-white' : 'text-slate-400 hover:text-slate-900'}`}
                                     >
                                         Dividends
                                     </button>
                                     <button 
                                         onClick={() => { setRedeemSource('referral'); setRedeemAmount(''); }}
-                                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'referral' ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                                        className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'referral' ? 'bg-amber-500 text-white' : 'text-slate-400 hover:text-slate-900'}`}
                                     >
                                         Referrals
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                         Amount to {redeemSource === 'referral' ? 'Referral' : 'Dividend'} Wallet
                                     </span>
                                     {((redeemSource === 'dividend' ? summary.dividendBalance : summary.referralBalance) > 0) && (
@@ -231,10 +231,10 @@ const InvestmentPage: React.FC = () => {
                                         placeholder={`Enter amount from ${redeemSource}s`}
                                         value={redeemAmount}
                                         onChange={(e) => setRedeemAmount(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm font-bold text-white outline-none focus:border-emerald-500/50 transition-all placeholder:text-white/20"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none focus:border-emerald-500/50 transition-all placeholder:text-slate-300"
                                     />
                                     {Number(redeemAmount) > 0 && (
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/40">
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">
                                             Fee: {settings?.dividendRedeemFee}%
                                         </div>
                                     )}
@@ -242,7 +242,7 @@ const InvestmentPage: React.FC = () => {
                                 <button 
                                     disabled={!redeemAmount || Number(redeemAmount) <= 0 || Number(redeemAmount) > (redeemSource === 'dividend' ? summary.dividendBalance : summary.referralBalance) || redeemPending}
                                     onClick={() => handleActionClick('redeem')}
-                                    className={`px-8 py-4 rounded-2xl font-black text-sm transition-all disabled:opacity-20 flex items-center justify-center gap-2 whitespace-nowrap ${redeemSource === 'referral' ? 'bg-amber-500 text-slate-900 hover:bg-amber-400' : 'bg-white text-slate-900 hover:bg-emerald-400'}`}
+                                    className={`px-6 py-3 rounded-2xl font-black text-sm transition-all disabled:opacity-20 flex items-center justify-center gap-2 whitespace-nowrap ${redeemSource === 'referral' ? 'bg-amber-500 text-white hover:bg-amber-400' : 'bg-brand-emerald text-white hover:bg-brand-emerald-600'}`}
                                 >
                                     <RefreshCw size={18} className={redeemPending ? 'animate-spin' : ''} />
                                     Move {redeemSource === 'referral' ? 'Referral' : 'Earnings'} 
@@ -253,7 +253,7 @@ const InvestmentPage: React.FC = () => {
                         <div className="pt-4">
                             <Link 
                                 to="/app/investments/withdraw"
-                                className="w-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-8 py-5 rounded-2xl font-black text-sm text-center hover:bg-emerald-500 hover:text-slate-950 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                className="w-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-6 py-3 rounded-2xl font-black text-sm text-center hover:bg-brand-emerald hover:text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                             >
                                 <LogOut size={18} />
                                 Withdraw to Bank Account
@@ -263,7 +263,7 @@ const InvestmentPage: React.FC = () => {
                 </div>
 
                 {/* Next Payout Card */}
-                <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between relative overflow-hidden">
+                <div className="bg-surface rounded-3xl p-6 border border-slate-100 shadow-card flex flex-col justify-between relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4">
                         <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500">
                             <TrendingUp size={24} />
@@ -299,7 +299,7 @@ const InvestmentPage: React.FC = () => {
             {/* Investment Actions Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Buy Shares Form */}
-                <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6">
+                <div className="bg-surface rounded-3xl p-6 border border-slate-100 shadow-card space-y-5">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500">
                             <Plus size={24} />
@@ -320,7 +320,7 @@ const InvestmentPage: React.FC = () => {
                             placeholder="Enter quantity of shares"
                             value={buyQty}
                             onChange={(e) => setBuyQty(e.target.value)}
-                            className="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white rounded-2xl p-5 text-lg font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
+                            className="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-500 focus:bg-surface rounded-2xl p-5 text-lg font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
                         />
 
                         {/* Payment Method Selector */}
@@ -354,7 +354,7 @@ const InvestmentPage: React.FC = () => {
                         <button 
                             disabled={!buyQty || Number(buyQty) < (settings?.minSharesPerPurchase || 1) || buyPending || initializingPayment}
                             onClick={() => handleActionClick('buy')}
-                            className="w-full bg-emerald-500 text-slate-950 py-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-emerald-400 disabled:opacity-50 transition-all active:scale-[0.98]"
+                            className="w-full bg-brand-emerald text-white py-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-brand-emerald-600 disabled:opacity-50 transition-all active:scale-[0.98]"
                         >
                             {initializingPayment ? 'Initializing...' : buyPending ? 'Processing...' : (Number(buyQty) > 0 && Number(buyQty) < (settings?.minSharesPerPurchase || 1)) ? `Min ${settings?.minSharesPerPurchase} Shares Required` : 'Purchase Shares Now'}
                             <ArrowRight size={18} />
@@ -372,7 +372,7 @@ const InvestmentPage: React.FC = () => {
                 {/* Exit / Reinvest Grid */}
                 <div className="grid grid-cols-1 gap-6">
                     {/* Reinvest Card */}
-                    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6 group hover:border-blue-100 transition-colors">
+                    <div className="bg-surface rounded-3xl p-6 border border-slate-100 shadow-card space-y-5 group hover:border-blue-100 transition-colors">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 group-hover:rotate-12 transition-transform">
                                 <Coins size={24} />
@@ -391,7 +391,7 @@ const InvestmentPage: React.FC = () => {
                                         placeholder="Qty"
                                         value={reinvestQty}
                                         onChange={(e) => setReinvestQty(e.target.value)}
-                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-xl p-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
+                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-surface rounded-xl p-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300"
                                     />
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">Shares</div>
                                 </div>
@@ -412,7 +412,7 @@ const InvestmentPage: React.FC = () => {
                     </div>
 
                     {/* Exit Card */}
-                    <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 space-y-6 group hover:border-amber-100 transition-colors">
+                    <div className="bg-surface rounded-3xl p-6 border border-slate-100 shadow-card space-y-5 group hover:border-amber-100 transition-colors">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 group-hover:-rotate-12 transition-transform">
                                 <Briefcase size={24} />
@@ -432,7 +432,7 @@ const InvestmentPage: React.FC = () => {
                                         value={exitQty}
                                         onChange={(e) => setExitQty(e.target.value)}
                                         disabled={!summary.canExit}
-                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-amber-500 focus:bg-white rounded-xl p-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300 disabled:opacity-50"
+                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-amber-500 focus:bg-surface rounded-xl p-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300 disabled:opacity-50"
                                     />
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">Shares</div>
                                 </div>
@@ -468,7 +468,7 @@ const InvestmentPage: React.FC = () => {
             </div>
 
             {/* Activity Table */}
-            <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/50 space-y-8">
+            <div className="bg-surface rounded-3xl p-6 border border-slate-100 shadow-card space-y-5">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <History size={24} className="text-slate-400" />
@@ -480,10 +480,10 @@ const InvestmentPage: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-slate-50">
-                                <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Transaction ID</th>
-                                <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Type</th>
-                                <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Date</th>
-                                <th className="pb-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">Amount</th>
+                                <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Transaction ID</th>
+                                <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Type</th>
+                                <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Date</th>
+                                <th className="pb-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Amount</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">

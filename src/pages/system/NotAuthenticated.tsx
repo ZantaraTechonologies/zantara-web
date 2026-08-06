@@ -7,7 +7,7 @@ export default function NotAuthenticated() {
             <div className="text-center space-y-12 animate-in fade-in slide-in-from-top-8 duration-700 max-w-lg w-full">
                 <div className="relative inline-block">
                     <div className="absolute inset-0 bg-emerald-200 blur-3xl opacity-30 rounded-full scale-150 animate-pulse" />
-                    <div className="relative bg-white rounded-full p-10 shadow-2xl shadow-emerald-100 border border-slate-50">
+                    <div className="relative bg-surface rounded-full p-10 shadow-2xl shadow-emerald-100 border border-slate-50">
                         <Lock className="w-16 h-16 text-emerald-500" />
                     </div>
                 </div>
@@ -29,7 +29,7 @@ export default function NotAuthenticated() {
                     </Link>
                     <Link
                         to="/register"
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white text-slate-900 border border-slate-100 px-10 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-surface text-slate-900 border border-slate-100 px-10 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[11px] hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
                     >
                         <UserPlus className="w-4 h-4" />
                         <span>Enlist</span>

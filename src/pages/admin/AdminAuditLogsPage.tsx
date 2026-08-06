@@ -83,10 +83,10 @@ const AdminAuditLogsPage: React.FC = () => {
     };
 
     const getActionStyle = (action: string) => {
-        if (action?.includes('DELETE') || action?.includes('DEBIT'))  return 'bg-red-500/10 text-red-400 border-red-500/20';
-        if (action?.includes('CREATE') || action?.includes('CREDIT')) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-        if (action?.includes('UPDATE') || action?.includes('OVERRIDE')) return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-        if (action?.includes('TRIGGER') || action?.includes('PAYOUT')) return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+        if (action?.includes('DELETE') || action?.includes('DEBIT'))  return 'bg-red-500/10 text-red-600 border-red-500/20';
+        if (action?.includes('CREATE') || action?.includes('CREDIT')) return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+        if (action?.includes('UPDATE') || action?.includes('OVERRIDE')) return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        if (action?.includes('TRIGGER') || action?.includes('PAYOUT')) return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
         return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     };
 
@@ -97,7 +97,7 @@ const AdminAuditLogsPage: React.FC = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-white tracking-tight italic">System Audit Trail</h1>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">System Audit Trail</h1>
                     <p className="text-slate-500 text-[10px] font-black tracking-[0.3em] mt-1 uppercase">
                         Every administrative action, immutably recorded
                     </p>
@@ -105,7 +105,7 @@ const AdminAuditLogsPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={loadLogs}
-                        className="p-3 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                        className="p-3 bg-surface border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all"
                     >
                         <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
                     </button>
@@ -113,8 +113,8 @@ const AdminAuditLogsPage: React.FC = () => {
                         onClick={() => setShowFilters(!showFilters)}
                         className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
                             showFilters || hasActiveFilters
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600'
+                                : 'bg-surface border-slate-200 text-slate-500 hover:text-slate-900'
                         }`}
                     >
                         <Filter size={14} />
@@ -128,13 +128,13 @@ const AdminAuditLogsPage: React.FC = () => {
 
             {/* Filter Panel */}
             {showFilters && (
-                <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                <div className="bg-surface border border-slate-200 rounded-2xl p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
                     <div className="flex items-center justify-between">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filter Controls</span>
                         {hasActiveFilters && (
                             <button
                                 onClick={handleReset}
-                                className="flex items-center gap-1.5 text-[9px] font-black text-rose-400 uppercase tracking-widest hover:text-rose-300 transition-colors"
+                                className="flex items-center gap-1.5 text-[9px] font-black text-rose-600 uppercase tracking-widest hover:text-rose-700 transition-colors"
                             >
                                 <X size={12} /> Reset All
                             </button>
@@ -150,7 +150,7 @@ const AdminAuditLogsPage: React.FC = () => {
                                 placeholder="Operator or action..."
                                 value={search}
                                 onChange={(e) => handleSearchChange(e.target.value)}
-                                className="w-full bg-slate-950 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium placeholder:text-slate-600"
+                                className="w-full bg-surface border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-emerald-500/50 transition-all font-medium placeholder:text-slate-400"
                             />
                         </div>
 
@@ -159,7 +159,7 @@ const AdminAuditLogsPage: React.FC = () => {
                             <select
                                 value={actionFilter}
                                 onChange={(e) => handleActionChange(e.target.value)}
-                                className="w-full appearance-none bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium cursor-pointer"
+                                className="w-full appearance-none bg-surface border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-emerald-500/50 transition-all font-medium cursor-pointer"
                             >
                                 {ACTION_TYPES.map(a => (
                                     <option key={a} value={a}>{a}</option>
@@ -173,7 +173,7 @@ const AdminAuditLogsPage: React.FC = () => {
                             <select
                                 value={limit}
                                 onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-                                className="w-full appearance-none bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-all font-medium cursor-pointer"
+                                className="w-full appearance-none bg-surface border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-emerald-500/50 transition-all font-medium cursor-pointer"
                             >
                                 {LIMIT_OPTIONS.map(l => (
                                     <option key={l} value={l}>{l} per page</option>
@@ -202,27 +202,27 @@ const AdminAuditLogsPage: React.FC = () => {
             </div>
 
             {/* Table */}
-            <div className="bg-slate-900/50 border border-white/5 rounded-2xl overflow-hidden">
+            <div className="bg-surface border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
                         <thead>
-                            <tr className="bg-slate-950/50 border-b border-white/5">
-                                <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-[0.25em]">Timestamp</th>
-                                <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-[0.25em]">Operator</th>
-                                <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-[0.25em]">Action</th>
-                                <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 uppercase tracking-[0.25em]">Scope / Target</th>
-                                <th className="px-5 py-3.5 text-right text-[9px] font-black text-slate-500 uppercase tracking-[0.25em]">Result</th>
+                            <tr className="bg-slate-50/80 border-b border-slate-100">
+                                <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Timestamp</th>
+                                <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Operator</th>
+                                <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Action</th>
+                                <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Scope / Target</th>
+                                <th className="text-right px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Result</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/[0.04]">
+                        <tbody className="divide-y divide-slate-100">
                             {loading ? (
                                 Array(8).fill(0).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td className="px-5 py-4"><div className="h-3 bg-white/5 rounded w-32" /></td>
-                                        <td className="px-5 py-4"><div className="h-3 bg-white/5 rounded w-24" /></td>
-                                        <td className="px-5 py-4"><div className="h-3 bg-white/5 rounded w-36" /></td>
-                                        <td className="px-5 py-4"><div className="h-3 bg-white/5 rounded w-28" /></td>
-                                        <td className="px-5 py-4"><div className="h-3 bg-white/5 rounded w-16 ml-auto" /></td>
+                                        <td className="px-5 py-4"><div className="h-3 bg-slate-100 rounded w-32" /></td>
+                                        <td className="px-5 py-4"><div className="h-3 bg-slate-100 rounded w-24" /></td>
+                                        <td className="px-5 py-4"><div className="h-3 bg-slate-100 rounded w-36" /></td>
+                                        <td className="px-5 py-4"><div className="h-3 bg-slate-100 rounded w-28" /></td>
+                                        <td className="px-5 py-4"><div className="h-3 bg-slate-100 rounded w-16 ml-auto" /></td>
                                     </tr>
                                 ))
                             ) : logs.length === 0 ? (
@@ -235,7 +235,7 @@ const AdminAuditLogsPage: React.FC = () => {
                                     </td>
                                 </tr>
                             ) : logs.map((log, i) => (
-                                <tr key={i} className="group hover:bg-white/[0.03] transition-colors">
+                                <tr key={i} className="group hover:bg-slate-50/60 transition-colors">
                                     <td className="px-5 py-4">
                                         <div className="flex items-center gap-2 text-slate-500">
                                             <Clock size={11} className="shrink-0" />
@@ -248,7 +248,7 @@ const AdminAuditLogsPage: React.FC = () => {
                                                 <User size={12} />
                                             </div>
                                             <div>
-                                                <p className="text-xs font-bold text-slate-200 leading-none">{log.operatorName || log.operatorId || 'System'}</p>
+                                                <p className="text-xs font-bold text-slate-800 leading-none">{log.operatorName || log.operatorId || 'System'}</p>
                                                 <p className="text-[9px] font-mono text-slate-600 mt-0.5 truncate max-w-[120px]">{log.ipAddress || '—'}</p>
                                             </div>
                                         </div>
@@ -270,7 +270,7 @@ const AdminAuditLogsPage: React.FC = () => {
                                                 <CheckCircle2 size={10} /> Success
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-red-500/10 text-red-400 border border-red-500/20">
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 border border-red-500/20">
                                                 <XCircle size={10} /> {log.result}
                                             </span>
                                         )}
@@ -283,7 +283,7 @@ const AdminAuditLogsPage: React.FC = () => {
 
                 {/* Pagination Footer */}
                 {pagination.pages > 1 && (
-                    <div className="flex items-center justify-between px-5 py-4 border-t border-white/5 bg-slate-950/30">
+                    <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 bg-slate-50/50">
                         <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                             Showing {((page - 1) * limit) + 1}–{Math.min(page * limit, pagination.total)} of {pagination.total}
                         </span>
@@ -292,7 +292,7 @@ const AdminAuditLogsPage: React.FC = () => {
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                className="p-2 rounded-xl bg-surface border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                                 <ChevronLeft size={14} />
                             </button>
@@ -312,7 +312,7 @@ const AdminAuditLogsPage: React.FC = () => {
                                         className={`w-8 h-8 rounded-xl text-[10px] font-black transition-all ${
                                             pageNum === page
                                                 ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-                                                : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+                                                : 'bg-surface border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                         }`}
                                     >
                                         {pageNum}
@@ -323,7 +323,7 @@ const AdminAuditLogsPage: React.FC = () => {
                             <button
                                 onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
                                 disabled={page === pagination.pages}
-                                className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                className="p-2 rounded-xl bg-surface border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                                 <ChevronRight size={14} />
                             </button>

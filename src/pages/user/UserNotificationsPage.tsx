@@ -59,7 +59,7 @@ const BroadcastModal: React.FC<{ item: any; onClose: () => void }> = ({ item, on
             className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4 animate-in fade-in duration-200"
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
-            <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative border border-slate-100">
+            <div className="bg-surface rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300 relative border border-slate-100">
                 {/* Dismiss */}
                 <button
                     onClick={onClose}
@@ -204,7 +204,7 @@ const UserNotificationsPage: React.FC = () => {
             </div>
 
             {/* List */}
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+            <div className="bg-surface rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
                 {notifications && notifications.length > 0 ? (
                     <div className="divide-y divide-slate-50">
                         {notifications.map((n: any) => {
@@ -246,7 +246,7 @@ const UserNotificationsPage: React.FC = () => {
                                                     {n.broadcastType?.toUpperCase() || 'BROADCAST'}
                                                 </span>
                                             )}
-                                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest ml-auto shrink-0">
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-auto shrink-0">
                                                 {format(new Date(n.createdAt), 'hh:mm a')}
                                             </span>
                                         </div>

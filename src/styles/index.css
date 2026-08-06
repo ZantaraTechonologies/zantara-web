@@ -1,3 +1,162 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/poppins-400.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/poppins-500.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/poppins-600.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/poppins-700.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('/fonts/poppins-800.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url('/fonts/poppins-900.woff2') format('woff2');
+}
+
+@layer base {
+    :root {
+        --surface: 255 255 255;
+        --brand-mint: 234 251 244;
+        --text-brand-navy: 11 31 77;
+
+        --bg-slate-50: 248 250 252;
+        --bg-slate-100: 241 245 249;
+        --bg-slate-200: 226 232 240;
+        --bg-slate-300: 203 213 225;
+        --bg-slate-400: 148 163 184;
+        --bg-slate-500: 100 116 139;
+        --bg-slate-600: 71 85 105;
+        --bg-slate-700: 51 65 85;
+        --bg-slate-800: 30 41 59;
+        --bg-slate-900: 15 23 42;
+
+        --text-slate-100: 241 245 249;
+        --text-slate-200: 226 232 240;
+        --text-slate-300: 203 213 225;
+        --text-slate-400: 148 163 184;
+        --text-slate-500: 100 116 139;
+        --text-slate-600: 71 85 105;
+        --text-slate-700: 51 65 85;
+        --text-slate-800: 30 41 59;
+        --text-slate-900: 15 23 42;
+        --text-slate-950: 2 6 23;
+
+        --border-slate-50: 248 250 252;
+        --border-slate-100: 241 245 249;
+        --border-slate-200: 226 232 240;
+        --border-slate-300: 203 213 225;
+        --border-slate-400: 148 163 184;
+        --border-slate-500: 100 116 139;
+        --border-slate-600: 71 85 105;
+        --border-slate-700: 51 65 85;
+    }
+
+    .dark {
+        color-scheme: dark;
+
+        --surface: 19 28 49;
+        --brand-mint: 12 42 26;
+        --text-brand-navy: 214 223 244;
+
+        --bg-slate-50: 10 16 30;
+        --bg-slate-100: 26 38 60;
+        --bg-slate-200: 34 48 76;
+        --bg-slate-300: 47 61 95;
+        --bg-slate-400: 148 163 184;
+        --bg-slate-500: 100 116 139;
+        --bg-slate-600: 71 85 105;
+        --bg-slate-700: 51 65 85;
+        --bg-slate-800: 30 41 59;
+        --bg-slate-900: 8 12 22;
+
+        --text-slate-100: 226 232 240;
+        --text-slate-200: 200 210 229;
+        --text-slate-300: 169 182 206;
+        --text-slate-400: 147 161 189;
+        --text-slate-500: 166 179 204;
+        --text-slate-600: 192 203 222;
+        --text-slate-700: 211 219 233;
+        --text-slate-800: 226 231 242;
+        --text-slate-900: 235 240 248;
+        --text-slate-950: 246 248 252;
+
+        --border-slate-50: 10 16 30;
+        --border-slate-100: 30 42 69;
+        --border-slate-200: 42 58 92;
+        --border-slate-300: 58 77 117;
+        --border-slate-400: 78 98 145;
+        --border-slate-500: 99 119 166;
+        --border-slate-600: 122 141 184;
+        --border-slate-700: 147 163 201;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        @apply bg-surface text-gray-600 antialiased;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply text-brand-navy;
+    }
+}
+
+@layer utilities {
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(11, 31, 77, 0.12);
+        border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(11, 31, 77, 0.25);
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.14);
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.28);
+    }
+}

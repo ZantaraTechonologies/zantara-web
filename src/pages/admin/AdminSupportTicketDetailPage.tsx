@@ -90,13 +90,13 @@ export default function AdminSupportTicketDetailPage() {
     return (
         <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+            <div className="flex-1 flex flex-col bg-surface border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
                 {/* Chat Header */}
                 <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                     <div className="flex items-center gap-4">
                         <button 
                             onClick={() => navigate('/admin/support')}
-                            className="p-2 hover:bg-white rounded-xl text-slate-400 hover:text-slate-900 transition-all border border-transparent hover:border-slate-100"
+                            className="p-2 hover:bg-surface rounded-xl text-slate-400 hover:text-slate-900 transition-all border border-transparent hover:border-slate-100"
                         >
                             <ChevronLeft size={20} />
                         </button>
@@ -126,7 +126,7 @@ export default function AdminSupportTicketDetailPage() {
                 {/* Messages Panel */}
                 <div 
                     ref={scrollRef}
-                    className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:20px_20px]"
+                    className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:20px_20px]"
                 >
                     {messages.map((m, i) => {
                         const isMe = m.sender !== ticket.userId?._id;
@@ -136,7 +136,7 @@ export default function AdminSupportTicketDetailPage() {
                                     <div className={`px-6 py-4 rounded-3xl text-sm font-medium leading-relaxed ${
                                         isMe 
                                         ? 'bg-slate-950 text-white rounded-tr-none' 
-                                        : 'bg-white border border-slate-100 text-slate-700 shadow-sm rounded-tl-none'
+                                        : 'bg-surface border border-slate-100 text-slate-700 shadow-sm rounded-tl-none'
                                     }`}>
                                         {m.message}
                                     </div>
@@ -159,7 +159,7 @@ export default function AdminSupportTicketDetailPage() {
                                 value={reply}
                                 onChange={(e) => setReply(e.target.value)}
                                 placeholder="Type your response as an administrator..."
-                                className="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-6 pr-16 text-sm font-medium focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-300"
+                                className="w-full bg-surface border border-slate-100 rounded-2xl py-3 pl-6 pr-16 text-sm font-medium focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder:text-slate-400"
                             />
                             <button 
                                 type="submit"
@@ -179,7 +179,7 @@ export default function AdminSupportTicketDetailPage() {
             </div>
 
             {/* Right Sidebar Info */}
-            <div className="w-full lg:w-80 space-y-6">
+            <div className="w-full lg:w-80 space-y-4">
                 <div className="bg-slate-950 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-[60px] rounded-full -translate-y-1/2 translate-x-1/2" />
                      <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-500 mb-6">Auditor View</h3>
@@ -206,7 +206,7 @@ export default function AdminSupportTicketDetailPage() {
                      </div>
                 </div>
 
-                <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 space-y-6 shadow-sm">
+                <div className="bg-surface border border-slate-100 rounded-3xl p-6 space-y-4 shadow-sm">
                     <div>
                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Metadata</p>
                          <div className="space-y-3">

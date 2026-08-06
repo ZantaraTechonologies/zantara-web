@@ -267,22 +267,22 @@ const CatalogRegistryTab: React.FC = () => {
     if (loading) return <ListSkeleton count={5} />;
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-500 pb-20">
+        <div className="space-y-8 animate-in fade-in duration-500 pb-20">
             {selectedIdentity ? (
                 /* Drill-down View */
-                <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                <div className="space-y-6 animate-in slide-in-from-right duration-500">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-6">
                             <button 
                                 onClick={() => setSelectedIdentity(null)}
-                                className="p-4 bg-slate-900 border border-white/5 rounded-3xl text-slate-400 hover:text-white transition-all shadow-xl"
+                                className="p-4 bg-surface border border-slate-200 rounded-3xl text-slate-400 hover:text-slate-900 transition-all shadow-xl"
                             >
                                 <ArrowLeft size={20} />
                             </button>
                             <div>
                                 <div className="flex items-center gap-3 mb-1">
-                                    <h2 className="text-3xl font-black text-white tracking-tighter italic">{selectedIdentity.name}</h2>
-                                    <span className="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">Identity</span>
+                                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter">{selectedIdentity.name}</h2>
+                                    <span className="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black text-indigo-600 uppercase tracking-widest">Identity</span>
                                 </div>
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">
                                     {selectedIdentity.brandId?.name} • {selectedIdentity.typeId?.name} • {selectedIdentity.internalCode}
@@ -299,7 +299,7 @@ const CatalogRegistryTab: React.FC = () => {
                                     });
                                     setShowEditModal(true);
                                 }}
-                                className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black text-white uppercase tracking-widest border border-white/5 transition-all"
+                                className="flex items-center gap-2 px-6 py-3 bg-surface hover:bg-slate-50 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 transition-all"
                             >
                                 <Edit3 size={14} /> Edit Identity
                             </button>
@@ -307,15 +307,15 @@ const CatalogRegistryTab: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2 bg-slate-900/50 border border-white/5 rounded-[2.5rem] overflow-hidden">
-                            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                        <div className="lg:col-span-2 bg-surface border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600">
                                         <Package size={20} />
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-black text-white uppercase tracking-widest italic">Plan Variants (SKUs)</h3>
-                                        <p className="text-slate-600 text-[9px] font-black uppercase tracking-widest mt-0.5 italic">Specific product definitions under this identity</p>
+                                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Plan Variants (SKUs)</h3>
+                                        <p className="text-slate-600 text-[9px] font-black uppercase tracking-widest mt-0.5">Specific product definitions under this identity</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -325,7 +325,7 @@ const CatalogRegistryTab: React.FC = () => {
                                             placeholder="Search variants..."
                                             value={variantSearchTerm}
                                             onChange={(e) => setVariantSearchTerm(e.target.value)}
-                                            className="bg-slate-950/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-[10px] text-white focus:outline-none focus:border-indigo-500/50 transition-all w-56 font-bold"
+                                            className="bg-surface border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-[10px] text-slate-900 focus:outline-none focus:border-indigo-500/50 transition-all w-56 font-bold"
                                         />
                                         <Search size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
                                     </div>
@@ -341,23 +341,23 @@ const CatalogRegistryTab: React.FC = () => {
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-white/5 bg-slate-950/30">
-                                            <th className="text-left py-6 px-8 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Variant Name</th>
-                                            <th className="text-left py-6 px-8 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">SKU Code</th>
-                                            <th className="text-left py-6 px-8 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Routes</th>
-                                            <th className="text-left py-6 px-8 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Status</th>
-                                            <th className="text-right py-6 px-8 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Action</th>
+                                        <tr className="bg-slate-50/80 border-b border-slate-100">
+                                            <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Variant Name</th>
+                                            <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">SKU Code</th>
+                                            <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Routes</th>
+                                            <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Status</th>
+                                            <th className="text-right px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/5">
+                                    <tbody className="divide-y divide-slate-100">
                                         {plansLoading ? (
-                                            Array(3).fill(0).map((_, i) => <tr key={i}><td colSpan={5} className="py-12 text-center text-slate-700 animate-pulse font-black uppercase tracking-widest text-[10px]">Updating Registry...</td></tr>)
+                                            Array(3).fill(0).map((_, i) => <tr key={i}><td colSpan={5} className="px-4 py-10 text-center text-slate-400 animate-pulse font-black uppercase tracking-widest text-[10px]">Updating Registry...</td></tr>)
                                         ) : plans.filter(p => 
                                             p.name.toLowerCase().includes(variantSearchTerm.toLowerCase()) ||
                                             p.code.toLowerCase().includes(variantSearchTerm.toLowerCase())
                                         ).length === 0 ? (
                                             <tr>
-                                                <td colSpan={5} className="py-24 text-center">
+                                                <td colSpan={5} className="px-4 py-16 text-center">
                                                     <Archive size={40} className="text-slate-800 mx-auto mb-4" />
                                                     <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">No variants found matching your search</p>
                                                 </td>
@@ -366,18 +366,18 @@ const CatalogRegistryTab: React.FC = () => {
                                             p.name.toLowerCase().includes(variantSearchTerm.toLowerCase()) ||
                                             p.code.toLowerCase().includes(variantSearchTerm.toLowerCase())
                                         ).map((plan) => (
-                                            <tr key={plan._id} className="group hover:bg-white/[0.02] transition-colors">
-                                                <td className="py-6 px-8">
-                                                    <p className="text-sm font-black text-white tracking-tight italic">{plan.name}</p>
+                                            <tr key={plan._id} className="group hover:bg-slate-50/60 transition-colors">
+                                                <td className="px-4 py-3">
+                                                    <p className="text-sm font-black text-slate-900 tracking-tight">{plan.name}</p>
                                                 </td>
-                                                <td className="py-6 px-8">
+                                                <td className="px-4 py-3">
                                                     <code className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-tighter">{plan.code}</code>
                                                 </td>
-                                                <td className="py-6 px-8 text-[10px] font-black text-indigo-400 italic">2 Paths</td>
-                                                <td className="py-6 px-8">
-                                                    <div className={`w-2 h-2 rounded-full ${plan.status ? 'bg-emerald-500' : 'bg-slate-700'}`}></div>
+                                                <td className="px-4 py-3 text-[10px] font-black text-indigo-600">2 Paths</td>
+                                                <td className="px-4 py-3">
+                                                    <div className={`w-2 h-2 rounded-full ${plan.status ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
                                                 </td>
-                                                <td className="py-6 px-8 text-right">
+                                                <td className="px-4 py-3 text-right">
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button 
                                                             onClick={() => {
@@ -390,7 +390,7 @@ const CatalogRegistryTab: React.FC = () => {
                                                                 });
                                                                 setShowVariantModal(true);
                                                             }}
-                                                            className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white transition-all hover:bg-indigo-500/20"
+                                                            className="p-2.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-all hover:bg-indigo-500/20"
                                                         >
                                                             <Edit3 size={14} />
                                                         </button>
@@ -402,7 +402,7 @@ const CatalogRegistryTab: React.FC = () => {
                                                                     toast.success("Variant deleted");
                                                                 }
                                                             }}
-                                                            className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-rose-500 transition-all hover:bg-rose-500/10"
+                                                            className="p-2.5 rounded-xl bg-slate-100 text-slate-500 hover:text-rose-500 transition-all hover:bg-rose-500/10"
                                                         >
                                                             <Trash2 size={14} />
                                                         </button>
@@ -415,32 +415,32 @@ const CatalogRegistryTab: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-6">
-                            <div className="bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-8">
+                        <div className="space-y-5">
+                            <div className="bg-surface border border-slate-200 rounded-2xl p-6 shadow-sm">
                                 <div className="flex items-center gap-3 mb-6">
                                     <TrendingUp className="text-emerald-500" size={18} />
-                                    <h3 className="text-[10px] font-black text-white uppercase tracking-widest italic">Pricing Logic Insight</h3>
+                                    <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Pricing Logic Insight</h3>
                                 </div>
-                                <div className="space-y-6">
+                                <div className="space-y-5">
                                     <div className="flex justify-between items-center text-[11px] font-bold">
                                         <span className="text-slate-500 uppercase tracking-widest">Base Provider Cost</span>
-                                        <span className="text-indigo-400">Managed in Fulfillment</span>
+                                        <span className="text-indigo-600">Managed in Fulfillment</span>
                                     </div>
                                     <div className="flex justify-between items-center text-[11px] font-bold">
                                         <span className="text-slate-500 uppercase tracking-widest">Markup Rule</span>
-                                        <span className="text-emerald-400">Managed in Pricing</span>
+                                        <span className="text-emerald-600">Managed in Pricing</span>
                                     </div>
-                                    <div className="h-px bg-white/5"></div>
+                                    <div className="h-px bg-slate-100"></div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Global Result</span>
-                                        <span className="text-lg font-black text-white tracking-tighter italic">Dynamic Selling Price</span>
+                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Global Result</span>
+                                        <span className="text-lg font-black text-slate-900 tracking-tighter">Dynamic Selling Price</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-indigo-500/5 border border-indigo-500/10 p-8 rounded-[2.5rem]">
-                                <p className="text-[10px] text-slate-500 font-medium leading-relaxed uppercase tracking-tighter italic">
-                                    <span className="text-indigo-400 font-black">Architecture Note:</span> This sub-view defines the identity of plans. Physical vendor logic and pricing strategy ownership remain decoupled for operational safety.
+                            <div className="bg-indigo-500/5 border border-indigo-500/10 p-6 rounded-2xl">
+                                <p className="text-[10px] text-slate-500 font-medium leading-relaxed uppercase tracking-tighter">
+                                    <span className="text-indigo-600 font-black">Architecture Note:</span> This sub-view defines the identity of plans. Physical vendor logic and pricing strategy ownership remain decoupled for operational safety.
                                 </p>
                             </div>
                         </div>
@@ -448,49 +448,49 @@ const CatalogRegistryTab: React.FC = () => {
                 </div>
             ) : (
                 /* Registry List View */
-                <div className="space-y-10 animate-in fade-in duration-500">
+                <div className="space-y-8 animate-in fade-in duration-500">
                     {/* Legend & Stats */}
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                        <div className="xl:col-span-2 bg-indigo-500/5 border border-indigo-500/10 p-10 rounded-[3rem] flex items-start gap-8 relative overflow-hidden group">
-                            <div className="w-16 h-16 rounded-[2rem] bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0 group-hover:scale-110 transition-transform">
+                        <div className="xl:col-span-2 bg-indigo-500/5 border border-indigo-500/10 p-6 rounded-2xl flex items-start gap-8 relative overflow-hidden group">
+                            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 shrink-0 group-hover:scale-110 transition-transform">
                                 <Layers size={32} />
                             </div>
                             <div className="relative z-10">
-                                <h3 className="text-xl font-black text-white uppercase tracking-tighter italic mb-2">Service Registry Hub</h3>
+                                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter mb-2">Service Registry Hub</h3>
                                 <p className="text-slate-500 text-xs font-medium leading-relaxed uppercase tracking-tighter max-w-xl">
-                                    This is the <span className="text-indigo-400 font-black italic underline decoration-indigo-400/30">Manual Business Definition Layer</span>. Define high-level services like <span className="text-white font-black italic">"MTN Data"</span> or <span className="text-white font-black italic">"DStv"</span>.
+                                    This is the <span className="text-indigo-600 font-black underline decoration-indigo-400/30">Manual Business Definition Layer</span>. Define high-level services like <span className="text-slate-900 font-black">"MTN Data"</span> or <span className="text-slate-900 font-black">"DStv"</span>.
                                     Plan variants and fulfillment routes are managed in nested views.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="bg-slate-900/50 border border-white/5 p-10 rounded-[3rem] flex flex-col justify-between">
+                        <div className="bg-surface border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                             <div className="flex items-center justify-between mb-4">
                                 <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Active Registry</span>
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"></div>
                             </div>
                             <div>
-                                <p className="text-4xl font-black text-white tracking-tighter italic leading-none">{identities.length}</p>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2 italic">Defined Service Families</p>
+                                <p className="text-2xl font-black text-slate-900 tracking-tighter leading-none">{identities.length}</p>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2">Defined Service Families</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                        <div className="flex items-center gap-4 bg-slate-900/30 p-2 rounded-3xl border border-white/5">
+                        <div className="flex items-center gap-4 bg-surface p-2 rounded-3xl border border-slate-200">
                             <div className="relative">
                                 <input 
                                     type="text" 
                                     placeholder="Search Registry..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="bg-transparent border-none pl-12 pr-6 py-3 text-xs text-white focus:outline-none w-64 font-bold"
+                                    className="bg-transparent border-none pl-12 pr-6 py-3 text-xs text-slate-900 focus:outline-none w-64 font-bold"
                                 />
                                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
                             </div>
                             <button 
                                 onClick={loadIdentities}
-                                className="p-3 bg-white/5 rounded-2xl text-slate-500 hover:text-white transition-all border border-white/5 hover:bg-indigo-500/10"
+                                className="p-3 bg-slate-100 rounded-2xl text-slate-500 hover:text-slate-900 transition-all border border-slate-100 hover:bg-indigo-500/10"
                             >
                                 <RefreshCcw size={18} />
                             </button>
@@ -499,13 +499,13 @@ const CatalogRegistryTab: React.FC = () => {
                         <div className="flex items-center gap-4">
                             <button 
                                 onClick={handlePurgeData}
-                                className="flex items-center gap-2 px-6 py-4 bg-rose-500/10 text-rose-500 rounded-3xl text-[10px] font-black uppercase tracking-widest border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-xl shadow-rose-500/0 hover:shadow-rose-500/20"
+                                className="flex items-center gap-2 px-5 py-3 bg-rose-500/10 text-rose-500 rounded-3xl text-[10px] font-black uppercase tracking-widest border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-xl shadow-rose-500/0 hover:shadow-rose-500/20"
                             >
                                 <Trash2 size={16} /> Purge Noisy Data
                             </button>
                             <button 
                                 onClick={() => setShowCreateModal(true)}
-                                className="flex items-center gap-3 px-8 py-4 bg-white text-slate-950 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.1em] shadow-2xl hover:scale-105 transition-transform active:scale-95"
+                                className="flex items-center gap-3 px-5 py-3 bg-surface text-slate-950 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.1em] shadow-2xl hover:scale-105 transition-transform active:scale-95"
                             >
                                 <PlusCircle size={18} /> Register New Service
                             </button>
@@ -513,74 +513,74 @@ const CatalogRegistryTab: React.FC = () => {
                     </div>
 
                     {/* Registry Table */}
-                    <div className="bg-slate-900/50 border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl">
+                    <div className="bg-surface border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            <table className="w-full text-left border-collapse min-w-[700px]">
                                 <thead>
-                                    <tr className="border-b border-white/5 bg-slate-950/50">
-                                        <th className="text-left py-8 px-10 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">Business Family</th>
-                                        <th className="text-left py-8 px-10 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">Brand</th>
-                                        <th className="text-left py-8 px-10 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">Protocol Type</th>
-                                        <th className="text-left py-8 px-10 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">Readiness</th>
-                                        <th className="text-left py-8 px-10 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">Status</th>
-                                        <th className="text-right py-8 px-10 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">Operations</th>
+                                    <tr className="bg-slate-50/80 border-b border-slate-100">
+                                        <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Business Family</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Brand</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Protocol Type</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Readiness</th>
+                                        <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Status</th>
+                                        <th className="text-right px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Operations</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5">
+                                <tbody className="divide-y divide-slate-100">
                                     {paginatedIdentities.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="py-32 text-center">
+                                            <td colSpan={6} className="px-4 py-16 text-center">
                                                 <Package size={48} className="text-slate-800 mx-auto mb-6" />
                                                 <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em]">No matching entries found</p>
                                             </td>
                                         </tr>
                                     ) : paginatedIdentities.map((identity) => (
-                                        <tr key={identity._id} className="group hover:bg-white/[0.02] transition-colors">
-                                            <td className="py-8 px-10">
+                                        <tr key={identity._id} className="group hover:bg-slate-50/60 transition-colors">
+                                            <td className="px-4 py-3">
                                                 <div className="flex items-center gap-5">
-                                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
                                                         <Network size={20} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-black text-white tracking-tight italic leading-tight">{identity.name}</p>
-                                                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-1 italic leading-none">{identity.internalCode}</p>
+                                                        <p className="text-sm font-black text-slate-900 tracking-tight leading-tight">{identity.name}</p>
+                                                        <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mt-1 leading-none">{identity.internalCode}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-8 px-10">
-                                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{identity.brandId?.name || 'GENERIC'}</p>
+                                            <td className="px-4 py-3">
+                                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{identity.brandId?.name || 'GENERIC'}</p>
                                             </td>
-                                            <td className="py-8 px-10">
-                                                <div className="px-3 py-1 rounded-lg bg-slate-950 border border-white/5 text-[9px] font-black text-slate-500 uppercase tracking-widest inline-block italic">
+                                            <td className="px-4 py-3">
+                                                <div className="px-3 py-1 rounded-lg bg-surface border border-slate-200 text-[9px] font-black text-slate-500 uppercase tracking-widest inline-block">
                                                     {identity.typeId?.name || 'UNDEFINED'}
                                                 </div>
                                             </td>
-                                            <td className="py-8 px-10">
+                                            <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
                                                     {[
                                                         { key: 'Variants', val: identity.readiness.hasVariants, tip: "Add at least one product variant (SKU)" },
                                                         { key: 'Fulfillment', val: identity.readiness.hasFulfillment, tip: "Map variants to vendor SKU codes" },
                                                         { key: 'Pricing', val: identity.readiness.hasPricing, tip: "Configure a pricing rule for this service" }
                                                     ].map(step => (
-                                                        <div key={step.key} title={!step.val ? step.tip : ""} className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-tighter italic ${step.val ? 'text-emerald-500' : 'text-rose-500/50'}`}>
+                                                        <div key={step.key} title={!step.val ? step.tip : ""} className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-tighter ${step.val ? 'text-emerald-500' : 'text-rose-500/50'}`}>
                                                             {step.val ? <CheckCircle2 size={10} /> : <Activity size={10} />}
                                                             {step.key}
                                                         </div>
                                                     ))}
-                                                    <div className="h-4 w-px bg-white/10 mx-1"></div>
-                                                    <div className={`px-2 py-0.5 rounded flex items-center gap-1 text-[8px] font-black uppercase italic ${identity.readiness.isVisible ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-800 text-slate-600'}`}>
+                                                    <div className="h-4 w-px bg-slate-200 mx-1"></div>
+                                                    <div className={`px-2 py-0.5 rounded flex items-center gap-1 text-[8px] font-black uppercase ${identity.readiness.isVisible ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-100 text-slate-500'}`}>
                                                         {identity.readiness.isVisible ? <ShieldCheck size={10} /> : <XCircle size={10} />}
                                                         {identity.readiness.isVisible ? 'Live' : 'Hidden'}
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-8 px-10">
+                                            <td className="px-4 py-3">
                                                 <span className={`flex items-center gap-2 text-[9px] font-black uppercase tracking-widest ${identity.status ? 'text-emerald-500' : 'text-slate-600'}`}>
                                                     {identity.status ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                                                     {identity.status ? 'Active' : 'Disabled'}
                                                 </span>
                                             </td>
-                                            <td className="py-8 px-10 text-right">
+                                            <td className="px-4 py-3 text-right">
                                                 <div className="flex items-center justify-end gap-3 transition-opacity">
                                                     {identity.plansCount === 0 ? (
                                                         <button 
@@ -589,7 +589,7 @@ const CatalogRegistryTab: React.FC = () => {
                                                                 loadPlans(identity._id);
                                                                 setShowVariantModal(true);
                                                             }}
-                                                            className="px-4 py-2 bg-emerald-500 text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-emerald-500/20"
+                                                            className="px-4 py-2 bg-emerald-500 text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-emerald-500/20"
                                                         >
                                                             <Plus size={12} /> Add Variant
                                                         </button>
@@ -599,7 +599,7 @@ const CatalogRegistryTab: React.FC = () => {
                                                                 setSelectedIdentity(identity);
                                                                 loadPlans(identity._id);
                                                             }}
-                                                            className="px-4 py-2 bg-indigo-500 text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-widest italic flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20"
+                                                            className="px-4 py-2 bg-indigo-500 text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20"
                                                         >
                                                             <LayoutGrid size={12} /> Manage Variants
                                                         </button>
@@ -612,13 +612,13 @@ const CatalogRegistryTab: React.FC = () => {
                                                             });
                                                             setShowEditModal(true);
                                                         }}
-                                                        className="p-2.5 rounded-xl bg-white/5 text-slate-600 hover:text-white border border-white/5 transition-colors"
+                                                        className="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-100 transition-colors"
                                                     >
                                                         <Edit3 size={16} />
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDeleteIdentity(identity._id, identity.name)}
-                                                        className="p-2.5 rounded-xl bg-white/5 text-slate-600 hover:text-rose-500 border border-white/5 transition-all hover:bg-rose-500/10"
+                                                        className="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-rose-500 border border-slate-100 transition-all hover:bg-rose-500/10"
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
@@ -632,34 +632,34 @@ const CatalogRegistryTab: React.FC = () => {
                     </div>
 
                     {/* Pagination Controls */}
-                    <div className="flex items-center justify-between bg-slate-900/50 border border-white/5 p-6 rounded-[2rem]">
+                    <div className="flex items-center justify-between bg-surface border border-slate-200 p-5 rounded-2xl shadow-sm">
                         <div className="flex items-center gap-6">
                             <div className="flex items-center gap-2">
-                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Show</span>
+                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Show</span>
                                 <select 
                                     value={itemsPerPage}
                                     onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                                    className="bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-[10px] font-black text-white focus:outline-none focus:border-indigo-500"
+                                    className="bg-surface border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black text-slate-900 focus:outline-none focus:border-indigo-500"
                                 >
                                     <option value={10}>10</option>
                                     <option value={25}>25</option>
                                     <option value={50}>50</option>
                                     <option value={100}>100</option>
                                 </select>
-                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Entries</span>
+                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Entries</span>
                             </div>
-                            <div className="h-4 w-px bg-white/5"></div>
-                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">
-                                Page <span className="text-white">{currentPage}</span> of <span className="text-white">{totalPages}</span>
+                            <div className="h-4 w-px bg-slate-200"></div>
+                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                Page <span className="text-slate-900">{currentPage}</span> of <span className="text-slate-900">{totalPages}</span>
                                 <span className="mx-4 text-slate-800">•</span>
-                                Showing <span className="text-indigo-400">{paginatedIdentities.length}</span> of <span className="text-white">{filteredIdentities.length}</span> Results
+                                Showing <span className="text-indigo-600">{paginatedIdentities.length}</span> of <span className="text-slate-900">{filteredIdentities.length}</span> Results
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <button 
                                 disabled={currentPage === 1}
                                 onClick={() => setCurrentPage(prev => prev - 1)}
-                                className="px-6 py-3 bg-white/5 border border-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                                className="px-6 py-3 bg-surface border border-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 disabled:opacity-30 transition-all"
                             >
                                 Previous
                             </button>
@@ -668,7 +668,7 @@ const CatalogRegistryTab: React.FC = () => {
                                     <button
                                         key={i + 1}
                                         onClick={() => setCurrentPage(i + 1)}
-                                        className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all ${currentPage === i + 1 ? 'bg-indigo-500 text-slate-950 shadow-lg shadow-indigo-500/20' : 'bg-white/5 text-slate-500 hover:text-white'}`}
+                                        className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all ${currentPage === i + 1 ? 'bg-indigo-500 text-slate-950 shadow-lg shadow-indigo-500/20' : 'bg-slate-100 text-slate-500 hover:text-slate-900'}`}
                                     >
                                         {i + 1}
                                     </button>
@@ -677,7 +677,7 @@ const CatalogRegistryTab: React.FC = () => {
                             <button 
                                 disabled={currentPage === totalPages}
                                 onClick={() => setCurrentPage(prev => prev + 1)}
-                                className="px-6 py-3 bg-white/5 border border-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-white disabled:opacity-30 transition-all"
+                                className="px-6 py-3 bg-surface border border-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 disabled:opacity-30 transition-all"
                             >
                                 Next
                             </button>
@@ -689,94 +689,94 @@ const CatalogRegistryTab: React.FC = () => {
             {/* Manual Registration Modal */}
             {showCreateModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-950/80 animate-in fade-in duration-300">
-                    <div className="w-full max-w-2xl max-h-[90vh] bg-slate-900 border border-white/10 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
-                        <div className="p-10 border-b border-white/5 bg-white/[0.01] flex justify-between items-center">
+                    <div className="w-full max-w-2xl max-h-[90vh] bg-surface border border-slate-200 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
+                        <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                             <div>
-                                <h3 className="text-2xl font-black text-white tracking-tighter italic">Register New Service Identity</h3>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Register New Service Identity</h3>
                                 <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">Define the business-level service family</p>
                             </div>
-                            <button onClick={() => setShowCreateModal(false)} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
+                            <button onClick={() => setShowCreateModal(false)} className="text-slate-500 hover:text-slate-900"><XCircle size={24} /></button>
                         </div>
                         
                         <form onSubmit={handleCreateIdentity} className="p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Service Family Name</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Service Family Name</label>
                                     <input 
                                         required
                                         type="text" 
                                         placeholder="e.g., MTN Mobile Data"
                                         value={formData.name}
                                         onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Internal Business Code</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Internal Business Code</label>
                                     <input 
                                         required
                                         type="text" 
                                         placeholder="e.g., MTN_DATA_FAMILY"
                                         value={formData.internalCode}
                                         onChange={(e) => setFormData({...formData, internalCode: e.target.value.toUpperCase()})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold uppercase"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold uppercase"
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Provider Service ID (e.g. mtn-data)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Provider Service ID (e.g. mtn-data)</label>
                                     <input 
                                         type="text" 
                                         placeholder="e.g., mtn-data"
                                         value={formData.providerCode}
                                         onChange={(e) => setFormData({...formData, providerCode: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Suggested Retail Price (Market Price Reference)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Suggested Retail Price (Market Price Reference)</label>
                                     <input 
                                         type="number" 
                                         placeholder="e.g., 1000"
                                         value={formData.suggestedRetailPrice}
                                         onChange={(e) => setFormData({...formData, suggestedRetailPrice: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-3 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Category</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Category</label>
                                     <select 
                                         required
                                         value={formData.categoryId}
                                         onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
                                     >
                                         <option value="">Select...</option>
                                         {metadata.categories.map((c: any) => <option key={c._id} value={c._id}>{c.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Service Type</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Service Type</label>
                                     <select 
                                         required
                                         value={formData.typeId}
                                         onChange={(e) => setFormData({...formData, typeId: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
                                     >
                                         <option value="">Select...</option>
                                         {metadata.types.map((t: any) => <option key={t._id} value={t._id}>{t.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Brand Provider</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Brand Provider</label>
                                     <select 
                                         required
                                         disabled={!formData.typeId}
                                         value={formData.brandId}
                                         onChange={(e) => setFormData({...formData, brandId: e.target.value})}
-                                        className={`w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold appearance-none transition-opacity ${!formData.typeId ? 'opacity-40 cursor-not-allowed' : 'opacity-100'}`}
+                                        className={`w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none transition-opacity ${!formData.typeId ? 'opacity-40 cursor-not-allowed' : 'opacity-100'}`}
                                     >
                                         <option value="">{formData.typeId ? (metadata.brands.length > 0 ? "Select Brand..." : "No brands found for this type") : "Select service type first"}</option>
                                         {metadata.brands.map((b: any) => <option key={b._id} value={b._id}>{b.name}</option>)}
@@ -787,7 +787,7 @@ const CatalogRegistryTab: React.FC = () => {
                             <button 
                                 type="submit"
                                 disabled={isProcessing}
-                                className="w-full py-5 bg-white text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
+                                className="w-full py-3 bg-surface text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
                             >
                                 {isProcessing ? "Finalizing Entry..." : "Confirm & Register Identity"}
                             </button>
@@ -799,47 +799,47 @@ const CatalogRegistryTab: React.FC = () => {
             {/* Add Variant Modal */}
             {showVariantModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-950/80 animate-in fade-in duration-300">
-                    <div className="w-full max-w-xl bg-slate-900 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="p-10 border-b border-white/5 bg-white/[0.01] flex justify-between items-center">
+                    <div className="w-full max-w-xl bg-surface border border-slate-200 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                             <div>
-                                <h3 className="text-2xl font-black text-white tracking-tighter italic">{editingVariant ? 'Edit Variant' : 'Add Product Variant'}</h3>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">{editingVariant ? 'Edit Variant' : 'Add Product Variant'}</h3>
                                 <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">{editingVariant ? 'Update' : 'Define'} a specific plan under {selectedIdentity?.name}</p>
                             </div>
-                            <button onClick={() => { setShowVariantModal(false); setEditingVariant(null); }} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
+                            <button onClick={() => { setShowVariantModal(false); setEditingVariant(null); }} className="text-slate-500 hover:text-slate-900"><XCircle size={24} /></button>
                         </div>
                         
                         <form onSubmit={handleSaveVariant} className="p-10 space-y-8">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Variant Display Name</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Variant Display Name</label>
                                     <input 
                                         required
                                         type="text" 
                                         placeholder="e.g., 1GB SME (30 Days)"
                                         value={variantFormData.name}
                                         onChange={(e) => setVariantFormData({...variantFormData, name: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Internal SKU Code (Universal)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Internal SKU Code (Universal)</label>
                                     <input 
                                         required
                                         type="text" 
                                         placeholder="e.g., MTN_1GB_SME"
                                         value={variantFormData.code}
                                         onChange={(e) => setVariantFormData({...variantFormData, code: e.target.value.toUpperCase()})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold uppercase"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold uppercase"
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Suggested Retail Price (Market Price Reference)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Suggested Retail Price (Market Price Reference)</label>
                                     <input 
                                         type="number" 
                                         placeholder="e.g., 500"
                                         value={variantFormData.suggestedRetailPrice}
                                         onChange={(e) => setVariantFormData({...variantFormData, suggestedRetailPrice: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                             </div>
@@ -848,17 +848,17 @@ const CatalogRegistryTab: React.FC = () => {
                                 <button 
                                     type="button"
                                     onClick={() => setVariantFormData({...variantFormData, status: !variantFormData.status})}
-                                    className={`w-12 h-6 rounded-full relative transition-all ${variantFormData.status ? 'bg-emerald-500' : 'bg-slate-800'}`}
+                                    className={`w-12 h-6 rounded-full relative transition-all ${variantFormData.status ? 'bg-emerald-500' : 'bg-slate-200'}`}
                                 >
-                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${variantFormData.status ? 'left-7' : 'left-1'}`}></div>
+                                    <div className={`dark:border dark:border-slate-500/25 absolute top-1 w-4 h-4 rounded-full bg-surface transition-all ${variantFormData.status ? 'left-7' : 'left-1'}`}></div>
                                 </button>
-                                <span className="text-[10px] font-black text-white uppercase tracking-widest italic">{variantFormData.status ? 'Active' : 'Disabled'}</span>
+                                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{variantFormData.status ? 'Active' : 'Disabled'}</span>
                             </div>
 
                             <button 
                                 type="submit"
                                 disabled={isProcessing}
-                                className="w-full py-5 bg-indigo-500 text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
+                                className="w-full py-3 bg-indigo-500 text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
                             >
                                 {isProcessing ? (editingVariant ? "Updating..." : "Adding to Registry...") : (editingVariant ? "Save Changes" : "Save Variant")}
                             </button>
@@ -870,55 +870,55 @@ const CatalogRegistryTab: React.FC = () => {
             {/* Edit Identity Modal */}
             {showEditModal && editData && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-950/80 animate-in fade-in duration-300">
-                    <div className="w-full max-w-2xl max-h-[90vh] bg-slate-900 border border-white/10 rounded-[3rem] shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
-                        <div className="p-10 border-b border-white/5 bg-white/[0.01] flex justify-between items-center">
+                    <div className="w-full max-w-2xl max-h-[90vh] bg-surface border border-slate-200 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
+                        <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                             <div>
-                                <h3 className="text-2xl font-black text-white tracking-tighter italic">Edit Service Identity</h3>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Edit Service Identity</h3>
                                 <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">Modify business-level definitions</p>
                             </div>
-                            <button onClick={() => setShowEditModal(false)} className="text-slate-500 hover:text-white"><XCircle size={24} /></button>
+                            <button onClick={() => setShowEditModal(false)} className="text-slate-500 hover:text-slate-900"><XCircle size={24} /></button>
                         </div>
                         
                         <form onSubmit={handleUpdateIdentity} className="p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Service Family Name</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Service Family Name</label>
                                     <input 
                                         required
                                         type="text" 
                                         value={editData.name}
                                         onChange={(e) => setEditData({...editData, name: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Internal Business Code</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Internal Business Code</label>
                                     <input 
                                         required
                                         type="text" 
                                         value={editData.internalCode}
                                         onChange={(e) => setEditData({...editData, internalCode: e.target.value.toUpperCase()})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold uppercase"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold uppercase"
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Provider Service ID (e.g. mtn-data)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Provider Service ID (e.g. mtn-data)</label>
                                     <input 
                                         type="text" 
                                         value={editData.providerCode || ''}
                                         placeholder="e.g., mtn-data"
                                         onChange={(e) => setEditData({...editData, providerCode: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 italic">Suggested Retail Price (Market Price Reference)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Suggested Retail Price (Market Price Reference)</label>
                                     <input 
                                         type="number" 
                                         placeholder="e.g., 1000"
                                         value={editData.suggestedRetailPrice || ''}
                                         onChange={(e) => setEditData({...editData, suggestedRetailPrice: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 font-bold"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                             </div>
@@ -926,7 +926,7 @@ const CatalogRegistryTab: React.FC = () => {
                             <button 
                                 type="submit"
                                 disabled={isProcessing}
-                                className="w-full py-5 bg-indigo-500 text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
+                                className="w-full py-3 bg-indigo-500 text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
                             >
                                 {isProcessing ? "Saving Changes..." : "Update Identity"}
                             </button>

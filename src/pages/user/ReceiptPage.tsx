@@ -64,13 +64,13 @@ const ReceiptPage: React.FC = () => {
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={printReceipt}
-                        className="p-3 bg-white border border-slate-100 rounded-xl text-slate-600 hover:text-slate-900 shadow-sm transition-all"
+                        className="p-3 bg-surface border border-slate-100 rounded-xl text-slate-600 hover:text-slate-900 shadow-sm transition-all"
                         title="Print / Save as PDF"
                     >
                         <Printer size={20} />
                     </button>
                     <button 
-                        className="p-3 bg-white border border-slate-100 rounded-xl text-slate-600 hover:text-slate-900 shadow-sm transition-all"
+                        className="p-3 bg-surface border border-slate-100 rounded-xl text-slate-600 hover:text-slate-900 shadow-sm transition-all"
                         title="Share Receipt"
                     >
                         <Share2 size={20} />
@@ -79,15 +79,15 @@ const ReceiptPage: React.FC = () => {
             </div>
 
             {/* Receipt Content */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-8 sm:p-12 shadow-2xl shadow-slate-200/50 relative overflow-hidden print:shadow-none print:border-none print:p-0">
+            <div className="bg-surface border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-card relative overflow-hidden print:shadow-none print:border-none print:p-0">
                 {/* Visual Branding Decor */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-slate-950"></div>
+                <div className="absolute top-0 left-0 w-full h-2 bg-brand-emerald"></div>
                 
                 {/* Content */}
-                <div className="space-y-10 text-center">
+                <div className="space-y-6 text-center">
                     <div className="space-y-4">
                         <div className="flex items-center justify-center gap-2">
-                             <div className="bg-slate-950 text-white p-2.5 rounded-xl">
+                             <div className="bg-brand-navy text-white p-2.5 rounded-xl">
                                 <ShieldCheck size={24} />
                              </div>
                              <span className="text-xl font-black text-slate-900 tracking-tighter uppercase">Zantara</span>
@@ -98,9 +98,9 @@ const ReceiptPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="py-8 border-y border-dashed border-slate-200 space-y-2">
+                    <div className="py-6 border-y border-dashed border-slate-200 space-y-2">
                          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Total Value</p>
-                         <h1 className="text-5xl font-black text-slate-900 tracking-tighter">
+                         <h1 className="text-3xl font-black text-slate-900 tracking-tighter">
                             {currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                          </h1>
                          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
@@ -145,7 +145,7 @@ const ReceiptPage: React.FC = () => {
                              </p>
                         </div>
                         
-                        <div className="text-[9px] text-slate-300 font-medium px-8 text-center leading-relaxed">
+                        <div className="text-[9px] text-slate-500 font-medium px-6 text-center leading-relaxed">
                             This is a computer-generated receipt for your transaction on Zantara. For inquiries, please contact support@zantara.com
                         </div>
                     </div>
@@ -163,7 +163,7 @@ const ReceiptPage: React.FC = () => {
             </div>
             
             <div className="mt-8 text-center print:hidden">
-                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">End of Record</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">End of Record</p>
             </div>
         </div>
     );

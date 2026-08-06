@@ -53,7 +53,7 @@ const TransactionDetailsPage: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => navigate('/app/transactions')}
-                    className="flex items-center gap-2 bg-slate-950 text-white px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mx-auto hover:bg-emerald-500 transition-all shadow-xl shadow-slate-200"
+                    className="flex items-center gap-2 bg-brand-emerald text-white px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest mx-auto hover:bg-brand-emerald-600 transition-all shadow-btn"
                 >
                     <ArrowLeft size={16} />
                     <span>Back to History</span>
@@ -76,7 +76,7 @@ const TransactionDetailsPage: React.FC = () => {
             <div className="flex items-center gap-4">
                 <button 
                     onClick={() => navigate('/app/transactions')}
-                    className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
+                    className="p-3 bg-surface border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
                 >
                     <ArrowLeft size={20} />
                 </button>
@@ -87,7 +87,7 @@ const TransactionDetailsPage: React.FC = () => {
             </div>
 
             {/* Status Card */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-8 shadow-2xl shadow-slate-200/50 relative overflow-hidden text-center space-y-6">
+            <div className="bg-surface border border-slate-100 rounded-3xl p-8 shadow-card relative overflow-hidden text-center space-y-6">
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 opacity-20"></div>
                 
                 <div className="space-y-2">
@@ -109,19 +109,19 @@ const TransactionDetailsPage: React.FC = () => {
                 <div className="pt-6 flex flex-wrap items-center justify-center gap-3">
                     <button 
                         onClick={() => navigate(`/app/transactions/${tx.id}/receipt`)}
-                        className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-emerald-400 hover:text-slate-950 transition-all shadow-lg"
+                        className="flex items-center gap-2 bg-brand-emerald text-white px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-brand-emerald-600 transition-all shadow-btn"
                     >
                         <Download size={14} />
                         <span>Get Receipt</span>
                     </button>
                     <button 
                         onClick={() => handleCopy(tx.refId || tx.id, 'Reference')}
-                        className="flex items-center gap-2 bg-white border border-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all"
+                        className="flex items-center gap-2 bg-surface border border-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all"
                     >
                         <Copy size={14} />
                         <span>Copy Ref</span>
                     </button>
-                    <button className="flex items-center gap-2 bg-white border border-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all">
+                    <button className="flex items-center gap-2 bg-surface border border-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all">
                         <Share2 size={14} />
                         <span>Share</span>
                     </button>
@@ -129,7 +129,7 @@ const TransactionDetailsPage: React.FC = () => {
             </div>
 
             {/* Metadata Table */}
-            <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
                 <div className="p-6 border-b border-slate-50 flex items-center gap-2">
                     <Info size={18} className="text-emerald-500" />
                     <h3 className="font-bold text-slate-900">Information Cluster</h3>
@@ -159,13 +159,13 @@ const TransactionDetailsPage: React.FC = () => {
 
             {/* Earnings Transparency Section */}
             {(tx.type === 'referral_bonus' || tx.type === 'agent_profit' || tx.type === 'referral_skipped' || tx.type === 'referral_redeem' || tx.status === 'skipped') && (
-                <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
                     <div className="p-6 border-b border-slate-50 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <ShieldCheck size={18} className="text-emerald-500" />
                             <h3 className="font-bold text-slate-900">Earnings Transparency</h3>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Reward Metadata</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Reward Metadata</span>
                     </div>
                     
                     <div className="p-6 space-y-4">
@@ -219,7 +219,7 @@ const TransactionDetailsPage: React.FC = () => {
 
             {/* Help/Support Section */}
             <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/50 flex items-start gap-4">
-                <div className="p-2 bg-white rounded-xl border border-blue-100 text-blue-500">
+                <div className="p-2 bg-surface rounded-xl border border-blue-100 text-blue-500">
                     <Info size={20} />
                 </div>
                 <div className="space-y-1">

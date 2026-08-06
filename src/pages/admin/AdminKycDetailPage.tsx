@@ -76,12 +76,12 @@ const AdminKycDetailPage: React.FC = () => {
     if (loading) return <div className="p-12"><CardSkeleton /></div>;
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto pb-20">
+        <div className="space-y-5 animate-in fade-in duration-500 max-w-6xl mx-auto pb-20">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <button
                     onClick={() => navigate('/admin/personnel/hub', { state: { activeTab: 'verification' } })}
-                    className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors group"
+                    className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group"
                 >
                     <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">Queue Node</span>
@@ -100,8 +100,8 @@ const AdminKycDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Side: Document View */}
-                <div className="lg:col-span-7 space-y-6">
-                    <div className="bg-slate-900 border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl group relative">
+                <div className="lg:col-span-7 space-y-4">
+                    <div className="bg-surface border border-slate-100 rounded-3xl overflow-hidden shadow-sm group relative">
                         {kyc.documentImage ? (
                             <>
                                 <div className="absolute top-6 right-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -109,7 +109,7 @@ const AdminKycDetailPage: React.FC = () => {
                                         href={kyc.documentImage} 
                                         target="_blank" 
                                         rel="noreferrer"
-                                        className="p-3 bg-white text-slate-950 rounded-2xl shadow-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform"
+                                        className="p-3 bg-surface text-slate-950 rounded-2xl shadow-sm flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform"
                                     >
                                         <ExternalLink size={14} />
                                         View Full Image
@@ -131,8 +131,8 @@ const AdminKycDetailPage: React.FC = () => {
                 </div>
 
                 {/* Right Side: Details & Actions */}
-                <div className="lg:col-span-5 space-y-6">
-                    <div className="bg-slate-900 border border-white/5 rounded-[3rem] p-10 space-y-8 shadow-2xl relative overflow-hidden">
+                <div className="lg:col-span-5 space-y-4">
+                    <div className="bg-surface border border-slate-100 rounded-3xl p-6 space-y-5 shadow-sm relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl -mr-16 -mt-16"></div>
                         
                         <div>
@@ -141,21 +141,21 @@ const AdminKycDetailPage: React.FC = () => {
                                     <Shield size={24} className="text-indigo-400" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-black text-white italic tracking-tight">Identity Profile</h2>
+                                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Identity Profile</h2>
                                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Verification Node Alpha</p>
                                 </div>
                             </div>
 
                             <div className="space-y-6">
-                                <div className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl space-y-4">
+                                <div className="p-6 bg-slate-100 border border-slate-100 rounded-3xl space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div className="space-y-1">
                                             <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">User Name</p>
-                                            <p className="text-base font-black text-white italic">{kyc.userId?.name}</p>
+                                            <p className="text-base font-black text-slate-900">{kyc.userId?.name}</p>
                                         </div>
                                         <button 
                                             onClick={() => navigate(`/admin/users/${kyc.userId?._id}`)}
-                                            className="text-indigo-400 hover:text-white transition-colors"
+                                            className="text-indigo-400 hover:text-slate-900 transition-colors"
                                         >
                                             <ExternalLink size={16} />
                                         </button>
@@ -163,28 +163,28 @@ const AdminKycDetailPage: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1">
                                             <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Document Type</p>
-                                            <p className="text-sm font-black text-white">{kyc.documentType}</p>
+                                            <p className="text-sm font-black text-slate-900">{kyc.documentType}</p>
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Tier Level</p>
-                                            <p className="text-sm font-black text-white">Level {kyc.tier}</p>
+                                            <p className="text-sm font-black text-slate-900">Level {kyc.tier}</p>
                                         </div>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Document Number</p>
-                                        <p className="text-sm font-mono text-slate-300 tracking-wider">{kyc.documentNumber}</p>
+                                        <p className="text-sm font-mono text-slate-500 tracking-wider">{kyc.documentNumber}</p>
                                     </div>
                                     {kyc.address && (
-                                        <div className="space-y-1 pt-2 border-t border-white/5">
+                                        <div className="space-y-1 pt-2 border-t border-slate-100">
                                             <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Residential Address</p>
-                                            <p className="text-sm text-slate-300 leading-relaxed font-medium italic">{kyc.address}</p>
+                                            <p className="text-sm text-slate-500 leading-relaxed font-medium">{kyc.address}</p>
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="flex items-center gap-4 text-slate-500">
                                     <Clock size={16} />
-                                    <p className="text-[10px] font-black uppercase tracking-widest italic">
+                                    <p className="text-[10px] font-black uppercase tracking-widest">
                                         Submitted: {new Date(kyc.createdAt).toLocaleString()}
                                     </p>
                                 </div>
@@ -192,11 +192,11 @@ const AdminKycDetailPage: React.FC = () => {
                         </div>
 
                         {kyc.status === 'pending' && (
-                            <div className="space-y-4 pt-6 border-t border-white/5">
+                            <div className="space-y-4 pt-6 border-t border-slate-100">
                                 <button 
                                     onClick={handleApprove}
                                     disabled={processing}
-                                    className="w-full py-5 bg-emerald-500 text-slate-950 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+                                    className="w-full py-3 bg-emerald-500 text-slate-950 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
                                 >
                                     {processing ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
                                     Approve Identity
@@ -204,7 +204,7 @@ const AdminKycDetailPage: React.FC = () => {
                                 <button 
                                     onClick={() => setShowRejectModal(true)}
                                     disabled={processing}
-                                    className="w-full py-5 bg-white/5 text-rose-500 border border-rose-500/20 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-rose-500/10 transition-all flex items-center justify-center gap-3"
+                                    className="w-full py-3 bg-slate-100 text-rose-500 border border-rose-500/20 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-rose-500/10 transition-all flex items-center justify-center gap-3"
                                 >
                                     <XCircle size={18} />
                                     Reject Request
@@ -225,9 +225,9 @@ const AdminKycDetailPage: React.FC = () => {
             {/* Rejection Modal */}
             {showRejectModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-slate-900 border border-white/10 rounded-[3rem] w-full max-w-md p-10 space-y-8 shadow-2xl animate-in zoom-in-95 duration-300">
+                    <div className="bg-surface border border-slate-100 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-sm animate-in zoom-in-95 duration-300">
                         <div>
-                            <h3 className="text-xl font-black text-white italic tracking-tight">Rejection Protocol</h3>
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Rejection Protocol</h3>
                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Provide a reason for the user</p>
                         </div>
 
@@ -236,19 +236,19 @@ const AdminKycDetailPage: React.FC = () => {
                                 value={rejectionReason}
                                 onChange={(e) => setRejectionReason(e.target.value)}
                                 placeholder="Enter rejection reason..."
-                                className="w-full bg-slate-950 border border-white/5 rounded-3xl p-6 text-sm text-white focus:outline-none focus:border-rose-500/50 min-h-[150px] transition-all"
+                                className="w-full bg-surface border border-slate-100 rounded-3xl p-6 text-sm text-slate-900 focus:outline-none focus:border-rose-500/50 min-h-[150px] transition-all"
                             />
                             <div className="flex gap-4">
                                 <button 
                                     onClick={() => setShowRejectModal(false)}
-                                    className="flex-1 py-4 bg-white/5 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:bg-white/10"
+                                    className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-100 hover:bg-slate-50"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     onClick={handleReject}
                                     disabled={!rejectionReason || processing}
-                                    className="flex-1 py-4 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-rose-500/20 hover:bg-rose-400 disabled:opacity-50"
+                                    className="flex-1 py-3 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-rose-500/20 hover:bg-rose-400 disabled:opacity-50"
                                 >
                                     Confirm
                                 </button>

@@ -87,7 +87,7 @@ const UserTransactionsPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans">
+        <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4 sm:px-0">
                 <div>
@@ -97,14 +97,14 @@ const UserTransactionsPage: React.FC = () => {
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={() => { refetch(); toast.success('Ledger synchronized'); }}
-                        className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-emerald-500 transition-colors shadow-sm active:scale-95"
+                        className="p-3 bg-surface border border-slate-100 rounded-2xl text-slate-400 hover:text-emerald-500 transition-colors shadow-sm active:scale-95"
                         title="Sync Ledger"
                     >
                         <RefreshCw size={20} className={isLoading ? 'animate-spin' : ''} />
                     </button>
                     <button 
                         onClick={handleExport}
-                        className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-lg active:scale-95"
+                        className="flex items-center gap-2 bg-brand-emerald text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-brand-emerald-600 transition-all shadow-btn active:scale-95"
                     >
                         <Download size={16} />
                         <span>Export CSV</span>
@@ -113,7 +113,7 @@ const UserTransactionsPage: React.FC = () => {
             </div>
 
             {/* Filter Bar */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm space-y-4">
+            <div className="bg-surface border border-slate-100 rounded-3xl p-5 shadow-sm space-y-4">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -154,7 +154,7 @@ const UserTransactionsPage: React.FC = () => {
             </div>
 
             {/* Transactions Table */}
-            <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+            <div className="bg-surface border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -171,18 +171,18 @@ const UserTransactionsPage: React.FC = () => {
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td className="px-6 py-5"><div className="h-5 bg-slate-100 rounded w-32"></div></td>
-                                        <td className="px-6 py-5 hidden md:table-cell"><div className="h-4 bg-slate-50 rounded w-24"></div></td>
-                                        <td className="px-6 py-5 hidden sm:table-cell"><div className="h-4 bg-slate-50 rounded w-20"></div></td>
-                                        <td className="px-6 py-5"><div className="h-5 bg-slate-100 rounded w-16"></div></td>
-                                        <td className="px-6 py-5"><div className="h-6 bg-slate-50 rounded-lg w-20"></div></td>
-                                        <td className="px-6 py-5 text-right"><div className="h-8 w-8 bg-slate-100 rounded-full ml-auto"></div></td>
+                                        <td className="px-6 py-3.5"><div className="h-5 bg-slate-100 rounded w-32"></div></td>
+                                        <td className="px-6 py-3.5 hidden md:table-cell"><div className="h-4 bg-slate-50 rounded w-24"></div></td>
+                                        <td className="px-6 py-3.5 hidden sm:table-cell"><div className="h-4 bg-slate-50 rounded w-20"></div></td>
+                                        <td className="px-6 py-3.5"><div className="h-5 bg-slate-100 rounded w-16"></div></td>
+                                        <td className="px-6 py-3.5"><div className="h-6 bg-slate-50 rounded-lg w-20"></div></td>
+                                        <td className="px-6 py-3.5 text-right"><div className="h-8 w-8 bg-slate-100 rounded-full ml-auto"></div></td>
                                     </tr>
                                 ))
                             ) : transactions.length > 0 ? (
                                 transactions.map((tx) => (
                                     <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-3.5">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-slate-100">
                                                     {getServiceIcon(tx.type)}
@@ -192,29 +192,29 @@ const UserTransactionsPage: React.FC = () => {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 hidden md:table-cell">
+                                        <td className="px-6 py-3.5 hidden md:table-cell">
                                             <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-100">{tx.refId || '-------'}</span>
                                         </td>
-                                        <td className="px-6 py-5 hidden sm:table-cell">
+                                        <td className="px-6 py-3.5 hidden sm:table-cell">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-bold text-slate-700">{format(new Date(tx.createdAt), 'MMM dd, yyyy')}</span>
                                                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{format(new Date(tx.createdAt), 'HH:mm')}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-3.5">
                                             <span className={`text-sm font-black tracking-tight ${tx.amount > 0 ? 'text-emerald-500' : 'text-slate-900'}`}>
                                                 {tx.amount > 0 ? '+' : ''}{currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-3.5">
                                             <span className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-md border ${getStatusStyles(tx.status)}`}>
                                                 {tx.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5 text-right">
+                                        <td className="px-6 py-3.5 text-right">
                                             <button 
                                                 onClick={() => navigate(`/app/transactions/${tx.id}`)}
-                                                className="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-slate-100 text-slate-300 hover:text-emerald-500 hover:border-emerald-200 transition-all shadow-sm group-hover:scale-110 active:scale-95"
+                                                className="w-8 h-8 rounded-full flex items-center justify-center bg-surface border border-slate-100 text-slate-300 hover:text-emerald-500 hover:border-emerald-200 transition-all shadow-sm group-hover:scale-110 active:scale-95"
                                             >
                                                 <ChevronRight size={16} />
                                             </button>
@@ -242,7 +242,7 @@ const UserTransactionsPage: React.FC = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="px-6 py-5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                    <div className="px-6 py-3.5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
                             Showing Page <span className="text-slate-900">{page}</span> of {totalPages}
                         </p>
@@ -250,7 +250,7 @@ const UserTransactionsPage: React.FC = () => {
                             <button 
                                 disabled={page === 1 || isLoading}
                                 onClick={() => setPage(p => p - 1)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 bg-surface border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
                             >
                                 <ChevronLeft size={14} />
                                 <span>Previous</span>
@@ -258,7 +258,7 @@ const UserTransactionsPage: React.FC = () => {
                             <button 
                                 disabled={page === totalPages || isLoading}
                                 onClick={() => setPage(p => p + 1)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 bg-surface border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
                             >
                                 <span>Next</span>
                                 <ChevronRight size={14} />

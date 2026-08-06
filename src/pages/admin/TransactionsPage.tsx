@@ -224,7 +224,7 @@ export default function TransactionsPage() {
                     </button>
                     <button 
                         onClick={resetFilters} 
-                        className="px-5 py-2 bg-white border border-slate-100 text-slate-900 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all active:scale-95"
+                        className="px-5 py-2 bg-surface border border-slate-100 text-slate-900 rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all active:scale-95"
                     >
                         Reset Filters
                     </button>
@@ -232,14 +232,14 @@ export default function TransactionsPage() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white border border-slate-50 rounded-2xl p-5 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="bg-surface border border-slate-50 rounded-2xl p-5 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Search</label>
                     <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="User / Ref..." className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all" />
                 </div>
                 <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Status</label>
-                    <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all appearance-none bg-white">
+                    <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all appearance-none bg-surface">
                         <option value="">All Statuses</option>
                         <option value="success">Success</option>
                         <option value="pending">Pending</option>
@@ -248,7 +248,7 @@ export default function TransactionsPage() {
                 </div>
                 <div className="space-y-2">
                     <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Service Type</label>
-                    <select value={service} onChange={(e) => setService(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all appearance-none bg-white">
+                    <select value={service} onChange={(e) => setService(e.target.value)} className="w-full px-4 py-3 rounded-xl border border-slate-100 focus:ring-4 focus:ring-emerald-500/10 outline-none font-bold text-sm transition-all appearance-none bg-surface">
                         <option value="">All Services</option>
                         <option value="funding">Wallet Funding</option>
                         <option value="airtime">Airtime</option>
@@ -276,7 +276,7 @@ export default function TransactionsPage() {
             </div>
 
             {/* Table */}
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-surface border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-sm">
                         <thead className="bg-slate-50 text-slate-400">
@@ -400,7 +400,7 @@ export default function TransactionsPage() {
                         <select 
                             value={limit} 
                             onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }} 
-                            className="px-3 py-1.5 rounded-xl border border-slate-200 text-[10px] font-bold uppercase tracking-wider bg-white outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all"
+                            className="px-3 py-1.5 rounded-xl border border-slate-200 text-[10px] font-bold uppercase tracking-wider bg-surface outline-none focus:ring-4 focus:ring-emerald-500/5 transition-all"
                         >
                             {[10, 20, 50, 100].map(n => <option key={n} value={n}>{n} Per Page</option>)}
                         </select>
@@ -409,7 +409,7 @@ export default function TransactionsPage() {
                             <button 
                                 onClick={() => setPage(p => Math.max(1, p - 1))} 
                                 disabled={page <= 1}
-                                className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 disabled:opacity-30 hover:bg-slate-50 transition-all"
+                                className="p-2 rounded-xl bg-surface border border-slate-200 text-slate-400 disabled:opacity-30 hover:bg-slate-50 transition-all"
                             >
                                 <ChevronLeft size={16} />
                             </button>
@@ -419,7 +419,7 @@ export default function TransactionsPage() {
                             <button 
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
                                 disabled={page >= totalPages}
-                                className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 disabled:opacity-30 hover:bg-slate-50 transition-all"
+                                className="p-2 rounded-xl bg-surface border border-slate-200 text-slate-400 disabled:opacity-30 hover:bg-slate-50 transition-all"
                             >
                                 <ChevronRight size={16} />
                             </button>

@@ -72,10 +72,10 @@ const InvestmentWithdrawPage: React.FC = () => {
     const netAmount = Number(amount) - fee;
 
     return (
-        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-in slide-in-from-bottom-8 duration-700">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-6 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
             {/* Header */}
             <div className="flex items-center gap-6">
-                <button onClick={() => navigate(-1)} className="p-4 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors shadow-sm">
+                <button onClick={() => navigate(-1)} className="p-4 bg-surface border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors shadow-sm">
                     <ArrowLeft size={20} className="text-slate-900" />
                 </button>
                 <div>
@@ -85,30 +85,30 @@ const InvestmentWithdrawPage: React.FC = () => {
             </div>
 
             {step === 1 && (
-                <div className="space-y-8">
+                <div className="space-y-6">
                     {/* Balance Preview */}
                     <div className="flex flex-col sm:flex-row items-center gap-6 justify-center">
-                        <div className="flex items-center gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/10">
+                        <div className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-2xl border border-slate-100">
                             <button 
                                 onClick={() => { setSource('dividend'); setAmount(''); }}
-                                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${source === 'dividend' ? 'bg-emerald-500 text-slate-950' : 'text-emerald-400/60 hover:text-emerald-400'}`}
+                                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${source === 'dividend' ? 'bg-brand-emerald text-white' : 'text-slate-400 hover:text-slate-900'}`}
                             >
                                 Dividends
                             </button>
                             <button 
                                 onClick={() => { setSource('referral'); setAmount(''); }}
-                                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${source === 'referral' ? 'bg-amber-500 text-slate-950' : 'text-amber-400/60 hover:text-amber-400'}`}
+                                className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${source === 'referral' ? 'bg-amber-500 text-white' : 'text-slate-400 hover:text-slate-900'}`}
                             >
                                 Referrals
                             </button>
                         </div>
-                        <div className="bg-white/5 rounded-2xl px-8 py-4 border border-white/5 text-center">
-                            <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${source === 'referral' ? 'text-amber-400' : 'text-emerald-400'}`}>Available {source}s</p>
-                            <h2 className="text-4xl font-black tracking-tighter">{currency} {balance.toLocaleString()}</h2>
+                        <div className="bg-surface rounded-2xl px-6 py-3 border border-slate-100 text-center shadow-sm">
+                            <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${source === 'referral' ? 'text-amber-500' : 'text-emerald-500'}`}>Available {source}s</p>
+                            <h2 className="text-4xl font-black tracking-tighter text-slate-900">{currency} {balance.toLocaleString()}</h2>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-6">
                             <div className="flex items-center justify-between px-1">
                                 <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-2">Withdrawal Amount ({currency})</label>
@@ -125,7 +125,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                                     placeholder="0.00"
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
-                                    className="w-full bg-white border-2 border-slate-100 rounded-2xl p-6 text-3xl font-black text-slate-900 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-100"
+                                    className="w-full bg-surface border-2 border-slate-100 rounded-2xl p-6 text-3xl font-black text-slate-900 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-100"
                                 />
                                 {Number(amount) > 0 && (
                                         <div className="absolute right-6 top-1/2 -translate-y-1/2 text-right">
@@ -168,7 +168,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                                         <button 
                                             key={acc._id}
                                             onClick={() => setSelectedBank(acc._id)}
-                                            className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all group group relative transition-all duration-300 ${selectedBank === acc._id ? 'border-emerald-500 bg-emerald-50/50 scale-[1.02] shadow-lg shadow-emerald-500/5' : 'border-slate-50 bg-white hover:border-slate-200'}`}
+                                            className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all group group relative transition-all duration-300 ${selectedBank === acc._id ? 'border-emerald-500 bg-emerald-50/50 scale-[1.02] shadow-lg shadow-emerald-500/5' : 'border-slate-50 bg-surface hover:border-slate-200'}`}
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${selectedBank === acc._id ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-400'}`}>
@@ -200,7 +200,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                     <button 
                         disabled={!amount || !selectedBank || Number(amount) <= 0 || Number(amount) > balance}
                         onClick={() => setIsPinModalOpen(true)}
-                        className={`w-full text-white py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-2xl disabled:opacity-20 disabled:pointer-events-none active:scale-[0.98] ${source === 'referral' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-200' : 'bg-slate-900 hover:bg-emerald-500 hover:text-slate-950 shadow-slate-200'}`}
+                        className={`w-full text-white py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-btn disabled:opacity-20 disabled:pointer-events-none active:scale-[0.98] ${source === 'referral' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-200' : 'bg-brand-emerald hover:bg-brand-emerald-600'}`}
                     >
                         {Number(amount) > balance ? `Insufficient ${source} Balance` : `Confirm ${source} Withdrawal`}
                     </button>
@@ -208,7 +208,7 @@ const InvestmentWithdrawPage: React.FC = () => {
             )}
 
             {step === 3 && (
-                <div className="max-w-md mx-auto bg-white border border-slate-100 rounded-[2.5rem] p-10 space-y-8 shadow-2xl text-center animate-in zoom-in duration-500">
+                <div className="max-w-md mx-auto bg-surface border border-slate-100 rounded-3xl p-6 space-y-6 shadow-2xl text-center animate-in zoom-in duration-500">
                     <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 mx-auto ring-8 ring-emerald-50/50">
                         <CheckCircle2 size={48} />
                     </div>
@@ -231,7 +231,7 @@ const InvestmentWithdrawPage: React.FC = () => {
 
                     <button 
                         onClick={() => navigate('/app/investments')}
-                        className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 active:scale-95"
+                        className="w-full bg-brand-emerald text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-brand-emerald-600 transition-all shadow-btn active:scale-95"
                     >
                         Back to Portfolio
                     </button>

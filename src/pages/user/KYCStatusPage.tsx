@@ -118,7 +118,7 @@ const KYCStatusPage: React.FC = () => {
 
     return (
         <div className="max-w-md mx-auto py-12">
-            <div className="bg-white border border-slate-100 rounded-2xl p-10 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
+            <div className="bg-surface border border-slate-100 rounded-2xl p-10 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
                 {/* Decorative Elements */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 opacity-20"></div>
                 

@@ -12,7 +12,7 @@ const ErrorPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center">
-            <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+            <div className="max-w-md w-full space-y-8 bg-surface p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
                 <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center mx-auto border border-amber-100">
                     <AlertTriangle size={32} className="text-amber-500" />
                 </div>
@@ -35,7 +35,7 @@ const ErrorPage: React.FC = () => {
                     
                     <button 
                         onClick={handleReset}
-                        className="w-full bg-white text-slate-500 py-4 rounded-2xl font-bold text-sm hover:text-slate-900 transition-all flex items-center justify-center gap-2 border border-transparent hover:border-slate-100"
+                        className="w-full bg-surface text-slate-500 py-4 rounded-2xl font-bold text-sm hover:text-slate-900 transition-all flex items-center justify-center gap-2 border border-transparent hover:border-slate-100"
                     >
                         <Home size={18} />
                         Return Dashboard

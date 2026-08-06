@@ -155,17 +155,17 @@ const AdminCommissionSettingsPage: React.FC = () => {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 pb-12">
+        <div className="space-y-5 animate-in fade-in duration-700 pb-12">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight italic">Financial Protocol Hub</h1>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Financial Protocol Hub</h1>
                     <p className="text-slate-500 text-[10px] font-black tracking-[0.3em] mt-1 uppercase">Unified Business Model & Equity Governance</p>
                 </div>
                 <div className="flex gap-3">
                     <button 
                         onClick={loadAllSettings}
-                        className="p-4 bg-white/5 border border-white/10 rounded-2xl text-slate-400 hover:text-white transition-all hover:bg-white/10 shadow-xl"
+                        className="p-4 bg-slate-100 border border-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all hover:bg-slate-200 shadow-sm"
                     >
                         <RefreshCcw size={20} />
                     </button>
@@ -173,32 +173,32 @@ const AdminCommissionSettingsPage: React.FC = () => {
             </div>
 
             {/* --- EQUITY & INVESTMENT PROTOCOLS --- */}
-            <div className="bg-slate-900/50 border border-white/5 rounded-[2rem] p-7 space-y-7 relative overflow-hidden group">
+            <div className="bg-surface border border-slate-100 rounded-3xl p-5 space-y-5 relative overflow-hidden group">
                 <div className="absolute top-[-50px] right-[-50px] opacity-[0.03] text-indigo-500 transition-transform group-hover:scale-110 duration-[2s]">
                     <Gem size={350} />
                 </div>
 
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/10 pb-6">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-100 pb-6">
                     <div className="flex items-center gap-4">
                         <div className="p-3.5 rounded-[1.2rem] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shadow-xl shadow-indigo-500/5">
                             <PieChart size={28} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-black text-white tracking-tight italic">Equity & Shareholder Governance</h3>
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Equity & Shareholder Governance</h3>
                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Global capital rules & dividend distribution</p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 bg-slate-950/50 px-6 py-4 rounded-3xl border border-white/5">
+                    <div className="flex items-center gap-4 bg-slate-50 px-6 py-4 rounded-3xl border border-slate-100">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Investment System</label>
                         <button 
                             type="button"
                             onClick={() => setSystemSettings({...systemSettings, investmentEnabled: !systemSettings?.investmentEnabled})}
-                            className={`w-14 h-7 rounded-full transition-all relative ${systemSettings?.investmentEnabled ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-slate-800'}`}
+                            className={`w-14 h-7 rounded-full transition-all relative ${systemSettings?.investmentEnabled ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-slate-200'}`}
                         >
-                            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all shadow-md ${systemSettings?.investmentEnabled ? 'left-8' : 'left-1'}`} />
+                            <div className={`absolute top-1 w-5 h-5 bg-surface rounded-full transition-all shadow-md ${systemSettings?.investmentEnabled ? 'left-8' : 'left-1'}`} />
                         </button>
-                        <span className="text-[10px] font-black text-white uppercase tracking-tighter w-12">{systemSettings?.investmentEnabled ? 'ON' : 'OFF'}</span>
+                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-tighter w-12">{systemSettings?.investmentEnabled ? 'ON' : 'OFF'}</span>
                     </div>
                 </div>
 
@@ -210,7 +210,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                 type="number" 
                                 value={systemSettings?.sharePrice || 0}
                                 onChange={(e) => setSystemSettings({...systemSettings, sharePrice: Number(e.target.value)})}
-                                className="w-full bg-slate-950 border border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-3 text-lg text-slate-900 focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
                             />
                         </div>
                         <p className="text-[9px] text-slate-600 font-bold uppercase tracking-tighter">Unit cost for 1.0 equity share.</p>
@@ -223,7 +223,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                 type="number" 
                                 value={systemSettings?.investorAllocationPercent || 0}
                                 onChange={(e) => setSystemSettings({...systemSettings, investorAllocationPercent: Number(e.target.value)})}
-                                className="w-full bg-slate-950 border border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-3 text-lg text-slate-900 focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
                             />
                             <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 font-black">%</div>
                         </div>
@@ -236,7 +236,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                             type="number" 
                             value={systemSettings?.totalSharesAvailable || 0}
                             onChange={(e) => setSystemSettings({...systemSettings, totalSharesAvailable: Number(e.target.value)})}
-                            className="w-full bg-slate-950 border border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-3 text-lg text-slate-900 focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
                         />
                          <p className="text-[9px] text-slate-600 font-bold uppercase tracking-tighter">Total units for circulation.</p>
                     </div>
@@ -248,7 +248,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                 type="number" 
                                 value={systemSettings?.dividendWithdrawalFee || 0}
                                 onChange={(e) => setSystemSettings({...systemSettings, dividendWithdrawalFee: Number(e.target.value)})}
-                                className="w-full bg-slate-950 border border-white/10 rounded-2xl px-6 py-5 text-lg text-white focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-3 text-lg text-slate-900 focus:outline-none focus:border-indigo-500/50 transition-all font-black tabular-nums"
                             />
                             <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 font-black">%</div>
                         </div>
@@ -260,7 +260,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                     <button 
                         onClick={handleSaveInvestment}
                         disabled={saving === 'invest'}
-                        className="px-10 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.25em] hover:bg-indigo-500 transition-all flex items-center gap-3 shadow-2xl shadow-indigo-600/20 disabled:opacity-50"
+                        className="px-10 py-3 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.25em] hover:bg-indigo-500 transition-all flex items-center gap-3 shadow-2xl shadow-indigo-600/20 disabled:opacity-50"
                     >
                         {saving === 'invest' ? <Loader2 className="animate-spin" size={20} /> : <><Lock size={20} /> Commit Equity Protocol</>}
                     </button>
@@ -269,24 +269,24 @@ const AdminCommissionSettingsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* --- REFERRAL PROTOCOL --- */}
-                <div className="bg-slate-900/50 border border-white/5 rounded-[2rem] p-7 space-y-7 relative overflow-hidden group">
+                <div className="bg-surface border border-slate-100 rounded-3xl p-5 space-y-5 relative overflow-hidden group">
                     <div className="absolute top-[-20px] right-[-20px] opacity-[0.03] text-emerald-500 transition-transform group-hover:scale-110 duration-[2s]">
                         <Users size={250} />
                     </div>
 
-                    <div className="relative z-10 flex items-center justify-between border-b border-white/10 pb-6">
+                    <div className="relative z-10 flex items-center justify-between border-b border-slate-100 pb-6">
                         <div className="flex items-center gap-4">
                             <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-xl shadow-emerald-500/5">
                                 <Zap size={22} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-white tracking-tight italic">Referral Distribution</h3>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Referral Distribution</h3>
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Partner profit-share default</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="space-y-6 relative z-10">
+                    <div className="space-y-4 relative z-10">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-widest">
                                 <label>Margin Share Default (%)</label>
@@ -298,12 +298,12 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                     step="0.001"
                                     value={Number(((commSettings?.defaultCommissionRate ?? 0) * 100).toFixed(3))}
                                     onChange={(e) => setCommSettings({ ...commSettings, defaultCommissionRate: Number(e.target.value) / 100 })}
-                                    className="w-full h-16 bg-slate-950 border border-white/10 rounded-2xl px-6 text-xl text-white font-black outline-none focus:border-emerald-500/50 transition-all"
+                                    className="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl px-6 text-xl text-slate-900 font-black outline-none focus:border-emerald-500/50 transition-all"
                                     placeholder="1.0"
                                 />
                                 <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 font-black">% of Profit</div>
                             </div>
-                            <p className="text-[10px] text-slate-600 font-bold leading-relaxed italic">
+                            <p className="text-[10px] text-slate-600 font-bold leading-relaxed">
                                 * Percentage of the NET PROFIT credited to referrers per transaction.
                             </p>
                         </div>
@@ -311,7 +311,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                         <button 
                             onClick={handleSaveCommission}
                             disabled={saving === 'comm'}
-                            className="w-full h-16 bg-emerald-500 text-slate-950 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-400 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-emerald-500/10"
+                            className="w-full h-16 bg-emerald-500 text-slate-950 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-400 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-emerald-500/10"
                         >
                             {saving === 'comm' ? <Loader2 className="animate-spin" size={20} /> : <><ShieldCheck size={20} /> Synchronized Referral Node</>}
                         </button>
@@ -321,14 +321,14 @@ const AdminCommissionSettingsPage: React.FC = () => {
 
 
                 {/* --- INTEGRITY CAPS --- */}
-                <div className="bg-slate-900 border border-white/5 rounded-[2rem] p-7 space-y-7 relative overflow-hidden group shadow-2xl">
+                <div className="bg-surface border border-slate-100 rounded-3xl p-5 space-y-5 relative overflow-hidden group shadow-sm">
                     <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-6 pb-5 border-b border-white/10">
+                        <div className="flex items-center gap-4 mb-6 pb-5 border-b border-slate-100">
                             <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 shadow-xl shadow-rose-500/5">
                                 <ShieldAlert size={24} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-black text-white tracking-tight italic text-rose-500">Platform Guardrails</h3>
+                                <h3 className="text-2xl font-black tracking-tight text-rose-500">Platform Guardrails</h3>
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Anti-loss security thresholds</p>
                             </div>
                         </div>
@@ -345,7 +345,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                         step="0.01"
                                         value={Number(((capSettings?.maxReferralProfitShare ?? 0.9) * 100).toFixed(2))}
                                         onChange={(e) => setCapSettings({...capSettings, maxReferralProfitShare: Number(e.target.value) / 100})}
-                                        className="w-full h-16 bg-slate-950 border border-white/10 rounded-2xl px-6 text-xl text-white font-black outline-none focus:border-rose-500/50 transition-all font-mono"
+                                        className="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl px-6 text-xl text-slate-900 font-black outline-none focus:border-rose-500/50 transition-all font-mono"
                                     />
                                     <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 font-black">%</div>
                                 </div>
@@ -365,22 +365,22 @@ const AdminCommissionSettingsPage: React.FC = () => {
                 </div>
 
                 {/* --- SIMULATOR --- */}
-                <div className="bg-slate-950 border border-white/5 rounded-[2rem] p-7 flex flex-col shadow-2xl relative overflow-hidden">
-                    <div className="flex items-center gap-5 justify-between pb-5 border-b border-white/5 mb-6">
+                <div className="bg-surface border border-slate-100 rounded-3xl p-5 flex flex-col shadow-sm relative overflow-hidden">
+                    <div className="flex items-center gap-5 justify-between pb-5 border-b border-slate-100 mb-6">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-[1rem] bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-2xl shadow-indigo-500/5">
                                 <TrendingUp size={24} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-black text-white tracking-tight italic">Yield Simulator</h3>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Yield Simulator</h3>
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Real-time Transaction Modeling</p>
                             </div>
                         </div>
-                        <div className="text-4xl font-black text-white tabular-nums italic tracking-tighter drop-shadow-lg">₦{previewProfit.toLocaleString()}</div>
+                        <div className="text-3xl font-black text-slate-900 tabular-nums tracking-tighter drop-shadow-lg">₦{previewProfit.toLocaleString()}</div>
                     </div>
 
-                    <div className="space-y-8 flex-1 flex flex-col justify-center">
-                        <div className="space-y-6">
+                    <div className="space-y-5 flex-1 flex flex-col justify-center">
+                        <div className="space-y-4">
                             <div className="flex justify-between items-end">
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Hypothetical Profit Margin</label>
                             </div>
@@ -391,28 +391,28 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                 step="100"
                                 value={previewProfit}
                                 onChange={(e) => setPreviewProfit(Number(e.target.value))}
-                                className="w-full h-2 bg-slate-900 rounded-full appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition-all"
+                                className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition-all"
                             />
                         </div>
 
-                        <div className="bg-slate-900/60 p-6 rounded-[2rem] border border-white/5 space-y-6 shadow-inner">
+                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4 shadow-inner">
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500">
                                     <span>Platform Net retained</span>
-                                    <span className="text-white">₦{platformNet.toFixed(2)}</span>
+                                    <span className="text-slate-900">₦{platformNet.toFixed(2)}</span>
                                 </div>
-                                <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-px">
+                                <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-px">
                                     <div className="bg-gradient-to-r from-emerald-500 to-indigo-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.5)]" style={{ width: `${(platformNet / previewProfit) * 100}%` }} />
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6 pt-5 border-t border-white/5">
+                            <div className="grid grid-cols-2 gap-6 pt-5 border-t border-slate-100">
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-600">
                                         <span>Referral Payout</span>
-                                        <span className="text-emerald-400 font-bold italic">₦{cappedReferral.toFixed(2)}</span>
+                                        <span className="text-emerald-400 font-bold">₦{cappedReferral.toFixed(2)}</span>
                                     </div>
-                                    <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden p-px">
+                                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden p-px">
                                         <div className="bg-emerald-500/30 h-full transition-all duration-1000 rounded-full" style={{ width: `${(cappedReferral / previewProfit) * 100}%` }} />
                                     </div>
                                 </div>
@@ -423,15 +423,15 @@ const AdminCommissionSettingsPage: React.FC = () => {
             </div>
 
             {/* Note Card */}
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-[2rem] flex items-start gap-4 shadow-2xl relative overflow-hidden group">
+            <div className="bg-surface border border-slate-100 p-5 rounded-3xl flex items-start gap-4 shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-6 opacity-5 text-indigo-500">
                     <Info size={100} />
                 </div>
-                <div className="p-3 bg-slate-800 rounded-xl text-slate-400 shrink-0 shadow-lg shadow-black/20">
+                <div className="p-3 bg-slate-100 rounded-xl text-slate-400 shrink-0">
                     <Info size={20} />
                 </div>
                 <div className="relative z-10">
-                    <h4 className="text-lg font-black text-white mb-2 tracking-tight italic">Architecture Override Note</h4>
+                    <h4 className="text-lg font-black text-slate-900 mb-2 tracking-tight">Architecture Override Note</h4>
                     <p className="text-xs text-slate-500 font-bold leading-relaxed max-w-4xl uppercase tracking-tighter opacity-80">
                         The parameters defined here act as the global baseline for the entire ecosystem. Individual user overrides (Referral rates or Agent tiers) explicitly configured in the User Detail section will take precedence. All commission and discount math is applied strictly to the <span className="text-emerald-500">MARKUP PROFIT</span> derived from the cost-ledger.
                     </p>

@@ -2,10 +2,11 @@ import React from 'react';
 import { useEarningsSummary, useEarningsHistory } from '../../hooks/useReferral';
 import { Wallet, TrendingUp, Users, ArrowRight, Receipt, Info, ShieldCheck, AlertCircle, Briefcase } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 const ReferralWalletPage: React.FC = () => {
+    const navigate = useNavigate();
     const { data: stats, isLoading: statsLoading } = useEarningsSummary();
     const { data: historyRes, isLoading: historyLoading } = useEarningsHistory(1, 20);
     const { currency } = useWalletStore();
@@ -39,7 +40,7 @@ const ReferralWalletPage: React.FC = () => {
 
             {/* Main Stats and Balance */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center space-y-6 relative overflow-hidden">
+                <div className="lg:col-span-2 bg-surface rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col items-center text-center space-y-6 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
                     
                     <div className="space-y-1">
@@ -65,7 +66,7 @@ const ReferralWalletPage: React.FC = () => {
                         className={`flex items-center justify-center gap-2 w-full max-w-md py-4 rounded-2xl font-bold text-sm transition-all shadow-lg active:scale-95 ${
                             !stats?.referralBalance || stats.referralBalance < 100
                             ? 'pointer-events-none bg-slate-100 text-slate-400 shadow-none'
-                            : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-emerald-500/20'
+                            : 'bg-brand-emerald text-white hover:bg-brand-emerald-600 shadow-btn'
                         }`}
                     >
                         Redeem into Main Wallet
@@ -82,18 +83,18 @@ const ReferralWalletPage: React.FC = () => {
 
                 {/* Secondary Transparency Stats */}
                 <div className="space-y-4">
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                    <div className="bg-surface rounded-2xl p-5 border border-slate-100 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
                                 <Briefcase size={20} />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 italic">Agent Level</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Agent Level</span>
                         </div>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Agent Profit</p>
                         <h4 className="text-xl font-bold text-slate-900 tracking-tight">{currency}{stats?.agentProfit?.toLocaleString() || '0'}</h4>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                    <div className="bg-surface rounded-2xl p-5 border border-slate-100 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
                                 <ShieldCheck size={20} />
@@ -103,7 +104,7 @@ const ReferralWalletPage: React.FC = () => {
                         <h4 className="text-xl font-bold text-slate-900 tracking-tight">{stats?.cappedCommissionsCount || 0} Events</h4>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                    <div className="bg-surface rounded-2xl p-5 border border-slate-100 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                                 <AlertCircle size={20} />
@@ -116,7 +117,7 @@ const ReferralWalletPage: React.FC = () => {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-50 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <TrendingUp size={20} className="text-emerald-500" />
@@ -124,53 +125,65 @@ const ReferralWalletPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="divide-y divide-slate-50">
+                <div className="overflow-x-auto">
                     {historyItems.length > 0 ? (
-                        historyItems.map((item) => (
-                            <Link 
-                                key={item.id} 
-                                to={`/app/transactions/${item.transactionId || item.id}`}
-                                className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-all group"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 ${
-                                        item.type === 'referral_bonus' ? 'bg-emerald-50 text-emerald-500' : 
-                                        item.type === 'agent_profit' ? 'bg-blue-50 text-blue-500' :
-                                        item.type === 'referral_skipped' ? 'bg-slate-50 text-slate-400' :
-                                        'bg-slate-950 text-white'
-                                    }`}>
-                                        <Receipt size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">
-                                            {item.type === 'referral_bonus' ? 'Referral Bonus' : 
-                                             item.type === 'agent_profit' ? 'Agent Profit' :
-                                             item.type === 'referral_skipped' ? 'Skipped (Low Margin)' :
-                                             'Earnings Redemption'}
-                                        </p>
-                                        <p className="text-slate-400 text-xs mt-0.5">
+                        <table className="w-full text-left border-collapse min-w-[560px]">
+                            <thead>
+                                <tr className="bg-slate-50/80 border-b border-slate-100">
+                                    <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Activity</th>
+                                    <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Date</th>
+                                    <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Status</th>
+                                    <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {historyItems.map((item) => (
+                                    <tr
+                                        key={item.id}
+                                        onClick={() => item.transactionId && navigate(`/app/transactions/${item.transactionId || item.id}`)}
+                                        className="transition-colors hover:bg-slate-50/60 cursor-pointer"
+                                    >
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 ${
+                                                    item.type === 'referral_bonus' ? 'bg-emerald-50 text-emerald-500' : 
+                                                    item.type === 'agent_profit' ? 'bg-blue-50 text-blue-500' :
+                                                    item.type === 'referral_skipped' ? 'bg-slate-50 text-slate-400' :
+                                                    'bg-brand-navy text-white'
+                                                }`}>
+                                                    <Receipt size={16} />
+                                                </div>
+                                                <span className="font-bold text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">
+                                                    {item.type === 'referral_bonus' ? 'Referral Bonus' : 
+                                                     item.type === 'agent_profit' ? 'Agent Profit' :
+                                                     item.type === 'referral_skipped' ? 'Skipped (Low Margin)' :
+                                                     'Earnings Redemption'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-xs text-slate-500 font-medium whitespace-nowrap">
                                             {format(new Date(item.createdAt), 'MMM dd, yyyy • hh:mm a')}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className={`font-bold text-sm ${
-                                        item.type === 'referral_bonus' || item.type === 'agent_profit' ? 'text-emerald-600' : 
-                                        item.type === 'referral_skipped' ? 'text-slate-400' :
-                                        'text-slate-900'
-                                    }`}>
-                                        {item.status === 'skipped' ? '' : item.type === 'referral_redeem' ? '-' : '+'} {currency}{item.amount.toLocaleString()}
-                                    </p>
-                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${
-                                        item.status === 'success' ? 'text-emerald-500' : 
-                                        item.status === 'skipped' ? 'text-slate-300' :
-                                        'text-slate-400'
-                                    }`}>
-                                        {item.status}
-                                    </span>
-                                </div>
-                            </Link>
-                        ))
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`text-[10px] font-bold uppercase tracking-widest ${
+                                                item.status === 'success' ? 'text-emerald-600' : 
+                                                item.status === 'skipped' ? 'text-slate-400' :
+                                                'text-slate-500'
+                                            }`}>
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td className={`px-6 py-4 text-right font-bold text-sm tabular-nums ${
+                                            item.type === 'referral_bonus' || item.type === 'agent_profit' ? 'text-emerald-600' : 
+                                            item.type === 'referral_skipped' ? 'text-slate-400' :
+                                            'text-slate-900'
+                                        }`}>
+                                            {item.status === 'skipped' ? '' : item.type === 'referral_redeem' ? '-' : '+'} {currency}{item.amount.toLocaleString()}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     ) : (
                         <div className="p-20 text-center space-y-4">
                             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-200">

@@ -104,7 +104,7 @@ export default function AdminRegister() {
 
     return (
         <AuthLayout title="Create Admin" subtitle="Set up a new admin account">
-            <form onSubmit={onSubmit} className="bg-white px-8 py-10 rounded-3xl shadow-xl shadow-slate-100 w-full max-w-md border border-slate-50">
+            <form onSubmit={onSubmit} className="bg-surface px-8 py-10 rounded-3xl shadow-xl shadow-slate-100 w-full max-w-md border border-slate-50">
                 <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 tracking-tight uppercase">Admin Provision</h2>
 
                 {error && (
@@ -202,7 +202,7 @@ export default function AdminRegister() {
                     <label className="block text-[10px] font-bold uppercase tracking-widest mb-4 text-slate-400 text-center">Authorization Level</label>
                     <div className="flex gap-4 justify-center">
                         {ROLE_OPTIONS.map((r) => (
-                            <label key={r} className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer ${roles.includes(r) ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-white border-slate-100 text-slate-400'}`}>
+                            <label key={r} className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer ${roles.includes(r) ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-surface border-slate-100 text-slate-400'}`}>
                                 <input
                                     type="checkbox"
                                     checked={roles.includes(r)}

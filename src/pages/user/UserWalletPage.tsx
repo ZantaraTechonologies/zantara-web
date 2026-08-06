@@ -96,11 +96,11 @@ const UserWalletPage: React.FC = () => {
                     <p className="text-slate-500 font-medium text-sm">Manage your funds and financial ecosystem.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link to="/app/wallet/withdraw" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-slate-100 px-5 py-2.5 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm text-sm">
+                    <Link to="/app/wallet/withdraw" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-surface border border-slate-100 px-5 py-2.5 rounded-xl font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm text-sm">
                         <ArrowUpRight size={18} />
                         <span>Withdraw</span>
                     </Link>
-                    <Link to="/app/wallet/fund" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 text-sm">
+                    <Link to="/app/wallet/fund" className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-brand-emerald hover:bg-brand-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-btn text-sm">
                         <Plus size={18} />
                         <span>Fund Wallet</span>
                     </Link>
@@ -114,34 +114,34 @@ const UserWalletPage: React.FC = () => {
                     {loadingBalance ? (
                         <CardSkeleton />
                     ) : (
-                        <div className="relative bg-slate-950 rounded-2xl p-6 overflow-hidden shadow-2xl shadow-slate-900/20 group">
-                            <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
-                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-800/20 rounded-full blur-[80px] -ml-24 -mb-24"></div>
+                        <div className="relative bg-surface border border-slate-100 rounded-2xl p-6 overflow-hidden shadow-card group">
+                            <div className="absolute top-0 right-0 w-80 h-80 bg-brand-emerald-100/60 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:bg-brand-emerald-200/60 transition-all duration-700"></div>
+                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-emerald-100/40 rounded-full blur-[80px] -ml-24 -mb-24"></div>
                             
                             <div className="relative z-10 space-y-6">
                                 <div className="flex justify-between items-start">
                                     <div className="space-y-2">
-                                        <p className="text-emerald-400/60 font-bold uppercase tracking-[0.2em] text-[10px]">Available Capital</p>
-                                        <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tighter">
+                                        <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Available Capital</p>
+                                        <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tighter">
                                             {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </h2>
                                     </div>
-                                    <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 backdrop-blur-sm">
-                                        <Wallet className="text-emerald-400 w-6 h-6" />
+                                    <div className="bg-brand-mint/60 p-3 rounded-xl border border-brand-emerald/20 backdrop-blur-sm">
+                                        <Wallet className="text-brand-emerald w-6 h-6" />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-8 pt-6 border-t border-white/5">
+                                <div className="grid grid-cols-2 gap-8 pt-6 border-t border-slate-100">
                                     <div className="space-y-1">
-                                        <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Wallet Status</p>
-                                        <div className="flex items-center gap-2 text-white font-bold text-sm">
-                                            <div className={`w-2 h-2 rounded-full ${balance > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`}></div>
+                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Wallet Status</p>
+                                        <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                                            <div className={`w-2 h-2 rounded-full ${balance > 0 ? 'bg-brand-emerald animate-pulse' : 'bg-slate-400'}`}></div>
                                             <span>{balance > 0 ? 'ACTIVE PROTOCOL' : 'INACTIVE / EMPTY'}</span>
                                         </div>
                                     </div>
                                     <div className="space-y-1 text-right">
-                                        <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px]">Last Updated</p>
-                                        <p className="text-white font-bold text-sm">{recentTxs[0] ? format(new Date(recentTxs[0].createdAt), 'MMM dd, HH:mm') : 'No History'}</p>
+                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Last Updated</p>
+                                        <p className="text-slate-900 font-bold text-sm">{recentTxs[0] ? format(new Date(recentTxs[0].createdAt), 'MMM dd, HH:mm') : 'No History'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@ const UserWalletPage: React.FC = () => {
                         {stats.map((stat, i) => {
                             const Icon = stat.icon;
                             return (
-                                <div key={i} className="bg-white border border-slate-50 p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+                                <div key={i} className="bg-surface border border-slate-50 p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
                                     <div className="space-y-1">
                                         <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">{stat.label}</p>
                                         <h3 className="text-lg font-bold text-slate-900">{stat.amount}</h3>
@@ -166,7 +166,7 @@ const UserWalletPage: React.FC = () => {
                     </div>
 
                     {/* Recent Transactions Preview */}
-                    <div className="bg-white border border-slate-50 rounded-2xl p-6 space-y-6 shadow-sm">
+                    <div className="bg-surface border border-slate-50 rounded-2xl p-6 space-y-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <History className="text-emerald-500" size={20} />
@@ -177,34 +177,39 @@ const UserWalletPage: React.FC = () => {
                             </Link>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="-mx-6 overflow-x-auto">
                             {txData === undefined ? (
                                 <ListSkeleton items={3} />
                             ) : recentTxs.length > 0 ? (
-                                recentTxs.map((tx, i) => {
-                                    const isCredit = (tx.type === 'wallet_fund') || (tx.amount > 0);
-                                    return (
-                                        <div key={tx.id ?? i} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-2xl transition-colors group cursor-pointer">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                                    <CreditCard size={20} />
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-bold text-slate-900 text-sm xl:text-xs">{tx.service || tx.type || 'Transaction'}</h4>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
-                                                        Zantara • {new Date(tx.createdAt).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className={`font-bold text-sm ${isCredit ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                    {isCredit ? '+' : '-'}{currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                                </p>
-                                                <p className="text-[9px] text-slate-400 font-bold tracking-widest mt-0.5">{(tx.status || 'DONE').toUpperCase()}</p>
-                                            </div>
-                                        </div>
-                                    );
-                                })
+                                <table className="w-full text-left border-collapse min-w-[480px]">
+                                    <thead>
+                                        <tr className="bg-slate-50/80 border-b border-slate-100">
+                                            <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Service</th>
+                                            <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Date</th>
+                                            <th className="px-6 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {recentTxs.map((tx, i) => {
+                                            const isCredit = (tx.type === 'wallet_fund') || (tx.amount > 0);
+                                            return (
+                                                <tr key={tx.id ?? i} className="transition-colors hover:bg-slate-50/60">
+                                                    <td className="px-6 py-3">
+                                                        <span className="font-bold text-slate-900 text-xs">{tx.service || tx.type || 'Transaction'}</span>
+                                                    </td>
+                                                    <td className="px-6 py-3 text-[10px] text-slate-500 font-medium whitespace-nowrap">
+                                                        {new Date(tx.createdAt).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="px-6 py-3 text-right">
+                                                        <span className={`font-black text-sm tabular-nums ${isCredit ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                            {isCredit ? '+' : '-'}{currency}{Math.abs(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
                             ) : (
                                 <div className="text-center py-6 border-2 border-dashed border-slate-50 rounded-2xl">
                                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">No transactions yet</p>
@@ -225,11 +230,11 @@ const UserWalletPage: React.FC = () => {
 
                         {virtualAccount ? (
                             <div className="space-y-4">
-                                <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white">
+                                <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white dark:bg-surface/60 dark:border-slate-700/40">
                                     <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Bank Name</p>
                                     <p className="font-bold text-slate-900 text-sm">{virtualAccount.bankName || 'Loading...'}</p>
                                 </div>
-                                <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white flex justify-between items-center">
+                                <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white flex justify-between items-center dark:bg-surface/60 dark:border-slate-700/40">
                                     <div>
                                         <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Account Number</p>
                                         <p className="font-bold text-slate-900 text-base tracking-widest">{virtualAccount.accountNumber || 'Generating...'}</p>
@@ -253,7 +258,7 @@ const UserWalletPage: React.FC = () => {
                     </div>
 
                     {/* Linked Bank Accounts */}
-                    <div className="bg-white border border-slate-50 rounded-2xl p-6 space-y-6 shadow-sm">
+                    <div className="bg-surface border border-slate-50 rounded-2xl p-6 space-y-6 shadow-sm">
                         <div className="flex items-center justify-between">
                             <h3 className="font-bold text-slate-900 flex items-center gap-2">
                                 <Building2 className="text-emerald-500" size={18} />

@@ -46,13 +46,13 @@ const RedeemEarningsPage: React.FC = () => {
                 <div className="flex flex-col gap-3">
                     <Link
                         to="/app/dashboard"
-                        className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all"
+                        className="w-full bg-brand-emerald text-white py-4 rounded-2xl font-bold text-sm shadow-btn active:scale-95 transition-all"
                     >
                         Go to Dashboard
                     </Link>
                     <Link
                         to="/app/referral/wallet"
-                        className="w-full bg-white text-slate-500 py-4 rounded-2xl font-bold text-sm hover:text-slate-900 transition-all"
+                        className="w-full bg-surface text-slate-500 py-4 rounded-2xl font-bold text-sm hover:text-slate-900 transition-all"
                     >
                         Back to Referral Wallet
                     </Link>
@@ -78,7 +78,7 @@ const RedeemEarningsPage: React.FC = () => {
             </div>
 
             {/* Form */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-8 relative overflow-hidden">
+            <div className="bg-surface rounded-3xl p-8 border border-slate-100 shadow-sm space-y-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
 
                 <div className="space-y-4">
@@ -96,7 +96,7 @@ const RedeemEarningsPage: React.FC = () => {
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             placeholder="0.00"
-                            className="w-full bg-slate-50 border border-transparent text-2xl font-bold text-slate-900 py-6 pl-16 pr-6 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all placeholder:text-slate-300 outline-none"
+                            className="w-full bg-slate-50 border border-transparent text-2xl font-bold text-slate-900 py-6 pl-16 pr-6 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:bg-surface transition-all placeholder:text-slate-300 outline-none"
                         />
                     </div>
 
@@ -115,7 +115,7 @@ const RedeemEarningsPage: React.FC = () => {
 
                 <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100/50 space-y-4">
                     <div className="flex gap-4">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 border border-emerald-100 transition-transform hover:scale-105">
+                        <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center shrink-0 border border-emerald-100 transition-transform hover:scale-105">
                             <Wallet className="text-emerald-500" size={20} />
                         </div>
                         <div className="space-y-1">
@@ -134,7 +134,7 @@ const RedeemEarningsPage: React.FC = () => {
                     onClick={handleRedeemClick}
                     disabled={!isAmountValid || isPending}
                     className={`w-full py-4 rounded-2xl font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2 ${isAmountValid && !isPending
-                        ? 'bg-slate-900 text-white shadow-xl shadow-slate-200'
+                        ? 'bg-brand-emerald text-white shadow-btn'
                         : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                         }`}
                 >

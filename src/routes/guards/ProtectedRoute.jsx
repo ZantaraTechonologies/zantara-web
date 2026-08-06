@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/auth/authStore';
 import { PageLoader } from '../../components/feedback/Skeletons';
 
 const ProtectedRoute = ({ children }) => {
-    const { user, isAuthenticated, loading, isInitialized, fetchMe } = useAuthStore();
+    const { user, isAuthenticated, isInitialized, fetchMe } = useAuthStore();
     const location = useLocation();
 
     React.useEffect(() => {

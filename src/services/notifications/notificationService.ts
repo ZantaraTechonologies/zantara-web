@@ -9,6 +9,8 @@ export interface Notification {
     isRead: boolean;
     metadata?: any;
     createdAt: string;
+    isBroadcast?: boolean;
+    broadcastType?: string;
 }
 
 export const getMyNotifications = async (): Promise<Notification[]> => {

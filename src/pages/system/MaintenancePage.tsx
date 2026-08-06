@@ -19,7 +19,7 @@ const MaintenancePage: React.FC = () => {
                     </p>
                 </div>
 
-                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                <div className="bg-surface rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
                     <div className="flex items-center gap-4 text-left">
                         <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center shrink-0">
                             <Clock size={20} className="text-slate-400" />

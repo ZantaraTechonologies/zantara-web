@@ -104,7 +104,7 @@ const AdminPinSetupPage: React.FC = () => {
                         value={digit}
                         onChange={(e) => handleChange(idx, e.target.value, type)}
                         onKeyDown={(e) => handleKeyDown(idx, e, type)}
-                        className="w-14 h-16 bg-slate-950 border border-slate-700 rounded-xl text-center text-2xl font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
+                        className="w-14 h-16 bg-surface border border-slate-200 rounded-xl text-center text-2xl font-bold text-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]"
                     />
                 ))}
             </div>
@@ -112,7 +112,7 @@ const AdminPinSetupPage: React.FC = () => {
     );
 
     return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-['JetBrains_Mono',_monospace]">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-['JetBrains_Mono',_monospace]">
             {/* Background Grid Pattern */}
             <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
                 backgroundImage: `linear-gradient(#34d399 1px, transparent 1px), linear-gradient(90deg, #34d399 1px, transparent 1px)`,
@@ -124,9 +124,9 @@ const AdminPinSetupPage: React.FC = () => {
                 <div className="absolute -inset-1 bg-emerald-500 rounded-2xl blur opacity-20 transition duration-1000"></div>
                 
                 {/* Main Terminal Card */}
-                <div className="relative bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl">
+                <div className="relative bg-surface border border-slate-100 rounded-2xl shadow-sm">
                     {/* Header Bar */}
-                    <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex items-center justify-between rounded-t-2xl">
+                    <div className="bg-slate-100 px-6 py-4 border-b border-slate-100 flex items-center justify-between rounded-t-2xl">
                         <div className="flex items-center gap-3">
                             <Terminal className="text-emerald-400 w-5 h-5 animate-pulse" />
                             <span className="text-emerald-400 font-bold text-xs tracking-widest uppercase">Institutional Terminal // SETUP</span>
@@ -140,10 +140,10 @@ const AdminPinSetupPage: React.FC = () => {
 
                     <div className="p-8 sm:p-12">
                         <div className="flex flex-col items-center mb-8">
-                            <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 border border-slate-700 shadow-inner p-3">
+                            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 border border-slate-100 shadow-inner p-3">
                                 <Lock className="text-emerald-500/80 w-10 h-10" />
                             </div>
-                            <h1 className="text-2xl font-bold text-white mb-2 uppercase tracking-tighter text-center">
+                            <h1 className="text-2xl font-bold text-slate-900 mb-2 uppercase tracking-tighter text-center">
                                 Master Override Code
                             </h1>
                             <div className="flex items-center gap-2 text-emerald-400/60 text-[10px] font-bold tracking-[0.3em] uppercase text-center mt-2">
@@ -161,7 +161,7 @@ const AdminPinSetupPage: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={loading || isSubmitDisabled}
-                                className="w-full mt-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full mt-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
                                     <span className="flex items-center gap-2">
@@ -177,7 +177,7 @@ const AdminPinSetupPage: React.FC = () => {
                             </button>
                         </form>
 
-                        <div className="mt-10 pt-8 border-t border-slate-800/50">
+                        <div className="mt-10 pt-8 border-t border-slate-100">
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center leading-relaxed">
                                 <span className="text-emerald-500">Notice:</span> This code overrides standard transaction protocols. Keep it highly secure.
                             </p>

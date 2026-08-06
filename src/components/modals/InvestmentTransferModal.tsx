@@ -39,7 +39,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
     if (submitted) {
         return (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-                <div className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                <div className="bg-surface w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                     <div className="p-10 text-center space-y-6">
                         <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-500 mx-auto shadow-inner animate-pulse">
                             <CheckCircle2 size={40} />
@@ -52,7 +52,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                         </div>
                         <button 
                             onClick={onClose}
-                            className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200"
+                            className="w-full bg-brand-emerald text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn"
                         >
                             Return to Portfolio
                         </button>
@@ -64,16 +64,16 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+            <div className="bg-surface w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="bg-slate-950 p-6 flex items-center justify-between text-white">
+                <div className="bg-brand-emerald p-6 flex items-center justify-between text-white">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white border border-white/20">
                             <Building2 size={20} />
                         </div>
                         <div>
                             <h4 className="font-bold text-sm tracking-tight text-white">Direct Bank Transfer</h4>
-                            <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-[0.2em]">Transaction Registry</p>
+                            <p className="text-[10px] text-white/80 font-bold uppercase tracking-[0.2em]">Transaction Registry</p>
                         </div>
                     </div>
                     <button 
@@ -101,7 +101,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Account Number</p>
                                 <p className="text-2xl font-black text-slate-900 tracking-tight">{details.account_number}</p>
                             </div>
-                            <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                            <div className="p-3 bg-surface rounded-xl shadow-sm border border-slate-100 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all">
                                 <Copy size={18} />
                             </div>
                         </div>
@@ -109,7 +109,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
                             <div className="space-y-1">
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Bank Name</p>
-                                <p className="font-bold text-slate-800 text-sm italic">{details.bank_name}</p>
+                                <p className="font-bold text-slate-800 text-sm">{details.bank_name}</p>
                             </div>
                             <div className="space-y-1 text-right">
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Beneficiary</p>
@@ -121,7 +121,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                     {/* Security Notice */}
                     <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 flex items-start gap-3">
                         <AlertCircle className="text-amber-500 shrink-0" size={18} />
-                        <p className="text-[10px] font-bold text-amber-800 leading-relaxed italic">
+                        <p className="text-[10px] font-bold text-amber-800 leading-relaxed">
                             This virtual account is unique to this transaction and expires in 30 minutes. 
                             Please complete payment before closing this screen.
                         </p>
@@ -130,13 +130,13 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                     <div className="flex flex-col gap-3">
                         <button 
                             onClick={() => setSubmitted(true)}
-                            className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200"
+                            className="w-full bg-brand-emerald text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn"
                         >
                             I have made the transfer
                         </button>
                         <button 
                             onClick={onClose}
-                            className="w-full bg-white border border-slate-200 text-slate-400 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 hover:text-slate-900 transition-all"
+                            className="w-full bg-surface border border-slate-200 text-slate-400 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 hover:text-slate-900 transition-all"
                         >
                             Cancel
                         </button>

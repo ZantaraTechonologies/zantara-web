@@ -22,7 +22,7 @@ const TransactionStatusPage: React.FC = () => {
 
     if (!status || !transaction) {
         return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center space-y-6">
+            <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-5">
                 <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
                     <ShieldCheck size={40} />
                 </div>
@@ -32,7 +32,7 @@ const TransactionStatusPage: React.FC = () => {
                 </div>
                 <button 
                     onClick={() => navigate('/app')}
-                    className="bg-slate-950 text-white px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-xl shadow-slate-200"
+                    className="bg-brand-emerald text-white px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-brand-emerald-600 transition-all shadow-btn"
                 >
                     Return to Dashboard
                 </button>
@@ -66,7 +66,7 @@ const TransactionStatusPage: React.FC = () => {
     }
 
     return (
-        <div className="max-w-xl mx-auto p-4 sm:p-8 space-y-8 animate-in slide-in-from-bottom-8 duration-700 min-h-[90vh] flex flex-col">
+        <div className="max-w-xl mx-auto p-4 sm:p-6 space-y-6 animate-in slide-in-from-bottom-8 duration-700 min-h-[90vh] flex flex-col">
             {/* Header / Icon */}
             <div className="text-center space-y-6 pt-4">
                 <div className={`w-24 h-24 mx-auto ${statusBg} ${statusColor} rounded-[2rem] flex items-center justify-center shadow-sm transition-all duration-500`}>
@@ -89,8 +89,8 @@ const TransactionStatusPage: React.FC = () => {
             </div>
 
             {/* Summary Card - Scrollable if content is long */}
-            <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-xl shadow-slate-200/50 flex flex-col flex-1">
-                <div className="bg-slate-50/50 px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+            <div className="bg-surface border border-slate-100 rounded-[2rem] overflow-hidden shadow-card flex flex-col flex-1">
+                <div className="bg-slate-50/50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Transaction Ledger</span>
                     <div className="flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 rounded-full ${statusColor.replace('text', 'bg')} shadow-sm`}></div>
@@ -98,7 +98,7 @@ const TransactionStatusPage: React.FC = () => {
                     </div>
                 </div>
                 
-                <div className="p-8 space-y-8 overflow-y-auto max-h-[400px]">
+                <div className="p-6 space-y-6 overflow-y-auto max-h-[400px]">
                     <div className="grid grid-cols-2 gap-y-6">
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Protocol</p>
@@ -133,7 +133,7 @@ const TransactionStatusPage: React.FC = () => {
                                         navigator.clipboard.writeText(transaction.token.replace(/[^\d]/g, ''));
                                         toast.success("Token copied to clipboard!");
                                     }}
-                                    className="flex items-center gap-2 px-4 py-2 bg-white text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all border border-emerald-100"
+                                    className="flex items-center gap-2 px-4 py-2 bg-surface text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-sm hover:shadow-md transition-all border border-emerald-100"
                                 >
                                     <Share2 size={12} />
                                     Copy Token
@@ -173,13 +173,13 @@ const TransactionStatusPage: React.FC = () => {
                 <div className="flex gap-4">
                     <button 
                         onClick={() => navigate('/app')}
-                        className="flex-1 bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-300"
+                        className="flex-1 bg-brand-emerald text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn"
                     >
                         Go to Dashboard
                     </button>
                     <button 
                         onClick={() => navigate('/app/transactions')}
-                        className="flex-1 border border-slate-200 bg-white text-slate-900 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 transition-all"
+                        className="flex-1 border border-slate-200 bg-surface text-slate-900 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 transition-all"
                     >
                         View History
                     </button>

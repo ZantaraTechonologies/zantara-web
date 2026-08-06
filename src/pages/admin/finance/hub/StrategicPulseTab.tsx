@@ -127,7 +127,7 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-5 animate-in fade-in duration-500">
             {error && (
                 <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center gap-3 text-rose-400">
                     <AlertCircle size={20} />
@@ -138,7 +138,7 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
             {/* Top Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
                 {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white p-6 pb-2 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group relative flex flex-col overflow-hidden">
+                    <div key={idx} className="bg-surface p-6 pb-2 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group relative flex flex-col overflow-hidden">
                         <div className="flex items-center justify-between mb-2">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.title}</p>
                             <Info size={14} className="text-slate-200" />
@@ -167,7 +167,7 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                <div className="lg:col-span-8 bg-surface rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
                     <div className="p-8 pb-4 border-b border-slate-50">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <h3 className="text-xl font-black text-slate-800 tracking-tight">Real-time Ledger</h3>
@@ -187,7 +187,7 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
                                 <button
                                     key={f}
                                     onClick={() => toggleFilter(f)}
-                                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeFilters.includes(f) ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-100 text-slate-400'}`}
+                                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeFilters.includes(f) ? 'bg-slate-950 text-white shadow-lg' : 'bg-slate-100 text-slate-400'}`}
                                 >
                                     {f}
                                 </button>
@@ -210,7 +210,7 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
                                         <p className={`text-sm font-black ${item.flowType === 'expense' ? 'text-rose-600' : 'text-emerald-600'}`}>
                                             {item.flowType === 'expense' ? '-' : '+'}₦{(item.amount || 0).toLocaleString()}
                                         </p>
-                                        <p className="text-[9px] font-black text-slate-300 uppercase">{item.service || 'System'}</p>
+                                        <p className="text-[9px] font-black text-slate-500 uppercase">{item.service || 'System'}</p>
                                     </div>
                                 </div>
                             );
@@ -218,27 +218,27 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
                     </div>
                 </div>
 
-                <div className="lg:col-span-4 space-y-8">
-                    <div className="bg-slate-900 rounded-[3rem] p-10 pt-16 relative overflow-hidden shadow-2xl shadow-indigo-500/10 min-h-[400px] flex flex-col justify-between border border-slate-800">
+                <div className="lg:col-span-4 space-y-5">
+                    <div className="bg-surface rounded-3xl p-6 pt-16 relative overflow-hidden shadow-sm min-h-[400px] flex flex-col justify-between border border-slate-100">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20" />
                         <div className="relative z-10">
                             <ShieldCheck className="text-emerald-400 mb-6" size={40} />
                             <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px] mb-2">Net Corporate Performance</p>
-                            <h2 className="text-5xl font-black text-white tracking-tighter">₦{(netProfit || 0).toLocaleString()}</h2>
+                            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">₦{(netProfit || 0).toLocaleString()}</h2>
                         </div>
-                        <div className="relative z-10 pt-10 border-t border-slate-800 flex justify-between">
+                        <div className="relative z-10 pt-10 border-t border-slate-100 flex justify-between">
                             <div><p className="text-slate-500 font-black uppercase text-[9px] mb-1">Overhead</p><p className="text-rose-400 font-black text-xl">-₦{(totalExpenses || 0).toLocaleString()}</p></div>
-                            <div className="text-right"><p className="text-slate-500 font-black uppercase text-[9px] mb-1">Efficiency</p><p className="text-white font-black text-xl">{(operatingMargin || 0).toFixed(1)}%</p></div>
+                            <div className="text-right"><p className="text-slate-500 font-black uppercase text-[9px] mb-1">Efficiency</p><p className="text-slate-900 font-black text-xl">{(operatingMargin || 0).toFixed(1)}%</p></div>
                         </div>
                     </div>
-                    <div className="bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 backdrop-blur-sm grid grid-cols-1 gap-4">
-                        <div className="flex items-center gap-4 p-4 border border-slate-800 rounded-3xl bg-slate-900/30">
+                    <div className="bg-surface p-5 rounded-3xl border border-slate-100 backdrop-blur-sm grid grid-cols-1 gap-4">
+                        <div className="flex items-center gap-4 p-4 border border-slate-100 rounded-3xl bg-slate-50">
                             <Percent className="text-indigo-400" size={24} />
-                            <div><p className="text-[10px] font-black text-slate-400 uppercase">Agent Discounts</p><p className="text-xl font-black text-white">₦{(agentDiscounts || 0).toLocaleString()}</p></div>
+                            <div><p className="text-[10px] font-black text-slate-400 uppercase">Agent Discounts</p><p className="text-xl font-black text-slate-900">₦{(agentDiscounts || 0).toLocaleString()}</p></div>
                         </div>
-                        <div className="flex items-center gap-4 p-4 border border-slate-800 rounded-3xl bg-slate-900/30">
+                        <div className="flex items-center gap-4 p-4 border border-slate-100 rounded-3xl bg-slate-50">
                             <ArrowRightCircle className="text-emerald-400" size={24} />
-                            <div><p className="text-[10px] font-black text-slate-400 uppercase">Referral Payouts</p><p className="text-xl font-black text-white">₦{(referralCommissions || 0).toLocaleString()}</p></div>
+                            <div><p className="text-[10px] font-black text-slate-400 uppercase">Referral Payouts</p><p className="text-xl font-black text-slate-900">₦{(referralCommissions || 0).toLocaleString()}</p></div>
                         </div>
                     </div>
                 </div>

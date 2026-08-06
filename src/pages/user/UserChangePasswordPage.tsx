@@ -44,7 +44,7 @@ const UserChangePasswordPage: React.FC = () => {
             <div className="flex items-center gap-4">
                 <button 
                     onClick={() => navigate('/app/profile/security')}
-                    className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
+                    className="p-3 bg-surface border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
                 >
                     <ArrowLeft size={20} />
                 </button>
@@ -54,7 +54,7 @@ const UserChangePasswordPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-2xl p-8 shadow-xl shadow-slate-200/40">
+            <div className="bg-surface border border-slate-100 rounded-2xl p-8 shadow-xl shadow-slate-200/40">
                 <form onSubmit={handleSubmit} className="space-y-8">
                     <Row label="Current Password">
                         <div className="relative group">

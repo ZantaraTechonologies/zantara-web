@@ -22,7 +22,7 @@ export default function NotAuthorized({ requiredRoles = ["admin"] }: { requiredR
             <div className="text-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-500 max-w-lg w-full">
                 <div className="relative inline-block">
                     <div className="absolute inset-0 bg-rose-200 blur-3xl opacity-30 rounded-full scale-150 animate-pulse" />
-                    <div className="relative bg-white rounded-full p-8 shadow-xl shadow-rose-100 border border-slate-100">
+                    <div className="relative bg-surface rounded-full p-8 shadow-xl shadow-rose-100 border border-slate-100">
                         <ShieldAlert className="w-16 h-16 text-rose-500" />
                     </div>
                 </div>
@@ -45,7 +45,7 @@ export default function NotAuthorized({ requiredRoles = ["admin"] }: { requiredR
                     </Link>
                     <button
                         onClick={handleLogout}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-2xl font-bold hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-surface text-slate-900 border border-slate-200 px-8 py-4 rounded-2xl font-bold hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95"
                     >
                         <LogOut className="w-4 h-4" />
                         <span>Sign out</span>

@@ -102,7 +102,7 @@ const VendorGatewaysTab: React.FC = () => {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-widest italic">API Supply Infrastructure</h3>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">API Supply Infrastructure</h3>
                     <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">Configure & Monitor External API Gates</p>
                 </div>
 
@@ -117,14 +117,14 @@ const VendorGatewaysTab: React.FC = () => {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {providers.map((provider) => (
-                    <div key={provider._id} className="group relative bg-slate-900/50 border border-white/5 hover:border-emerald-500/30 rounded-[2.5rem] p-8 transition-all">
+                    <div key={provider._id} className="group relative bg-surface border border-slate-100 hover:border-emerald-500/30 rounded-3xl p-6 transition-all">
                         <div className="flex items-start justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 text-emerald-500 flex items-center justify-center transition-transform group-hover:scale-110">
+                                <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 text-emerald-500 flex items-center justify-center transition-transform group-hover:scale-110">
                                     <Cpu size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black text-white tracking-tighter">{provider.name}</h3>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tighter">{provider.name}</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
                                             provider.status === 'active' ? 'bg-emerald-500/10 text-emerald-500' :
@@ -141,13 +141,13 @@ const VendorGatewaysTab: React.FC = () => {
                             <div className="flex items-center gap-2">
                                 <button 
                                     onClick={() => { setEditingProvider(provider); setIsModalOpen(true); }}
-                                    className="p-3 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-white transition-all"
+                                    className="p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-400 hover:text-slate-900 transition-all"
                                 >
                                     <Edit2 size={16} />
                                 </button>
                                 <button 
                                     onClick={() => handleDelete(provider._id)}
-                                    className="p-3 bg-white/5 border border-white/5 rounded-xl text-slate-400 hover:text-red-500 transition-all"
+                                    className="p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-400 hover:text-red-500 transition-all"
                                 >
                                     <Trash2 size={16} />
                                 </button>
@@ -155,23 +155,23 @@ const VendorGatewaysTab: React.FC = () => {
                         </div>
 
                         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-slate-950 border border-white/5 rounded-2xl p-5">
+                            <div className="bg-slate-100 border border-slate-200 rounded-2xl p-5">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none">Vendor Liquidity</span>
                                     <Wallet size={12} className="text-emerald-500" />
                                 </div>
                                 <div className="flex items-end justify-between">
-                                    <h4 className="text-2xl font-black text-white tracking-tighter italic">₦{provider.balance?.toLocaleString() || '0'}</h4>
+                                    <h4 className="text-2xl font-black text-slate-900 tracking-tighter">₦{provider.balance?.toLocaleString() || '0'}</h4>
                                     <button 
                                         onClick={() => handleCheckBalance(provider._id)}
-                                        className="p-2 bg-white/5 hover:bg-emerald-500/20 rounded-lg text-slate-500 hover:text-emerald-500 transition-all"
+                                        className="p-2 bg-slate-100 hover:bg-emerald-500/20 rounded-lg text-slate-500 hover:text-emerald-500 transition-all"
                                     >
                                         <RefreshCcw size={14} />
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="bg-slate-950 border border-white/5 rounded-2xl p-5">
+                            <div className="bg-slate-100 border border-slate-200 rounded-2xl p-5">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-none">API Endpoint</span>
                                     <Globe size={12} className="text-blue-500" />
@@ -187,11 +187,11 @@ const VendorGatewaysTab: React.FC = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
-                    <div className="relative w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="p-10 border-b border-white/5">
-                            <h2 className="text-2xl font-black text-white tracking-tighter italic">{editingProvider?._id ? 'Update Gateway' : 'New API Connection' }</h2>
+                    <div className="relative w-full max-w-2xl bg-surface border border-slate-100 rounded-3xl overflow-hidden shadow-sm animate-in zoom-in-95 duration-300">
+                        <div className="p-6 border-b border-slate-100">
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tighter">{editingProvider?._id ? 'Update Gateway' : 'New API Connection' }</h2>
                         </div>
-                        <form onSubmit={handleSave} className="p-10 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                        <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Gateway Name</label>
@@ -199,7 +199,7 @@ const VendorGatewaysTab: React.FC = () => {
                                         type="text" required
                                         value={editingProvider?.name || ''}
                                         onChange={(e) => setEditingProvider({...editingProvider, name: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-emerald-500/50"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -208,7 +208,7 @@ const VendorGatewaysTab: React.FC = () => {
                                         type="url" required
                                         value={editingProvider?.baseUrl || ''}
                                         onChange={(e) => setEditingProvider({...editingProvider, baseUrl: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-emerald-500/50"
                                     />
                                 </div>
                             </div>
@@ -219,7 +219,7 @@ const VendorGatewaysTab: React.FC = () => {
                                         type="text" required
                                         value={editingProvider?.apiKey || ''}
                                         onChange={(e) => setEditingProvider({...editingProvider, apiKey: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-mono"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-emerald-500/50 font-mono"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -228,7 +228,7 @@ const VendorGatewaysTab: React.FC = () => {
                                         type="text"
                                         value={editingProvider?.publicKey || ''}
                                         onChange={(e) => setEditingProvider({...editingProvider, publicKey: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-mono"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-emerald-500/50 font-mono"
                                         placeholder="Optional"
                                     />
                                 </div>
@@ -239,7 +239,7 @@ const VendorGatewaysTab: React.FC = () => {
                                     type="password"
                                     value={editingProvider?.secretKey || ''}
                                     onChange={(e) => setEditingProvider({...editingProvider, secretKey: e.target.value})}
-                                    className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-emerald-500/50 font-mono"
+                                    className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-emerald-500/50 font-mono"
                                     placeholder="Optional"
                                 />
                             </div>
@@ -249,7 +249,7 @@ const VendorGatewaysTab: React.FC = () => {
                                     <select 
                                         value={editingProvider?.adapterType || 'vtpass'}
                                         onChange={(e: any) => setEditingProvider({...editingProvider, adapterType: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-emerald-500/50"
                                     >
                                         <option value="vtpass">VTPass (Official)</option>
                                         <option value="vas2nets">Vas2Nets (Legacy)</option>
@@ -261,7 +261,7 @@ const VendorGatewaysTab: React.FC = () => {
                                     <select 
                                         value={editingProvider?.status || 'active'}
                                         onChange={(e: any) => setEditingProvider({...editingProvider, status: e.target.value})}
-                                        className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                                        className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-emerald-500/50"
                                     >
                                         <option value="active">Active</option>
                                         <option value="maintenance">Maintenance</option>
@@ -270,9 +270,9 @@ const VendorGatewaysTab: React.FC = () => {
                                 </div>
                             </div>
                         </form>
-                        <div className="p-10 pt-4 flex gap-4">
-                            <button onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400">Cancel</button>
-                            <button onClick={handleSave} className="flex-1 py-4 bg-emerald-500 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-950 shadow-xl shadow-emerald-500/20">{isSaving ? 'Syncing...' : 'Deploy Gateway'}</button>
+                        <div className="p-6 pt-4 flex gap-4">
+                            <button onClick={() => setIsModalOpen(false)} className="flex-1 py-3 bg-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400">Cancel</button>
+                            <button onClick={handleSave} className="flex-1 py-3 bg-emerald-500 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-950 shadow-xl shadow-emerald-500/20">{isSaving ? 'Syncing...' : 'Deploy Gateway'}</button>
                         </div>
                     </div>
                 </div>

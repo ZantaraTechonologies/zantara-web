@@ -111,7 +111,7 @@ const ReferralProgramPage: React.FC = () => {
 
             {/* Hero Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                <div className="lg:col-span-2 bg-surface rounded-2xl p-8 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                     
                     <div className="w-24 h-24 bg-emerald-50 rounded-3xl flex items-center justify-center shrink-0">
@@ -126,17 +126,17 @@ const ReferralProgramPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="bg-slate-900 rounded-2xl p-6 text-white flex flex-col justify-between shadow-xl relative overflow-hidden group">
-                     <div className="absolute bottom-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full -mr-8 -mb-8 blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
+                <div className="bg-surface rounded-2xl p-6 text-slate-900 border border-slate-100 flex flex-col justify-between shadow-card relative overflow-hidden group">
+                     <div className="absolute bottom-0 right-0 w-24 h-24 bg-brand-emerald-100/60 rounded-full -mr-8 -mb-8 blur-xl group-hover:bg-brand-emerald-100 transition-all"></div>
                      
                      <div className="space-y-1">
                         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Spendable Balance</p>
-                        <h3 className="text-3xl font-bold tracking-tight">{currency}{stats?.referralBalance?.toLocaleString() || '0'}</h3>
+                        <h3 className="text-3xl font-bold tracking-tight text-slate-900">{currency}{stats?.referralBalance?.toLocaleString() || '0'}</h3>
                      </div>
 
                      <Link 
                         to="/app/referral/redeem"
-                        className="mt-6 flex items-center justify-center gap-2 bg-emerald-500 text-slate-950 py-3 rounded-xl font-bold text-sm hover:bg-emerald-400 transition-all active:scale-95"
+                        className="mt-6 flex items-center justify-center gap-2 bg-brand-emerald text-white py-3 rounded-xl font-bold text-sm hover:bg-brand-emerald-600 transition-all active:scale-95"
                      >
                         Redeem Now
                         <ArrowRight size={16} />
@@ -146,7 +146,7 @@ const ReferralProgramPage: React.FC = () => {
 
             {/* Code and Link Sharing */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+                <div className="bg-surface rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
                     <div className="flex items-center gap-2 text-slate-400">
                         <Users size={16} />
                         <span className="text-[10px] font-bold uppercase tracking-widest">Your Unique Referral Code</span>
@@ -155,14 +155,14 @@ const ReferralProgramPage: React.FC = () => {
                         <code className="text-lg font-bold text-slate-800 tracking-wider font-mono">{referralCode || '------'}</code>
                         <button 
                             onClick={copyCode}
-                            className="bg-white text-slate-900 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm active:scale-95"
+                            className="bg-surface text-slate-900 p-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm active:scale-95"
                         >
                             <Copy size={18} />
                         </button>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+                <div className="bg-surface rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
                     <div className="flex items-center gap-2 text-slate-400">
                         <Info size={16} />
                         <span className="text-[10px] font-bold uppercase tracking-widest">Personal Invite Link</span>
@@ -180,7 +180,7 @@ const ReferralProgramPage: React.FC = () => {
             </div>
 
             {/* How it works */}
-            <div className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
+            <div className="bg-surface rounded-2xl p-8 border border-slate-100 shadow-sm">
                 <h3 className="text-lg font-bold text-slate-900 mb-8">Earning Protocol</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
@@ -193,7 +193,7 @@ const ReferralProgramPage: React.FC = () => {
                         { step: '03', title: 'Lifetime Yield', desc: 'Receive a commission automatically on every purchase they ever make.' }
                     ].map((item, idx) => (
                         <div key={idx} className="relative z-10 space-y-4 text-center md:text-left">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl border italic ${idx === 2 ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-white text-emerald-500 border-slate-100'}`}>
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl border italic ${idx === 2 ? 'bg-brand-emerald text-white border-brand-emerald' : 'bg-surface text-emerald-500 border-slate-100'}`}>
                                 {item.step}
                             </div>
                             <div className="space-y-1">

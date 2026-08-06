@@ -43,11 +43,11 @@ const AdminSupportTicketsPage: React.FC = () => {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">Support Center</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Support Center</h1>
                     <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">Manage user inquiries & resolutions</p>
                 </div>
 
-                <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar max-w-full">
+                <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-100 overflow-x-auto no-scrollbar max-w-full">
                     {['all', 'open', 'in-progress', 'pending', 'resolved', 'closed'].map((s) => (
                         <button 
                             key={s}
@@ -55,7 +55,7 @@ const AdminSupportTicketsPage: React.FC = () => {
                             className={`px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
                                 filter === s 
                                 ? 'bg-emerald-500 text-slate-950 shadow-lg' 
-                                : 'text-slate-500 hover:text-slate-300'
+                                : 'text-slate-500 hover:text-slate-900'
                             }`}
                         >
                             {s.replace('-', ' ')}
@@ -68,7 +68,7 @@ const AdminSupportTicketsPage: React.FC = () => {
                 {loading ? (
                     <ListSkeleton items={5} />
                 ) : tickets.length === 0 ? (
-                    <div className="py-20 bg-white/5 border border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center space-y-4">
+                    <div className="py-20 bg-slate-50 border border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center space-y-4">
                         <MessageSquare size={40} className="text-slate-700" />
                         <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">No tickets found in this category</p>
                     </div>
@@ -77,20 +77,20 @@ const AdminSupportTicketsPage: React.FC = () => {
                         <div 
                             key={ticket._id} 
                             onClick={() => navigate(`/admin/support/${ticket._id}`)}
-                            className="bg-white/5 border border-white/5 rounded-2xl p-5 hover:border-emerald-500/30 transition-all group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer"
+                            className="bg-surface border border-slate-100 rounded-2xl p-5 hover:border-emerald-500/30 transition-all group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer"
                         >
                             <div className="flex items-start gap-4 flex-1">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 ${
+                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-slate-100 ${
                                     ticket.priority === 'high' ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'
                                 }`}>
                                     <MessageSquare size={20} />
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="text-sm font-bold text-white tracking-tight">{ticket.subject}</h3>
+                                        <h3 className="text-sm font-bold text-slate-900 tracking-tight">{ticket.subject}</h3>
                                         <div className="flex items-center gap-2">
                                             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter ${
-                                                ticket.priority === 'high' ? 'bg-red-500/10 text-red-500' : 'bg-white/10 text-slate-400'
+                                                ticket.priority === 'high' ? 'bg-red-500/10 text-red-500' : 'bg-slate-100 text-slate-400'
                                             }`}>
                                                 {ticket.priority || 'Normal'}
                                             </span>

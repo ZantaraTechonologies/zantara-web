@@ -209,10 +209,10 @@ const UserBuyCablePage: React.FC = () => {
                                         className={`relative overflow-hidden flex flex-col items-center justify-center gap-2 p-3 w-24 h-24 rounded-2xl font-bold text-sm transition-all border-2 ${
                                             selectedIdentity?._id === identity._id
                                                 ? 'bg-emerald-50 border-emerald-500 shadow-lg scale-105 text-emerald-900'
-                                                : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                                                : 'bg-surface text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
                                         }`}>
                                         {identity.brandId?.logoUrl ? (
-                                            <img src={identity.brandId.logoUrl} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-white shadow-sm" />
+                                            <img src={identity.brandId.logoUrl} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-surface shadow-sm" />
                                         ) : (
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-lg ${selectedIdentity?._id === identity._id ? 'bg-emerald-200 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
                                                 {identity.name.substring(0, 2).toUpperCase()}
@@ -238,7 +238,7 @@ const UserBuyCablePage: React.FC = () => {
                                         type="button"
                                         onClick={handleVerifySmartcard}
                                         disabled={verifying || !smartcard}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-4 bg-slate-900 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 disabled:opacity-50 transition-all"
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-4 bg-brand-emerald text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-brand-emerald-600 disabled:opacity-50 transition-all"
                                     >
                                         {verifying ? '...' : 'Verify'}
                                     </button>
@@ -293,7 +293,7 @@ const UserBuyCablePage: React.FC = () => {
                         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-4 sticky top-4">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Summary</p>
 
-                            <div className="bg-white border border-slate-100 p-4 rounded-xl flex items-center justify-center font-bold text-slate-900">
+                            <div className="bg-surface border border-slate-100 p-4 rounded-xl flex items-center justify-center font-bold text-slate-900">
                                 {selectedIdentity?.name || '—'}
                             </div>
 

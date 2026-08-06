@@ -13,7 +13,7 @@ import FinalCTA from "../components/landing/FinalCTA";
 
 export default function ZantaraLanding() {
     return (
-        <div className="min-h-screen bg-white text-slate-800 font-sans overflow-x-hidden">
+        <div className="min-h-screen bg-surface text-slate-800 font-sans overflow-x-hidden">
             {/* Global Navbar */}
             <Navbar />
 

@@ -26,7 +26,7 @@ export default function PurchaseLayout({
                     {subtitle && <p className="text-slate-500 font-medium text-sm">{subtitle}</p>}
                 </div>
 
-                <div className="bg-white rounded-2xl border border-slate-50 p-5 shadow-sm min-w-[200px]">
+                <div className="bg-surface rounded-2xl border border-slate-50 p-5 shadow-sm min-w-[200px]">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Balance Protocol</span>
                         <button
@@ -43,7 +43,7 @@ export default function PurchaseLayout({
                 </div>
             </header>
 
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/50 p-6 md:p-8">
+            <div className="bg-surface rounded-2xl border border-slate-100 shadow-xl shadow-slate-100/50 p-6 md:p-8">
                 {children}
             </div>
 

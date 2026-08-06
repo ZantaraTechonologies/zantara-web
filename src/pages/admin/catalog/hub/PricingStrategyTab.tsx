@@ -159,7 +159,7 @@ const PricingStrategyTab: React.FC = () => {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-widest italic">Strategic Markup Engines</h3>
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Strategic Markup Engines</h3>
                     <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">Configure global and granular profit layers</p>
                 </div>
                 <button 
@@ -172,14 +172,14 @@ const PricingStrategyTab: React.FC = () => {
             </div>
 
             {isAdding && (
-                <div className="bg-slate-900 border border-white/5 rounded-[2.5rem] p-10 animate-in zoom-in-95 duration-500">
+                <div className="bg-surface border border-slate-100 rounded-3xl p-6 animate-in zoom-in-95 duration-500">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-2">Scope</label>
                             <select 
                                 value={newRule.targetType}
                                 onChange={(e) => setNewRule({...newRule, targetType: e.target.value, targetId: ''})}
-                                className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                                className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-500/50"
                             >
                                 <option value="global">Global (All Services)</option>
                                 <option value="category">Category</option>
@@ -194,7 +194,7 @@ const PricingStrategyTab: React.FC = () => {
                                 <select 
                                     value={newRule.targetId}
                                     onChange={(e) => setNewRule({...newRule, targetId: e.target.value})}
-                                    className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-indigo-500/50 appearance-none"
+                                    className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-500/50 appearance-none"
                                 >
                                     <option value="">Select Target...</option>
                                     {newRule.targetType === 'category' && metadata.categories.map((c: any) => <option key={c._id} value={c._id}>{c.name}</option>)}
@@ -209,7 +209,7 @@ const PricingStrategyTab: React.FC = () => {
                             <select 
                                 value={newRule.markupType}
                                 onChange={(e: any) => setNewRule({...newRule, markupType: e.target.value})}
-                                className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                                className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-500/50"
                             >
                                 <option value="percent">Percent (%)</option>
                                 <option value="fixed">Fixed (₦)</option>
@@ -221,7 +221,7 @@ const PricingStrategyTab: React.FC = () => {
                                 type="number"
                                 value={newRule.markupValue}
                                 onChange={(e) => setNewRule({...newRule, markupValue: Number(e.target.value)})}
-                                className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                                className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-500/50"
                             />
                         </div>
                         <div className="space-y-2">
@@ -229,7 +229,7 @@ const PricingStrategyTab: React.FC = () => {
                             <select 
                                 value={newRule.userRole}
                                 onChange={(e) => setNewRule({...newRule, userRole: e.target.value})}
-                                className="w-full bg-slate-950 border border-white/5 rounded-2xl px-5 py-4 text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                                className="w-full bg-surface border border-slate-200 rounded-2xl px-5 py-3 text-xs text-slate-900 focus:outline-none focus:border-indigo-500/50"
                             >
                                 <option value="all">All Users</option>
                                 <option value="user">Standard Users</option>
@@ -240,14 +240,14 @@ const PricingStrategyTab: React.FC = () => {
                         </div>
                     </div>
                     <div className="mt-8 flex justify-end">
-                        <button onClick={handleCreateRule} className="px-10 py-4 bg-indigo-500 text-slate-950 font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/20">Deploy Engine</button>
+                        <button onClick={handleCreateRule} className="px-10 py-3 bg-indigo-500 text-slate-950 font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/20">Deploy Engine</button>
                     </div>
                 </div>
             )}
 
             <div className="grid grid-cols-1 gap-6">
                 {rules.map((rule) => (
-                    <div key={rule._id} className={`bg-slate-900/50 border rounded-[2.5rem] p-8 transition-all ${rule.status ? 'border-white/5' : 'border-rose-500/10 opacity-60'}`}>
+                    <div key={rule._id} className={`bg-surface border rounded-3xl p-6 transition-all ${rule.status ? 'border-slate-100' : 'border-rose-500/10 opacity-60'}`}>
                         {editingRuleId === rule._id ? (
                             <div className="space-y-6 animate-in fade-in duration-300 w-full">
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
@@ -256,7 +256,7 @@ const PricingStrategyTab: React.FC = () => {
                                         <select 
                                             value={editForm.markupType} 
                                             onChange={(e) => setEditForm({...editForm, markupType: e.target.value})} 
-                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50"
+                                            className="w-full bg-surface border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500/50"
                                         >
                                             <option value="percent">Percent (%)</option>
                                             <option value="fixed">Fixed (₦)</option>
@@ -268,7 +268,7 @@ const PricingStrategyTab: React.FC = () => {
                                             type="number" 
                                             value={editForm.markupValue} 
                                             onChange={(e) => setEditForm({...editForm, markupValue: Number(e.target.value)})} 
-                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50" 
+                                            className="w-full bg-surface border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500/50" 
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -276,7 +276,7 @@ const PricingStrategyTab: React.FC = () => {
                                         <select 
                                             value={editForm.userRole} 
                                             onChange={(e) => setEditForm({...editForm, userRole: e.target.value})} 
-                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50"
+                                            className="w-full bg-surface border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500/50"
                                         >
                                             <option value="all">All Users</option>
                                             <option value="user">Standard Users</option>
@@ -291,28 +291,28 @@ const PricingStrategyTab: React.FC = () => {
                                             type="number" 
                                             value={editForm.priority} 
                                             onChange={(e) => setEditForm({...editForm, priority: Number(e.target.value)})} 
-                                            className="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-indigo-500/50" 
+                                            className="w-full bg-surface border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500/50" 
                                         />
                                     </div>
                                     <div className="flex gap-2">
                                         <button onClick={handleUpdateRule} className="flex-1 h-12 bg-indigo-500 text-slate-950 font-black text-[10px] uppercase rounded-xl hover:scale-105 transition-transform">Save</button>
-                                        <button onClick={() => setEditingRuleId(null)} className="flex-1 h-12 bg-white/5 text-slate-500 font-black text-[10px] uppercase rounded-xl hover:bg-white/10 transition-colors">Cancel</button>
+                                        <button onClick={() => setEditingRuleId(null)} className="flex-1 h-12 bg-slate-100 text-slate-500 font-black text-[10px] uppercase rounded-xl hover:bg-slate-200 transition-colors">Cancel</button>
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-6">
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${rule.status ? 'bg-indigo-500/10 text-indigo-400' : 'bg-slate-800 text-slate-600'}`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${rule.status ? 'bg-indigo-500/10 text-indigo-400' : 'bg-slate-100 text-slate-600'}`}>
                                         <Tags size={24} />
                                     </div>
                                     <div>
-                                        <h4 className="text-lg font-black text-white tracking-tighter capitalize italic">
+                                        <h4 className="text-lg font-black text-slate-900 tracking-tighter capitalize">
                                             {getTargetName(rule)} <span className="text-indigo-400/50 not-italic text-xs ml-2">Markup</span>
                                         </h4>
                                         <div className="flex items-center gap-3 mt-1">
                                             <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Rule Priority: {rule.priority}</p>
-                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${rule.userRole === 'all' ? 'bg-slate-800 text-slate-400' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'}`}>
+                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${rule.userRole === 'all' ? 'bg-slate-100 text-slate-400' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'}`}>
                                                 Role: {rule.userRole}
                                             </span>
                                         </div>
@@ -321,12 +321,12 @@ const PricingStrategyTab: React.FC = () => {
                                 <div className="flex items-center gap-10">
                                     <div className="text-right">
                                         <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Impact</p>
-                                        <p className="text-2xl font-black text-white tracking-tighter italic">{rule.markupType === 'percent' ? `+${rule.markupValue}%` : `+₦${rule.markupValue}`}</p>
+                                        <p className="text-2xl font-black text-slate-900 tracking-tighter">{rule.markupType === 'percent' ? `+${rule.markupValue}%` : `+₦${rule.markupValue}`}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <button onClick={() => handleStartEdit(rule)} className="p-3 bg-white/5 text-slate-500 hover:text-white rounded-xl"><Edit3 size={18} /></button>
+                                        <button onClick={() => handleStartEdit(rule)} className="p-3 bg-slate-100 text-slate-500 hover:text-slate-900 rounded-xl"><Edit3 size={18} /></button>
                                         <button onClick={() => handleUpdateStatus(rule._id, !rule.status)} className={`p-3 rounded-xl ${rule.status ? 'text-emerald-500 bg-emerald-500/10' : 'text-rose-500 bg-rose-500/10'}`}><ShieldCheck size={18} /></button>
-                                        <button onClick={() => handleDeleteRule(rule._id)} className="p-3 bg-white/5 text-slate-500 hover:text-rose-500 rounded-xl"><Trash2 size={18} /></button>
+                                        <button onClick={() => handleDeleteRule(rule._id)} className="p-3 bg-slate-100 text-slate-500 hover:text-rose-500 rounded-xl"><Trash2 size={18} /></button>
                                     </div>
                                 </div>
                             </div>

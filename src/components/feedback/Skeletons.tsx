@@ -1,17 +1,17 @@
 import React from 'react';
 
 export const CardSkeleton = () => (
-    <div className="bg-white/5 p-6 rounded-2xl border border-white/5 animate-pulse space-y-4">
+    <div className="bg-slate-100 p-6 rounded-2xl border border-slate-100 animate-pulse space-y-4">
         <div className="flex items-center justify-between">
             <div className="space-y-2">
-                <div className="w-24 h-2 bg-white/10 rounded"></div>
-                <div className="w-32 h-6 bg-white/10 rounded"></div>
+                <div className="w-24 h-2 bg-slate-200 rounded"></div>
+                <div className="w-32 h-6 bg-slate-200 rounded"></div>
             </div>
-            <div className="w-10 h-10 bg-white/10 rounded-xl"></div>
+            <div className="w-10 h-10 bg-slate-200 rounded-xl"></div>
         </div>
-        <div className="pt-4 border-t border-white/5 flex gap-4">
-            <div className="w-20 h-3 bg-white/10 rounded"></div>
-            <div className="w-20 h-3 bg-white/10 rounded"></div>
+        <div className="pt-4 border-t border-slate-100 flex gap-4">
+            <div className="w-20 h-3 bg-slate-200 rounded"></div>
+            <div className="w-20 h-3 bg-slate-200 rounded"></div>
         </div>
     </div>
 );
@@ -23,13 +23,13 @@ export const ListSkeleton = ({ items = 3, count }: { items?: number, count?: num
             {Array.from({ length: finalItems }).map((_, i) => (
                 <div key={i} className="flex items-center justify-between p-2 animate-pulse">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/5 rounded-xl"></div>
+                        <div className="w-10 h-10 bg-slate-100 rounded-xl"></div>
                         <div className="space-y-2">
-                            <div className="w-32 h-3 bg-white/5 rounded"></div>
-                            <div className="w-20 h-2 bg-white/5 rounded"></div>
+                            <div className="w-32 h-3 bg-slate-100 rounded"></div>
+                            <div className="w-20 h-2 bg-slate-100 rounded"></div>
                         </div>
                     </div>
-                    <div className="w-16 h-4 bg-white/5 rounded"></div>
+                    <div className="w-16 h-4 bg-slate-100 rounded"></div>
                 </div>
             ))}
         </div>
@@ -63,10 +63,10 @@ export const ServiceSkeleton = () => (
 );
 
 export const PageLoader = () => (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center gap-6">
+    <div className="fixed inset-0 z-50 bg-surface flex flex-col items-center justify-center gap-6">
         <div className="relative">
-            <div className="w-16 h-16 rounded-2xl bg-slate-950 flex items-center justify-center shadow-2xl">
-                <div className="w-8 h-8 border-4 border-slate-700 border-t-emerald-400 rounded-full animate-spin"></div>
+            <div className="w-16 h-16 rounded-2xl bg-brand-mint/60 border border-brand-emerald/20 flex items-center justify-center shadow-card">
+                <div className="w-8 h-8 border-4 border-brand-emerald/20 border-t-brand-emerald rounded-full animate-spin"></div>
             </div>
         </div>
         <div className="text-center space-y-1">

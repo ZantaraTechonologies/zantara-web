@@ -1,0 +1,30 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Hashed build assets: immutable, cache for a year
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Self-hosted fonts: versioned by name, cache for a year
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Brand logo / favicon
+[[headers]]
+  for = "/app_store_icon.*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Everything else (HTML routes + SPA fallback): no-cache + security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"

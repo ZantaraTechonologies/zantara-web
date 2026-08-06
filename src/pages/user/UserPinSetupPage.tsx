@@ -97,9 +97,9 @@ const UserPinSetupPage: React.FC = () => {
     const isSubmitDisabled = hasPin ? oldPin.some(d => !d) || pin.some(d => !d) || confirmPin.some(d => !d) : pin.some(d => !d) || confirmPin.some(d => !d);
 
     const renderPinInputRow = (label: string, values: string[], type: 'old' | 'new' | 'confirm', refsArray: React.MutableRefObject<HTMLInputElement[]>) => (
-        <div className="mb-6 flex flex-col items-center">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">{label}</label>
-            <div className="flex justify-center gap-4">
+        <div className="mb-4 flex flex-col items-center">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">{label}</label>
+            <div className="flex justify-center gap-3">
                 {values.map((digit, idx) => (
                     <input
                         key={`${type}-${idx}`}
@@ -114,7 +114,7 @@ const UserPinSetupPage: React.FC = () => {
                         value={digit}
                         onChange={(e) => handleChange(idx, e.target.value, type)}
                         onKeyDown={(e) => handleKeyDown(idx, e, type)}
-                        className="w-12 h-14 sm:w-14 sm:h-16 bg-slate-50 border border-slate-100 rounded-2xl text-center text-xl sm:text-2xl font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
+                        className="w-12 h-14 sm:w-14 sm:h-16 bg-slate-50 border border-slate-100 rounded-xl text-center text-xl sm:text-2xl font-bold text-slate-900 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all"
                     />
                 ))}
             </div>
@@ -122,37 +122,37 @@ const UserPinSetupPage: React.FC = () => {
     );
 
     return (
-        <div className="max-w-md mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+        <div className="max-w-md mx-auto space-y-4 animate-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
                 {hasPin && (
                     <button
                         onClick={handleBack}
-                        className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
+                        className="p-2.5 bg-surface border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={18} />
                     </button>
                 )}
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">
                         {hasPin ? 'Update PIN' : 'Setup Transaction PIN'}
                     </h1>
-                    <p className="text-sm text-slate-500 font-medium">
+                    <p className="text-xs text-slate-500 font-medium">
                         Configure your 4-digit security code
                     </p>
                 </div>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-200/40 text-center flex flex-col items-center">
-                <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-8">
-                    <ShieldCheck size={32} />
+            <div className="bg-surface border border-slate-100 rounded-2xl p-5 sm:p-6 shadow-xl shadow-slate-200/40 text-center flex flex-col items-center">
+                <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center mb-4">
+                    <ShieldCheck size={24} />
                 </div>
 
                 {hasPin && renderPinInputRow("Current PIN", oldPin, 'old', oldPinRefs)}
                 {renderPinInputRow(hasPin ? "New PIN" : "New Transaction PIN", pin, 'new', pinRefs)}
                 {renderPinInputRow("Confirm New PIN", confirmPin, 'confirm', confirmRefs)}
 
-                <div className="w-full mt-4 space-y-4">
+                <div className="w-full mt-2 space-y-3">
                     <SubmitButton onClick={handleSave} loading={loading} disabled={isSubmitDisabled}>
                         <div className="flex items-center justify-center gap-2">
                             <Save size={16} />
@@ -160,20 +160,20 @@ const UserPinSetupPage: React.FC = () => {
                         </div>
                     </SubmitButton>
 
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mt-4 block">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mt-2 block">
                         This PIN will be required for all transactions
                     </p>
                 </div>
             </div>
 
             {/* Safety Notice */}
-            <div className="bg-slate-950 p-6 rounded-2xl flex items-start gap-4">
-                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-emerald-400 border border-slate-800 shrink-0">
-                    <Lock size={20} />
+            <div className="bg-brand-mint/60 p-4 rounded-2xl border border-brand-emerald/20 flex items-start gap-3">
+                <div className="w-9 h-9 bg-brand-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 border border-brand-emerald/20 shrink-0">
+                    <Lock size={18} />
                 </div>
-                <div className="space-y-1">
-                    <p className="text-[11px] text-white font-bold uppercase tracking-widest">Zero-Persistence Policy</p>
-                    <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                <div className="space-y-0.5">
+                    <p className="text-[11px] text-brand-navy font-bold uppercase tracking-widest">Zero-Persistence Policy</p>
+                    <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
                         Your PIN is encrypted during transmission and is NEVER stored locally on this device or in your browser memory.
                     </p>
                 </div>

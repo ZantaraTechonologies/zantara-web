@@ -75,7 +75,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
         <div className="space-y-6 max-w-4xl mx-auto">
             <button 
                 onClick={() => navigate('/admin/withdrawals')}
-                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors"
             >
                 <ArrowLeft size={16} />
                 <span className="text-sm font-bold tracking-tight">Back to Ledger</span>
@@ -83,7 +83,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">Withdrawal Review</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Withdrawal Review</h1>
                     <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">ID: {withdrawal.reference}</p>
                 </div>
                 
@@ -101,39 +101,39 @@ const AdminWithdrawalDetailPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* User Info */}
-                <div className="bg-white/5 border border-white/5 rounded-3xl p-6">
+                <div className="bg-surface border border-slate-100 rounded-3xl p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <User className="text-slate-400" size={20} />
-                        <h3 className="text-sm font-bold text-white tracking-tight uppercase">User Information</h3>
+                        <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase">User Information</h3>
                     </div>
                     
                     <div className="space-y-4">
                         <div>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Name</p>
-                            <p className="text-sm font-medium text-white">{withdrawal.userId?.name || 'Unknown'}</p>
+                            <p className="text-sm font-medium text-slate-900">{withdrawal.userId?.name || 'Unknown'}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</p>
-                            <p className="text-sm font-medium text-slate-300">{withdrawal.userId?.email || 'Unknown'}</p>
+                            <p className="text-sm font-medium text-slate-500">{withdrawal.userId?.email || 'Unknown'}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Phone</p>
-                            <p className="text-sm font-medium text-slate-300">{withdrawal.userId?.phone || 'Unknown'}</p>
+                            <p className="text-sm font-medium text-slate-500">{withdrawal.userId?.phone || 'Unknown'}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Bank Info */}
-                <div className="bg-white/5 border border-white/5 rounded-3xl p-6">
+                <div className="bg-surface border border-slate-100 rounded-3xl p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <Banknote className="text-slate-400" size={20} />
-                        <h3 className="text-sm font-bold text-white tracking-tight uppercase">Settlement Details</h3>
+                        <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase">Settlement Details</h3>
                     </div>
                     
                     <div className="space-y-4">
                         <div>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bank Name</p>
-                            <p className="text-sm font-medium text-white">{withdrawal.bankName}</p>
+                            <p className="text-sm font-medium text-slate-900">{withdrawal.bankName}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Account Number</p>
@@ -141,25 +141,25 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                         </div>
                         <div>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Account Name</p>
-                            <p className="text-sm font-medium text-white">{withdrawal.accountName}</p>
+                            <p className="text-sm font-medium text-slate-900">{withdrawal.accountName}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Amount Info */}
-                <div className="bg-white/5 border border-white/5 rounded-3xl p-6 md:col-span-2">
-                    <h3 className="text-sm font-bold text-white tracking-tight uppercase mb-6">Financial Summary</h3>
+                <div className="bg-surface border border-slate-100 rounded-3xl p-6 md:col-span-2">
+                    <h3 className="text-sm font-bold text-slate-900 tracking-tight uppercase mb-6">Financial Summary</h3>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <div className="bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+                        <div className="bg-surface p-4 rounded-2xl border border-slate-100">
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Requested Amount</p>
-                            <p className="text-xl font-bold text-white">{currency}{withdrawal.amount?.toLocaleString()}</p>
+                            <p className="text-xl font-bold text-slate-900">{currency}{withdrawal.amount?.toLocaleString()}</p>
                         </div>
-                        <div className="bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+                        <div className="bg-surface p-4 rounded-2xl border border-slate-100">
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Service Fee</p>
-                            <p className="text-xl font-bold text-slate-300">{currency}{withdrawal.fee?.toLocaleString()}</p>
+                            <p className="text-xl font-bold text-slate-500">{currency}{withdrawal.fee?.toLocaleString()}</p>
                         </div>
-                        <div className="bg-slate-900/50 p-4 rounded-2xl border border-emerald-500/20">
+                        <div className="bg-surface p-4 rounded-2xl border border-emerald-500/20">
                             <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Total Debit</p>
                             <p className="text-2xl font-bold text-emerald-400">{currency}{withdrawal.totalDebit?.toLocaleString()}</p>
                         </div>
@@ -173,7 +173,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                     <div className="flex items-start gap-4 mb-6">
                         <ShieldAlert className="text-amber-500 shrink-0 mt-1" size={24} />
                         <div>
-                            <h3 className="text-sm font-bold text-white tracking-tight">Manual Authorization Required</h3>
+                            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Manual Authorization Required</h3>
                             <p className="text-xs text-slate-400 mt-1">Please ensure you have manually transferred the funds to the user's bank account before clicking approve. This action is irreversible.</p>
                         </div>
                     </div>
@@ -185,7 +185,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                                 value={adminNote}
                                 onChange={(e) => setAdminNote(e.target.value)}
                                 placeholder="Enter reference number or reason for rejection..."
-                                className="w-full bg-slate-900/50 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                                className="w-full bg-surface border border-slate-100 rounded-xl p-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-colors"
                                 rows={3}
                             />
                         </div>
@@ -195,7 +195,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                                 type="button"
                                 onClick={() => handleProcess('approve')}
                                 disabled={processingAction !== null}
-                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {processingAction === 'approve' && <Loader2 className="w-5 h-5 animate-spin" />}
                                 {processingAction === 'approve' ? 'Processing...' : 'Approve Payout'}
@@ -204,7 +204,7 @@ const AdminWithdrawalDetailPage: React.FC = () => {
                                 type="button"
                                 onClick={() => handleProcess('reject')}
                                 disabled={processingAction !== null}
-                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {processingAction === 'reject' && <Loader2 className="w-5 h-5 animate-spin" />}
                                 {processingAction === 'reject' ? 'Processing...' : 'Reject Request'}
@@ -215,9 +215,9 @@ const AdminWithdrawalDetailPage: React.FC = () => {
             )}
             
             {!isPending && withdrawal.adminNote && (
-                 <div className="bg-white/5 border border-white/5 rounded-3xl p-6">
+                 <div className="bg-surface border border-slate-100 rounded-3xl p-6">
                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Admin Note</p>
-                     <p className="text-sm text-slate-300">{withdrawal.adminNote}</p>
+                     <p className="text-sm text-slate-500">{withdrawal.adminNote}</p>
                  </div>
             )}
         </div>

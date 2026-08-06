@@ -66,14 +66,14 @@ interface ToggleRowProps {
 }
 
 const ToggleRow: React.FC<ToggleRowProps> = ({ label, description, icon: Icon, value, onChange, accentColor }) => (
-    <div className="flex items-center justify-between py-4 border-b border-gray-800 last:border-0">
+    <div className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0">
         <div className="flex items-center gap-4">
             <div className={`p-2 rounded-lg ${accentColor} shrink-0`}>
                 <Icon className="w-4 h-4" />
             </div>
             <div>
-                <p className="text-sm font-semibold text-white">{label}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+                <p className="text-sm font-semibold text-slate-900">{label}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{description}</p>
             </div>
         </div>
         <button
@@ -85,9 +85,9 @@ const ToggleRow: React.FC<ToggleRowProps> = ({ label, description, icon: Icon, v
             {value ? (
                 <ToggleRight className="w-8 h-8 text-emerald-500 transition-all" />
             ) : (
-                <ToggleLeft className="w-8 h-8 text-gray-600 transition-all" />
+                <ToggleLeft className="w-8 h-8 text-slate-400 transition-all" />
             )}
-            <span className={`text-xs font-bold w-6 ${value ? 'text-emerald-400' : 'text-gray-500'}`}>
+            <span className={`text-xs font-bold w-6 ${value ? 'text-emerald-500' : 'text-slate-400'}`}>
                 {value ? 'ON' : 'OFF'}
             </span>
         </button>
@@ -152,28 +152,28 @@ const AdminNotificationSettingsPage: React.FC = () => {
     }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
+        <div className="p-6 max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold text-slate-900">
                         Notification Settings
                     </h1>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <p className="text-slate-500 text-sm mt-1">
                         Control which SMS and email notifications are sent to users for each activity.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Link
                         to="/admin/settings/notifications/diagnostics"
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 transition-all border border-emerald-500/20"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 transition-all border border-emerald-500/20"
                     >
                         <Activity className="w-4 h-4" />
                         <span className="text-sm font-semibold">Diagnostics & Testing</span>
                     </Link>
                     <button
                         onClick={loadSettings}
-                        className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 transition-all border border-gray-700/50"
+                        className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all border border-slate-100"
                         title="Refresh"
                     >
                         <RefreshCw className="w-5 h-5" />
@@ -183,14 +183,14 @@ const AdminNotificationSettingsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* SMS Settings Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm hover:border-blue-500/30 transition-all duration-300">
-                    <div className="p-5 border-b border-gray-800 flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden hover:border-blue-500/30 transition-all duration-300">
+                    <div className="p-5 border-b border-slate-100 flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
                             <MessageSquare className="w-5 h-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-white">SMS Notifications</h2>
-                            <p className="text-xs text-gray-500">Sent via Termii to the user's phone</p>
+                            <h2 className="text-lg font-semibold text-slate-900">SMS Notifications</h2>
+                            <p className="text-xs text-slate-400">Sent via Termii to the user's phone</p>
                         </div>
                     </div>
                     <div className="p-5">
@@ -200,7 +200,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={ShieldCheck}
                             value={settings.sms.phone_verification}
                             onChange={(v) => setSms('phone_verification', v)}
-                            accentColor="bg-blue-500/10 text-blue-400"
+                            accentColor="bg-blue-500/10 text-blue-500"
                         />
                         <ToggleRow
                             label="Password Reset OTP"
@@ -208,7 +208,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={KeyRound}
                             value={settings.sms.password_reset}
                             onChange={(v) => setSms('password_reset', v)}
-                            accentColor="bg-orange-500/10 text-orange-400"
+                            accentColor="bg-orange-500/10 text-orange-500"
                         />
                         <ToggleRow
                             label="Change PIN Verification"
@@ -216,7 +216,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={LogIn}
                             value={settings.sms.change_pin}
                             onChange={(v) => setSms('change_pin', v)}
-                            accentColor="bg-purple-500/10 text-purple-400"
+                            accentColor="bg-purple-500/10 text-purple-500"
                         />
                         <ToggleRow
                             label="Change Password Verification"
@@ -224,7 +224,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={ShieldCheck}
                             value={settings.sms.change_password}
                             onChange={(v) => setSms('change_password', v)}
-                            accentColor="bg-red-500/10 text-red-400"
+                            accentColor="bg-red-500/10 text-red-500"
                         />
                         <ToggleRow
                             label="Email Verification Fallback"
@@ -232,7 +232,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={Mail}
                             value={settings.sms.email_verification}
                             onChange={(v) => setSms('email_verification', v)}
-                            accentColor="bg-emerald-500/10 text-emerald-400"
+                            accentColor="bg-emerald-500/10 text-emerald-500"
                         />
                         <ToggleRow
                             label="Withdrawal Approved/Rejected Fallback"
@@ -240,7 +240,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={Wallet}
                             value={settings.sms.withdrawal_approved}
                             onChange={(v) => setSms('withdrawal_approved', v)}
-                            accentColor="bg-yellow-500/10 text-yellow-400"
+                            accentColor="bg-yellow-500/10 text-yellow-500"
                         />
                         <ToggleRow
                             label="Critical System Broadcasts Fallback"
@@ -248,20 +248,20 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={Megaphone}
                             value={settings.sms.critical_system}
                             onChange={(v) => setSms('critical_system', v)}
-                            accentColor="bg-red-500/10 text-red-400"
+                            accentColor="bg-red-500/10 text-red-500"
                         />
                     </div>
                 </div>
 
                 {/* Email Settings Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm hover:border-emerald-500/30 transition-all duration-300">
-                    <div className="p-5 border-b border-gray-800 flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden hover:border-emerald-500/30 transition-all duration-300">
+                    <div className="p-5 border-b border-slate-100 flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
                             <Mail className="w-5 h-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-white">Email Notifications</h2>
-                            <p className="text-xs text-gray-500">Sent via SMTP to the user's email address</p>
+                            <h2 className="text-lg font-semibold text-slate-900">Email Notifications</h2>
+                            <p className="text-xs text-slate-400">Sent via SMTP to the user's email address</p>
                         </div>
                     </div>
                     <div className="p-5">
@@ -271,7 +271,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={ShieldCheck}
                             value={settings.email.phone_verification}
                             onChange={(v) => setEmail('phone_verification', v)}
-                            accentColor="bg-blue-500/10 text-blue-400"
+                            accentColor="bg-blue-500/10 text-blue-500"
                         />
                         <ToggleRow
                             label="Password Reset Fallback"
@@ -279,7 +279,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={KeyRound}
                             value={settings.email.password_reset}
                             onChange={(v) => setEmail('password_reset', v)}
-                            accentColor="bg-orange-500/10 text-orange-400"
+                            accentColor="bg-orange-500/10 text-orange-500"
                         />
                         <ToggleRow
                             label="Email Verification OTP"
@@ -287,7 +287,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={Mail}
                             value={settings.email.email_verification}
                             onChange={(v) => setEmail('email_verification', v)}
-                            accentColor="bg-emerald-500/10 text-emerald-400"
+                            accentColor="bg-emerald-500/10 text-emerald-500"
                         />
                         <ToggleRow
                             label="Withdrawal Approved/Rejected"
@@ -295,7 +295,7 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={Wallet}
                             value={settings.email.withdrawal_approved}
                             onChange={(v) => setEmail('withdrawal_approved', v)}
-                            accentColor="bg-yellow-500/10 text-yellow-400"
+                            accentColor="bg-yellow-500/10 text-yellow-500"
                         />
                         <ToggleRow
                             label="Critical System Broadcasts"
@@ -303,17 +303,17 @@ const AdminNotificationSettingsPage: React.FC = () => {
                             icon={Megaphone}
                             value={settings.email.critical_system}
                             onChange={(v) => setEmail('critical_system', v)}
-                            accentColor="bg-red-500/10 text-red-400"
+                            accentColor="bg-red-500/10 text-red-500"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Summary Banner */}
-            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-5 flex flex-wrap gap-4 items-center">
-                <Bell className="w-5 h-5 text-gray-500 shrink-0" />
-                <p className="text-sm text-gray-400 flex-1">
-                    Disabling a channel does <span className="font-bold text-white">not</span> remove in-app or push notifications — those are always delivered. Only the external SMS/email dispatch is blocked.
+            <div className="bg-surface border border-slate-100 rounded-2xl p-5 flex flex-wrap gap-4 items-center">
+                <Bell className="w-5 h-5 text-slate-400 shrink-0" />
+                <p className="text-sm text-slate-500 flex-1">
+                    Disabling a channel does <span className="font-bold text-slate-900">not</span> remove in-app or push notifications — those are always delivered. Only the external SMS/email dispatch is blocked.
                 </p>
             </div>
 

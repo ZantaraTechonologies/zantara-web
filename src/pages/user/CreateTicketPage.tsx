@@ -61,7 +61,7 @@ const CreateTicketPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="bg-white rounded-[2.5rem] p-8 md:p-10 border border-slate-100 shadow-sm space-y-8 relative overflow-hidden">
+                <div className="bg-surface rounded-[2.5rem] p-8 md:p-10 border border-slate-100 shadow-sm space-y-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
 
                     {/* Subject */}
@@ -89,7 +89,7 @@ const CreateTicketPage: React.FC = () => {
                                         onClick={() => setFormData({...formData, priority: p})}
                                         className={`py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border ${
                                             formData.priority === p 
-                                            ? 'bg-slate-950 text-emerald-400 border-slate-950 shadow-lg' 
+                                            ? 'bg-brand-emerald text-white border-brand-emerald shadow-btn' 
                                             : 'bg-slate-50 text-slate-400 border-slate-100 hover:border-slate-200'
                                         }`}
                                     >
@@ -142,7 +142,7 @@ const CreateTicketPage: React.FC = () => {
                     </div>
 
                     <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100/30 flex gap-4">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                        <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center shrink-0 shadow-sm">
                             <HelpCircle className="text-emerald-500" size={20} />
                         </div>
                         <div className="space-y-1">
@@ -157,7 +157,7 @@ const CreateTicketPage: React.FC = () => {
                         type="submit"
                         disabled={isPending || !formData.subject || !formData.message}
                         className={`w-full py-4 rounded-2xl font-bold text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 ${
-                            isPending ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-slate-950 text-white hover:bg-emerald-500 hover:text-slate-950 shadow-slate-200'
+                            isPending ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-brand-emerald text-white hover:bg-brand-emerald-600 shadow-btn'
                         }`}
                     >
                         {isPending ? 'Transmitting...' : 'Submit Support Ticket'}

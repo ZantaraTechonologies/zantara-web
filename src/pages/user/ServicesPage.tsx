@@ -61,7 +61,7 @@ const ServicesPage: React.FC = () => {
     ];
 
     return (
-        <div className="p-6 sm:p-8 lg:p-10 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto">
+        <div className="p-6 sm:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-2">
@@ -74,7 +74,7 @@ const ServicesPage: React.FC = () => {
                     <input 
                         type="text" 
                         placeholder="Search services..." 
-                        className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all shadow-sm"
+                        className="w-full bg-surface border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all shadow-sm"
                     />
                 </div>
             </div>
@@ -85,7 +85,7 @@ const ServicesPage: React.FC = () => {
                     <Link 
                         key={service.id} 
                         to={service.path}
-                        className={`group bg-white border ${service.borderColor} p-6 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-500/30 transition-all active:scale-[0.98] duration-300 relative overflow-hidden`}
+                        className={`group bg-surface border ${service.borderColor} p-6 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-500/30 transition-all active:scale-[0.98] duration-300 relative overflow-hidden`}
                     >
                         {/* Subtle background glow on hover */}
                         <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity -mr-8 -mt-8"></div>
@@ -107,20 +107,20 @@ const ServicesPage: React.FC = () => {
             </div>
 
             {/* Featured Notice */}
-            <div className="bg-slate-950 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            <div className="bg-brand-mint/60 rounded-3xl p-6 border border-brand-emerald/20 relative overflow-hidden shadow-sm">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-emerald-100/60 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-emerald/10 border border-brand-emerald/20 rounded-full text-brand-emerald text-[10px] font-bold uppercase tracking-widest">
                             <Info size={12} />
                             <span>System Note</span>
                         </div>
-                        <h2 className="text-2xl font-bold tracking-tight">Need custom service integrations?</h2>
-                        <p className="text-slate-400 max-w-xl text-sm leading-relaxed">
+                        <h2 className="text-2xl font-bold text-brand-navy tracking-tight">Need custom service integrations?</h2>
+                        <p className="text-slate-600 max-w-xl text-sm leading-relaxed">
                             Our node protocol is expanding. If you're a high-volume agent or merchant requiring enterprise API access, contact our technical support team for specialized routing.
                         </p>
                     </div>
-                    <Link to="/app/support" className="inline-flex items-center justify-center px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 active:scale-95">
+                    <Link to="/app/support" className="inline-flex items-center justify-center px-6 py-3 bg-brand-emerald hover:bg-brand-emerald-600 text-white rounded-xl font-bold text-sm transition-all shadow-btn active:scale-95">
                         Contact Protocol Support
                     </Link>
                 </div>

@@ -92,7 +92,7 @@ export default function AdminTransactionDetailPage() {
             </div>
 
             {/* Hero Card */}
-            <div className="bg-slate-950 rounded-[2.5rem] p-8 md:p-12 text-white overflow-hidden relative shadow-2xl shadow-emerald-500/10">
+            <div className="bg-slate-950 rounded-3xl p-6 md:p-8 text-white overflow-hidden relative shadow-2xl shadow-emerald-500/10">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2" />
                 
                 <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-8">
@@ -135,8 +135,8 @@ export default function AdminTransactionDetailPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Audit Logic & Integrity */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
+                <div className="lg:col-span-2 space-y-4">
+                    <div className="bg-surface border border-slate-100 rounded-3xl p-6 shadow-sm">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white">
                                 <ShieldCheck size={20} />
@@ -180,7 +180,7 @@ export default function AdminTransactionDetailPage() {
                     </div>
 
                     {/* Timeline & Flow */}
-                    <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
+                    <div className="bg-surface border border-slate-100 rounded-3xl p-6 shadow-sm">
                          <div className="flex items-center gap-3 mb-6">
                             <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-slate-950">
                                 <Terminal size={20} />
@@ -191,7 +191,7 @@ export default function AdminTransactionDetailPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-6 relative ml-4 border-l-2 border-slate-100 pl-8 pb-4">
+                        <div className="space-y-4 relative ml-4 border-l-2 border-slate-100 pl-8 pb-4">
                             <div className="relative">
                                 <div className="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-slate-950 border-4 border-white" />
                                 <div className="space-y-1">
@@ -213,8 +213,8 @@ export default function AdminTransactionDetailPage() {
                 </div>
 
                 {/* Sidebar Info */}
-                <div className="space-y-6">
-                    <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm space-y-6">
+                <div className="space-y-4">
+                    <div className="bg-surface border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                         <div>
                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 ml-1">Identifiers</p>
                              <div className="space-y-3">
@@ -261,7 +261,7 @@ export default function AdminTransactionDetailPage() {
                     </div>
 
                     {/* Financial Reconciliation Explorer */}
-                    <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm space-y-4">
+                    <div className="bg-surface border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
                         <div className="flex items-center justify-between ml-1">
                             <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Financial Reconciliation</h4>
                             <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
@@ -274,7 +274,7 @@ export default function AdminTransactionDetailPage() {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between p-3 bg-slate-950 rounded-2xl text-white">
                                 <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">User Paid</span>
-                                <span className="text-sm font-black italic">₦{(txn.amount || 0).toLocaleString()}</span>
+                                <span className="text-sm font-black">₦{(txn.amount || 0).toLocaleString()}</span>
                             </div>
 
                             <div className="p-4 bg-slate-50 rounded-2xl space-y-3 border border-slate-100">
@@ -326,7 +326,7 @@ export default function AdminTransactionDetailPage() {
                     </div>
 
                     {/* Metadata Explorer */}
-                    <div className="bg-slate-950 rounded-[2rem] p-6 shadow-xl shadow-slate-200 overflow-hidden relative group">
+                    <div className="bg-slate-950 rounded-2xl p-5 shadow-xl shadow-slate-200 overflow-hidden relative group">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Terminal size={60} className="text-white" />
                         </div>

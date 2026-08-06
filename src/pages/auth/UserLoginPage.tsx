@@ -6,8 +6,7 @@ import {
     Lock,
     Eye,
     EyeOff,
-    ChevronRight,
-    Github
+    ChevronRight
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 
@@ -45,171 +44,127 @@ const UserLoginPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-white font-sans">
-            {/* Left Side - Branding */}
-            <div className="hidden lg:flex w-1/2 bg-slate-950 relative flex-col justify-between p-12 overflow-hidden">
-                {/* Background Pattern/Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 opacity-90"></div>
-
-                {/* Simulated Network Pattern */}
-                <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
-                    backgroundImage: `radial-gradient(circle at 2px 2px, #34d399 1px, transparent 0)`,
-                    backgroundSize: '40px 40px'
-                }}></div>
-
-                <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-12">
-                        <img src="/app_store_icon.png" alt="Zantara Logo" className="w-10 h-10 rounded-xl shadow-lg" />
-                        <span className="text-2xl font-bold text-white tracking-tight">Zantara</span>
-                    </div>
-
-                    <h1 className="text-4xl font-bold text-white leading-tight mb-6 max-w-md">
-                        Secure your future with next-gen fintech.
-                    </h1>
-                    <p className="text-lg text-slate-400 max-w-md leading-relaxed">
-                        Experience a seamless way to manage your assets, investments, and global transactions with enterprise-grade security.
-                    </p>
-                </div>
-
-                <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="flex -space-x-3">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-950 bg-slate-800 flex items-center justify-center text-xs font-medium">
-                                    <span className="opacity-0">U</span>
-                                    <img
-                                        src={`https://i.pravatar.cc/100?u=${i}`}
-                                        alt="User"
-                                        className="w-full h-full rounded-full object-cover"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                        <p className="text-slate-300 text-sm font-medium">
-                            Joined by <span className="text-emerald-400 font-bold">50,000+</span> investors globally
-                        </p>
-                    </div>
-
-                    <div className="pt-8 border-t border-slate-800 flex justify-between items-center text-xs text-slate-500 font-medium tracking-wider uppercase">
-                        <span>© 2026 ZANTARA INC.</span>
-                        <Link to="/privacy-policy" className="hover:text-emerald-400 transition-colors">Privacy Policy</Link>
-                    </div>
-                </div>
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-brand-mint/50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
+            {/* Logo */}
+            <div className="mb-6 flex items-center gap-3">
+                <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-9 h-9 rounded-xl shadow-btn-navy" />
+                <span className="text-xl font-black text-brand-navy tracking-tight uppercase">Zantara</span>
             </div>
 
-            {/* Right Side - Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-10">
-                <div className="w-full max-w-md">
-                    <div className="mb-8 lg:hidden">
-                        <div className="flex items-center gap-3 mb-4">
-                            <img src="/app_store_icon.png" alt="Zantara Logo" className="w-8 h-8 rounded-lg" />
-                            <span className="text-xl font-bold text-slate-900 tracking-tight">Zantara</span>
-                        </div>
+            {/* Main Card */}
+            <div className="w-full max-w-md bg-surface rounded-3xl shadow-card p-6 sm:p-8 border border-slate-100">
+                <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-brand-navy mb-1">Welcome back</h2>
+                    <p className="text-slate-500 font-medium text-sm">Sign in to continue to your Zantara account</p>
+                </div>
+
+                {errorMsg && (
+                    <div className="mb-6 p-4 text-sm font-semibold text-red-600 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
+                        <span className="mt-0.5 animate-pulse">⚠️</span>
+                        {errorMsg}
                     </div>
+                )}
 
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome back</h2>
-                        <p className="text-slate-500 font-medium text-sm">Enter your credentials to access your Zantara account</p>
-                    </div>
-
-                    {errorMsg && (
-                        <div className="mb-6 p-4 text-sm font-semibold text-red-600 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
-                            <span className="mt-0.5 animate-pulse">⚠️</span>
-                            {errorMsg}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 block">Email or Username</label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
-                                    <Mail size={18} />
-                                </div>
-                                <input
-                                    type="text"
-                                    required
-                                    value={email}
-                                    onChange={(e) => {
-                                        setEmail(e.target.value);
-                                        if (errorMsg) setErrorMsg('');
-                                    }}
-                                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
-                                    placeholder="e.g. alex@zantara.com"
-                                />
+                <form onSubmit={handleLogin} className="space-y-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700 block">Email or Username</label>
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
+                                <Mail size={18} />
                             </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <label className="text-sm font-bold text-slate-700 block">Password</label>
-                                <Link to="/forgot-password" title="Forgot Password" className="text-sm font-bold text-emerald-500 hover:text-emerald-600 transition-colors">
-                                    Forgot password?
-                                </Link>
-                            </div>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
-                                    <Lock size={18} />
-                                </div>
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    required
-                                    value={password}
-                                    onChange={(e) => {
-                                        setPassword(e.target.value);
-                                        if (errorMsg) setErrorMsg('');
-                                    }}
-                                    className="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium"
-                                    placeholder="••••••••"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center">
                             <input
-                                id="remember-me"
-                                type="checkbox"
-                                checked={rememberMe}
-                                onChange={(e) => setRememberMe(e.target.checked)}
-                                className="w-4 h-4 text-emerald-500 border-slate-200 rounded focus:ring-emerald-500/20"
+                                type="text"
+                                required
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    if (errorMsg) setErrorMsg('');
+                                }}
+                                className="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
+                                placeholder="e.g. alex@zantara.com"
                             />
-                            <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-slate-600">
-                                Keep me logged in for 30 days
-                            </label>
                         </div>
+                    </div>
 
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-emerald-400 hover:bg-emerald-500 text-slate-950 font-bold py-3 px-6 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:active:scale-100"
-                        >
-                            {isLoading ? (
-                                <div className="w-6 h-6 border-4 border-slate-950/20 border-t-slate-950 rounded-full animate-spin"></div>
-                            ) : (
-                                <>
-                                    <span>Sign In</span>
-                                    <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                </>
-                            )}
-                        </button>
-
-                        <p className="text-center text-slate-500 font-medium">
-                            Don't have an account?{' '}
-                            <Link to="/register" title="Create Account" className="text-emerald-500 font-bold hover:text-emerald-600 transition-colors">
-                                Create an account
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <label className="text-sm font-bold text-slate-700 block">Password</label>
+                            <Link to="/forgot-password" title="Forgot Password" className="text-sm font-bold text-brand-emerald hover:text-brand-emerald-600 transition-colors">
+                                Forgot password?
                             </Link>
-                        </p>
-                    </form>
-                </div>
+                        </div>
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
+                                <Lock size={18} />
+                            </div>
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                required
+                                value={password}
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                    if (errorMsg) setErrorMsg('');
+                                }}
+                                className="block w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center">
+                        <input
+                            id="remember-me"
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="w-4 h-4 text-brand-emerald border-slate-200 rounded focus:ring-brand-emerald/20"
+                        />
+                        <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-slate-600">
+                            Keep me logged in for 30 days
+                        </label>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full bg-brand-emerald hover:bg-brand-emerald-600 text-white font-bold py-3 px-6 rounded-xl shadow-btn active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:active:scale-100"
+                    >
+                        {isLoading ? (
+                            <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                        ) : (
+                            <>
+                                <span>Sign In</span>
+                                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
+                    </button>
+
+                    <p className="text-center text-slate-500 font-medium">
+                        Don't have an account?{' '}
+                        <Link to="/register" title="Create Account" className="text-brand-emerald font-bold hover:text-brand-emerald-600 transition-colors">
+                            Create an account
+                        </Link>
+                    </p>
+                </form>
             </div>
 
+            {/* Footer Links */}
+            <div className="mt-8 flex gap-6 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <Link to="/help" className="hover:text-brand-navy transition-colors">Help</Link>
+                <Link to="/privacy" className="hover:text-brand-navy transition-colors">Privacy</Link>
+                <Link to="/terms" className="hover:text-brand-navy transition-colors">Terms</Link>
+                <Link to="/status" className="hover:text-brand-navy transition-colors">Status</Link>
+            </div>
+            <p className="mt-3 text-[10px] text-slate-300 font-bold uppercase tracking-[0.2em]">
+                © 2026 Zantara Technologies Inc. All rights reserved.
+            </p>
         </div>
     );
 };

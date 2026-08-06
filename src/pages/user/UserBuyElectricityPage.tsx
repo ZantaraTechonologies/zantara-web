@@ -188,7 +188,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                             const id = identities.find(i => i._id === e.target.value);
                                             if (id) setSelectedIdentity(id);
                                         }}
-                                        className="w-full appearance-none bg-slate-50 border-2 border-slate-100 px-4 py-4 rounded-xl font-bold text-sm text-slate-700 outline-none focus:border-slate-900 focus:bg-white transition-all cursor-pointer"
+                                        className="w-full appearance-none bg-slate-50 border-2 border-slate-100 px-4 py-4 rounded-xl font-bold text-sm text-slate-700 outline-none focus:border-brand-emerald focus:bg-surface transition-all cursor-pointer"
                                     >
                                         <option value="" disabled>Select DISCO Provider</option>
                                         {identities.map(identity => (
@@ -211,7 +211,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                     <button key={type.id} type="button" onClick={() => setMeterType(type.id)}
                                         className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${
                                             meterType === type.id
-                                                ? 'bg-slate-900 text-white shadow-lg'
+                                                ? 'bg-brand-emerald text-white shadow-btn'
                                                 : 'text-slate-500 hover:text-slate-700'
                                         }`}
                                     >
@@ -238,7 +238,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                         className={`absolute right-2 top-1/2 -translate-y-1/2 px-4 py-4 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
                                             customerName 
                                                 ? 'bg-emerald-100 text-emerald-600 cursor-default' 
-                                                : 'bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50'
+                                                : 'bg-brand-emerald text-white hover:bg-brand-emerald-600 disabled:opacity-50'
                                         }`}
                                     >
                                         {verifying ? '...' : customerName ? 'Verified' : 'Verify'}
@@ -266,7 +266,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                     </div>
                                     <Input placeholder="0.00" value={amount}
                                         onChange={(e: any) => setAmount(e.target.value.replace(/\D/g, ''))}
-                                        className="pl-16 font-black text-2xl h-10 bg-slate-50 border-slate-100 focus:bg-white" required type="tel" />
+                                        className="pl-16 font-black text-2xl h-10 bg-slate-50 border-slate-100 focus:bg-surface" required type="tel" />
                                 </div>
                                 <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                                     {[1000, 2000, 5000, 10000, 20000].map(val => (
@@ -280,7 +280,7 @@ const UserBuyElectricityPage: React.FC = () => {
                         </Row>
 
                         <div className="p-5 bg-slate-50 rounded-2xl flex gap-4 items-start border border-slate-100">
-                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-slate-100">
+                            <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center shrink-0 shadow-sm border border-slate-100">
                                 <Info size={18} className="text-indigo-500" />
                             </div>
                             <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
@@ -294,7 +294,7 @@ const UserBuyElectricityPage: React.FC = () => {
                         <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 space-y-6 sticky top-4 shadow-sm">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Order Summary</p>
 
-                            <div className="bg-white border border-slate-100 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm">
+                            <div className="bg-surface border border-slate-100 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-sm">
                                 {selectedIdentity?.brandId?.logoUrl ? (
                                     <img src={selectedIdentity.brandId.logoUrl} className="w-12 h-12 object-contain" alt="" />
                                 ) : (
@@ -304,7 +304,7 @@ const UserBuyElectricityPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
+                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl dark:bg-surface/50">
                                     <span className="text-[11px] font-bold text-slate-400 uppercase">Meter No</span>
                                     <span className="font-bold text-slate-900 font-mono text-sm tracking-tighter">{meterNumber || '—'}</span>
                                 </div>
@@ -315,7 +315,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                     </div>
                                 )}
                                 
-                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl">
+                                <div className="flex justify-between items-center bg-white/50 p-3 rounded-xl dark:bg-surface/50">
                                     <span className="text-[11px] font-bold text-slate-400 uppercase">Type</span>
                                     <span className="font-black text-slate-900 uppercase text-xs">{meterType}</span>
                                 </div>
@@ -347,7 +347,7 @@ const UserBuyElectricityPage: React.FC = () => {
                                 className={`w-full py-5 rounded-2xl font-black text-sm uppercase tracking-[0.1em] transition-all duration-300 shadow-xl ${
                                     loading || insufficient || !selectedIdentity || !meterNumber || !amount || !customerName || previewLoading || previewError
                                         ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                                        : 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-[1.02] active:scale-95 shadow-slate-900/20'
+                                        : 'bg-brand-emerald text-white hover:bg-brand-emerald-600 hover:scale-[1.02] active:scale-95 shadow-btn'
                                 }`}
                             >
                                 {loading ? 'Processing...' : 'Pay Utility Bill'}

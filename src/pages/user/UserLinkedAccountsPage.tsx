@@ -103,11 +103,11 @@ const UserLinkedAccountsPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-in slide-in-from-bottom-8 duration-700">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-6 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
             {/* Header */}
             <div className="flex items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
-                    <button onClick={() => navigate(-1)} className="p-4 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors shadow-sm">
+                    <button onClick={() => navigate(-1)} className="p-4 bg-surface border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors shadow-sm">
                         <ArrowLeft size={20} className="text-slate-900" />
                     </button>
                     <div>
@@ -117,7 +117,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                 </div>
                     <button 
                         onClick={() => setIsAdding(true)}
-                        className="hidden sm:flex items-center gap-2 bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20"
+                        className="hidden sm:flex items-center gap-2 bg-brand-emerald hover:bg-brand-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-btn"
                     >
                         <Plus size={18} />
                         <span>Add New Bank</span>
@@ -125,7 +125,7 @@ const UserLinkedAccountsPage: React.FC = () => {
             </div>
 
             {isAdding ? (
-                <div className="bg-white border border-slate-50 rounded-2xl p-6 sm:p-10 space-y-8 shadow-sm animate-in zoom-in-95 duration-500 relative">
+                <div className="bg-surface border border-slate-50 rounded-2xl p-6 space-y-6 shadow-sm animate-in zoom-in-95 duration-500 relative">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
@@ -138,8 +138,8 @@ const UserLinkedAccountsPage: React.FC = () => {
                         </button>
                     </div>
 
-                    <form onSubmit={handleAdd} className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <form onSubmit={handleAdd} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-3 relative">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Bank Name</label>
                                 <input 
@@ -156,7 +156,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                                     className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-5 font-bold text-slate-900 focus:border-emerald-400 outline-none transition-all"
                                 />
                                 {showBankDropdown && filteredBanks.length > 0 && (
-                                    <div className="absolute z-20 w-full mt-2 max-h-60 overflow-y-auto bg-white border border-slate-100 rounded-2xl shadow-xl top-full left-0">
+                                    <div className="absolute z-20 w-full mt-2 max-h-60 overflow-y-auto bg-surface border border-slate-100 rounded-2xl shadow-xl top-full left-0">
                                         {filteredBanks.slice(0, 50).map(bank => (
                                             <div 
                                                 key={bank.code}
@@ -166,7 +166,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                                                     setBankSearch(bank.name);
                                                     setShowBankDropdown(false);
                                                 }}
-                                                className="p-4 hover:bg-emerald-50 cursor-pointer text-slate-700 font-bold text-sm border-b border-slate-50 last:border-b-0 transition-colors"
+                                                className="p-4 hover:bg-emerald-50 dark:hover:bg-brand-mint cursor-pointer text-slate-700 font-bold text-sm border-b border-slate-50 last:border-b-0 transition-colors"
                                             >
                                                 {bank.name}
                                             </div>
@@ -207,8 +207,8 @@ const UserLinkedAccountsPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 p-5 bg-slate-950 rounded-2xl text-emerald-400/80">
-                            <ShieldCheck size={20} className="shrink-0" />
+                        <div className="flex items-center gap-4 p-5 bg-brand-mint/60 rounded-2xl border border-brand-emerald/20 text-slate-600">
+                            <ShieldCheck size={20} className="text-emerald-600 shrink-0" />
                             <p className="text-[10px] font-bold leading-relaxed uppercase tracking-widest">
                                 Your withdrawal node must match your KYC identity for successful settlements.
                             </p>
@@ -217,60 +217,72 @@ const UserLinkedAccountsPage: React.FC = () => {
                         <button 
                             type="submit"
                             disabled={loading || resolving || !accountName}
-                            className="w-full bg-emerald-400 text-slate-950 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="w-full bg-brand-emerald text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Committing Node...' : 'Establish Secure Link'}
                         </button>
                     </form>
                 </div>
             ) : (
-                <div className="space-y-8">
+                <div className="space-y-6">
                     {linkedAccounts.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {linkedAccounts.map((acc) => (
-                                <div key={acc._id} className="bg-white border border-slate-50 p-6 rounded-2xl flex flex-col justify-between space-y-6 shadow-sm group hover:shadow-md transition-shadow">
-                                    <div className="flex justify-between items-start">
-                                        <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                            <Building2 size={24} />
-                                        </div>
-                                        <button 
-                                            onClick={() => handleDelete(acc._id)}
-                                            className="p-3 text-slate-200 hover:text-red-500 transition-colors"
-                                        >
-                                            <Trash2 size={20} />
-                                        </button>
-                                    </div>
-                                    
-                                    <div className="space-y-1.5">
-                                        <h3 className="text-lg font-bold text-slate-900">{acc.bankName}</h3>
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm font-bold text-slate-400 tracking-widest">{acc.accountNumber.replace(/.(?=.{4})/g, '*')}</p>
-                                            <span className="flex items-center gap-1.5 text-[9px] font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-md uppercase tracking-widest">
-                                                <CheckCircle2 size={10} />
-                                                Verified
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-6 border-t border-slate-50">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Holder</p>
-                                        <p className="font-bold text-slate-700">{acc.accountName}</p>
-                                    </div>
-                                </div>
-                            ))}
-
+                        <div className="bg-surface border border-slate-50 rounded-2xl shadow-sm overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[600px]">
+                                    <thead>
+                                        <tr className="bg-slate-50/80 border-b border-slate-100">
+                                            <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Bank</th>
+                                            <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Account Number</th>
+                                            <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Account Holder</th>
+                                            <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Status</th>
+                                            <th className="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {linkedAccounts.map((acc) => (
+                                            <tr key={acc._id} className="transition-colors hover:bg-slate-50/60 group">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                                                            <Building2 size={18} />
+                                                        </div>
+                                                        <span className="font-bold text-slate-900 text-sm">{acc.bankName}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 font-mono font-bold text-slate-600 text-sm tracking-widest">
+                                                    {acc.accountNumber.replace(/.(?=.{4})/g, '*')}
+                                                </td>
+                                                <td className="px-6 py-4 font-medium text-slate-700 text-sm">{acc.accountName}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-flex items-center gap-1.5 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md uppercase tracking-widest border border-emerald-100">
+                                                        <CheckCircle2 size={10} />
+                                                        Verified
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <button 
+                                                        onClick={() => handleDelete(acc._id)}
+                                                        className="p-2.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                                        title="Unlink account"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                             <button 
                                 onClick={() => setIsAdding(true)}
-                                className="border-2 border-dashed border-slate-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:bg-slate-50 hover:border-emerald-200 transition-all text-slate-400 group h-full min-h-[240px]"
+                                className="w-full p-4 flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors text-slate-400 hover:text-emerald-500 border-t border-slate-100"
                             >
-                                <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                    <Plus size={24} />
-                                </div>
-                                <span className="font-bold text-xs uppercase tracking-[0.2em]">Scale Network</span>
+                                <Plus size={16} />
+                                <span className="font-bold text-xs uppercase tracking-[0.2em]">Add Another Bank</span>
                             </button>
                         </div>
                     ) : (
-                        <div className="bg-white border border-slate-50 rounded-2xl p-12 text-center space-y-6 shadow-sm">
+                        <div className="bg-surface border border-slate-50 rounded-2xl p-8 text-center space-y-6 shadow-sm">
                             <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mx-auto">
                                 <Building2 size={40} />
                             </div>
@@ -280,7 +292,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                             </div>
                             <button 
                                 onClick={() => setIsAdding(true)}
-                                className="bg-slate-950 text-white px-8 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-2xl shadow-slate-200"
+                                className="bg-brand-emerald text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn"
                             >
                                 Build First Connection
                             </button>

@@ -38,23 +38,23 @@ const UserPersonalInfoPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+        <div className="max-w-2xl mx-auto space-y-5 animate-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate('/app/profile')}
-                    className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
+                    className="p-2.5 bg-surface border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
                 >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={18} />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Personal Information</h1>
-                    <p className="text-sm text-slate-500 font-medium">Update your identity and contact details</p>
+                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">Personal Information</h1>
+                    <p className="text-xs text-slate-500 font-medium">Update your identity and contact details</p>
                 </div>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-2xl p-8 shadow-xl shadow-slate-200/40">
-                <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="bg-surface border border-slate-100 rounded-2xl p-6 shadow-xl shadow-slate-200/40">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <Row label="Full Legal Name">
                         <div className="relative group">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors">
@@ -108,7 +108,7 @@ const UserPersonalInfoPage: React.FC = () => {
                         </div>
                     </Row>
 
-                    <div className="pt-6 border-t border-slate-50 flex items-center justify-between">
+                    <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
                         <div className="hidden sm:block">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
                                 Security Protocol: Changes are logged <br /> and verified by the system.
@@ -127,11 +127,11 @@ const UserPersonalInfoPage: React.FC = () => {
             </div>
 
             {/* Info Notice */}
-            <div className="bg-slate-950 p-6 rounded-2xl flex items-start gap-4">
-                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-emerald-400 border border-slate-800 shrink-0">
-                    <AlertCircle size={20} />
+            <div className="bg-brand-mint/60 p-4 rounded-2xl border border-brand-emerald/20 flex items-start gap-3">
+                <div className="w-9 h-9 bg-brand-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 border border-brand-emerald/20 shrink-0">
+                    <AlertCircle size={18} />
                 </div>
-                <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
                     Identity updates may temporarily restrict certain account features while our compliance team verifies the new information. Ensure all details match your valid government-issued ID.
                 </p>
             </div>

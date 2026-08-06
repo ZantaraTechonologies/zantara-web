@@ -207,10 +207,10 @@ const UserBuyExamPinPage: React.FC = () => {
                                         className={`relative overflow-hidden flex flex-col items-center justify-center gap-2 p-3 w-24 h-24 rounded-2xl font-bold text-sm transition-all border-2 ${
                                             selectedIdentity?._id === identity._id
                                                 ? 'bg-emerald-50 border-emerald-500 shadow-lg scale-105 text-emerald-900'
-                                                : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                                                : 'bg-surface text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
                                         }`}>
                                         {identity.brandId?.logoUrl ? (
-                                            <img src={identity.brandId.logoUrl} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-white shadow-sm" />
+                                            <img src={identity.brandId.logoUrl} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-surface shadow-sm" />
                                         ) : (
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-lg ${selectedIdentity?._id === identity._id ? 'bg-emerald-200 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
                                                 {identity.name.substring(0, 2).toUpperCase()}
@@ -269,14 +269,14 @@ const UserBuyExamPinPage: React.FC = () => {
                                                 setProfileCode(e.target.value);
                                                 setCustomerName(null);
                                             }}
-                                            className="w-full p-4 bg-white border-2 border-slate-100 rounded-xl font-bold focus:border-rose-500 outline-none transition-all text-sm"
+                                            className="w-full p-4 bg-surface border-2 border-slate-100 rounded-xl font-bold focus:border-rose-500 outline-none transition-all text-sm"
                                         />
                                     </div>
                                     <button 
                                         type="button" 
                                         onClick={handleVerifyProfile}
                                         disabled={!profileCode || verifying || !!customerName}
-                                        className="px-6 py-4 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                        className="px-6 py-4 bg-brand-emerald text-white rounded-xl font-bold text-sm hover:bg-brand-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                     >
                                         {verifying ? 'Verifying...' : customerName ? 'Verified' : 'Verify'}
                                     </button>
@@ -297,7 +297,7 @@ const UserBuyExamPinPage: React.FC = () => {
                                     max="10"
                                     value={quantity}
                                     onChange={(e) => setQuantity(e.target.value)}
-                                    className="w-20 p-3 bg-white border-2 border-slate-100 rounded-xl font-bold text-center text-lg focus:border-rose-500 outline-none transition-all"
+                                    className="w-20 p-3 bg-surface border-2 border-slate-100 rounded-xl font-bold text-center text-lg focus:border-rose-500 outline-none transition-all"
                                 />
                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">Bulk purchase supported</p>
                             </div>
@@ -316,7 +316,7 @@ const UserBuyExamPinPage: React.FC = () => {
                         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-4 sticky top-4">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Summary</p>
 
-                            <div className="bg-white border border-slate-100 p-4 rounded-xl flex items-center justify-center font-bold text-slate-900">
+                            <div className="bg-surface border border-slate-100 p-4 rounded-xl flex items-center justify-center font-bold text-slate-900">
                                 {selectedIdentity?.name || '—'}
                             </div>
 

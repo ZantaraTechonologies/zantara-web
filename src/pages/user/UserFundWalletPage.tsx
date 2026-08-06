@@ -83,7 +83,7 @@ const UserFundWalletPage: React.FC = () => {
         <div className="max-w-4xl mx-auto p-4 sm:p-5 lg:p-6 space-y-6 animate-in slide-in-from-bottom-8 duration-700 font-sans">
             {/* Header */}
             <div className="flex items-center gap-4">
-                <button onClick={() => navigate(-1)} className="p-3 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
+                <button onClick={() => navigate(-1)} className="p-3 bg-surface border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
                     <ArrowLeft size={18} className="text-slate-900" />
                 </button>
                 <div>
@@ -96,7 +96,7 @@ const UserFundWalletPage: React.FC = () => {
             <div className="flex items-center gap-3">
                 {[1, 2, 3].map((s) => (
                     <div key={s} className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div className={`h-full bg-emerald-400 transition-all duration-500 ${step >= s ? 'w-full' : 'w-0'}`}></div>
+                        <div className={`h-full bg-brand-emerald transition-all duration-500 ${step >= s ? 'w-full' : 'w-0'}`}></div>
                     </div>
                 ))}
             </div>
@@ -111,7 +111,7 @@ const UserFundWalletPage: React.FC = () => {
                                 placeholder="0.00"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                className="w-full bg-white border-2 border-slate-50 rounded-2xl p-6 text-3xl font-bold text-slate-900 focus:border-emerald-400 outline-none transition-all placeholder:text-slate-200"
+                                className="w-full bg-surface border-2 border-slate-50 rounded-2xl p-6 text-3xl font-bold text-slate-900 focus:border-brand-emerald outline-none transition-all placeholder:text-slate-200"
                             />
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg font-bold text-xs uppercase">
                                 {currency}
@@ -124,7 +124,7 @@ const UserFundWalletPage: React.FC = () => {
                             <button 
                                 key={val}
                                 onClick={() => setAmount(val)}
-                                className="bg-white border border-slate-50 py-3 rounded-xl font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all text-sm"
+                                className="bg-surface border border-slate-50 py-3 rounded-xl font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all text-sm"
                             >
                                 +{currency}{Number(val).toLocaleString()}
                             </button>
@@ -134,7 +134,7 @@ const UserFundWalletPage: React.FC = () => {
                     <button 
                         disabled={!amount || Number(amount) <= 0}
                         onClick={() => setStep(2)}
-                        className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
+                        className="w-full bg-brand-emerald text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn disabled:opacity-30 disabled:pointer-events-none"
                     >
                         Continue to Method
                     </button>
@@ -148,10 +148,10 @@ const UserFundWalletPage: React.FC = () => {
                             <button 
                                 key={m.id}
                                 onClick={() => setMethod(m.id as any)}
-                                className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group ${method === m.id ? 'border-emerald-400 bg-emerald-50/50 shadow-xl shadow-emerald-500/10' : 'border-slate-50 bg-white hover:border-slate-100'}`}
+                                className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group ${method === m.id ? 'border-emerald-400 bg-emerald-50/50 shadow-xl shadow-emerald-500/10' : 'border-slate-50 bg-surface hover:border-slate-100'}`}
                             >
                                 <div className="flex items-center gap-5 text-left">
-                                    <div className={`p-3 rounded-xl transition-colors ${method === m.id ? 'bg-emerald-400 text-slate-950' : 'bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500'}`}>
+                                    <div className={`p-3 rounded-xl transition-colors ${method === m.id ? 'bg-brand-emerald text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500'}`}>
                                         <m.icon size={22} strokeWidth={2.5} />
                                     </div>
                                     <div>
@@ -162,8 +162,8 @@ const UserFundWalletPage: React.FC = () => {
                                         <p className="text-xs text-slate-500 font-medium mt-0.5">{m.desc}</p>
                                     </div>
                                 </div>
-                                <div className={`w-6 h-6 rounded-full border-[3px] transition-all flex items-center justify-center ${method === m.id ? 'border-emerald-400 bg-emerald-400' : 'border-slate-100 bg-white'}`}>
-                                    {method === m.id && <CheckCircle2 size={14} className="text-slate-950" />}
+                                <div className={`w-6 h-6 rounded-full border-[3px] transition-all flex items-center justify-center ${method === m.id ? 'border-brand-emerald bg-brand-emerald' : 'border-slate-100 bg-surface'}`}>
+                                    {method === m.id && <CheckCircle2 size={14} className="text-white" />}
                                 </div>
                             </button>
                         ))}
@@ -172,14 +172,14 @@ const UserFundWalletPage: React.FC = () => {
                     <div className="flex flex-col sm:flex-row gap-3">
                         <button 
                             onClick={() => setStep(1)}
-                            className="flex-1 bg-white border border-slate-100 text-slate-900 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] transition-all"
+                            className="flex-1 bg-surface border border-slate-100 text-slate-900 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] transition-all"
                         >
                             Back
                         </button>
                         <button 
                             disabled={!method || loadingPayment}
                             onClick={handleContinue}
-                            className="flex-[2] bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30 disabled:pointer-events-none"
+                            className="flex-[2] bg-brand-emerald text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn disabled:opacity-30 disabled:pointer-events-none"
                         >
                             {loadingPayment ? 'Processing...' : 'Confirm Selection'}
                         </button>
@@ -188,7 +188,7 @@ const UserFundWalletPage: React.FC = () => {
             )}
 
             {step === 3 && (
-                <div className="bg-white border border-slate-50 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm text-center">
+                <div className="bg-surface border border-slate-50 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm text-center">
                     <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto animate-bounce">
                         <Smartphone size={32} />
                     </div>
@@ -220,7 +220,7 @@ const UserFundWalletPage: React.FC = () => {
                                 <p className="text-blue-600 text-xs font-bold mb-1">Transfer exactly {currency}{Number(amount).toLocaleString()}</p>
                                 <p className="text-[10px] text-blue-500">The account above is dedicated to this transaction and expires in 60 minutes. Your wallet will be credited automatically once payment is received.</p>
                             </div>
-                            <button onClick={() => navigate('/app/services/status', { state: { status: 'processing', message: 'Waiting for transfer...', transaction: { service: 'Wallet Funding', amount: Number(amount) } } })} className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200">
+                            <button onClick={() => navigate('/app/services/status', { state: { status: 'processing', message: 'Waiting for transfer...', transaction: { service: 'Wallet Funding', amount: Number(amount) } } })} className="w-full bg-brand-emerald text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn">
                                 I have made the transfer
                             </button>
                         </div>
@@ -237,7 +237,7 @@ const UserFundWalletPage: React.FC = () => {
                                 <span>AES-256 Encrypted Transfer</span>
                             </div>
                             <div className="pt-4 flex flex-col gap-3">
-                                <button disabled={loadingPayment} onClick={handlePayment} className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-50">
+                                <button disabled={loadingPayment} onClick={handlePayment} className="w-full bg-brand-emerald text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn disabled:opacity-50">
                                     {loadingPayment ? 'Redirecting...' : 'Continue to Payment'}
                                 </button>
                                 <button onClick={() => setStep(2)} className="text-[10px] uppercase font-bold text-slate-400 hover:text-slate-900">Cancel</button>

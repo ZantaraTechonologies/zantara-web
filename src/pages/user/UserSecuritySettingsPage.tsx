@@ -47,51 +47,51 @@ const UserSecuritySettingsPage: React.FC = () => {
     ];
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+        <div className="max-w-3xl mx-auto space-y-5 animate-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate('/app/profile')}
-                    className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
+                    className="p-2.5 bg-surface border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
                 >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={18} />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Security Protocol</h1>
-                    <p className="text-sm text-slate-500 font-medium">Protect your capital and account data</p>
+                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">Security Protocol</h1>
+                    <p className="text-xs text-slate-500 font-medium">Protect your capital and account data</p>
                 </div>
             </div>
 
             {/* Security Summary */}
-            <div className="bg-slate-950 p-8 rounded-3xl border border-slate-900 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl transition-all group-hover:bg-emerald-500/20"></div>
+            <div className="bg-surface p-6 rounded-3xl border border-slate-100 shadow-card relative overflow-hidden group">
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-brand-emerald-100/60 rounded-full blur-3xl transition-all group-hover:bg-brand-emerald-200/60"></div>
                 <div className="relative z-10 flex items-center justify-between">
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                             <span className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em]">Protection Level: High</span>
+                             <div className="w-2 h-2 rounded-full bg-brand-emerald animate-pulse"></div>
+                             <span className="text-brand-emerald text-[10px] font-black uppercase tracking-[0.2em]">Protection Level: High</span>
                         </div>
-                        <h2 className="text-3xl font-black text-white tracking-tight">Account Shield</h2>
-                        <p className="text-slate-400 text-sm font-medium">Verified session active from your local device.</p>
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Account Shield</h2>
+                        <p className="text-slate-500 text-sm font-medium">Verified session active from your local device.</p>
                     </div>
-                    <div className="hidden sm:flex w-20 h-20 bg-white/5 rounded-2xl items-center justify-center border border-white/10">
-                        <ShieldCheck size={40} className="text-emerald-400" />
+                    <div className="hidden sm:flex w-16 h-16 bg-brand-mint/60 rounded-2xl items-center justify-center border border-brand-emerald/20">
+                        <ShieldCheck size={32} className="text-brand-emerald" />
                     </div>
                 </div>
             </div>
 
             {/* Security Controls */}
-            <div className="grid gap-4">
+            <div className="grid gap-3">
                 {securityItems.map((item, idx) => (
                     <button
                         key={idx}
                         onClick={() => item.path !== '#' && navigate(item.path)}
                         disabled={item.status === 'locked'}
-                        className={`p-6 bg-white border border-slate-100 rounded-3xl flex items-center justify-between group transition-all hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 ${item.status === 'locked' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        className={`p-4 bg-surface border border-slate-100 rounded-2xl flex items-center justify-between group transition-all hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 ${item.status === 'locked' ? 'opacity-60 cursor-not-allowed' : ''}`}
                     >
-                        <div className="flex items-center gap-5">
-                            <div className={`${item.bg} ${item.color} w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm border border-black/5`}>
-                                <item.icon size={24} />
+                        <div className="flex items-center gap-4">
+                            <div className={`${item.bg} ${item.color} w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm border border-black/5`}>
+                                <item.icon size={22} />
                             </div>
                             <div className="text-left">
                                 <h4 className="font-bold text-slate-900 flex items-center gap-2">
@@ -102,8 +102,8 @@ const UserSecuritySettingsPage: React.FC = () => {
                             </div>
                         </div>
                         {item.status !== 'locked' && (
-                            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 group-hover:text-emerald-500 group-hover:bg-emerald-50 transition-all">
-                                <ChevronRight size={20} />
+                            <div className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 group-hover:text-emerald-500 group-hover:bg-emerald-50 transition-all">
+                                <ChevronRight size={18} />
                             </div>
                         )}
                     </button>
@@ -111,11 +111,11 @@ const UserSecuritySettingsPage: React.FC = () => {
             </div>
 
             {/* Note */}
-            <div className="bg-blue-50/50 p-6 rounded-2xl flex items-start gap-4 border border-blue-100/50">
-                <div className="p-2 bg-white rounded-xl border border-blue-100 text-blue-500">
-                    <Shield size={20} />
+            <div className="bg-blue-50/50 p-4 rounded-2xl flex items-start gap-3 border border-blue-100/50">
+                <div className="p-2 bg-surface rounded-xl border border-blue-100 text-blue-500">
+                    <Shield size={18} />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                     <h4 className="text-sm font-bold text-slate-900">Security Recommendation</h4>
                     <p className="text-xs text-slate-500 font-medium leading-relaxed">Activate your 4-digit PIN for immediate account protection during high-value transactions. Never share your password or PIN with anyone claiming to be from Zantara support.</p>
                 </div>

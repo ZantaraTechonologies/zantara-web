@@ -10,10 +10,10 @@ import { toast } from "react-hot-toast";
 import { Phone, AlertCircle, Info, TriangleAlert } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
 import { detectNetwork } from "../../utils/phoneValidation";
-import mtnLogo from "../../assets/mtn.png";
-import airtelLogo from "../../assets/airtel.png";
-import gloLogo from "../../assets/glo.png";
-import mobile9Logo from "../../assets/9mobile.png";
+import mtnLogo from "../../assets/mtn.webp";
+import airtelLogo from "../../assets/airtel.webp";
+import gloLogo from "../../assets/glo.webp";
+import mobile9Logo from "../../assets/9mobile.webp";
 
 const NETWORK_ASSETS: Record<string, string> = {
     mtn: mtnLogo,
@@ -215,12 +215,12 @@ const UserBuyAirtimePage: React.FC = () => {
                                         className={`relative overflow-hidden flex flex-col items-center justify-center gap-2 p-3 w-24 h-24 rounded-2xl font-bold text-sm transition-all border-2 ${
                                             selectedIdentity?._id === identity._id
                                                 ? 'bg-emerald-50 border-emerald-500 shadow-lg scale-105 text-emerald-900'
-                                                : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                                                : 'bg-surface text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50'
                                         }`}>
                                         {getNetworkAsset(identity.slug) ? (
-                                            <img src={getNetworkAsset(identity.slug) as string} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-white shadow-sm" />
+                                            <img src={getNetworkAsset(identity.slug) as string} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-surface shadow-sm" />
                                         ) : identity.brandId?.logoUrl ? (
-                                            <img src={identity.brandId.logoUrl} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-white shadow-sm" />
+                                            <img src={identity.brandId.logoUrl} alt={identity.name} className="w-10 h-10 object-contain rounded-full bg-surface shadow-sm" />
                                         ) : (
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-lg ${selectedIdentity?._id === identity._id ? 'bg-emerald-200 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
                                                 {identity.name.substring(0, 2).toUpperCase()}
@@ -268,7 +268,7 @@ const UserBuyAirtimePage: React.FC = () => {
                                     </div>
                                     <Input placeholder="0.00" value={amount}
                                         onChange={(e: any) => handleAmountChange(e.target.value)}
-                                        className="pl-16 font-extrabold text-2xl h-10 bg-slate-50 border-slate-200 focus:bg-white transition-all shadow-inner" required type="tel" />
+                                        className="pl-16 font-extrabold text-2xl h-10 bg-slate-50 border-slate-200 focus:bg-surface transition-all shadow-inner" required type="tel" />
                                 </div>
                                 <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                                     {[100, 200, 500, 1000, 2000, 5000].map(val => (
@@ -294,7 +294,7 @@ const UserBuyAirtimePage: React.FC = () => {
                         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-4 sticky top-4">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Summary</p>
 
-                            <div className="bg-white border border-slate-100 p-4 rounded-xl flex items-center justify-center font-bold text-slate-900">
+                            <div className="bg-surface border border-slate-100 p-4 rounded-xl flex items-center justify-center font-bold text-slate-900">
                                 {selectedIdentity?.name || '—'}
                             </div>
 
@@ -347,7 +347,7 @@ const UserBuyAirtimePage: React.FC = () => {
 
             {showMismatch && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in">
-                    <div className="bg-white rounded-3xl w-full max-w-md p-6 space-y-6 shadow-2xl animate-in zoom-in-95">
+                    <div className="bg-surface rounded-3xl w-full max-w-md p-6 space-y-6 shadow-2xl animate-in zoom-in-95">
                         <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <TriangleAlert size={32} className="text-amber-500" />
                         </div>

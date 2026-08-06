@@ -84,45 +84,45 @@ const AdminSettingsPage: React.FC = () => {
     }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
+        <div className="p-6 max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold text-slate-900">
                         Business Settings
                     </h1>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <p className="text-slate-500 text-sm mt-1">
                         Configure your platform's identity, security, and financial parameters.
                     </p>
                 </div>
                 <button 
                     onClick={loadSettings}
-                    className="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 transition-all border border-gray-700/50"
+                    className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all border border-slate-100"
                 >
                     <RefreshCw className="w-5 h-5" />
                 </button>
             </div>
 
-            <form onSubmit={handleSave} className="space-y-6 pb-12">
+            <form onSubmit={handleSave} className="space-y-6 pb-10">
                 {/* Site Identity Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-primary/30 transition-all duration-300">
-                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden group hover:border-primary/30 transition-all duration-300">
+                    <div className="p-6 border-b border-slate-100 flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-primary/10 text-primary">
                             <Globe className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-semibold text-white">Site Identity</h2>
+                        <h2 className="text-xl font-semibold text-slate-900">Site Identity</h2>
                     </div>
                     <div className="p-6 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2">Platform Name</label>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">Platform Name</label>
                             <input 
                                 type="text" 
                                 value={settings.SITE_NAME}
                                 onChange={(e) => setSettings({ ...settings, SITE_NAME: e.target.value })}
                                 placeholder="Enter your business name (e.g. Zantara)"
-                                className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-primary transition-all"
                             />
-                            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                            <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
                                 <AlertCircle className="w-3 h-3" />
                                 This name appears in email footers, page titles, and receipts.
                             </p>
@@ -131,29 +131,29 @@ const AdminSettingsPage: React.FC = () => {
                 </div>
 
                 {/* Referral & Growth Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-blue-500/30 transition-all duration-300">
-                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden group hover:border-blue-500/30 transition-all duration-300">
+                    <div className="p-6 border-b border-slate-100 flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
                             <Users className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-semibold text-white">Growth & Referrals</h2>
+                        <h2 className="text-xl font-semibold text-slate-900">Growth & Referrals</h2>
                     </div>
                     <div className="p-6 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2">Default Commission Rate (%)</label>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">Default Commission Rate (%)</label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">%</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">%</span>
                                 <input 
                                     type="number" 
                                     step="0.001"
                                     value={settings.REFERRAL_RATE}
                                     onChange={(e) => setSettings({ ...settings, REFERRAL_RATE: Number(e.target.value) })}
-                                    className="w-full bg-black/40 border border-gray-700 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-3 text-slate-900 focus:outline-none focus:border-blue-500 transition-all"
                                     placeholder="0.01"
                                 />
                             </div>
-                            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                                <CheckCircle className="w-3 h-3 text-green-500/50" />
+                            <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
+                                <CheckCircle className="w-3 h-3 text-emerald-500" />
                                 Percentage of purchase profit earned by referrers on every transaction.
                             </p>
                         </div>
@@ -161,30 +161,30 @@ const AdminSettingsPage: React.FC = () => {
                 </div>
 
                 {/* Wallet & Transfer Fees Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-orange-500/30 transition-all duration-300">
-                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden group hover:border-orange-500/30 transition-all duration-300">
+                    <div className="p-6 border-b border-slate-100 flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
                             <Settings className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-semibold text-white">Wallet &amp; Internal Transfers</h2>
+                        <h2 className="text-xl font-semibold text-slate-900">Wallet &amp; Internal Transfers</h2>
                     </div>
                     <div className="p-6 space-y-8">
 
                         {/* --- Transfer Fee Section --- */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-orange-400 inline-block"></span>
+                            <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wider flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
                                 Internal Transfer Fee
                             </h3>
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Fee Type</label>
+                                <label className="block text-sm font-medium text-slate-500 mb-2">Fee Type</label>
                                 <select 
                                     value={settings.TRANSFER_FEE_CONFIG?.type || 'tiered'}
                                     onChange={(e) => setSettings({ 
                                         ...settings, 
                                         TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, type: e.target.value } 
                                     })}
-                                    className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-orange-500 transition-all"
                                 >
                                     <option value="tiered">Tiered (e.g. ₦20 per ₦500)</option>
                                     <option value="flat">Flat Fee (Fixed amount)</option>
@@ -195,7 +195,7 @@ const AdminSettingsPage: React.FC = () => {
                             {settings.TRANSFER_FEE_CONFIG?.type === 'tiered' && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-400 mb-2">Increment (₦)</label>
+                                        <label className="block text-sm font-medium text-slate-500 mb-2">Increment (₦)</label>
                                         <input 
                                             type="number" 
                                             value={settings.TRANSFER_FEE_CONFIG?.increment}
@@ -203,11 +203,11 @@ const AdminSettingsPage: React.FC = () => {
                                                 ...settings, 
                                                 TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, increment: Number(e.target.value) } 
                                             })}
-                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-orange-500 transition-all"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-400 mb-2">Fee per Increment (₦)</label>
+                                        <label className="block text-sm font-medium text-slate-500 mb-2">Fee per Increment (₦)</label>
                                         <input 
                                             type="number" 
                                             value={settings.TRANSFER_FEE_CONFIG?.feePerIncrement}
@@ -215,7 +215,7 @@ const AdminSettingsPage: React.FC = () => {
                                                 ...settings, 
                                                 TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, feePerIncrement: Number(e.target.value) } 
                                             })}
-                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-orange-500 transition-all"
                                         />
                                     </div>
                                 </div>
@@ -223,7 +223,7 @@ const AdminSettingsPage: React.FC = () => {
 
                             {(settings.TRANSFER_FEE_CONFIG?.type === 'flat' || settings.TRANSFER_FEE_CONFIG?.type === 'percentage') && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                                    <label className="block text-sm font-medium text-slate-500 mb-2">
                                         {settings.TRANSFER_FEE_CONFIG?.type === 'flat' ? 'Flat Fee (₦)' : 'Fee Percentage (%)'}
                                     </label>
                                     <input 
@@ -234,30 +234,30 @@ const AdminSettingsPage: React.FC = () => {
                                             ...settings, 
                                             TRANSFER_FEE_CONFIG: { ...settings.TRANSFER_FEE_CONFIG, value: Number(e.target.value) } 
                                         })}
-                                        className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-orange-500 transition-all"
                                     />
                                 </div>
                             )}
                         </div>
 
                         {/* Divider */}
-                        <div className="border-t border-gray-800" />
+                        <div className="border-t border-slate-100" />
 
                         {/* --- Withdrawal Fee Section --- */}
                         <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-red-400 uppercase tracking-wider flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-red-400 inline-block"></span>
+                            <h3 className="text-sm font-bold text-red-500 uppercase tracking-wider flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
                                 Bank Withdrawal Fee
                             </h3>
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Fee Type</label>
+                                <label className="block text-sm font-medium text-slate-500 mb-2">Fee Type</label>
                                 <select 
                                     value={settings.WITHDRAWAL_FEE_CONFIG?.type || 'percentage'}
                                     onChange={(e) => setSettings({ 
                                         ...settings, 
                                         WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, type: e.target.value } 
                                     })}
-                                    className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-red-500 transition-all"
                                 >
                                     <option value="tiered">Tiered (e.g. ₦20 per ₦500)</option>
                                     <option value="flat">Flat Fee (Fixed amount)</option>
@@ -268,7 +268,7 @@ const AdminSettingsPage: React.FC = () => {
                             {settings.WITHDRAWAL_FEE_CONFIG?.type === 'tiered' && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-400 mb-2">Increment (₦)</label>
+                                        <label className="block text-sm font-medium text-slate-500 mb-2">Increment (₦)</label>
                                         <input 
                                             type="number" 
                                             value={settings.WITHDRAWAL_FEE_CONFIG?.increment ?? 500}
@@ -276,11 +276,11 @@ const AdminSettingsPage: React.FC = () => {
                                                 ...settings, 
                                                 WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, increment: Number(e.target.value) } 
                                             })}
-                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-red-500 transition-all"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-400 mb-2">Fee per Increment (₦)</label>
+                                        <label className="block text-sm font-medium text-slate-500 mb-2">Fee per Increment (₦)</label>
                                         <input 
                                             type="number" 
                                             value={settings.WITHDRAWAL_FEE_CONFIG?.feePerIncrement ?? 20}
@@ -288,7 +288,7 @@ const AdminSettingsPage: React.FC = () => {
                                                 ...settings, 
                                                 WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, feePerIncrement: Number(e.target.value) } 
                                             })}
-                                            className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-red-500 transition-all"
                                         />
                                     </div>
                                 </div>
@@ -296,7 +296,7 @@ const AdminSettingsPage: React.FC = () => {
 
                             {(settings.WITHDRAWAL_FEE_CONFIG?.type === 'flat' || settings.WITHDRAWAL_FEE_CONFIG?.type === 'percentage') && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                                    <label className="block text-sm font-medium text-slate-500 mb-2">
                                         {settings.WITHDRAWAL_FEE_CONFIG?.type === 'flat' ? 'Flat Fee (₦)' : 'Fee Percentage (%)'}
                                     </label>
                                     <input 
@@ -307,7 +307,7 @@ const AdminSettingsPage: React.FC = () => {
                                             ...settings, 
                                             WITHDRAWAL_FEE_CONFIG: { ...settings.WITHDRAWAL_FEE_CONFIG, value: Number(e.target.value) } 
                                         })}
-                                        className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-all"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-red-500 transition-all"
                                     />
                                 </div>
                             )}
@@ -317,20 +317,20 @@ const AdminSettingsPage: React.FC = () => {
                 </div>
 
                 {/* Communication & Notifications Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-emerald-500/30 transition-all duration-300">
-                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden group hover:border-emerald-500/30 transition-all duration-300">
+                    <div className="p-6 border-b border-slate-100 flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
                             <Bell className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-semibold text-white">Communication & Notifications</h2>
+                        <h2 className="text-xl font-semibold text-slate-900">Communication & Notifications</h2>
                     </div>
                     <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                         <div>
-                            <p className="text-sm text-gray-400">Configure which SMS and Emails are sent to users for transactions and security.</p>
+                            <p className="text-sm text-slate-500">Configure which SMS and Emails are sent to users for transactions and security.</p>
                         </div>
                         <Link 
                             to="/admin/settings/notifications"
-                            className="px-6 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 rounded-xl text-sm font-bold border border-emerald-500/20 transition-all flex items-center gap-2 whitespace-nowrap"
+                            className="px-6 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 rounded-xl text-sm font-bold border border-emerald-500/20 transition-all flex items-center gap-2 whitespace-nowrap"
                         >
                             Configure Channels
                             <ChevronRight className="w-4 h-4" />
@@ -339,22 +339,22 @@ const AdminSettingsPage: React.FC = () => {
                 </div>
 
                 {/* Mobile App Security Card */}
-                <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-sm group hover:border-teal-500/30 transition-all duration-300">
-                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden group hover:border-teal-500/30 transition-all duration-300">
+                    <div className="p-6 border-b border-slate-100 flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-teal-500/10 text-teal-500">
                             <Settings className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-semibold text-white">Mobile App Security</h2>
+                        <h2 className="text-xl font-semibold text-slate-900">Mobile App Security</h2>
                     </div>
                     <div className="p-6 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2">App Lock Timeout (Minutes)</label>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">App Lock Timeout (Minutes)</label>
                             <input 
                                 type="number" 
                                 min="1"
                                 value={settings.APP_LOCK_TIMEOUT_MINUTES}
                                 onChange={(e) => setSettings({ ...settings, APP_LOCK_TIMEOUT_MINUTES: parseInt(e.target.value) || 3 })}
-                                className="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-all"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-teal-500 transition-all"
                             />
                         </div>
                     </div>

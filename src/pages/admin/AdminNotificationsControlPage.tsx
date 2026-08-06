@@ -95,11 +95,11 @@ const AdminNotificationsControlPage: React.FC = () => {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">Notification Terminal</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Notification Terminal</h1>
                     <p className="text-slate-500 text-xs font-bold tracking-widest mt-1 uppercase">Global broadcast & system alerts</p>
                 </div>
 
-                <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+                <div className="flex bg-surface p-1.5 rounded-2xl border border-slate-100">
                     <button 
                         onClick={() => setActiveTab('history')}
                         className={`px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
@@ -121,37 +121,37 @@ const AdminNotificationsControlPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((s, i) => (
-                    <div key={i} className="bg-white/5 border border-white/5 rounded-3xl p-6 flex items-center gap-5 group hover:border-emerald-500/20 transition-all">
-                        <div className={`p-4 rounded-2xl bg-white/5 border border-white/5 ${s.color} transition-transform group-hover:scale-110`}>
+                    <div key={i} className="bg-surface border border-slate-100 rounded-3xl p-6 flex items-center gap-5 group hover:border-emerald-500/20 transition-all">
+                        <div className={`p-4 rounded-2xl bg-slate-100 border border-slate-100 ${s.color} transition-transform group-hover:scale-110`}>
                             <s.icon size={24} />
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{s.label}</p>
-                            <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>
+                            <p className="text-2xl font-bold text-slate-900 tracking-tight">{s.value}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
             {activeTab === 'history' ? (
-                <div className="bg-white/5 border border-white/5 rounded-3xl overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-white/5 bg-white/[0.01]">
-                        <h3 className="text-sm font-bold text-white uppercase tracking-widest">Recent Dispatches</h3>
+                <div className="bg-surface border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+                    <div className="p-6 border-b border-slate-100 bg-white/[0.01]">
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Recent Dispatches</h3>
                     </div>
-                    <div className="divide-y divide-white/5">
+                    <div className="divide-y divide-slate-100">
                         {loading ? (
                             <ListSkeleton items={5} />
                         ) : notifications.length === 0 ? (
                             <div className="py-20 text-center text-slate-500 text-[10px] font-bold uppercase tracking-widest">No previous broadcasts</div>
                         ) : (
                             notifications.map((n: any) => (
-                                <div key={n.id} className={`p-6 flex items-center justify-between group hover:bg-white/5 transition-colors ${n.active ? '' : 'opacity-40 grayscale'}`}>
+                                <div key={n.id} className={`p-6 flex items-center justify-between group hover:bg-slate-50 transition-colors ${n.active ? '' : 'opacity-40 grayscale'}`}>
                                     <div className="flex items-center gap-5">
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
                                             <Radio size={18} />
                                         </div>
                                         <div className="space-y-1">
-                                            <h4 className="text-sm font-bold text-slate-200 tracking-tight">{n.title}</h4>
+                                            <h4 className="text-sm font-bold text-slate-900 tracking-tight">{n.title}</h4>
                                             <p className="text-xs text-slate-500 font-medium line-clamp-1">{n.message}</p>
                                         </div>
                                     </div>
@@ -181,8 +181,8 @@ const AdminNotificationsControlPage: React.FC = () => {
                     </div>
                 </div>
             ) : (
-                <div className="max-w-3xl bg-white/5 border border-white/5 rounded-3xl p-8 space-y-6">
-                    <h3 className="text-xl font-bold text-white tracking-tight">Global System Broadcast</h3>
+                <div className="max-w-3xl bg-surface border border-slate-100 rounded-3xl p-6 space-y-4">
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight">Global System Broadcast</h3>
                     
                     <div className="space-y-4">
                         <div className="space-y-2">
@@ -192,7 +192,7 @@ const AdminNotificationsControlPage: React.FC = () => {
                               value={title}
                               onChange={(e) => setTitle(e.target.value)}
                               placeholder="e.g. System Maintenance Update"
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                              className="w-full bg-surface border border-slate-200 rounded-2xl px-6 py-3 text-sm text-slate-900 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all"
                           />
                         </div>
                         
@@ -203,7 +203,7 @@ const AdminNotificationsControlPage: React.FC = () => {
                               value={message}
                               onChange={(e) => setMessage(e.target.value)}
                               placeholder="Enter message for all active users..."
-                              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none"
+                              className="w-full bg-surface border border-slate-200 rounded-2xl px-6 py-3 text-sm text-slate-900 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none"
                           />
                         </div>
 
@@ -213,11 +213,11 @@ const AdminNotificationsControlPage: React.FC = () => {
                                 <select 
                                     value={target}
                                     onChange={(e) => setTarget(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all appearance-none cursor-pointer"
+                                    className="w-full bg-surface border border-slate-200 rounded-2xl px-6 py-3 text-sm text-slate-900 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all appearance-none cursor-pointer"
                                 >
-                                    <option value="all" className="bg-slate-900 border-none">All Active Users</option>
-                                    <option value="user" className="bg-slate-900 border-none">Retail Users Only</option>
-                                    <option value="agent" className="bg-slate-900 border-none">Business Agents Only</option>
+                                    <option value="all" className="bg-surface border-none">All Active Users</option>
+                                    <option value="user" className="bg-surface border-none">Retail Users Only</option>
+                                    <option value="agent" className="bg-surface border-none">Business Agents Only</option>
                                 </select>
                             </div>
                             <div className="space-y-2">
@@ -225,12 +225,12 @@ const AdminNotificationsControlPage: React.FC = () => {
                                 <select 
                                     value={type}
                                     onChange={(e) => setType(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all appearance-none cursor-pointer"
+                                    className="w-full bg-surface border border-slate-200 rounded-2xl px-6 py-3 text-sm text-slate-900 focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all appearance-none cursor-pointer"
                                 >
-                                    <option value="info" className="bg-slate-900 border-none">Standard Information</option>
-                                    <option value="success" className="bg-slate-900 border-none">Success/Promo</option>
-                                    <option value="warning" className="bg-slate-900 border-none">Warning Alert</option>
-                                    <option value="critical" className="bg-slate-900 border-none">Critical System Alert</option>
+                                    <option value="info" className="bg-surface border-none">Standard Information</option>
+                                    <option value="success" className="bg-surface border-none">Success/Promo</option>
+                                    <option value="warning" className="bg-surface border-none">Warning Alert</option>
+                                    <option value="critical" className="bg-surface border-none">Critical System Alert</option>
                                 </select>
                             </div>
                         </div>
@@ -245,7 +245,7 @@ const AdminNotificationsControlPage: React.FC = () => {
                         <button 
                             onClick={handleSendBroadcast}
                             disabled={sending}
-                            className="w-full py-4 bg-emerald-500 text-slate-950 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 flex items-center justify-center gap-3 group disabled:opacity-50"
+                            className="w-full py-3 bg-emerald-500 text-slate-950 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/10 flex items-center justify-center gap-3 group disabled:opacity-50"
                         >
                             {sending ? 'Initiating...' : (
                                 <>

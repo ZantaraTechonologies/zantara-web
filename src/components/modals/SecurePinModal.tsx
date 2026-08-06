@@ -58,10 +58,10 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-                <div className="bg-slate-950 p-6 flex items-center justify-between text-white">
+            <div className="bg-surface w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+                <div className="bg-brand-emerald p-6 flex items-center justify-between text-white">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white border border-white/20">
                             <ShieldCheck size={20} />
                         </div>
                         <h3 className="font-bold text-sm uppercase tracking-widest">{title}</h3>
@@ -114,7 +114,7 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
                             <button
                                 type="submit"
                                 disabled={loading || pin.some(d => !d)}
-                                className="w-full bg-slate-950 text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-xl shadow-slate-200 disabled:opacity-30"
+                                className="w-full bg-brand-emerald text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn disabled:opacity-30"
                             >
                                 {loading ? (
                                     <div className="flex items-center justify-center gap-2">
@@ -129,7 +129,7 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
                                 type="button"
                                 onClick={onClose}
                                 disabled={loading}
-                                className="w-full bg-white border border-slate-200 text-slate-400 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-30"
+                                className="w-full bg-surface border border-slate-200 text-slate-400 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-30"
                             >
                                 Cancel
                             </button>

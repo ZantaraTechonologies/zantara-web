@@ -4,6 +4,7 @@ import { useAuthStore } from "../../store/auth/authStore";
 import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight, HelpCircle, BadgeDollarSign, BadgePercent, WalletCards, BarChart3, History, ChevronRight, Settings, PieChart } from "lucide-react";
 
 import { useSiteSettings } from "../../app/SiteSettingsContext";
+import ThemeToggle from "../common/ThemeToggle";
 
 export default function Navbar() {
     const { settings } = useSiteSettings();
@@ -23,7 +24,7 @@ export default function Navbar() {
 
     const isAdmin = location.pathname.startsWith('/admin');
 
-    const linkBase = "inline-flex items-center text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors";
+    const linkBase = "inline-flex items-center text-sm font-bold text-slate-600 hover:text-brand-emerald transition-colors";
 
     const adminMenuItems = [
         { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -47,13 +48,13 @@ export default function Navbar() {
     ];
 
     return (
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 h-20 flex items-center">
+        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 h-20 flex items-center dark:bg-surface/80 dark:border-slate-800/60">
             <div className="mx-auto max-w-7xl w-full px-6 sm:px-12">
                 <div className="flex items-center justify-between gap-8">
                     {/* Brand */}
                     <Link to={isAdmin ? "/admin/dashboard" : "/"} className="flex items-center gap-3">
-                        <img src="/app_store_icon.png" alt="Logo" className="w-8 h-8 rounded-lg shadow-lg" />
-                        <span className="text-xl font-bold text-slate-900 tracking-tight uppercase">{settings.SITE_NAME} {isAdmin && <span className="text-emerald-500 ml-1">Admin</span>}</span>
+                        <img src="/app_store_icon.webp" alt="Logo" className="w-9 h-9 rounded-xl shadow-btn-navy" />
+                        <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME} {isAdmin && <span className="text-brand-emerald ml-1">Admin</span>}</span>
                     </Link>
 
                     {/* Desktop nav (Conditional) */}
@@ -66,7 +67,7 @@ export default function Navbar() {
                                             to="/app"
                                             end
                                             className={({ isActive }) =>
-                                                `${linkBase} ${isActive ? "text-emerald-600" : ""}`
+                                                `${linkBase} ${isActive ? "text-brand-emerald" : ""}`
                                             }
                                         >
                                             Dashboard
@@ -74,18 +75,19 @@ export default function Navbar() {
                                         <NavLink
                                             to="/app/transactions"
                                             className={({ isActive }) =>
-                                                `${linkBase} ${isActive ? "text-emerald-600" : ""}`
+                                                `${linkBase} ${isActive ? "text-brand-emerald" : ""}`
                                             }
                                         >
                                             Transactions
                                         </NavLink>
                                     </>
                                 ) : (
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full border border-slate-100">Institutional Control Panel</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-brand-mint px-3 py-1 rounded-full border border-brand-emerald/20 text-brand-emerald">Institutional Control Panel</span>
                                 )}
                             </nav>
 
                             <div className="flex items-center gap-6">
+                                <ThemeToggle className="w-9 h-9" />
                                 <div className="relative hidden xl:block">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                                     <input 
@@ -94,17 +96,17 @@ export default function Navbar() {
                                         className="bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all w-48"
                                     />
                                 </div>
-                                <Link to={isAdmin ? "/admin/notifications" : "/app/notifications"} className="p-2 text-slate-400 hover:text-emerald-500 transition-colors relative">
+                                <Link to={isAdmin ? "/admin/notifications" : "/app/notifications"} className="p-2 text-slate-400 hover:text-brand-emerald transition-colors relative">
                                     <Bell size={20} />
-                                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 border-2 border-white rounded-full"></span>
+                                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-emerald border-2 border-white rounded-full"></span>
                                 </Link>
                                 <div className="h-8 w-px bg-slate-100"></div>
                                 <div className="flex items-center gap-3">
                                     <div className="text-right hidden sm:block">
-                                        <div className="text-xs font-bold text-slate-900 leading-none">{isAdmin ? 'Admin Operator' : (user?.name || 'User')}</div>
+                                        <div className="text-xs font-bold text-brand-navy leading-none">{isAdmin ? 'Admin Operator' : (user?.name || 'User')}</div>
                                         <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">{isAdmin ? 'Full Access' : 'Verified'}</div>
                                     </div>
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${isAdmin ? "bg-slate-900 text-emerald-400 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-100 text-emerald-600"}`}>
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${isAdmin ? "bg-brand-navy text-brand-emerald border border-brand-emerald/30" : "bg-brand-mint border border-brand-emerald/20 text-brand-emerald"}`}>
                                         {isAdmin ? 'AD' : (user?.name?.substring(0, 2).toUpperCase() || 'AZ')}
                                     </div>
                                     <button 
@@ -126,8 +128,8 @@ export default function Navbar() {
                                 <a href="/#security" className={linkBase}>Security</a>
                             </nav>
                             <div className="hidden lg:flex items-center gap-6">
-                                <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors">Login</Link>
-                                <Link to="/register" className="bg-emerald-400 hover:bg-emerald-500 text-slate-950 px-6 py-2.5 rounded-xl font-extrabold text-sm transition-all shadow-lg shadow-emerald-500/10">
+                                <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-brand-emerald transition-colors">Login</Link>
+                                <Link to="/register" className="bg-brand-emerald hover:bg-brand-emerald-600 text-white px-6 py-2.5 rounded-xl font-extrabold text-sm transition-all shadow-btn hover:shadow-none">
                                     Get Started
                                 </Link>
                             </div>
@@ -136,18 +138,19 @@ export default function Navbar() {
 
                     {/* Mobile Controls */}
                     <div className="lg:hidden flex items-center gap-3">
+                        <ThemeToggle className="w-10 h-10" />
                         {isAuthenticated && (
-                            <Link to={isAdmin ? "/admin/notifications" : "/app/notifications"} className="p-2.5 text-slate-400 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors relative">
+                            <Link to={isAdmin ? "/admin/notifications" : "/app/notifications"} className="p-2.5 text-slate-400 bg-brand-mint hover:bg-brand-emerald-50 rounded-xl transition-colors relative">
                                 <Bell size={20} />
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 border-2 border-white rounded-full"></span>
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-brand-emerald border-2 border-white rounded-full"></span>
                             </Link>
                         )}
-                        <button
-                            onClick={() => setOpen((v) => !v)}
-                            className="inline-flex items-center justify-center rounded-xl p-2.5 bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-lg active:scale-95"
-                            aria-expanded={open}
-                            aria-label="Toggle menu"
-                        >
+                    <button
+                        onClick={() => setOpen((v) => !v)}
+                        className="inline-flex items-center justify-center rounded-xl p-2.5 bg-brand-navy text-white hover:bg-brand-navy-800 transition-all shadow-btn-navy active:scale-95"
+                        aria-expanded={open}
+                        aria-label="Toggle menu"
+                    >
                             {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
@@ -166,22 +169,22 @@ export default function Navbar() {
                 
                 {/* Drawer Content */}
                 <div 
-                    className={`absolute inset-y-0 left-0 w-[300px] bg-white opacity-100 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
+                    className={`absolute inset-y-0 left-0 w-[300px] bg-surface opacity-100 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
                     style={{ height: '100dvh', minHeight: '-webkit-fill-available' }}
                 >
-                    <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white relative z-20">
+                    <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-surface relative z-20">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-                            <div className="w-10 h-10 bg-slate-900 rounded-xl shadow-lg flex items-center justify-center">
-                                <img src="/app_store_icon.png" alt="Zantara Logo" className="w-7 h-7" />
+                            <div className="w-10 h-10 bg-brand-navy rounded-xl shadow-btn-navy flex items-center justify-center">
+                                <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-7 h-7" />
                             </div>
-                            <span className="text-xl font-black text-slate-900 tracking-tight uppercase">Zantara</span>
+                            <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME}</span>
                         </Link>
                         <button onClick={() => setOpen(false)} className="p-2.5 -mr-2 bg-slate-50 rounded-xl text-slate-400 hover:text-slate-900 transition-colors">
                             <X className="w-6 h-6" />
                         </button>
                     </div>
 
-                    <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-8 custom-scrollbar bg-white">
+                    <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-8 custom-scrollbar bg-surface">
                         {isAuthenticated ? (
                             <div className="space-y-8">
                                 {/* Link Tiles */}
@@ -189,31 +192,31 @@ export default function Navbar() {
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mb-3">Navigation</p>
                                     {!isAdmin ? (
                                         <>
-                                            <NavLink to="/app" end className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "text-slate-600 hover:bg-slate-50"}`} onClick={() => setOpen(false)}>
+                                            <NavLink to="/app" end className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-navy text-white shadow-xl shadow-brand-navy/20" : "text-slate-600 hover:bg-brand-mint"}`} onClick={() => setOpen(false)}>
                                                 <LayoutDashboard size={20} />
                                                 Dashboard Overview
                                             </NavLink>
-                                            <NavLink to="/app/transactions" className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-slate-900 text-white shadow-xl shadow-slate-200" : "text-slate-600 hover:bg-slate-50"}`} onClick={() => setOpen(false)}>
+                                            <NavLink to="/app/transactions" className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-navy text-white shadow-xl shadow-brand-navy/20" : "text-slate-600 hover:bg-brand-mint"}`} onClick={() => setOpen(false)}>
                                                 <ListOrdered size={20} />
                                                 Transactions History
                                             </NavLink>
-                                            <NavLink to="/app/services" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                            <NavLink to="/app/services" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <Zap size={20} />
                                                 Bill Payments
                                             </NavLink>
-                                            <NavLink to="/app/referral" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                            <NavLink to="/app/referral" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <Users size={20} />
                                                 Refer & Earn
                                             </NavLink>
-                                            <NavLink to="/app/support" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                            <NavLink to="/app/support" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <HelpCircle size={20} />
                                                 Contact Support
                                             </NavLink>
-                                            <NavLink to="/app/investments" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                            <NavLink to="/app/investments" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <BarChart3 size={20} />
                                                 Investment Portfolio
                                             </NavLink>
-                                            <NavLink to="/app/profile" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-slate-50" onClick={() => setOpen(false)}>
+                                            <NavLink to="/app/profile" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <User size={20} />
                                                 Account Security
                                             </NavLink>
@@ -227,7 +230,7 @@ export default function Navbar() {
                                                 <NavLink 
                                                     key={item.path} 
                                                     to={item.path} 
-                                                    className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-emerald-500 text-slate-950 shadow-xl shadow-emerald-500/20" : "text-slate-400 hover:bg-white/5 hover:text-emerald-400 font-bold"}`} 
+                                                    className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-emerald text-white shadow-xl shadow-brand-emerald/25" : "text-slate-400 hover:bg-brand-mint hover:text-brand-emerald font-bold"}`} 
                                                     onClick={() => setOpen(false)}
                                                 >
                                                     <item.icon size={18} />
@@ -257,8 +260,8 @@ export default function Navbar() {
                                 </nav>
 
                                 <div className="flex flex-col gap-4 py-6 border-t border-slate-50">
-                                    <Link to="/login" className="w-full py-5 rounded-2xl bg-slate-50 text-slate-900 font-black text-center border border-slate-100 active:scale-95 transition-all" onClick={() => setOpen(false)}>Login Account</Link>
-                                    <Link to="/register" className="w-full py-5 rounded-2xl bg-emerald-500 text-slate-950 font-black text-center shadow-xl shadow-emerald-500/10 active:scale-95 transition-all text-sm uppercase tracking-widest" onClick={() => setOpen(false)}>Get Started Now</Link>
+                                    <Link to="/login" className="w-full py-5 rounded-2xl bg-brand-mint text-brand-navy font-black text-center border border-brand-emerald/20 active:scale-95 transition-all" onClick={() => setOpen(false)}>Login Account</Link>
+                                    <Link to="/register" className="w-full py-5 rounded-2xl bg-brand-emerald text-white font-black text-center shadow-xl shadow-brand-emerald/20 active:scale-95 transition-all text-sm uppercase tracking-widest" onClick={() => setOpen(false)}>Get Started Now</Link>
                                 </div>
                             </div>
                         )}
@@ -267,7 +270,7 @@ export default function Navbar() {
                     {/* Fixed Logout Button at the bottom */}
                     {isAuthenticated && (
                         <div 
-                            className="p-5 border-t border-slate-50 bg-white relative z-50 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.08)]"
+                            className="p-5 border-t border-slate-50 bg-surface relative z-50 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.08)]"
                             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 3rem)' }}
                         >
                             <button
