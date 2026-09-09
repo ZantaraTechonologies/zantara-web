@@ -181,15 +181,33 @@ const UserBuyAirtimePage: React.FC = () => {
                     status: 'success', 
                     message: res.message || 'Airtime purchase successful.', 
                     transaction: { 
-                        service: `${selectedIdentity.name} Airtime`, 
+                        service: `${selectedIdentity?.name || 'Airtime'}`, 
                         amount: Number(amount), 
                         target: phone, 
-                        reference: res.data?.reference || res.data?.requestId, 
+                        reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
                         timestamp: new Date().toLocaleTimeString() 
                     } 
                 } 
             });
         } catch (err: any) {
+            const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
+            if (isTimeout) {
+                setShowPinModal(false);
+                navigate('/app/services/status', { 
+                    state: { 
+                        status: 'timeout', 
+                        message: 'This transaction is taking longer than expected. We are still processing it.', 
+                        transaction: { 
+                            service: `${selectedIdentity?.name || 'Airtime'}`, 
+                            amount: Number(amount), 
+                            target: phone, 
+                            reference: 'PENDING_VERIFICATION', 
+                            timestamp: new Date().toLocaleTimeString() 
+                        } 
+                    } 
+                });
+                return;
+            }
             setPinError(err.response?.data?.message || "Purchase failed.");
             toast.error(err.response?.data?.message || "Purchase failed.");
         } finally {

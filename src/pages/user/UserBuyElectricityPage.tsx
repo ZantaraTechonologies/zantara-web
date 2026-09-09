@@ -153,16 +153,34 @@ const UserBuyElectricityPage: React.FC = () => {
                     status: 'success', 
                     message: res.message || 'Payment successful.', 
                     transaction: { 
-                        service: `${selectedIdentity.name} (${meterType.toUpperCase()})`, 
+                        service: `${selectedIdentity?.name || 'Electricity'} (${meterType.toUpperCase()})`, 
                         amount: Number(amount), 
                         target: meterNumber, 
-                        reference: res.data?.reference || res.data?.requestId, 
+                        reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
                         token: res.data?.token,
                         timestamp: new Date().toLocaleTimeString() 
                     } 
                 } 
             });
         } catch (err: any) {
+            const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
+            if (isTimeout) {
+                setShowPinModal(false);
+                navigate('/app/services/status', { 
+                    state: { 
+                        status: 'timeout', 
+                        message: 'This transaction is taking longer than expected. We are still processing it.', 
+                        transaction: { 
+                            service: `${selectedIdentity?.name || 'Electricity'} (${meterType.toUpperCase()})`, 
+                            amount: Number(amount), 
+                            target: meterNumber, 
+                            reference: 'PENDING_VERIFICATION', 
+                            timestamp: new Date().toLocaleTimeString() 
+                        } 
+                    } 
+                });
+                return;
+            }
             setPinError(err.response?.data?.message || "Payment failed.");
             toast.error(err.response?.data?.message || "Payment failed.");
         } finally {

@@ -38,7 +38,11 @@ API.interceptors.response.use(
             setMaintenanceMode(true);
         }
 
-        if (!error.response && (error.code === 'ECONNABORTED' || error.message === 'Network Error')) {
+        const isTimeout = error.code === 'ECONNABORTED' || (error.message && error.message.toLowerCase().includes('timeout'));
+        const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+
+        // Only trigger global NoInternetPage on genuine network/offline drop, NEVER on request timeout
+        if (!error.response && isOffline && !isTimeout) {
             setNoInternet(true);
         }
 
