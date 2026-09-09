@@ -19,7 +19,12 @@ import {
     Server,
     Check,
     Layers,
-    Info
+    Info,
+    ChevronDown,
+    Eye,
+    EyeOff,
+    Globe,
+    Hash
 } from 'lucide-react';
 import {
     PaymentGatewayItem,
@@ -723,267 +728,305 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
             {/* Modal: Add / Edit Payment Gateway */}
             {isEditModalOpen && (
-                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-hidden">
-                    <div className="bg-white rounded-3xl max-w-2xl w-full border border-slate-100 shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                        {/* Fixed Header */}
-                        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 sm:px-8 sm:py-5 shrink-0 bg-white">
+                <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
+                    <div className="bg-white rounded-[2rem] max-w-4xl w-full border border-slate-200 shadow-2xl flex flex-col max-h-[95vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+                        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
                             <div>
-                                <h2 className="text-lg font-black text-slate-900">
-                                    {selectedGateway ? `Configure ${selectedGateway.name}` : 'Register New Payment Gateway'}
+                                <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                                    {selectedGateway ? 'Edit Payment Gateway' : 'New Payment Gateway'}
                                 </h2>
-                                <p className="text-xs text-slate-500">
-                                    {selectedGateway ? 'Update parameters, credentials, or channels' : 'Register a new active payment gateway'}
-                                </p>
+                                <p className="text-xs text-slate-500 mt-1 font-medium">Manage infrastructure credentials and regional routing parameters.</p>
                             </div>
                             <button
                                 onClick={() => setIsEditModalOpen(false)}
-                                className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-all"
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-all"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
-                            {/* Scrollable Form Body */}
-                            <div className="overflow-y-auto custom-scrollbar flex-1 p-6 sm:p-8 space-y-5">
-                            {/* General Section */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Gateway Name</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formName}
-                                        onChange={e => setFormName(e.target.value)}
-                                        placeholder="e.g. Paystack Live"
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald focus:bg-white"
-                                    />
+                        <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 overflow-hidden">
+                            <div className="overflow-y-auto px-8 py-7 space-y-8 custom-scrollbar">
+
+                                {/* ── Identity ── */}
+                                <div className="space-y-4">
+                                    <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block" />
+                                        Gateway Identity
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-600 mb-1.5">Display Name</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formName}
+                                                onChange={e => setFormName(e.target.value)}
+                                                placeholder="e.g. Paystack Live"
+                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/15 transition-all"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                                                Internal Code
+                                                {selectedGateway && <span className="ml-1.5 font-normal text-slate-400">(immutable)</span>}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                required
+                                                disabled={!!selectedGateway}
+                                                value={formCode}
+                                                onChange={e => setFormCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                                                placeholder="e.g. paystack"
+                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-700 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/15 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-600 mb-1.5">Adapter Engine</label>
+                                            <div className="relative">
+                                                <select
+                                                    value={formAdapterType}
+                                                    onChange={e => handleAdapterChange(e.target.value as any)}
+                                                    className="w-full appearance-none px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 pr-10 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/15 transition-all"
+                                                >
+                                                    <option value="paystack">Paystack</option>
+                                                    <option value="monnify">Monnify</option>
+                                                    <option value="flutterwave">Flutterwave</option>
+                                                </select>
+                                                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-600 mb-1.5">Operational Status</label>
+                                            <div className="relative">
+                                                <select
+                                                    value={formStatus}
+                                                    onChange={e => setFormStatus(e.target.value as any)}
+                                                    className="w-full appearance-none px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 pr-10 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/15 transition-all"
+                                                >
+                                                    <option value="active">Active — Receiving payments</option>
+                                                    <option value="inactive">Inactive — Disabled</option>
+                                                    <option value="maintenance">Maintenance</option>
+                                                </select>
+                                                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            </div>
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-xs font-bold text-slate-600 mb-1.5">Base API URL</label>
+                                            <div className="relative">
+                                                <Globe className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                                <input
+                                                    type="text"
+                                                    value={formBaseUrl}
+                                                    onChange={e => setFormBaseUrl(e.target.value)}
+                                                    placeholder="https://api.paystack.co"
+                                                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/15 transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Gateway Code</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        disabled={!!selectedGateway}
-                                        value={formCode}
-                                        onChange={e => setFormCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                                        placeholder="e.g. paystack"
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald focus:bg-white disabled:opacity-50"
-                                    />
+                                {/* ── Environment & Routing ── */}
+                                <div className="space-y-4">
+                                    <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-violet-500 inline-block" />
+                                        Environment &amp; Routing
+                                    </p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-600 mb-2">Environment Mode</label>
+                                            <div className="flex gap-3">
+                                                {(['test', 'live'] as const).map(env => (
+                                                    <label key={env} className={`flex-1 flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer select-none transition-all ${
+                                                        formEnvironment === env
+                                                            ? env === 'live' ? 'border-violet-500 bg-violet-50' : 'border-slate-400 bg-slate-100'
+                                                            : 'border-slate-200 bg-white hover:border-slate-300'
+                                                    }`}>
+                                                        <input
+                                                            type="radio"
+                                                            name="env"
+                                                            value={env}
+                                                            checked={formEnvironment === env}
+                                                            onChange={() => setFormEnvironment(env)}
+                                                            className={env === 'live' ? 'text-violet-600 focus:ring-violet-400' : 'text-slate-600 focus:ring-slate-400'}
+                                                        />
+                                                        <span className={`text-sm font-bold ${env === 'live' && formEnvironment === 'live' ? 'text-violet-700' : 'text-slate-700'}`}>
+                                                            {env === 'test' ? 'Test' : 'Live'}
+                                                        </span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                            {formEnvironment === 'live' && (
+                                                <p className="mt-2 text-[11px] font-semibold text-amber-600 flex items-center gap-1.5">
+                                                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                                    Debits real customer bank &amp; card balances.
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-600 mb-2">Platform Default</label>
+                                            <label className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 cursor-pointer select-none transition-all ${
+                                                formIsDefault ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'
+                                            }`}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formIsDefault}
+                                                    onChange={e => setFormIsDefault(e.target.checked)}
+                                                    className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 shrink-0"
+                                                />
+                                                <div>
+                                                    <p className="text-sm font-bold text-slate-800">Set as default gateway</p>
+                                                    <p className="text-xs text-slate-500 mt-0.5">Used as fallback when no gateway is chosen</p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Adapter Engine</label>
-                                    <select
-                                        value={formAdapterType}
-                                        onChange={e => handleAdapterChange(e.target.value as any)}
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald focus:bg-white capitalize"
+                                {/* ── Supported Channels ── */}
+                                <div className="space-y-3">
+                                    <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" />
+                                        Supported Channels
+                                    </p>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        {Object.entries(CHANNEL_LABELS).map(([ch, label]) => (
+                                            <label
+                                                key={ch}
+                                                className={`flex items-center gap-2.5 px-3.5 py-3 rounded-xl border-2 cursor-pointer select-none transition-all ${
+                                                    formChannels.includes(ch)
+                                                        ? 'border-sky-400 bg-sky-50 text-sky-900 font-semibold'
+                                                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formChannels.includes(ch)}
+                                                    onChange={() => handleChannelToggle(ch)}
+                                                    className="rounded text-sky-600 focus:ring-sky-500 w-4 h-4 shrink-0"
+                                                />
+                                                <span className="text-sm">{label}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* ── Encrypted Credentials ── */}
+                                <div className="space-y-3">
+                                    <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                                        Encrypted Credentials
+                                    </p>
+                                    <div className="rounded-2xl border border-slate-200 overflow-hidden">
+                                        <div className="flex items-center justify-between px-5 py-3 bg-slate-800">
+                                            <div className="flex items-center gap-2">
+                                                <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
+                                                <span className="text-xs font-bold text-slate-300">Vault — AES-256-GCM encrypted at rest</span>
+                                            </div>
+                                            <div className="flex items-center gap-1 bg-emerald-900/40 border border-emerald-700/50 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                <ShieldCheck className="w-2.5 h-2.5" />
+                                                Secure
+                                            </div>
+                                        </div>
+                                        <div className="p-5 space-y-5 bg-slate-50">
+                                            {selectedGateway && (
+                                                <div className="flex items-center gap-2 text-[11px] text-slate-500 bg-blue-50 border border-blue-100 rounded-xl px-3.5 py-2.5">
+                                                    <Info className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                                                    Leave <strong>Secret Key</strong> or <strong>Webhook Secret</strong> blank to keep current encrypted values.
+                                                </div>
+                                            )}
+                                            <div>
+                                                <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                                                    Public Key / Client ID
+                                                    {formAdapterType === 'monnify' && <span className="ml-1 font-normal text-slate-400">(API Key)</span>}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={formPublicKey}
+                                                    onChange={e => setFormPublicKey(e.target.value)}
+                                                    placeholder="pk_test_... or Client ID"
+                                                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15 transition-all"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                <div>
+                                                    <div className="flex items-center justify-between mb-1.5">
+                                                        <label className="text-xs font-bold text-slate-600">Secret Key</label>
+                                                        {selectedGateway?.secretKeyConfigured && (
+                                                            <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                                                                <Check className="w-3 h-3" /> Configured
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <input
+                                                        type="password"
+                                                        value={formSecretKey}
+                                                        onChange={e => setFormSecretKey(e.target.value)}
+                                                        placeholder={selectedGateway?.secretKeyConfigured ? '•••••• (blank = keep current)' : 'sk_test_...'}
+                                                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15 transition-all"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <div className="flex items-center justify-between mb-1.5">
+                                                        <label className="text-xs font-bold text-slate-600">Webhook Secret / Hash</label>
+                                                        {selectedGateway?.webhookSecretConfigured && (
+                                                            <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                                                                <Check className="w-3 h-3" /> Configured
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <input
+                                                        type="password"
+                                                        value={formWebhookSecret}
+                                                        onChange={e => setFormWebhookSecret(e.target.value)}
+                                                        placeholder={selectedGateway?.webhookSecretConfigured ? '•••••• (blank = keep current)' : 'Webhook signature secret'}
+                                                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                            {formAdapterType === 'monnify' && (
+                                                <div>
+                                                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Monnify Contract Code</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formContractCode}
+                                                        onChange={e => setFormContractCode(e.target.value)}
+                                                        placeholder="e.g. 1234567890"
+                                                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/15 transition-all"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {/* ── Sticky Footer ── */}
+                            <div className="shrink-0 border-t border-slate-100 bg-white px-8 py-5 rounded-b-[2rem] flex items-center justify-between gap-4">
+                                <p className="text-xs text-slate-400 hidden sm:block">
+                                    {selectedGateway
+                                        ? 'Credentials stored encrypted · changes take effect immediately'
+                                        : 'New gateway starts in the status selected above'}
+                                </p>
+                                <div className="flex items-center gap-3 ml-auto">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEditModalOpen(false)}
+                                        className="px-5 py-2.5 text-sm font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
                                     >
-                                        <option value="paystack">Paystack</option>
-                                        <option value="monnify">Monnify</option>
-                                        <option value="flutterwave">Flutterwave</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Operational Status</label>
-                                    <select
-                                        value={formStatus}
-                                        onChange={e => setFormStatus(e.target.value as any)}
-                                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald focus:bg-white capitalize"
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={saving}
+                                        className="px-7 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
                                     >
-                                        <option value="active">Active (Can receive payments)</option>
-                                        <option value="inactive">Inactive (Disabled)</option>
-                                        <option value="maintenance">Maintenance</option>
-                                    </select>
+                                        {saving && <RefreshCw className="w-4 h-4 animate-spin" />}
+                                        <span>{selectedGateway ? 'Save Changes' : 'Create Gateway'}</span>
+                                    </button>
                                 </div>
-                            </div>
-
-                            {/* Environment & Default */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Environment Mode</label>
-                                    <div className="flex items-center gap-3">
-                                        <label className="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="env"
-                                                value="test"
-                                                checked={formEnvironment === 'test'}
-                                                onChange={() => setFormEnvironment('test')}
-                                                className="text-brand-emerald focus:ring-brand-emerald"
-                                            />
-                                            <span>TEST Mode</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 text-xs font-bold cursor-pointer text-indigo-700">
-                                            <input
-                                                type="radio"
-                                                name="env"
-                                                value="live"
-                                                checked={formEnvironment === 'live'}
-                                                onChange={() => setFormEnvironment('live')}
-                                                className="text-indigo-600 focus:ring-indigo-600"
-                                            />
-                                            <span>LIVE Production</span>
-                                        </label>
-                                    </div>
-                                    {formEnvironment === 'live' && (
-                                        <p className="text-[10px] text-amber-700 font-semibold mt-1">
-                                            ⚠️ Live mode debits actual customer bank/card balances.
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Primary Default Gateway</label>
-                                    <label className="flex items-center gap-2 text-xs font-medium cursor-pointer mt-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={formIsDefault}
-                                            onChange={e => setFormIsDefault(e.target.checked)}
-                                            className="rounded text-brand-emerald focus:ring-brand-emerald"
-                                        />
-                                        <span>Use as platform default fallback</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Base URL */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">Base API URL</label>
-                                <input
-                                    type="text"
-                                    value={formBaseUrl}
-                                    onChange={e => setFormBaseUrl(e.target.value)}
-                                    placeholder="https://api.paystack.co"
-                                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald focus:bg-white"
-                                />
-                            </div>
-
-                            {/* Supported Channels */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2">Supported Channels</label>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                    {Object.entries(CHANNEL_LABELS).map(([ch, label]) => (
-                                        <label
-                                            key={ch}
-                                            className={`flex items-center gap-2 p-2 rounded-xl border text-xs cursor-pointer transition-all ${
-                                                formChannels.includes(ch)
-                                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold'
-                                                    : 'bg-white border-slate-200 text-slate-600'
-                                            }`}
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={formChannels.includes(ch)}
-                                                onChange={() => handleChannelToggle(ch)}
-                                                className="rounded text-brand-emerald focus:ring-brand-emerald"
-                                            />
-                                            <span>{label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Credentials Section */}
-                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-                                <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                                    <KeyRound className="w-4 h-4 text-brand-emerald" />
-                                    <span>Encrypted Credentials</span>
-                                </div>
-
-                                {selectedGateway && (
-                                    <div className="p-2.5 rounded-xl bg-slate-100 text-[11px] text-slate-600 flex items-center gap-2">
-                                        <Info className="w-4 h-4 text-slate-400 shrink-0" />
-                                        <span>
-                                            Existing secrets are stored encrypted with AES-256-GCM. Leave the Secret Key or Webhook Secret fields blank to keep current credentials intact.
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                                        Public Key / Client ID {formAdapterType === 'monnify' ? '(API Key)' : ''}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formPublicKey}
-                                        onChange={e => setFormPublicKey(e.target.value)}
-                                        placeholder="pk_test_... or API Key"
-                                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald"
-                                    />
-                                </div>
-
-                                <div>
-                                    <div className="flex items-center justify-between mb-1">
-                                        <label className="text-xs font-bold text-slate-700">Secret Key</label>
-                                        {selectedGateway?.secretKeyConfigured && (
-                                            <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                                                <Check className="w-3 h-3" /> Configured
-                                            </span>
-                                        )}
-                                    </div>
-                                    <input
-                                        type="password"
-                                        value={formSecretKey}
-                                        onChange={e => setFormSecretKey(e.target.value)}
-                                        placeholder={selectedGateway?.secretKeyConfigured ? '•••••••• (Leave blank to retain current secret)' : 'sk_test_... or Secret Key'}
-                                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald"
-                                    />
-                                </div>
-
-                                <div>
-                                    <div className="flex items-center justify-between mb-1">
-                                        <label className="text-xs font-bold text-slate-700">Webhook Secret / Hash</label>
-                                        {selectedGateway?.webhookSecretConfigured && (
-                                            <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                                                <Check className="w-3 h-3" /> Configured
-                                            </span>
-                                        )}
-                                    </div>
-                                    <input
-                                        type="password"
-                                        value={formWebhookSecret}
-                                        onChange={e => setFormWebhookSecret(e.target.value)}
-                                        placeholder={selectedGateway?.webhookSecretConfigured ? '•••••••• (Leave blank to retain current webhook secret)' : 'Webhook signature hash/secret'}
-                                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald"
-                                    />
-                                </div>
-
-                                {/* Monnify Specific Metadata */}
-                                {formAdapterType === 'monnify' && (
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-700 mb-1">Contract Code</label>
-                                        <input
-                                            type="text"
-                                            value={formContractCode}
-                                            onChange={e => setFormContractCode(e.target.value)}
-                                            placeholder="Monnify Contract Code (e.g. 1234567890)"
-                                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-brand-emerald"
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                            {/* Fixed Footer with Submit Buttons */}
-                            <div className="px-6 py-4 sm:px-8 sm:py-4 border-t border-slate-100 bg-slate-50/90 shrink-0 flex items-center justify-end gap-3 rounded-b-3xl">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditModalOpen(false)}
-                                    className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-200/70 rounded-xl transition-all"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="px-6 py-2.5 bg-brand-emerald text-white text-xs font-bold rounded-xl hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
-                                >
-                                    {saving && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                                    <span>{selectedGateway ? 'Save Configuration' : 'Create Gateway'}</span>
-                                </button>
                             </div>
                         </form>
                     </div>
