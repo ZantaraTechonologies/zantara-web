@@ -46,6 +46,33 @@ export interface ReconciliationTransaction {
     updatedAt: string;
 }
 
+export interface CredentialField {
+    key: 'publicKey' | 'secretKey' | 'webhookSecret';
+    label: string;
+    type: 'text' | 'password';
+    sensitive: boolean;
+    required: boolean;
+    placeholder: string;
+}
+
+export interface MetadataField {
+    key: string;
+    label: string;
+    type: 'text' | 'password';
+    sensitive: boolean;
+    required: boolean;
+    placeholder: string;
+}
+
+export interface AdapterCapability {
+    code: string;
+    label: string;
+    defaultBaseUrl: string;
+    supportedChannels: string[];
+    credentialFields: CredentialField[];
+    metadataFields: MetadataField[];
+}
+
 const BASE_URL = "/admin/payment-gateways";
 
 export const getPaymentGateways = async () => {
@@ -55,6 +82,15 @@ export const getPaymentGateways = async () => {
 
 export const getPaymentGateway = async (id: string) => {
     const response = await apiClient.get(`${BASE_URL}/${id}`);
+    return response.data;
+};
+
+/**
+ * Returns adapter capability registry from the backend.
+ * Safe metadata only — no credentials exposed.
+ */
+export const getAdapterCapabilities = async (): Promise<{ success: boolean; data: AdapterCapability[] }> => {
+    const response = await apiClient.get(`${BASE_URL}/capabilities`);
     return response.data;
 };
 
@@ -87,3 +123,4 @@ export const getReconciliationTransactions = async () => {
     const response = await apiClient.get(`${BASE_URL}/reconciliation`);
     return response.data;
 };
+
