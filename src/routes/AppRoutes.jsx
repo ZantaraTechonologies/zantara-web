@@ -76,6 +76,7 @@ const AdminNotificationsControlPage = lazy(() => import('../pages/admin/AdminNot
 const AdminFinancialHubPage = lazy(() => import('../pages/admin/finance/hub/AdminFinancialHubPage'));
 const AdminSystemWalletPage = lazy(() => import('../pages/admin/finance/AdminSystemWalletPage'));
 const AdminCommissionSettingsPage = lazy(() => import('../pages/admin/finance/AdminCommissionSettingsPage'));
+const AdminPaymentGatewaysPage = lazy(() => import('../pages/admin/finance/AdminPaymentGatewaysPage'));
 const AdminAuditLogsPage = lazy(() => import('../pages/admin/AdminAuditLogsPage'));
 const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage'));
 const AdminNotificationSettingsPage = lazy(() => import('../pages/admin/AdminNotificationSettingsPage'));
@@ -237,7 +238,12 @@ export default function AppRoutes() {
                                         <Route path="earnings" element={<Navigate to="intelligence" state={{ consolidated: true }} replace />} />
                                         <Route path="commissions" element={<AdminCommissionSettingsPage />} />
                                         <Route path="shareholders" element={<AdminShareholdersPage />} />
+                                        <Route path="payment-gateways" element={<AdminPaymentGatewaysPage />} />
                                     </Route>
+
+                                    {/* Aliases for Finance / Settings Payment Gateways navigation */}
+                                    <Route path="finance/payment-gateways" element={<Navigate to="/admin/business/payment-gateways" replace />} />
+                                    <Route path="settings/payment-gateways" element={<Navigate to="/admin/business/payment-gateways" replace />} />
 
                                     {/* System — SuperAdmin Only */}
                                     <Route path="audit-logs" element={<AdminAuditLogsPage />} />

@@ -27,6 +27,7 @@ import {
     Tags,
     Network,
     Layers,
+    CreditCard,
     LucideIcon
 } from "lucide-react";
 import Navbar from "../../components/navigation/Navbar";
@@ -73,6 +74,7 @@ export default function AdminLayout() {
         { path: "/admin/business/commissions", label: "Financial Protocols", icon: ShieldCheck },
         { path: "/admin/business/wallet", label: "System Liquidity", icon: WalletCards },
         { path: "/admin/business/shareholders", label: "Shareholders", icon: PieChart },
+        { path: "/admin/business/payment-gateways", label: "Payment Gateways", icon: CreditCard },
         { type: "header", label: "Inventory" },
         { path: "/admin/catalog/hub", label: "Service Center", icon: Layers },
         { type: "header", label: "System" },
