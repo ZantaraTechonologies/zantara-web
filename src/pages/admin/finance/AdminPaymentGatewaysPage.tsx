@@ -723,9 +723,10 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
             {/* Modal: Add / Edit Payment Gateway */}
             {isEditModalOpen && (
-                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-                    <div className="bg-white rounded-3xl max-w-2xl w-full border border-slate-100 shadow-2xl p-6 sm:p-8 space-y-6 my-8 animate-in fade-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-hidden">
+                    <div className="bg-white rounded-3xl max-w-2xl w-full border border-slate-100 shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        {/* Fixed Header */}
+                        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 sm:px-8 sm:py-5 shrink-0 bg-white">
                             <div>
                                 <h2 className="text-lg font-black text-slate-900">
                                     {selectedGateway ? `Configure ${selectedGateway.name}` : 'Register New Payment Gateway'}
@@ -742,7 +743,9 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                             </button>
                         </div>
 
-                        <form onSubmit={handleFormSubmit} className="space-y-5">
+                        <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+                            {/* Scrollable Form Body */}
+                            <div className="overflow-y-auto custom-scrollbar flex-1 p-6 sm:p-8 space-y-5">
                             {/* General Section */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
@@ -962,13 +965,14 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                     </div>
                                 )}
                             </div>
+                        </div>
 
-                            {/* Submit Buttons */}
-                            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                            {/* Fixed Footer with Submit Buttons */}
+                            <div className="px-6 py-4 sm:px-8 sm:py-4 border-t border-slate-100 bg-slate-50/90 shrink-0 flex items-center justify-end gap-3 rounded-b-3xl">
                                 <button
                                     type="button"
                                     onClick={() => setIsEditModalOpen(false)}
-                                    className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                                    className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-200/70 rounded-xl transition-all"
                                 >
                                     Cancel
                                 </button>
