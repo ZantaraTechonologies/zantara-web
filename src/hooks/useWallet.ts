@@ -1,6 +1,6 @@
 // src/hooks/useWallet.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { WalletBalance, getWalletBalance, initPaystackServer } from "../services/wallet/walletService";
+import { WalletBalance, getWalletBalance, initWalletFunding } from "../services/wallet/walletService";
 import { getMyTransactionLogs, getTransactionById } from "../services/transactions/transactionService";
 
 import type { TxLog } from "../services/transactions/transactionService";
@@ -55,7 +55,7 @@ export function useTransactionDetails(id: string | undefined) {
 export function useInitPaystackServer() {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (amount: number) => initPaystackServer(amount),
+        mutationFn: (amount: number) => initWalletFunding(amount),
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: ["wallet", "balance"] });
             await qc.invalidateQueries({ queryKey: ["txlogs"] }); // invalidate all tx queries

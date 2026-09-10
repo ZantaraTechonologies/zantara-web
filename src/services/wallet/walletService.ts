@@ -25,6 +25,19 @@ export async function getVirtualAccount(): Promise<any> {
     return data.virtualAccounts?.[0] || null;
 }
 
+export type FundingMethod = {
+    code: string;
+    name: string;
+    supportedChannels: string[];
+    isDefault: boolean;
+    environment: string;
+};
+
+export async function getFundingMethods(): Promise<FundingMethod[]> {
+    const { data } = await API.get("/wallet/funding-methods");
+    return data?.data || [];
+}
+
 export async function getLinkedAccounts(): Promise<any[]> {
     const { data } = await API.get("/bank-accounts");
     return data.data || data; // Handle [sendResponse] wrapper if present
@@ -60,13 +73,9 @@ export async function getMyWithdrawals(): Promise<any[]> {
     return data;
 }
 
-export async function initPaystackServer(amount: number, callback_url?: string): Promise<{ authorization_url: string; reference: string }> {
-    const { data } = await API.post("/wallet/fund", { amount, provider: 'paystack', callback_url });
-    return data;
-}
-
-export async function initDirectTransfer(amount: number): Promise<any> {
-    const { data } = await API.post("/paystack/initialize", { amount, metadata: { type: 'funding' }, isDirectTransfer: true });
+export async function initWalletFunding(amount: number, channel: string = 'card', callback_url?: string): Promise<{ authorization_url: string; reference: string }> {
+    // The backend resolves the active gateway for the requested channel — no provider is pinned here.
+    const { data } = await API.post("/wallet/fund", { amount, channel, callback_url });
     return data;
 }
 
