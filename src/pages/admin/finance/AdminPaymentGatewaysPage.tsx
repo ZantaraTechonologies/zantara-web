@@ -35,6 +35,47 @@ import {
 } from '../../../services/admin/adminPaymentGatewayService';
 import { toast } from 'react-hot-toast';
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// PILOT FORM STYLE SYSTEM  ─  Payment Gateway modal
+// Dark/navy fintech tokens. This is the proposed visual standard for the Zantara
+// Admin system. If approved, these tokens should be promoted to a shared module
+// and adopted by the rest of the dashboard (no app-wide refactor yet).
+//
+// Contrast targets (WCAG AA+):
+//   value text  text-slate-100 (#f1f5f9) on slate-900 — ≈15:1
+//   labels      text-slate-300 (#cbd5e1) on slate-900 — ≈9:1
+//   placeholder text-slate-500 (#64748b) on slate-900 — ≈4.7:1
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Shared by all form controls. Forces dark color-scheme (native caret, select
+// dropdown menu, checkboxes, radios and spinners render dark), pins a visible
+// caret, and neutralizes WebKit autofill so credentials never appear white-on-
+// white when a password manager fills them.
+const formControlBase =
+    'w-full rounded-xl border border-slate-700 bg-slate-900/70 text-slate-100 ' +
+    'placeholder:text-slate-500 caret-indigo-300 [color-scheme:dark] ' +
+    '[-webkit-box-shadow:inset_0_0_0_1000px_#0f172a] [-webkit-text-fill-color:#e2e8f0] ' +
+    'transition-colors duration-150 hover:border-slate-600 ' +
+    'focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 focus:bg-slate-900';
+
+const formInputClass = `${formControlBase} px-4 py-3 text-sm font-medium`;
+const formMonoInputClass = `${formControlBase} px-4 py-3 text-sm font-mono tracking-tight`;
+const formInputWithIconClass = `${formControlBase} pl-11 pr-4 py-3 text-sm font-medium`;
+const formSelectClass = `${formControlBase} appearance-none px-4 py-3 pr-10 text-sm font-medium [&>option]:bg-slate-900 [&>option]:text-slate-200`;
+const formLabelClass = 'flex items-center justify-between gap-2 mb-1.5 text-sm font-semibold text-slate-300';
+const formHintClass = 'mt-1.5 text-xs text-slate-400';
+const formSectionTitleClass = 'flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 mb-4';
+const modalButtonPrimaryClass =
+    'inline-flex items-center justify-center gap-2 rounded-xl bg-brand-emerald text-white text-sm font-bold ' +
+    'px-7 py-2.5 shadow-lg shadow-emerald-500/20 hover:bg-emerald-500 active:scale-95 transition-all ' +
+    'disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100';
+const modalButtonSecondaryClass =
+    'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 ' +
+    'text-sm font-semibold px-5 py-2.5 hover:bg-slate-700 hover:text-white active:scale-95 transition-all';
+const modalIconButtonClass =
+    'w-10 h-10 flex items-center justify-center rounded-full bg-slate-800 border border-slate-700 ' +
+    'text-slate-400 hover:bg-slate-700 hover:text-slate-100 transition-all shrink-0';
+
 // ─── Adapter capabilities ────────────────────────────────────────────────────
 // The list of available adapter engines is NOT hardcoded here. It is fetched
 // from GET /admin/payment-gateways/capabilities, which is derived exclusively
@@ -57,7 +98,7 @@ function slugify(str: string): string {
 
 // ─── Section header component for consistent style ───────────────────────────
 const SectionLabel: React.FC<{ color: string; children: React.ReactNode }> = ({ color, children }) => (
-    <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-600 mb-4">
+    <p className={formSectionTitleClass}>
         <span className={`w-1.5 h-1.5 rounded-full ${color} inline-block shrink-0`} />
         {children}
     </p>
@@ -65,8 +106,8 @@ const SectionLabel: React.FC<{ color: string; children: React.ReactNode }> = ({ 
 
 // ─── Label component ─────────────────────────────────────────────────────────
 const FieldLabel: React.FC<{ children: React.ReactNode; htmlFor?: string; extra?: React.ReactNode }> = ({ children, htmlFor, extra }) => (
-    <label htmlFor={htmlFor} className="flex items-center justify-between mb-1.5">
-        <span className="block text-sm font-semibold text-slate-700">{children}</span>
+    <label htmlFor={htmlFor} className={formLabelClass}>
+        <span>{children}</span>
         {extra}
     </label>
 );
@@ -666,16 +707,16 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 MODAL: Add / Edit Payment Gateway
             ══════════════════════════════════════════════════════════════ */}
             {isEditModalOpen && (
-                <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
-                    <div className="bg-white rounded-[2rem] max-w-4xl w-full border border-slate-200 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
+                    <div className="bg-gradient-to-b from-brand-navy-800 to-brand-navy-900 rounded-[2rem] max-w-4xl w-full border border-slate-800 shadow-2xl shadow-black/50 flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-300">
 
                         {/* Modal Header */}
-                        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0 rounded-t-[2rem]">
+                        <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between bg-transparent shrink-0 rounded-t-[2rem]">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                                <h2 className="text-xl font-black tracking-tight text-white">
                                     {selectedGateway ? `Edit: ${selectedGateway.name}` : 'Register New Payment Gateway'}
                                 </h2>
-                                <p className="text-sm text-slate-600 mt-0.5">
+                                <p className="text-sm text-slate-400 mt-0.5">
                                     {selectedGateway
                                         ? 'Update credentials, channels, and gateway settings.'
                                         : 'Configure a new payment gateway adapter for wallet funding.'}
@@ -683,7 +724,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                             </div>
                             <button
                                 onClick={() => setIsEditModalOpen(false)}
-                                className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-all shrink-0"
+                                aria-label="Close dialog"
+                                className={modalIconButtonClass}
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -706,7 +748,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                 value={formName}
                                                 onChange={e => handleNameChange(e.target.value)}
                                                 placeholder="e.g. Paystack Live"
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+                                                className={formInputClass}
                                             />
                                         </div>
 
@@ -714,7 +756,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         <div>
                                             <FieldLabel htmlFor="gw-code">
                                                 Internal Code
-                                                {selectedGateway && <span className="text-xs font-normal text-slate-500 italic ml-1">(immutable — linked to transactions)</span>}
+                                                {selectedGateway && <span className="text-xs font-normal text-slate-400 italic ml-1">(immutable — linked to transactions)</span>}
                                             </FieldLabel>
                                             <input
                                                 id="gw-code"
@@ -724,10 +766,10 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                 value={formCode}
                                                 onChange={e => setFormCode(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                                                 placeholder="e.g. paystack"
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono text-slate-700 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-slate-100"
+                                                className={`${formMonoInputClass} disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-900/40 disabled:hover:border-slate-700`}
                                             />
                                             {!selectedGateway && (
-                                                <p className="mt-1.5 text-xs text-slate-500">
+                                                <p className={formHintClass}>
                                                     Lowercase letters, digits, and underscores only. Cannot be changed after transactions reference it.
                                                 </p>
                                             )}
@@ -737,7 +779,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         <div>
                                             <FieldLabel htmlFor="gw-adapter">
                                                 Adapter Engine
-                                                {selectedGateway && <span className="text-xs font-normal text-slate-500 italic ml-1">(immutable after creation)</span>}
+                                                {selectedGateway && <span className="text-xs font-normal text-slate-400 italic ml-1">(immutable after creation)</span>}
                                             </FieldLabel>
                                             <div className="relative">
                                                 <select
@@ -745,15 +787,15 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                     value={formAdapterType}
                                                     onChange={e => handleAdapterChange(e.target.value)}
                                                     disabled={!!selectedGateway}
-                                                    className="w-full appearance-none px-4 py-3 pr-10 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-slate-100"
+                                                    className={`${formSelectClass} disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-900/40 disabled:hover:border-slate-700`}
                                                 >
                                                     {capabilities.map(cap => (
                                                         <option key={cap.code} value={cap.code}>{cap.label}</option>
                                                     ))}
                                                 </select>
-                                                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                             </div>
-                                            <p className="mt-1.5 text-xs text-slate-500">
+                                            <p className={formHintClass}>
                                                 Selects the integration implementation. Different from display name.
                                             </p>
                                         </div>
@@ -766,16 +808,16 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                     id="gw-status"
                                                     value={formStatus}
                                                     onChange={e => handleStatusChange(e.target.value as any)}
-                                                    className="w-full appearance-none px-4 py-3 pr-10 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+                                                    className={formSelectClass}
                                                 >
                                                     <option value="inactive">Inactive — Disabled, not receiving payments</option>
                                                     <option value="active">Active — Receiving live payments</option>
                                                     <option value="maintenance">Maintenance — Temporarily suspended</option>
                                                 </select>
-                                                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                             </div>
                                             {!selectedGateway && (
-                                                <p className="mt-1.5 text-xs text-slate-500">New gateways default to Inactive — activate once credentials are verified.</p>
+                                                <p className={formHintClass}>New gateways default to Inactive — activate once credentials are verified.</p>
                                             )}
                                         </div>
 
@@ -783,14 +825,14 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         <div className="md:col-span-2">
                                             <FieldLabel htmlFor="gw-baseurl">Base API URL</FieldLabel>
                                             <div className="relative">
-                                                <Globe className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                                <Globe className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                                 <input
                                                     id="gw-baseurl"
                                                     type="text"
                                                     value={formBaseUrl}
                                                     onChange={e => setFormBaseUrl(e.target.value)}
                                                     placeholder={currentSpec?.defaultBaseUrl || 'https://api.example.com'}
-                                                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+                                                    className={formInputWithIconClass}
                                                 />
                                             </div>
                                         </div>
@@ -810,8 +852,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                         key={env}
                                                         className={`flex-1 flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer select-none transition-all ${
                                                             formEnvironment === env
-                                                                ? env === 'live' ? 'border-violet-500 bg-violet-50' : 'border-slate-400 bg-slate-100'
-                                                                : 'border-slate-200 bg-white hover:border-slate-300'
+                                                                ? env === 'live' ? 'border-violet-400 bg-violet-500/10' : 'border-slate-500 bg-slate-800'
+                                                                : 'border-slate-700 bg-slate-900/60 hover:border-slate-500'
                                                         }`}
                                                     >
                                                         <input
@@ -820,16 +862,16 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                             value={env}
                                                             checked={formEnvironment === env}
                                                             onChange={() => setFormEnvironment(env)}
-                                                            className={env === 'live' ? 'text-violet-600 focus:ring-violet-400' : 'text-slate-600'}
+                                                            className={env === 'live' ? 'text-violet-400 focus:ring-violet-400/40' : 'text-slate-300 focus:ring-slate-400/40'}
                                                         />
-                                                        <span className={`text-sm font-bold ${env === 'live' && formEnvironment === 'live' ? 'text-violet-700' : 'text-slate-800'}`}>
+                                                        <span className={`text-sm font-bold ${env === 'live' && formEnvironment === 'live' ? 'text-violet-300' : formEnvironment === env ? 'text-slate-100' : 'text-slate-300'}`}>
                                                             {env === 'test' ? 'Test' : 'Live'}
                                                         </span>
                                                     </label>
                                                 ))}
                                             </div>
                                             {formEnvironment === 'live' && (
-                                                <p className="mt-2 text-xs font-semibold text-amber-700 flex items-center gap-1.5">
+                                                <p className="mt-2 text-xs font-semibold text-amber-400 flex items-center gap-1.5">
                                                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                                                     Debits real customer funds. A confirmation prompt will appear on save.
                                                 </p>
@@ -840,23 +882,23 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         <div>
                                             <FieldLabel>Platform Default</FieldLabel>
                                             {formStatus !== 'active' ? (
-                                                <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-200 bg-slate-50">
+                                                <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 border-slate-700 bg-slate-900/40">
                                                     <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                                                    <p className="text-sm text-slate-600">
+                                                    <p className="text-sm text-slate-400">
                                                         Activate this gateway before making it the platform default.
                                                     </p>
                                                 </div>
                                             ) : (
-                                                <label className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 cursor-pointer select-none transition-all ${formIsDefault ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                                                <label className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 cursor-pointer select-none transition-all ${formIsDefault ? 'border-emerald-400 bg-emerald-500/10' : 'border-slate-700 bg-slate-900/60 hover:border-slate-500'}`}>
                                                     <input
                                                         type="checkbox"
                                                         checked={formIsDefault}
                                                         onChange={e => setFormIsDefault(e.target.checked)}
-                                                        className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 shrink-0"
+                                                        className="mt-0.5 rounded text-emerald-400 focus:ring-emerald-400/40 w-4 h-4 shrink-0"
                                                     />
                                                     <div>
-                                                        <p className="text-sm font-bold text-slate-800">Set as default gateway</p>
-                                                        <p className="text-xs text-slate-600 mt-0.5">Used as fallback when no gateway is explicitly chosen by the client</p>
+                                                        <p className={`text-sm font-bold ${formIsDefault ? 'text-emerald-300' : 'text-slate-200'}`}>Set as default gateway</p>
+                                                        <p className="text-xs text-slate-400 mt-0.5">Used as fallback when no gateway is explicitly chosen by the client</p>
                                                     </div>
                                                 </label>
                                             )}
@@ -873,45 +915,45 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                 key={ch}
                                                 className={`flex items-center gap-2.5 px-3.5 py-3 rounded-xl border-2 cursor-pointer select-none transition-all ${
                                                     formChannels.includes(ch)
-                                                        ? 'border-sky-400 bg-sky-50 text-sky-900 font-semibold'
-                                                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                                                        ? 'border-sky-400 bg-sky-500/10 text-sky-200'
+                                                        : 'border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500'
                                                 }`}
                                             >
                                                 <input
                                                     type="checkbox"
                                                     checked={formChannels.includes(ch)}
                                                     onChange={() => handleChannelToggle(ch)}
-                                                    className="rounded text-sky-600 focus:ring-sky-500 w-4 h-4 shrink-0"
+                                                    className="rounded text-sky-400 focus:ring-sky-400/40 w-4 h-4 shrink-0"
                                                 />
-                                                <span className="text-sm">{CHANNEL_DISPLAY[ch] || ch}</span>
+                                                <span className="text-sm font-semibold">{CHANNEL_DISPLAY[ch] || ch}</span>
                                             </label>
                                         ))}
                                     </div>
-                                    <p className="mt-2 text-xs text-slate-500">
-                                        Only channels supported by the <strong className="text-slate-700">{currentSpec?.label}</strong> adapter are shown. Switching adapters resets channels.
+                                    <p className={formHintClass}>
+                                        Only channels supported by the <strong className="text-slate-200">{currentSpec?.label}</strong> adapter are shown. Switching adapters resets channels.
                                     </p>
                                 </div>
 
                                 {/* ── SECTION 4: Encrypted Credentials (adapter-specific labels) ── */}
                                 <div>
                                     <SectionLabel color="bg-emerald-500">Encrypted Credentials</SectionLabel>
-                                    <div className="rounded-2xl border border-slate-200 overflow-hidden">
+                                    <div className="rounded-2xl border border-slate-800 overflow-hidden">
                                         {/* Vault header bar */}
-                                        <div className="flex items-center justify-between px-5 py-3 bg-slate-800">
+                                        <div className="flex items-center justify-between px-5 py-3 bg-slate-950/80">
                                             <div className="flex items-center gap-2">
                                                 <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
-                                                <span className="text-xs font-bold text-slate-200">Vault — AES-256-GCM encrypted at rest</span>
+                                                <span className="text-xs font-bold text-slate-300">Vault — AES-256-GCM encrypted at rest</span>
                                             </div>
-                                            <div className="flex items-center gap-1 bg-emerald-900/40 border border-emerald-700/50 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                            <div className="flex items-center gap-1 bg-emerald-500/10 border border-emerald-400/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
                                                 <ShieldCheck className="w-2.5 h-2.5" />
                                                 Secure
                                             </div>
                                         </div>
 
-                                        <div className="p-5 space-y-5 bg-slate-50">
+                                        <div className="p-5 space-y-5 bg-slate-900/40">
                                             {selectedGateway && (
-                                                <div className="flex items-center gap-2 text-xs text-slate-600 bg-blue-50 border border-blue-200 rounded-xl px-3.5 py-2.5">
-                                                    <Info className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                                                <div className="flex items-center gap-2 text-xs text-slate-300 bg-blue-500/10 border border-blue-400/20 rounded-xl px-3.5 py-2.5">
+                                                    <Info className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                                                     Leave <strong>Secret Key</strong> or <strong>Webhook Secret</strong> blank to retain the current encrypted value.
                                                 </div>
                                             )}
@@ -925,7 +967,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                     !!(selectedGateway as any)[field.key]
                                                 );
                                                 const configuredBadge = selectedGateway && isSensitive ? (
-                                                    <span className={`text-[10px] font-bold flex items-center gap-1 ${isConfigured ? 'text-emerald-600' : 'text-slate-500'}`}>
+                                                    <span className={`text-[10px] font-bold flex items-center gap-1 ${isConfigured ? 'text-emerald-400' : 'text-slate-500'}`}>
                                                         {isConfigured ? <><Check className="w-3 h-3" /> Configured</> : 'Not configured'}
                                                     </span>
                                                 ) : null;
@@ -934,7 +976,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                     <div key={field.key}>
                                                         <FieldLabel htmlFor={`cred-${field.key}`} extra={configuredBadge}>
                                                             {field.label}
-                                                            {field.required && <span className="ml-1 text-rose-500">*</span>}
+                                                            {field.required && <span className="ml-1 text-rose-400">*</span>}
                                                         </FieldLabel>
                                                         <input
                                                             id={`cred-${field.key}`}
@@ -944,7 +986,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                             placeholder={selectedGateway && isSensitive && isConfigured
                                                                 ? '•••••• (blank = keep current)'
                                                                 : field.placeholder}
-                                                            className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 transition-all"
+                                                            className={formMonoInputClass}
                                                         />
                                                     </div>
                                                 );
@@ -955,7 +997,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                 <div key={field.key}>
                                                     <FieldLabel htmlFor={`meta-${field.key}`}>
                                                         {field.label}
-                                                        {field.required && <span className="ml-1 text-rose-500">*</span>}
+                                                        {field.required && <span className="ml-1 text-rose-400">*</span>}
                                                     </FieldLabel>
                                                     <input
                                                         id={`meta-${field.key}`}
@@ -963,7 +1005,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                         value={formMetadata[field.key] || ''}
                                                         onChange={e => setFormMetadata(prev => ({ ...prev, [field.key]: e.target.value }))}
                                                         placeholder={field.placeholder}
-                                                        className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 transition-all"
+                                                        className={formMonoInputClass}
                                                     />
                                                 </div>
                                             ))}
@@ -974,8 +1016,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                             </div>{/* end scrollable body */}
 
                             {/* ── Sticky Footer ── */}
-                            <div className="shrink-0 border-t border-slate-200 bg-white px-8 py-5 rounded-b-[2rem] flex items-center justify-between gap-4">
-                                <p className="text-xs text-slate-500 hidden sm:block">
+                            <div className="shrink-0 border-t border-slate-800 bg-transparent px-8 py-5 rounded-b-[2rem] flex items-center justify-between gap-4">
+                                <p className="text-xs text-slate-400 hidden sm:block">
                                     {selectedGateway
                                         ? 'Credentials stored encrypted · blank secret = retain existing · changes take effect immediately'
                                         : 'Gateway starts in the selected status above · credentials encrypted before storage'}
@@ -984,14 +1026,14 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => setIsEditModalOpen(false)}
-                                        className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                                        className={modalButtonSecondaryClass}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={saving}
-                                        className="px-7 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-md shadow-slate-900/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                                        className={modalButtonPrimaryClass}
                                     >
                                         {saving && <RefreshCw className="w-4 h-4 animate-spin" />}
                                         <span>{selectedGateway ? 'Save Changes' : 'Create Gateway'}</span>
@@ -1005,34 +1047,34 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
             {/* ── Confirmation Dialog ── */}
             {confirmDialog.isOpen && (
-                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl max-w-md w-full border border-slate-100 shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-gradient-to-b from-brand-navy-800 to-brand-navy-900 rounded-3xl max-w-md w-full border border-slate-800 shadow-2xl shadow-black/50 p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
                         <div className="flex items-center gap-3">
                             <div className={`p-3 rounded-2xl ${
-                                confirmDialog.type === 'danger' ? 'bg-rose-50 text-rose-600' :
-                                confirmDialog.type === 'warning' ? 'bg-amber-50 text-amber-600' :
-                                'bg-emerald-50 text-emerald-600'
+                                confirmDialog.type === 'danger' ? 'bg-rose-500/10 text-rose-400' :
+                                confirmDialog.type === 'warning' ? 'bg-amber-500/10 text-amber-400' :
+                                'bg-emerald-500/10 text-emerald-400'
                             }`}>
                                 {confirmDialog.type === 'danger' ? <AlertCircle className="w-5 h-5" /> :
                                  confirmDialog.type === 'warning' ? <AlertTriangle className="w-5 h-5" /> :
                                  <Zap className="w-5 h-5" />}
                             </div>
-                            <h3 className="text-base font-black text-slate-900">{confirmDialog.title}</h3>
+                            <h3 className="text-base font-black text-white">{confirmDialog.title}</h3>
                         </div>
-                        <p className="text-sm text-slate-600 leading-relaxed">{confirmDialog.message}</p>
+                        <p className="text-sm text-slate-400 leading-relaxed">{confirmDialog.message}</p>
                         <div className="flex items-center gap-3 pt-1">
                             <button
                                 onClick={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
-                                className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                                className={`${modalButtonSecondaryClass} flex-1`}
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={confirmDialog.onConfirm}
                                 className={`flex-1 px-4 py-2.5 text-sm font-bold rounded-xl transition-all text-white ${
-                                    confirmDialog.type === 'danger' ? 'bg-rose-600 hover:bg-rose-700' :
-                                    confirmDialog.type === 'warning' ? 'bg-amber-600 hover:bg-amber-700' :
-                                    'bg-slate-900 hover:bg-slate-800'
+                                    confirmDialog.type === 'danger' ? 'bg-rose-500 hover:bg-rose-400' :
+                                    confirmDialog.type === 'warning' ? 'bg-amber-500 hover:bg-amber-400' :
+                                    'bg-brand-emerald hover:bg-emerald-500'
                                 }`}
                             >
                                 Confirm
