@@ -1,10 +1,21 @@
 import apiClient from "../api/apiClient";
 
+/**
+ * Adapter engine types are derived from the backend adapter registry
+ * (adapters/payment/paymentAdapterRegistry.js) exposed via
+ * GET /admin/payment-gateways/capabilities.
+ *
+ * A bare string type is intentional: new gateway adapters can be added to the
+ * registry without a frontend code change. The Admin UI must never hardcode
+ * a closed union of gateway names.
+ */
+export type AdapterType = string;
+
 export interface PaymentGatewayItem {
     _id: string;
     name: string;
     code: string;
-    adapterType: 'paystack' | 'monnify' | 'flutterwave';
+    adapterType: AdapterType;
     status: 'active' | 'inactive' | 'maintenance';
     environment: 'test' | 'live';
     isDefault: boolean;

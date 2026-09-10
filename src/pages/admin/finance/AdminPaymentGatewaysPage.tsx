@@ -35,49 +35,13 @@ import {
 } from '../../../services/admin/adminPaymentGatewayService';
 import { toast } from 'react-hot-toast';
 
-// ─── Local fallback registry (mirrors backend, safe data only) ────────────────
-// Used if /capabilities endpoint is unavailable. Keep in sync with
-// adapters/payment/paymentAdapterRegistry.js on the backend.
-const FALLBACK_CAPABILITIES: AdapterCapability[] = [
-    {
-        code: 'paystack',
-        label: 'Paystack',
-        defaultBaseUrl: 'https://api.paystack.co',
-        supportedChannels: ['card', 'bank_transfer', 'ussd'],
-        credentialFields: [
-            { key: 'publicKey',     label: 'Public Key',      type: 'text',     sensitive: false, required: true,  placeholder: 'pk_test_...' },
-            { key: 'secretKey',     label: 'Secret Key',      type: 'password', sensitive: true,  required: true,  placeholder: 'sk_test_...' },
-            { key: 'webhookSecret', label: 'Webhook Secret',  type: 'password', sensitive: true,  required: false, placeholder: 'Leave blank to use Secret Key' },
-        ],
-        metadataFields: [],
-    },
-    {
-        code: 'monnify',
-        label: 'Monnify',
-        defaultBaseUrl: 'https://sandbox.monnify.com',
-        supportedChannels: ['card', 'bank_transfer', 'virtual_account'],
-        credentialFields: [
-            { key: 'publicKey',     label: 'API Key',         type: 'text',     sensitive: false, required: true,  placeholder: 'MK_...' },
-            { key: 'secretKey',     label: 'Secret Key',      type: 'password', sensitive: true,  required: true,  placeholder: 'Monnify secret key' },
-            { key: 'webhookSecret', label: 'Webhook Secret',  type: 'password', sensitive: true,  required: false, placeholder: 'Leave blank to use Secret Key' },
-        ],
-        metadataFields: [
-            { key: 'contractCode', label: 'Contract Code', type: 'text', sensitive: false, required: true, placeholder: 'e.g. 1234567890' },
-        ],
-    },
-    {
-        code: 'flutterwave',
-        label: 'Flutterwave',
-        defaultBaseUrl: 'https://api.flutterwave.com/v3',
-        supportedChannels: ['card', 'bank_transfer', 'ussd'],
-        credentialFields: [
-            { key: 'publicKey',     label: 'Public Key',      type: 'text',     sensitive: false, required: false, placeholder: 'FLWPUBK_TEST-...' },
-            { key: 'secretKey',     label: 'Secret Key',      type: 'password', sensitive: true,  required: true,  placeholder: 'FLWSECK_TEST-...' },
-            { key: 'webhookSecret', label: 'Webhook Hash',    type: 'password', sensitive: true,  required: false, placeholder: 'verif-hash header value' },
-        ],
-        metadataFields: [],
-    },
-];
+// ─── Adapter capabilities ────────────────────────────────────────────────────
+// The list of available adapter engines is NOT hardcoded here. It is fetched
+// from GET /admin/payment-gateways/capabilities, which is derived exclusively
+// from the backend adapter registry (adapters/payment/paymentAdapterRegistry.js).
+// The backend registry is the single source of truth for supported gateways.
+// If capabilities cannot be loaded, a controlled error/retry state is shown —
+// there is intentionally NO local fallback duplicate of the adapter registry.
 
 const CHANNEL_DISPLAY: Record<string, string> = {
     card: 'Card',
@@ -113,7 +77,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [gateways, setGateways] = useState<PaymentGatewayItem[]>([]);
     const [reconciliations, setReconciliations] = useState<ReconciliationTransaction[]>([]);
-    const [capabilities, setCapabilities] = useState<AdapterCapability[]>(FALLBACK_CAPABILITIES);
+    const [capabilities, setCapabilities] = useState<AdapterCapability[]>([]);
+    const [capabilitiesError, setCapabilitiesError] = useState<string | null>(null);
     const [testingId, setTestingId] = useState<string | null>(null);
     const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -145,7 +110,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     }>({ isOpen: false, title: '', message: '', type: 'info', onConfirm: () => {} });
 
     // ─── Derived: current adapter spec ──────────────────────────────────────
-    const currentSpec = capabilities.find(c => c.code === formAdapterType) ?? capabilities[0];
+    const currentSpec = capabilities.find(c => c.code === formAdapterType) ?? null;
 
     // ─── Data fetching ───────────────────────────────────────────────────────
     const fetchData = useCallback(async () => {
@@ -160,8 +125,13 @@ const AdminPaymentGatewaysPage: React.FC = () => {
             if (recRes.status === 'fulfilled' && recRes.value.success) setReconciliations(recRes.value.data || []);
             if (capRes.status === 'fulfilled' && capRes.value.success && capRes.value.data?.length) {
                 setCapabilities(capRes.value.data);
+                setCapabilitiesError(null);
+            } else {
+                // Backend registry is the single source of truth — no local fallback.
+                setCapabilitiesError('Adapter capabilities could not be loaded from the backend registry.');
             }
         } catch (error: any) {
+            setCapabilitiesError('Adapter capabilities could not be loaded from the backend registry.');
             toast.error(error.message || 'Failed to load payment gateway data');
         } finally {
             setLoading(false);
@@ -251,6 +221,11 @@ const AdminPaymentGatewaysPage: React.FC = () => {
             // Secret fields always start blank on edit
             setFormCredentials({ publicKey: gateway.publicKey || '', secretKey: '', webhookSecret: '' });
         } else {
+            // No local fallback: the backend registry is the single source of truth.
+            if (!capabilities.length) {
+                toast.error('Adapter capabilities are unavailable. Retry loading the payment gateways page.');
+                return;
+            }
             const defaultSpec = capabilities.find(c => c.code === 'paystack') ?? capabilities[0];
             setSelectedGateway(null);
             setFormName('');
@@ -290,7 +265,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
     // ─── Channel toggle (only allows channels the adapter supports) ──────────
     const handleChannelToggle = (channel: string) => {
-        if (!currentSpec.supportedChannels.includes(channel)) return;
+        if (!currentSpec || !currentSpec.supportedChannels.includes(channel)) return;
         setFormChannels(prev =>
             prev.includes(channel) ? prev.filter(c => c !== channel) : [...prev, channel]
         );
@@ -396,13 +371,34 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                     </button>
                     <button
                         onClick={() => openEditModal()}
-                        className="px-4 py-2 bg-brand-emerald text-white rounded-xl text-xs font-bold hover:bg-emerald-600 transition-all flex items-center gap-2 shadow-sm shadow-emerald-500/20 active:scale-95"
+                        disabled={!capabilities.length}
+                        className="px-4 py-2 bg-brand-emerald text-white rounded-xl text-xs font-bold hover:bg-emerald-600 transition-all flex items-center gap-2 shadow-sm shadow-emerald-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-emerald disabled:active:scale-100"
                     >
                         <Plus className="w-4 h-4" />
                         <span>Add Gateway</span>
                     </button>
                 </div>
             </div>
+
+            {/* Capabilities warning (backend registry unreachable → no local fallback) */}
+            {capabilitiesError && (
+                <div className="flex items-center justify-between gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <span>
+                            <strong>Adapter registry unavailable.</strong> {capabilitiesError} Adding or configuring new
+                            gateways is disabled until capabilities load.
+                        </span>
+                    </div>
+                    <button
+                        onClick={fetchData}
+                        disabled={loading}
+                        className="shrink-0 px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg font-bold transition-all disabled:opacity-50"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
 
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
