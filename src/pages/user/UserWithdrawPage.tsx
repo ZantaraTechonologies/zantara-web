@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useWalletStore } from '../../store/wallet/walletStore';
+import * as walletService from '../../services/wallet/walletService';
 
 const UserWithdrawPage: React.FC = () => {
     const navigate = useNavigate();

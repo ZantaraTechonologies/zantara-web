@@ -95,8 +95,11 @@ const UserFundWalletPage: React.FC = () => {
                 return;
             }
             const channel = selected === 'ussd' ? 'ussd' : 'card';
-            const callback_url = `${window.location.origin}/paystack/return`;
-            const data = await walletService.initWalletFunding(val, channel, callback_url);
+            // No callback_url override: the backend derives the gateway-specific
+            // return URL (CLIENT_BASE_URL/<gateway>/return), exactly as it does
+            // for mobile. The shared PaymentReturnPage handles the Zantara-side
+            // verification on return regardless of gateway.
+            const data = await walletService.initWalletFunding(val, channel);
 
             if (data?.authorization_url) {
                 window.location.href = data.authorization_url;

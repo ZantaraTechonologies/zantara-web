@@ -36,7 +36,7 @@ const UserBuyElectricityPage = lazy(() => import('../pages/user/UserBuyElectrici
 const UserBuyCablePage = lazy(() => import('../pages/user/UserBuyCablePage'));
 const UserBuyExamPinPage = lazy(() => import('../pages/user/UserBuyExamPinPage'));
 const TransactionStatusPage = lazy(() => import('../pages/user/TransactionStatusPage'));
-const PaystackReturn = lazy(() => import('../pages/user/PaystackReturn'));
+const PaymentReturnPage = lazy(() => import('../pages/user/PaymentReturnPage'));
 const ReferralProgramPage = lazy(() => import('../pages/user/ReferralProgramPage'));
 const ReferralWalletPage = lazy(() => import('../pages/user/ReferralWalletPage'));
 const RedeemEarningsPage = lazy(() => import('../pages/user/RedeemEarningsPage'));
@@ -197,7 +197,10 @@ export default function AppRoutes() {
                         <Route path="/buy/*" element={<Navigate to="/app/services/data" replace />} />
                         <Route path="/wallet-page" element={<Navigate to="/app/wallet" replace />} />
                         <Route path="/referral" element={<Navigate to="/app/referral" replace />} />
-                        <Route path="/paystack/return" element={<ProtectedRoute><PaystackReturn /></ProtectedRoute>} />
+                        {/* Gateway return pages — one shared handler; the backend is authoritative */}
+                        <Route path="/paystack/return" element={<ProtectedRoute><PaymentReturnPage gateway="paystack" /></ProtectedRoute>} />
+                        <Route path="/monnify/return" element={<ProtectedRoute><PaymentReturnPage gateway="monnify" /></ProtectedRoute>} />
+                        <Route path="/flutterwave/return" element={<ProtectedRoute><PaymentReturnPage gateway="flutterwave" /></ProtectedRoute>} />
 
                         {/* ---------- Admin Protected Routes ---------- */}
                         <Route element={<AdminProtectedRoute />}>
