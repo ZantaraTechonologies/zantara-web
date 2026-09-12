@@ -81,7 +81,7 @@ const UserLoginPage: React.FC = () => {
                                     if (errorMsg) setErrorMsg('');
                                 }}
                                 className="block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
-                                placeholder="e.g. 08123456789 or alex@zantara.com"
+                                placeholder="08123456789 or alex@zantara.com"
                             />
                         </div>
                     </div>

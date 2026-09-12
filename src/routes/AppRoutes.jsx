@@ -12,8 +12,7 @@ import { useAuthStore } from '../store/auth/authStore';
 
 // Public Pages
 const LandingPage = lazy(() => import('../pages/LandingPage'));
-const PrivacyPolicy = lazy(() => import('../pages/system/PrivacyPolicy'));
-const TermsAndConditions = lazy(() => import('../pages/system/TermsAndConditions'));
+const LegalDocumentPage = lazy(() => import('../components/legal/LegalDocumentPage'));
 
 // Auth Pages
 const UserLoginPage = lazy(() => import('../pages/auth/UserLoginPage'));
@@ -78,6 +77,7 @@ const AdminSystemWalletPage = lazy(() => import('../pages/admin/finance/AdminSys
 const AdminCommissionSettingsPage = lazy(() => import('../pages/admin/finance/AdminCommissionSettingsPage'));
 const AdminPaymentGatewaysPage = lazy(() => import('../pages/admin/finance/AdminPaymentGatewaysPage'));
 const AdminAuditLogsPage = lazy(() => import('../pages/admin/AdminAuditLogsPage'));
+const AdminLegalDocumentsPage = lazy(() => import('../pages/admin/legal/AdminLegalDocumentsPage'));
 const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage'));
 const AdminNotificationSettingsPage = lazy(() => import('../pages/admin/AdminNotificationSettingsPage'));
 const AdminNotificationDiagnosticsPage = lazy(() => import('../pages/admin/AdminNotificationDiagnosticsPage'));
@@ -124,8 +124,11 @@ export default function AppRoutes() {
                     <Route element={<RootStateController children={<Outlet />} />}>
                         {/* ---------- Public Routes ---------- */}
                         <Route path="/" element={<LandingPage />} />
-                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                        <Route path="/terms" element={<LegalDocumentPage type="terms" />} />
+                        <Route path="/privacy" element={<LegalDocumentPage type="privacy" />} />
+                        <Route path="/refund-policy" element={<LegalDocumentPage type="refund_complaints" />} />
+                        <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
+                        <Route path="/privacy-policy" element={<Navigate to="/privacy" replace />} />
 
                         {/* ---------- Auth Routes ---------- */}
                         <Route path="/login" element={<AuthRoute><UserLoginPage /></AuthRoute>} />
@@ -250,6 +253,7 @@ export default function AppRoutes() {
 
                                     {/* System — SuperAdmin Only */}
                                     <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+                                    <Route path="compliance/legal" element={<AdminLegalDocumentsPage />} />
                                     <Route path="settings" element={<AdminSettingsPage />} />
                                     <Route path="settings/notifications" element={<AdminNotificationSettingsPage />} />
                                     <Route path="settings/notifications/diagnostics" element={<AdminNotificationDiagnosticsPage />} />

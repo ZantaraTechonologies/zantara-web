@@ -80,6 +80,7 @@ export default function AdminLayout() {
         { type: "header", label: "System" },
         { path: "/admin/status", label: "System Status", icon: Activity },
         { path: "/admin/audit-logs", label: "Audit Logs", icon: FileText },
+        { path: "/admin/compliance/legal", label: "Legal Documents", icon: ShieldCheck },
         { path: "/admin/settings", label: "Settings", icon: Settings },
     ];
 

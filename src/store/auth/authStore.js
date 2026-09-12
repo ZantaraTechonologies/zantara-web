@@ -11,6 +11,7 @@ export const useAuthStore = create((set, get) => ({
     isMaintenanceMode: false,
     isNoInternet: false,
     globalError: null,
+    legalActionBlocked: false,
 
     setAuth: (user, token, rememberMe = true) => {
         const activeToken = token || user?.token || localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -120,6 +121,7 @@ export const useAuthStore = create((set, get) => ({
     setMaintenanceMode: (status) => set({ isMaintenanceMode: status }),
     setNoInternet: (status) => set({ isNoInternet: status }),
     setGlobalError: (error) => set({ globalError: error }),
+    setLegalActionBlocked: (blocked) => set({ legalActionBlocked: blocked }),
     resetSystemStates: () => set({ isMaintenanceMode: false, isNoInternet: false, globalError: null }),
 }));
 

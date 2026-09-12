@@ -9,6 +9,7 @@ import {
     UserPlus
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
+import API from '../../services/api/apiClient';
 
 const UserRegisterPage: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -57,12 +58,28 @@ const UserRegisterPage: React.FC = () => {
         setIsLoading(true);
         setErrorMsg('');
         try {
+            // Fetch the exact current versions + hashes from the backend (authoritative).
+            // The server re-validates version/hash and derives documentId semantics.
+            const docsRes = await API.get('/legal/documents/current');
+            const docs: any[] = docsRes.data?.data || [];
+            const legalAcceptances: Array<{ documentType: string; version: number; contentHash: string; channel: string }> = [];
+
+            const termsDoc = docs.find(d => d.documentType === 'terms');
+            const privacyDoc = docs.find(d => d.documentType === 'privacy');
+            if (termsDoc && termsDoc.version && termsDoc.contentHash && termsDoc.requiresAcceptance !== false) {
+                legalAcceptances.push({ documentType: 'terms', version: termsDoc.version, contentHash: termsDoc.contentHash, channel: 'web' });
+            }
+            if (privacyDoc && privacyDoc.version && privacyDoc.contentHash && privacyDoc.requiresAcceptance !== false) {
+                legalAcceptances.push({ documentType: 'privacy', version: privacyDoc.version, contentHash: privacyDoc.contentHash, channel: 'web' });
+            }
+
             await register({
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
                 password: formData.password,
-                referrerCode: formData.referrerCode
+                referrerCode: formData.referrerCode,
+                legalAcceptances
             });
             console.info(`[Auth] Registration successful for: ${formData.email}`);
             toast.success('Registration successful! Welcome to Zantara.');
@@ -208,7 +225,7 @@ const UserRegisterPage: React.FC = () => {
                             className="w-5 h-5 text-brand-emerald border-slate-200 rounded-lg focus:ring-brand-emerald/20 cursor-pointer"
                         />
                         <label htmlFor="agreeToTerms" className="ml-3 block text-sm font-medium text-slate-600">
-                            I agree to the <Link to="/terms" className="text-brand-emerald font-bold hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-brand-emerald font-bold hover:underline">Privacy Policy</Link>.
+                            I agree to the <Link to="/terms" className="text-brand-emerald font-bold hover:underline">Terms of Service</Link> and acknowledge the <Link to="/privacy" className="text-brand-emerald font-bold hover:underline">Privacy Policy</Link>.
                         </label>
                     </div>
 

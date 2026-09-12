@@ -38,6 +38,12 @@ API.interceptors.response.use(
             setMaintenanceMode(true);
         }
 
+        if (error.response?.status === 428) {
+            // Guarded financial/service action blocked pending legal acceptance.
+            const { setLegalActionBlocked } = useAuthStore.getState();
+            setLegalActionBlocked(true);
+        }
+
         const isTimeout = error.code === 'ECONNABORTED' || (error.message && error.message.toLowerCase().includes('timeout'));
         const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
 

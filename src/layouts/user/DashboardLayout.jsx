@@ -18,6 +18,7 @@ import {
     TrendingUp
 } from 'lucide-react';
 import Navbar from '../../components/navigation/Navbar';
+import LegalAcceptancePrompt from '../../components/legal/LegalAcceptancePrompt';
 
 export default function DashboardLayout() {
     const { logout, user } = useAuthStore();
@@ -35,6 +36,7 @@ export default function DashboardLayout() {
 
     return (
         <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
+            <LegalAcceptancePrompt />
             <Navbar />
 
             <div className="flex flex-1 overflow-hidden">
