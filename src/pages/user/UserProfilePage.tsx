@@ -11,7 +11,9 @@ import {
     Lock, 
     Camera,
     Wallet,
-    Bell
+    Bell,
+    ScrollText,
+    FileText
 } from 'lucide-react';
 
 const UserProfilePage: React.FC = () => {
@@ -50,6 +52,33 @@ const UserProfilePage: React.FC = () => {
             path: '/app/notifications',
             color: 'text-orange-500',
             bg: 'bg-orange-50'
+        }
+    ];
+
+    const legalItems = [
+        {
+            title: 'Terms of Service',
+            description: 'Rules governing your use of Zantara services',
+            icon: ScrollText,
+            path: '/terms',
+            color: 'text-slate-600',
+            bg: 'bg-slate-100'
+        },
+        {
+            title: 'Privacy Policy',
+            description: 'How we collect, use, and protect your data',
+            icon: Shield,
+            path: '/privacy',
+            color: 'text-teal-600',
+            bg: 'bg-teal-50'
+        },
+        {
+            title: 'Refund, Reversal & Complaints Policy',
+            description: 'Our commitments for refunds and complaint resolution',
+            icon: FileText,
+            path: '/refund-policy',
+            color: 'text-amber-600',
+            bg: 'bg-amber-50'
         }
     ];
 
@@ -153,6 +182,29 @@ const UserProfilePage: React.FC = () => {
             <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
                 <div className="divide-y divide-slate-50">
                     {menuItems.map((item, idx) => (
+                        <button 
+                            key={idx}
+                            onClick={() => navigate(item.path)}
+                            className="w-full p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left"
+                        >
+                            <div className={`w-11 h-11 ${item.bg} ${item.color} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                                <item.icon size={18} />
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="font-bold text-slate-900">{item.title}</h4>
+                                <p className="text-xs text-slate-500 font-medium">{item.description}</p>
+                            </div>
+                            <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Legal & Policies */}
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest pt-2">Legal & Policies</h3>
+            <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                <div className="divide-y divide-slate-50">
+                    {legalItems.map((item, idx) => (
                         <button 
                             key={idx}
                             onClick={() => navigate(item.path)}

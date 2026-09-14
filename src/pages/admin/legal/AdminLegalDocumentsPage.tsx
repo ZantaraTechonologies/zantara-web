@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../../services/api/apiClient';
 import toast from 'react-hot-toast';
+import { normalizeAdminLegalDocument, adminLegalDocumentUrl } from './adminLegalDocument';
 
 interface Doc {
     id: string;
@@ -50,7 +51,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
         setLoading(true);
         try {
             const res = await API.get('/legal/admin/documents');
-            setDocs(res.data?.data || []);
+            setDocs((res.data?.data || []).map(normalizeAdminLegalDocument));
         } catch {
             toast.error('Failed to load legal documents');
         }
@@ -67,8 +68,8 @@ const AdminLegalDocumentsPage: React.FC = () => {
 
     const openEdit = async (doc: Doc) => {
         try {
-            const res = await API.get(`/legal/admin/documents/${doc.id}`);
-            const full: FullDoc = res.data?.data;
+            const res = await API.get(adminLegalDocumentUrl('get', doc));
+            const full: FullDoc = normalizeAdminLegalDocument(res.data?.data);
             setEditDoc(full);
             setForm({
                 documentType: full.documentType,
@@ -87,8 +88,8 @@ const AdminLegalDocumentsPage: React.FC = () => {
 
     const openPreview = async (doc: Doc) => {
         try {
-            const res = await API.get(`/legal/admin/documents/${doc.id}`);
-            setPreview(res.data?.data);
+            const res = await API.get(adminLegalDocumentUrl('get', doc));
+            setPreview(normalizeAdminLegalDocument(res.data?.data));
         } catch {
             toast.error('Failed to load preview');
         }
@@ -98,7 +99,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
         setSaving(true);
         try {
             if (editDoc) {
-                await API.put(`/legal/admin/documents/${editDoc.id}`, form);
+                await API.put(adminLegalDocumentUrl('update', editDoc), form);
                 toast.success('Draft updated');
             } else {
                 await API.post('/legal/admin/documents', form);
@@ -118,7 +119,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
         if (!publishTarget) return;
         setSaving(true);
         try {
-            await API.post(`/legal/admin/documents/${publishTarget.id}/publish`);
+            await API.post(adminLegalDocumentUrl('publish', publishTarget));
             toast.success('Document published');
             setPublishTarget(null);
             fetchDocs();
@@ -130,7 +131,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
 
     const handleArchive = async (doc: Doc) => {
         try {
-            await API.post(`/legal/admin/documents/${doc.id}/archive`);
+            await API.post(adminLegalDocumentUrl('archive', doc));
             toast.success('Document archived');
             fetchDocs();
         } catch (e: any) {
