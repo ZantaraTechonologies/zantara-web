@@ -138,6 +138,185 @@
     }
 }
 
+/* ---------------------------------------------------------------------------
+   Legal document reader — scoped presentation layer.
+   Legal content is server-sanitized canonical HTML (backend utils/legalHtml.js);
+   the document itself may NEVER carry CSS/style/script. All presentation lives
+   here in trusted app CSS, scoped under `.legal-content` (and the matching
+   `.legal-editor-area` used by the admin Visual editor for a WYSIWYG feel).
+   These rules are intentionally UNLAYERED so they reliably override Tailwind
+   preflight resets (margin/list-style/heading flattening) without touching
+   global app typography. --------------------------------------------------------------------------- */
+.legal-content,
+.legal-editor-area {
+    --lc-surface: #ffffff;
+    --lc-text: #334155;
+    --lc-heading: #0B1F4D;
+    --lc-muted: #64748b;
+    --lc-link: #0f766e;
+    --lc-link-hover: #0d9488;
+    --lc-border: #cbd5e1;
+    --lc-blockquote: #64748b;
+    --lc-blockquote-border: #18C37E;
+    --lc-code-bg: #f1f5f9;
+    --lc-code-text: #0b1f4d;
+    --lc-table-stripe: #f8fafc;
+    color: var(--lc-text);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.dark .legal-content,
+.dark .legal-editor-area {
+    --lc-surface: #131c31;
+    --lc-text: #cbd5e1;
+    --lc-heading: #eef2fa;
+    --lc-muted: #94a3b8;
+    --lc-link: #66e1b0;
+    --lc-link-hover: #a0edcd;
+    --lc-border: #334155;
+    --lc-blockquote: #94a3b8;
+    --lc-blockquote-border: #18c37e;
+    --lc-code-bg: #1e293b;
+    --lc-code-text: #d9e2f3;
+    --lc-table-stripe: #0f172a;
+}
+
+.legal-content > :first-child,
+.legal-editor-area > :first-child { margin-top: 0; }
+.legal-content > :last-child,
+.legal-editor-area > :last-child { margin-bottom: 0; }
+
+.legal-content h1, .legal-editor-area h1,
+.legal-content h2, .legal-editor-area h2,
+.legal-content h3, .legal-editor-area h3,
+.legal-content h4, .legal-editor-area h4 {
+    color: var(--lc-heading);
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 1.6em 0 0.5em;
+}
+/* Section headings are normally h2: clearly stronger than body, not oversized. */
+.legal-content h1, .legal-editor-area h1 { font-size: 1.45rem; }
+.legal-content h2, .legal-editor-area h2 { font-size: 1.25rem; font-weight: 600; margin-top: 1.9em; }
+.legal-content h3, .legal-editor-area h3 { font-size: 1.125rem; font-weight: 600; }
+.legal-content h4, .legal-editor-area h4 { font-size: 1rem; font-weight: 600; }
+
+.legal-content p, .legal-editor-area p { margin-top: 0; margin-bottom: 1em; }
+
+.legal-content a, .legal-editor-area a {
+    color: var(--lc-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+}
+.legal-content a:hover, .legal-editor-area a:hover,
+.legal-content a:focus, .legal-editor-area a:focus { color: var(--lc-link-hover); }
+.legal-content a:focus-visible, .legal-editor-area a:focus-visible {
+    outline: 2px solid var(--lc-link);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+.legal-content ul, .legal-editor-area ul,
+.legal-content ol, .legal-editor-area ol {
+    margin: 0 0 1em 1.5em;
+    padding: 0;
+}
+.legal-content ul, .legal-editor-area ul { list-style: disc; }
+.legal-content ul ul, .legal-editor-area ul ul { list-style: circle; }
+.legal-content ol, .legal-editor-area ol { list-style: decimal; }
+.legal-content li, .legal-editor-area li { margin: 0.35em 0; }
+.legal-content li > ul, .legal-editor-area li > ul,
+.legal-content li > ol, .legal-editor-area li > ol { margin-bottom: 0; }
+
+.legal-content strong, .legal-editor-area strong { font-weight: 700; color: var(--lc-heading); }
+.legal-content em, .legal-editor-area em { font-style: italic; }
+
+.legal-content blockquote, .legal-editor-area blockquote {
+    margin: 1.25em 0;
+    padding: 0.35em 1em;
+    border-left: 4px solid var(--lc-blockquote-border);
+    color: var(--lc-blockquote);
+    font-style: italic;
+}
+.legal-content blockquote p, .legal-editor-area blockquote p { margin: 0.5em 0; }
+
+.legal-content hr, .legal-editor-area hr {
+    border: none;
+    border-top: 1px solid var(--lc-border);
+    margin: 2em 0;
+}
+
+.legal-content table, .legal-editor-area table {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 0 0 1.25em;
+    font-size: 0.9em;
+}
+.legal-content th, .legal-editor-area th,
+.legal-content td, .legal-editor-area td {
+    border: 1px solid var(--lc-border);
+    padding: 0.5em 0.75em;
+    text-align: left;
+    vertical-align: top;
+}
+.legal-content th, .legal-editor-area th {
+    background: var(--lc-table-stripe);
+    font-weight: 700;
+    color: var(--lc-heading);
+}
+.legal-content tr:nth-child(even), .legal-editor-area tr:nth-child(even) { background: var(--lc-table-stripe); }
+
+.legal-content code, .legal-editor-area code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.875em;
+    background: var(--lc-code-bg);
+    color: var(--lc-code-text);
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+}
+.legal-content pre, .legal-editor-area pre {
+    background: var(--lc-code-bg);
+    color: var(--lc-code-text);
+    padding: 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0 0 1em;
+    font-size: 0.875em;
+    line-height: 1.6;
+}
+.legal-content pre code, .legal-editor-area pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+/* Visual editor chrome (WYSIWYG surface, still trusted app CSS only). */
+.legal-editor-area {
+    min-height: 280px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+    background: var(--lc-surface);
+    border: 1px solid var(--lc-border);
+    border-radius: 12px;
+}
+.legal-editor-area.ProseMirror-focused { outline: 2px solid rgba(24, 195, 126, 0.4); outline-offset: 1px; }
+
+@media (max-width: 640px) {
+    .legal-content, .legal-editor-area { font-size: 0.9rem; }
+    .legal-content h1, .legal-editor-area h1 { font-size: 1.3rem; }
+    .legal-content h2, .legal-editor-area h2 { font-size: 1.15rem; }
+    .legal-content ul, .legal-editor-area ul,
+    .legal-content ol, .legal-editor-area ol { margin-left: 1.25em; }
+}
+
 @layer utilities {
     .custom-scrollbar::-webkit-scrollbar {
         width: 6px;

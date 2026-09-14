@@ -52,14 +52,14 @@ export default function LegalDocumentPage({ type }: { type?: string }) {
     if (!doc) return null;
 
     return (
-        <div className="min-h-screen bg-slate-50 p-8">
-            <div className="max-w-3xl mx-auto bg-surface p-6 rounded-xl shadow-md">
-                <h1 className="text-3xl font-bold text-slate-900 mb-4">{doc.title}</h1>
+        <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
+            <div className="max-w-3xl mx-auto bg-surface p-5 sm:p-8 rounded-xl shadow-md">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">{doc.title}</h1>
                 <p className="text-sm text-slate-400 mb-6 italic">
                     Effective: {new Date(doc.effectiveDate).toLocaleDateString()} · Version {doc.version}
                 </p>
                 <div
-                    className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
+                    className="legal-content"
                     dangerouslySetInnerHTML={{ __html: doc.contentHtml }}
                 />
             </div>

@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import API from '../../../services/api/apiClient';
 import toast from 'react-hot-toast';
 import { normalizeAdminLegalDocument, adminLegalDocumentUrl } from './adminLegalDocument';
+import { markdownToLegalHtml } from './clientLegalHtml';
+import { buildSectionHeading } from './legalMarkdownOps';
+import { Info, Plus, Eye, Code2, PenLine } from 'lucide-react';
+
+const LegalVisualEditor = lazy(() => import('./LegalVisualEditor'));
+export type { LegalVisualEditorHandle } from './LegalVisualEditor';
 
 interface Doc {
     id: string;
@@ -21,6 +27,8 @@ interface FullDoc extends Doc {
     contentHtml: string;
 }
 
+type EditorMode = 'visual' | 'markdown' | 'preview';
+
 const STATUS_COLORS: Record<string, string> = {
     draft: 'bg-amber-100 text-amber-700',
     published: 'bg-emerald-100 text-emerald-700',
@@ -37,6 +45,12 @@ const EMPTY_FORM = {
     isPublic: true,
 };
 
+const MODE_TABS: { mode: EditorMode; label: string; icon: React.ReactNode }[] = [
+    { mode: 'visual', label: 'Visual', icon: <PenLine size={14} /> },
+    { mode: 'markdown', label: 'Markdown', icon: <Code2 size={14} /> },
+    { mode: 'preview', label: 'Preview', icon: <Eye size={14} /> },
+];
+
 const AdminLegalDocumentsPage: React.FC = () => {
     const [docs, setDocs] = useState<Doc[]>([]);
     const [loading, setLoading] = useState(true);
@@ -46,6 +60,17 @@ const AdminLegalDocumentsPage: React.FC = () => {
     const [createOpen, setCreateOpen] = useState(false);
     const [form, setForm] = useState({ ...EMPTY_FORM });
     const [saving, setSaving] = useState(false);
+
+    const [mode, setMode] = useState<EditorMode>('visual');
+    const [visualSeed, setVisualSeed] = useState(0);
+    const visualEditorRef = useRef<LegalVisualEditorHandle | null>(null);
+    const [sectionOpen, setSectionOpen] = useState(false);
+    const [sectionTitle, setSectionTitle] = useState('');
+
+    const draftPreviewHtml = useMemo(
+        () => markdownToLegalHtml(form.sourceMarkdown || ''),
+        [form.sourceMarkdown]
+    );
 
     const fetchDocs = async () => {
         setLoading(true);
@@ -60,10 +85,16 @@ const AdminLegalDocumentsPage: React.FC = () => {
 
     useEffect(() => { fetchDocs(); }, []);
 
+    const enterFormMode = () => {
+        setMode('visual');
+        setVisualSeed(v => v + 1);
+    };
+
     const openCreate = () => {
         setEditDoc(null);
         setForm({ ...EMPTY_FORM });
         setCreateOpen(true);
+        enterFormMode();
     };
 
     const openEdit = async (doc: Doc) => {
@@ -81,6 +112,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
                 isPublic: full.isPublic ?? true,
             });
             setCreateOpen(true);
+            enterFormMode();
         } catch {
             toast.error('Failed to load document');
         }
@@ -137,6 +169,31 @@ const AdminLegalDocumentsPage: React.FC = () => {
         } catch (e: any) {
             toast.error(e.response?.data?.message || 'Archive failed');
         }
+    };
+
+    const switchMode = (next: EditorMode) => {
+        setMode(next);
+        if (next === 'visual') setVisualSeed(v => v + 1);
+    };
+
+    const confirmAddSection = () => {
+        const heading = buildSectionHeading(form.sourceMarkdown, sectionTitle);
+        if (!heading) {
+            toast.error('Enter a section heading');
+            return;
+        }
+        if (mode === 'visual') {
+            visualEditorRef.current?.insertHeading(heading);
+        } else {
+            const base = form.sourceMarkdown.replace(/\s+$/, '');
+            setForm(f => ({
+                ...f,
+                sourceMarkdown: (base ? base + '\n\n' : '') + `## ${heading}` + '\n\n'
+            }));
+        }
+        setSectionTitle('');
+        setSectionOpen(false);
+        toast.success('Section added');
     };
 
     return (
@@ -205,13 +262,13 @@ const AdminLegalDocumentsPage: React.FC = () => {
 
             {createOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-                    <div className="bg-surface rounded-2xl shadow-xl max-w-2xl w-full p-6">
+                    <div className="bg-surface rounded-2xl shadow-xl max-w-3xl w-full my-8 p-6">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-bold text-brand-navy">{editDoc ? 'Edit Draft' : 'Create Draft'}</h2>
                             <button onClick={() => { setCreateOpen(false); setEditDoc(null); }} className="text-slate-400 hover:text-slate-700 font-bold text-sm">✕</button>
                         </div>
                         <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Document Type</label>
                                     <select value={form.documentType} onChange={e => setForm({ ...form, documentType: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50">
@@ -233,24 +290,96 @@ const AdminLegalDocumentsPage: React.FC = () => {
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Title</label>
                                 <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50" placeholder="Document title" />
                             </div>
-                            <div>
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Source Markdown</label>
-                                <textarea value={form.sourceMarkdown} onChange={e => setForm({ ...form, sourceMarkdown: e.target.value })} rows={12} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 resize-y" placeholder="Write markdown content…" />
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Change Summary</label>
-                                <input value={form.changeSummary} onChange={e => setForm({ ...form, changeSummary: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50" placeholder="Brief summary of changes" />
-                            </div>
-                            <div className="flex items-center gap-6">
+                            {editDoc && (
+                                <p className="text-xs font-semibold text-slate-400">
+                                    Status: <span className="capitalize text-slate-600">{editDoc.status}</span>
+                                    {' · '}Version: <span className="text-slate-600">{editDoc.version ?? 'draft'}</span>
+                                    {' · '}Linked route: <span className="font-mono text-slate-600">
+                                        {form.documentType === 'terms' ? '/terms' : form.documentType === 'privacy' ? '/privacy' : '/refund-policy'}
+                                    </span>
+                                </p>
+                            )}
+                            <div className="flex flex-wrap items-center gap-6">
                                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
                                     <input type="checkbox" checked={form.requiresReacceptance} onChange={e => setForm({ ...form, requiresReacceptance: e.target.checked })} className="w-5 h-5 text-brand-emerald border-slate-200 rounded-lg focus:ring-brand-emerald/20" />
                                     Require re-acceptance on next publish
                                 </label>
                                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
                                     <input type="checkbox" checked={form.isPublic} onChange={e => setForm({ ...form, isPublic: e.target.checked })} className="w-5 h-5 text-brand-emerald border-slate-200 rounded-lg focus:ring-brand-emerald/20" />
-                                    Public
+                                    Public status
                                 </label>
                             </div>
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Change Summary</label>
+                                <input value={form.changeSummary} onChange={e => setForm({ ...form, changeSummary: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50" placeholder="Brief summary of changes" />
+                            </div>
+
+                            <div>
+                                <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Content</label>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => { setSectionTitle(''); setSectionOpen(true); }}
+                                            className="inline-flex items-center gap-1 text-xs font-bold text-brand-emerald hover:underline transition-colors"
+                                        >
+                                            <Plus size={14} /> Add Section
+                                        </button>
+                                        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+                                            {MODE_TABS.map(tab => (
+                                                <button
+                                                    key={tab.mode}
+                                                    onClick={() => switchMode(tab.mode)}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${mode === tab.mode ? 'bg-surface text-brand-navy shadow-sm' : 'text-slate-400 hover:text-brand-navy'}`}
+                                                >
+                                                    {tab.icon}{tab.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-2 rounded-xl bg-slate-50 border border-slate-100 px-3 py-2.5 mb-3 text-xs text-slate-500">
+                                    <Info size={14} className="shrink-0 mt-0.5 text-brand-emerald" />
+                                    <span>Use headings to divide sections, lists for multiple items, and links for related policies. You do not need to know Markdown when using Visual mode.</span>
+                                </div>
+
+                                {mode === 'visual' && (
+                                    <Suspense fallback={<div className="flex items-center justify-center py-20 text-sm text-slate-400">Loading editor…</div>}>
+                                        <LegalVisualEditor
+                                            key={visualSeed}
+                                            ref={visualEditorRef}
+                                            initialMarkdown={form.sourceMarkdown || ''}
+                                            onMarkdownChange={md => setForm(f => ({ ...f, sourceMarkdown: md }))}
+                                        />
+                                    </Suspense>
+                                )}
+
+                                {mode === 'markdown' && (
+                                    <textarea
+                                        value={form.sourceMarkdown}
+                                        onChange={e => setForm({ ...form, sourceMarkdown: e.target.value })}
+                                        rows={14}
+                                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-mono text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 resize-y"
+                                        placeholder="Write markdown content…"
+                                    />
+                                )}
+
+                                {mode === 'preview' && (
+                                    <div className="rounded-xl border border-slate-200 bg-surface overflow-hidden">
+                                        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50">
+                                            <span className="inline-block text-[11px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
+                                                Draft Preview
+                                            </span>
+                                            <span className="text-xs text-slate-400 font-medium">Not saved or published</span>
+                                        </div>
+                                        <div
+                                            className="legal-content p-6 max-h-[60vh] overflow-y-auto"
+                                            dangerouslySetInnerHTML={{ __html: draftPreviewHtml }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="flex justify-end gap-3 pt-2">
                                 <button onClick={() => { setCreateOpen(false); setEditDoc(null); }} className="text-sm font-bold text-slate-500 hover:text-slate-700 px-4 py-2 rounded-xl transition-colors">Cancel</button>
                                 <button
@@ -261,6 +390,29 @@ const AdminLegalDocumentsPage: React.FC = () => {
                                     {saving ? 'Saving…' : editDoc ? 'Update Draft' : 'Create Draft'}
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {sectionOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                    <div className="bg-surface rounded-2xl shadow-xl max-w-sm w-full p-6">
+                        <h3 className="text-base font-bold text-brand-navy mb-3">Add Section</h3>
+                        <p className="text-xs text-slate-500 mb-3">This inserts a Heading 2 to divide the document.</p>
+                        <input
+                            autoFocus
+                            value={sectionTitle}
+                            onChange={e => setSectionTitle(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') confirmAddSection(); }}
+                            className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50"
+                            placeholder="Section heading, e.g. Zantara Services"
+                        />
+                        <div className="flex justify-end gap-3 mt-5">
+                            <button onClick={() => setSectionOpen(false)} className="text-sm font-bold text-slate-500 hover:text-slate-700 px-4 py-2 rounded-xl transition-colors">Cancel</button>
+                            <button onClick={confirmAddSection} className="bg-brand-emerald hover:bg-brand-emerald-600 text-white font-bold px-5 py-2 rounded-xl shadow-btn transition-all">
+                                Add
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -295,7 +447,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
 
             {preview && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
-                    <div className="bg-surface rounded-2xl shadow-xl max-w-3xl w-full p-6">
+                    <div className="bg-surface rounded-2xl shadow-xl max-w-3xl w-full my-8 p-6">
                         <div className="flex justify-between items-center mb-4">
                             <div>
                                 <h2 className="text-lg font-bold text-brand-navy">{preview.title}</h2>
@@ -306,7 +458,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
                             <button onClick={() => setPreview(null)} className="text-slate-400 hover:text-slate-700 font-bold text-sm">✕</button>
                         </div>
                         <div
-                            className="prose prose-slate max-w-none text-sm text-slate-700 leading-relaxed border border-slate-100 rounded-xl p-6 bg-white max-h-[70vh] overflow-y-auto"
+                            className="legal-content p-6 bg-surface border border-slate-200 rounded-xl max-h-[70vh] overflow-y-auto"
                             dangerouslySetInnerHTML={{ __html: preview.contentHtml }}
                         />
                     </div>
