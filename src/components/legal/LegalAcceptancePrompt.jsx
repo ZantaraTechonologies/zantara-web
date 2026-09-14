@@ -4,9 +4,9 @@ import API from '../../services/api/apiClient';
 import { useAuthStore } from '../../store/auth/authStore';
 
 export default function LegalAcceptancePrompt() {
-    const [requirements, setRequirements] = useState<any>(null);
+    const [requirements, setRequirements] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [accepting, setAccepting] = useState<string | null>(null);
+    const [accepting, setAccepting] = useState(null);
     const logout = useAuthStore(s => s.logout);
     const legalActionBlocked = useAuthStore(s => s.legalActionBlocked);
 
