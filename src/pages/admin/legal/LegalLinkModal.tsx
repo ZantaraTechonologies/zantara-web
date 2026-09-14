@@ -61,8 +61,8 @@ const LegalLinkModal: React.FC<Props> = ({ onInsert, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-            <div className="bg-surface rounded-2xl shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 z-[60] flex bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+            <div className="bg-surface rounded-2xl shadow-xl max-w-md w-full m-auto p-6">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-base font-bold text-brand-navy">Insert Link</h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-700 font-bold text-sm">✕</button>
