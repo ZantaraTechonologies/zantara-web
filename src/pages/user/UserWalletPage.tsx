@@ -17,6 +17,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useMyTransactions } from '../../hooks/useWallet';
 import { format } from 'date-fns';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
+import { FUNDED_SUCCESS_TEXT, FUNDED_FAILED_TEXT } from '../../utils/paymentReturnNotices';
 
 const UserWalletPage: React.FC = () => {
     const { 
@@ -83,8 +84,8 @@ const UserWalletPage: React.FC = () => {
                         : <XCircle size={20} className="shrink-0" />}
                     <span>
                         {fundedStatus === 'success'
-                            ? 'Payment successful — your wallet has been credited!'
-                            : 'Payment could not be verified. If funds were deducted, contact support.'}
+                            ? FUNDED_SUCCESS_TEXT
+                            : FUNDED_FAILED_TEXT}
                     </span>
                     <button onClick={() => setFundedStatus(null)} className="ml-auto text-current opacity-50 hover:opacity-100">×</button>
                 </div>
