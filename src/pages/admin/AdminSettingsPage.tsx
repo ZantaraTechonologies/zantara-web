@@ -17,6 +17,10 @@ import toast from 'react-hot-toast';
 const AdminSettingsPage: React.FC = () => {
     const [settings, setSettings] = useState<any>({
         SITE_NAME: '',
+        SITE_URL: '',
+        SITE_LOGO: '',
+        SUPPORT_EMAIL: '',
+        SUPPORT_PHONE: '',
         REFERRAL_RATE: 0,
         APP_LOCK_TIMEOUT_MINUTES: 3,
         TRANSFER_FEE_CONFIG: {
@@ -125,6 +129,59 @@ const AdminSettingsPage: React.FC = () => {
                             <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
                                 <AlertCircle className="w-3 h-3" />
                                 This name appears in email footers, page titles, and receipts.
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">Website URL</label>
+                            <input 
+                                type="url" 
+                                value={settings.SITE_URL}
+                                onChange={(e) => setSettings({ ...settings, SITE_URL: e.target.value })}
+                                placeholder="https://zantara.example.com"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-primary transition-all"
+                            />
+                            <p className="text-xs text-slate-400 mt-2">
+                                Your public site URL shown on receipts and support pages.
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">Logo URL</label>
+                            <input 
+                                type="url" 
+                                value={settings.SITE_LOGO}
+                                onChange={(e) => setSettings({ ...settings, SITE_LOGO: e.target.value })}
+                                placeholder="https://zantara.example.com/logo.png"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-primary transition-all"
+                            />
+                            <p className="text-xs text-slate-400 mt-2">
+                                Square logo used on printed receipts. Leave empty to use the platform name.
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">Support Email</label>
+                            <input 
+                                type="email" 
+                                value={settings.SUPPORT_EMAIL}
+                                onChange={(e) => setSettings({ ...settings, SUPPORT_EMAIL: e.target.value })}
+                                placeholder="support@zantara.example.com"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-primary transition-all"
+                            />
+                            <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />
+                                Shown on receipts and used for customer support contact.
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">Support Phone</label>
+                            <input 
+                                type="tel" 
+                                value={settings.SUPPORT_PHONE}
+                                onChange={(e) => setSettings({ ...settings, SUPPORT_PHONE: e.target.value })}
+                                placeholder="+234 800 000 0000"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-primary transition-all"
+                            />
+                            <p className="text-xs text-slate-400 mt-2">
+                                International format (e.g. +234...). Shown on receipts and support pages.
                             </p>
                         </div>
                     </div>
