@@ -63,7 +63,7 @@ export async function deleteLinkedAccount(accountId: string): Promise<any> {
     return data;
 }
 
-export async function requestWithdrawal(withdrawalData: { amount: number; bankName: string; accountNumber: string; accountName: string; pin: string }): Promise<any> {
+export async function requestWithdrawal(withdrawalData: { amount: number; accountId: string; pin: string }): Promise<any> {
     const { data } = await API.post("/withdrawal", withdrawalData);
     return data;
 }

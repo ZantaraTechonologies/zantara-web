@@ -48,9 +48,7 @@ const UserWithdrawPage: React.FC = () => {
 
             const payload = {
                 amount: Number(amount),
-                bankName: bank.bankName,
-                accountNumber: bank.accountNumber,
-                accountName: bank.accountName,
+                accountId: bank._id,
                 pin: pin.join('')
             };
 
