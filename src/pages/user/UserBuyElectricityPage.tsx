@@ -9,6 +9,7 @@ import SecurePinModal from "../../components/modals/SecurePinModal";
 import { toast } from "react-hot-toast";
 import { Lightbulb, Zap, Phone, AlertCircle, Info, UserCheck, TrendingUp } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
+import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
 
 const METER_TYPES = [
     { id: "prepaid", label: "Prepaid" },
@@ -149,7 +150,7 @@ const UserBuyElectricityPage: React.FC = () => {
             await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
-                state: { 
+                state: createOwnedRouteState(getSessionIdentity(user), {
                     status: 'success', 
                     message: res.message || 'Payment successful.', 
                     transaction: { 
@@ -160,14 +161,14 @@ const UserBuyElectricityPage: React.FC = () => {
                         token: res.data?.token,
                         timestamp: new Date().toLocaleTimeString() 
                     } 
-                } 
+                })
             });
         } catch (err: any) {
             const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
             if (isTimeout) {
                 setShowPinModal(false);
                 navigate('/app/services/status', { 
-                    state: { 
+                    state: createOwnedRouteState(getSessionIdentity(user), {
                         status: 'timeout', 
                         message: 'This transaction is taking longer than expected. We are still processing it.', 
                         transaction: { 
@@ -177,7 +178,7 @@ const UserBuyElectricityPage: React.FC = () => {
                             reference: 'PENDING_VERIFICATION', 
                             timestamp: new Date().toLocaleTimeString() 
                         } 
-                    } 
+                    })
                 });
                 return;
             }

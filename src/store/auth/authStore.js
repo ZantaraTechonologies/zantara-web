@@ -1,12 +1,33 @@
 import { create } from 'zustand';
 import * as authService from '../../services/auth/authService';
+import {
+    adoptAuthenticatedIdentity,
+    beginAuthenticatedSession,
+    getSessionEpoch,
+    isSessionEpochCurrent,
+    registerSessionReset,
+    teardownSession
+} from '../../app/sessionLifecycle';
+
+const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token') || null;
+const authResetState = {
+    user: null,
+    token: null,
+    isAuthenticated: false,
+    loading: false,
+    isInitialized: true,
+    error: null,
+    legalActionBlocked: false,
+};
+
+const identityOf = (user) => user?.id || user?._id || null;
 
 export const useAuthStore = create((set, get) => ({
     user: null,
-    token: localStorage.getItem('token') || sessionStorage.getItem('token') || null,
-    isAuthenticated: !!(localStorage.getItem('token') || sessionStorage.getItem('token')),
-    loading: !!(localStorage.getItem('token') || sessionStorage.getItem('token')),
-    isInitialized: !(localStorage.getItem('token') || sessionStorage.getItem('token')),
+    token: storedToken,
+    isAuthenticated: !!storedToken,
+    loading: !!storedToken,
+    isInitialized: !storedToken,
     error: null,
     isMaintenanceMode: false,
     isNoInternet: false,
@@ -15,6 +36,14 @@ export const useAuthStore = create((set, get) => ({
 
     setAuth: (user, token, rememberMe = true) => {
         const activeToken = token || user?.token || localStorage.getItem('token') || sessionStorage.getItem('token');
+        const current = get();
+        if (identityOf(current.user) !== identityOf(user) || current.token !== activeToken) {
+            if (!current.user && current.token && current.token === activeToken) {
+                adoptAuthenticatedIdentity();
+            } else {
+                beginAuthenticatedSession();
+            }
+        }
         if (activeToken) {
             if (rememberMe) {
                 localStorage.setItem('token', activeToken);
@@ -28,10 +57,10 @@ export const useAuthStore = create((set, get) => ({
     },
 
     clearAuth: () => {
-        localStorage.removeItem('token');
-        sessionStorage.removeItem('token');
-        set({ user: null, token: null, isAuthenticated: false, loading: false, isInitialized: true, error: null });
+        teardownSession();
     },
+
+    reset: () => set(authResetState),
 
     fetchMe: async () => {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -41,29 +70,34 @@ export const useAuthStore = create((set, get) => ({
         }
 
         set({ loading: true });
+        const epoch = getSessionEpoch();
         try {
             const data = await authService.getMe();
+            if (!isSessionEpochCurrent(epoch)) return;
             // Loosening the check: if data exists and looks like a user or has a user field
             const user = data.user || (data.id || data._id ? data : null);
             
             if (user) {
-                set({ user, isAuthenticated: true, loading: false, isInitialized: true });
+                get().setAuth(user, token, localStorage.getItem('token') === token);
             } else {
                 console.warn("fetchMe: No user data returned", data);
                 get().clearAuth();
             }
         } catch (error) {
+            if (!isSessionEpochCurrent(epoch)) return;
             console.error("fetchMe: Request failed", error);
             get().clearAuth();
         } finally {
-            set({ loading: false, isInitialized: true });
+            if (isSessionEpochCurrent(epoch)) set({ loading: false, isInitialized: true });
         }
     },
 
     login: async (credentials, rememberMe = false) => {
         set({ loading: true, error: null });
+        const epoch = getSessionEpoch();
         try {
             const data = await authService.login({ ...credentials, rememberMe });
+            if (!isSessionEpochCurrent(epoch)) throw new Error('Authentication request was superseded');
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
             const user = data.user || data.data?.user || (data.id || data._id ? data : null);
@@ -75,6 +109,7 @@ export const useAuthStore = create((set, get) => ({
                 throw new Error(data.message || 'Login failed: No user or token in response');
             }
         } catch (error) {
+            if (!isSessionEpochCurrent(epoch)) throw error;
             const msg = error.response?.data?.message || error.message || 'Login failed';
             set({ error: msg, loading: false });
             throw error;
@@ -83,8 +118,10 @@ export const useAuthStore = create((set, get) => ({
 
     register: async (userData) => {
         set({ loading: true, error: null });
+        const epoch = getSessionEpoch();
         try {
             const data = await authService.register(userData);
+            if (!isSessionEpochCurrent(epoch)) throw new Error('Registration request was superseded');
             // console.log("register: Response received", data);
             
             const token = data.token || data.accessToken || data.access_token || data.data?.token;
@@ -99,6 +136,7 @@ export const useAuthStore = create((set, get) => ({
                 return data;
             }
         } catch (error) {
+            if (!isSessionEpochCurrent(epoch)) throw error;
             const msg = error.response?.data?.message || error.message || 'Registration failed';
             set({ error: msg, loading: false });
             throw error;
@@ -106,12 +144,12 @@ export const useAuthStore = create((set, get) => ({
     },
 
     logout: async () => {
+        const token = get().token || localStorage.getItem('token') || sessionStorage.getItem('token');
+        get().clearAuth();
         try {
-            await authService.logout();
+            await authService.logout(token);
         } catch (err) {
             console.error('Logout error:', err);
-        } finally {
-            get().clearAuth();
         }
     },
 
@@ -125,3 +163,4 @@ export const useAuthStore = create((set, get) => ({
     resetSystemStates: () => set({ isMaintenanceMode: false, isNoInternet: false, globalError: null }),
 }));
 
+registerSessionReset('auth', () => useAuthStore.getState().reset());

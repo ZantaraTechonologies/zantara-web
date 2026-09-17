@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
     CheckCircle2, 
@@ -13,12 +13,29 @@ import {
 } from 'lucide-react';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-hot-toast';
+import { useAuthStore } from '../../store/auth/authStore';
+import { getSessionIdentity, readOwnedRouteState } from '../../utils/sessionRouteState';
 
 const TransactionStatusPage: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { status, transaction, message } = location.state || {};
+    const user = useAuthStore((state) => state.user);
+    const userId = getSessionIdentity(user);
+    const [ownedRouteState, setOwnedRouteState] = useState(() => ({
+        ownerId: userId,
+        value: readOwnedRouteState<any>(location.state, userId),
+    }));
+    const routeState = ownedRouteState.ownerId === userId ? ownedRouteState.value : null;
+    const { status, transaction, message } = routeState || {};
     const { currency } = useWalletStore();
+
+    useEffect(() => {
+        if (location.state) navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state: null });
+    }, [location, navigate]);
+
+    useEffect(() => {
+        if (ownedRouteState.ownerId !== userId) setOwnedRouteState({ ownerId: userId, value: null });
+    }, [ownedRouteState.ownerId, userId]);
 
     if (!status || !transaction) {
         return (

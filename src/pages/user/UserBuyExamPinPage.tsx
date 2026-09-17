@@ -9,6 +9,7 @@ import SecurePinModal from "../../components/modals/SecurePinModal";
 import { toast } from "react-hot-toast";
 import { GraduationCap, Info, AlertCircle, UserCheck, TrendingUp } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
+import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
 
 const UserBuyExamPinPage: React.FC = () => {
     const { balance, currency, fetchBalance } = useWalletStore();
@@ -168,7 +169,7 @@ const UserBuyExamPinPage: React.FC = () => {
             await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
-                state: { 
+                state: createOwnedRouteState(getSessionIdentity(user), {
                     status: 'success', 
                     message: res.message || 'PIN purchased successful.', 
                     transaction: { 
@@ -179,14 +180,14 @@ const UserBuyExamPinPage: React.FC = () => {
                         token: res.data?.token || res.data?.purchased_code,
                         timestamp: new Date().toLocaleTimeString() 
                     } 
-                } 
+                })
             });
         } catch (err: any) {
             const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
             if (isTimeout) {
                 setShowPinModal(false);
                 navigate('/app/services/status', { 
-                    state: { 
+                    state: createOwnedRouteState(getSessionIdentity(user), {
                         status: 'timeout', 
                         message: 'This transaction is taking longer than expected. We are still processing it.', 
                         transaction: { 
@@ -196,7 +197,7 @@ const UserBuyExamPinPage: React.FC = () => {
                             reference: 'PENDING_VERIFICATION', 
                             timestamp: new Date().toLocaleTimeString() 
                         } 
-                    } 
+                    })
                 });
                 return;
             }

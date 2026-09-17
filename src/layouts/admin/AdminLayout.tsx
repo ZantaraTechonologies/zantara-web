@@ -33,6 +33,7 @@ import {
 import Navbar from "../../components/navigation/Navbar";
 import { useAdminAuth } from "../../hooks/useAdminAuth";
 import { hasAnyRole } from "../../utils/access";
+import { useAuthStore } from "../../store/auth/authStore";
 
 import { useSiteSettings } from "../../app/SiteSettingsContext";
 
@@ -41,11 +42,11 @@ export default function AdminLayout() {
     const navigate = useNavigate();
     const location = useLocation();
     const { admin } = useAdminAuth();
+    const logout = useAuthStore((state) => state.logout);
     const isSuperAdmin = hasAnyRole(admin, ['superAdmin']);
 
-    // Simplified logout for admin since auth context/store is separated.
-    const handleLogout = () => {
-        // clear any admin tokens if needed here
+    const handleLogout = async () => {
+        await logout();
         navigate("/admin/login");
     };
 

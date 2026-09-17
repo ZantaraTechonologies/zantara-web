@@ -29,8 +29,10 @@ export const register = async (userData: any): Promise<AuthResponse> => {
     return res.data;
 };
 
-export const logout = async (): Promise<void> => {
-    await API.post('/auth/logout');
+export const logout = async (token?: string | null): Promise<void> => {
+    await API.post('/auth/logout', undefined, token ? {
+        headers: { Authorization: `Bearer ${token}` }
+    } : undefined);
 };
 
 export const getMe = async (): Promise<AuthResponse> => {

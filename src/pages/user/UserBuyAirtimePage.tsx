@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { Phone, AlertCircle, Info, TriangleAlert } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
 import { detectNetwork } from "../../utils/phoneValidation";
+import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
 import mtnLogo from "../../assets/mtn.webp";
 import airtelLogo from "../../assets/airtel.webp";
 import gloLogo from "../../assets/glo.webp";
@@ -177,7 +178,7 @@ const UserBuyAirtimePage: React.FC = () => {
             await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
-                state: { 
+                state: createOwnedRouteState(getSessionIdentity(user), {
                     status: 'success', 
                     message: res.message || 'Airtime purchase successful.', 
                     transaction: { 
@@ -187,14 +188,14 @@ const UserBuyAirtimePage: React.FC = () => {
                         reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
                         timestamp: new Date().toLocaleTimeString() 
                     } 
-                } 
+                })
             });
         } catch (err: any) {
             const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
             if (isTimeout) {
                 setShowPinModal(false);
                 navigate('/app/services/status', { 
-                    state: { 
+                    state: createOwnedRouteState(getSessionIdentity(user), {
                         status: 'timeout', 
                         message: 'This transaction is taking longer than expected. We are still processing it.', 
                         transaction: { 
@@ -204,7 +205,7 @@ const UserBuyAirtimePage: React.FC = () => {
                             reference: 'PENDING_VERIFICATION', 
                             timestamp: new Date().toLocaleTimeString() 
                         } 
-                    } 
+                    })
                 });
                 return;
             }

@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import * as userService from '../../services/user/userService';
 import { useAuthStore } from '../../store/auth/authStore';
 import { toast } from 'react-toastify';
 import { ShieldCheck, ArrowLeft, Lock, Save, Key } from 'lucide-react';
 import { SubmitButton } from '../../components/buy/Buy';
+import { getPostLoginPath } from '../../utils/sessionRouteState';
 
 const UserPinSetupPage: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, fetchMe } = useAuthStore();
+    const returnTo = getPostLoginPath(location.state as any, '/app/dashboard');
 
     // Safety check just in case user object is lagging
     useEffect(() => {
@@ -80,7 +83,7 @@ const UserPinSetupPage: React.FC = () => {
             if (hasPin) {
                 navigate('/app/profile/security');
             } else {
-                navigate('/app/dashboard');
+                navigate(returnTo, { replace: true });
             }
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Failed to update PIN");

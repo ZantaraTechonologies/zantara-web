@@ -1,5 +1,16 @@
 import { create } from 'zustand';
 import * as adminService from '../../services/admin/adminService';
+import { getSessionEpoch, isSessionEpochCurrent, registerSessionReset } from '../../app/sessionLifecycle';
+
+const adminResetState = {
+    stats: null,
+    loadingStats: false,
+    error: null,
+    pendingKycCount: 0,
+    pendingWithdrawalsCount: 0,
+    failedTxsToday: 0,
+    todayProfit: 0,
+};
 
 interface AdminState {
     stats: any | null;
@@ -7,6 +18,7 @@ interface AdminState {
     error: string | null;
 
     fetchDashboardStats: (days?: number) => Promise<void>;
+    reset: () => void;
     
     // Quick Operational Counts
     pendingKycCount: number;
@@ -16,18 +28,14 @@ interface AdminState {
 }
 
 export const useAdminStore = create<AdminState>((set) => ({
-    stats: null,
-    loadingStats: false,
-    error: null,
-    pendingKycCount: 0,
-    pendingWithdrawalsCount: 0,
-    failedTxsToday: 0,
-    todayProfit: 0,
+    ...adminResetState,
 
     fetchDashboardStats: async (days = 7) => {
+        const epoch = getSessionEpoch();
         set({ loadingStats: true, error: null });
         try {
             const response = await adminService.fetchDashboardStats(days);
+            if (!isSessionEpochCurrent(epoch)) return;
             const data = response.data; // Backend returns { success: true, data: { ... } }
             
             set({ 
@@ -39,7 +47,11 @@ export const useAdminStore = create<AdminState>((set) => ({
                 loadingStats: false 
             });
         } catch (err: any) {
+            if (!isSessionEpochCurrent(epoch)) return;
             set({ error: err.message, loadingStats: false });
         }
     },
+    reset: () => set(adminResetState),
 }));
+
+registerSessionReset('admin', () => useAdminStore.getState().reset());

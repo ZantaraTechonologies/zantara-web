@@ -8,12 +8,12 @@ const ProtectedRoute = ({ children }) => {
     const location = useLocation();
 
     React.useEffect(() => {
-        if (!isInitialized) {
+        if (!isInitialized || (isAuthenticated && !user)) {
             fetchMe();
         }
-    }, [isInitialized, fetchMe]);
+    }, [isInitialized, isAuthenticated, user, fetchMe]);
 
-    if (!isInitialized) {
+    if (!isInitialized || (isAuthenticated && !user)) {
         return <PageLoader />;
     }
     if (!isAuthenticated) {
@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children }) => {
     // Enforce transaction PIN setup
     const isPinSetupPage = location.pathname === '/app/profile/security/pin';
     if (user && user.isPinSet === false && !isPinSetupPage) {
-        return <Navigate to="/app/profile/security/pin" replace />;
+        return <Navigate to="/app/profile/security/pin" replace state={{ from: location }} />;
     }
 
     return children;

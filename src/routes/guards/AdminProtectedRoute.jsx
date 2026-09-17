@@ -7,12 +7,12 @@ const AdminProtectedRoute = () => {
     const { user, isAuthenticated, isInitialized, fetchMe } = useAuthStore();
 
     useEffect(() => {
-        if (!isInitialized) {
+        if (!isInitialized || (isAuthenticated && !user)) {
             fetchMe();
         }
-    }, [isInitialized, fetchMe]);
+    }, [isInitialized, isAuthenticated, user, fetchMe]);
 
-    if (!isInitialized) {
+    if (!isInitialized || (isAuthenticated && !user)) {
         return <PageLoader />;
     }
 

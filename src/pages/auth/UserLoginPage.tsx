@@ -9,6 +9,7 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
+import { getPostLoginPath } from '../../utils/sessionRouteState';
 
 const UserLoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const UserLoginPage: React.FC = () => {
     const { login } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
-    const from = (location.state as any)?.from?.pathname || '/app/wallet';
+    const from = getPostLoginPath(location.state as any);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();

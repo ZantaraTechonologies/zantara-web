@@ -7,6 +7,7 @@ import ProtectedRoute from './guards/ProtectedRoute';
 import AuthRoute from './guards/AuthRoute';
 import AdminProtectedRoute from './guards/AdminProtectedRoute';
 import RequireAccess from './guards/RequireAccess';
+import AppErrorBoundary from '../components/errors/AppErrorBoundary';
 
 import { useAuthStore } from '../store/auth/authStore';
 
@@ -119,7 +120,7 @@ export default function AppRoutes() {
     return (
         <Router>
             <Suspense fallback={<RouteLoader />}>
-                <Routes>
+                <AppErrorBoundary><Routes>
                     {/* ---------- root state priority wrapper ---------- */}
                     <Route element={<RootStateController children={<Outlet />} />}>
                         {/* ---------- Public Routes ---------- */}
@@ -277,7 +278,7 @@ export default function AppRoutes() {
                         <Route path="/not-authorized" element={<NotAuthorized />} />
                         <Route path="*" element={<NotFound />} />
                     </Route>
-                </Routes>
+                </Routes></AppErrorBoundary>
             </Suspense>
         </Router>
     );

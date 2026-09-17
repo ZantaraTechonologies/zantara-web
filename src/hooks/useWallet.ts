@@ -2,6 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { WalletBalance, getWalletBalance, initWalletFunding } from "../services/wallet/walletService";
 import { getMyTransactionLogs, getTransactionById } from "../services/transactions/transactionService";
+import { privateQueryKey } from "../app/queryClient";
+import { usePrivateQueryContext } from "./usePrivateQueryContext";
 
 import type { TxLog } from "../services/transactions/transactionService";
 
@@ -14,9 +16,11 @@ export type TxResult = {
 
 /** ---- Wallet balance ---- */
 export function useWallet() {
+    const { userId, isAuthenticated } = usePrivateQueryContext();
     return useQuery({
-        queryKey: ["wallet", "balance"],
+        queryKey: privateQueryKey(userId, "wallet", "balance"),
         queryFn: getWalletBalance,
+        enabled: isAuthenticated,
         refetchOnWindowFocus: false,
     });
 }
@@ -29,12 +33,14 @@ export function useMyTransactions(params?: {
     limit?: number;
     refId?: string;
 }) {
+    const { userId, isAuthenticated } = usePrivateQueryContext();
     return useQuery<TxResult>({
-        queryKey: ["txlogs", params],
+        queryKey: privateQueryKey(userId, "txlogs", params),
         queryFn: async () => {
             // Assuming getMyTransactionLogs returns { items: TxLog[], total, page, limit } already
             return await getMyTransactionLogs(params);
         },
+        enabled: isAuthenticated,
         refetchOnWindowFocus: false,
         staleTime: 15_000,
     });
@@ -42,10 +48,11 @@ export function useMyTransactions(params?: {
 
 /** ---- Single transaction details ---- */
 export function useTransactionDetails(id: string | undefined) {
+    const { userId, isAuthenticated } = usePrivateQueryContext();
     return useQuery<TxLog | null>({
-        queryKey: ["txlog", id],
+        queryKey: privateQueryKey(userId, "txlog", id),
         queryFn: () => id ? getTransactionById(id) : Promise.resolve(null),
-        enabled: !!id,
+        enabled: isAuthenticated && !!id,
         refetchOnWindowFocus: false,
         staleTime: 60_000,
     });
@@ -54,11 +61,13 @@ export function useTransactionDetails(id: string | undefined) {
 /** ---- Paystack init (invalidate wallet + tx logs on success) ---- */
 export function useInitPaystackServer() {
     const qc = useQueryClient();
+    const { userId } = usePrivateQueryContext();
     return useMutation({
+        mutationKey: privateQueryKey(userId, "wallet", "fund"),
         mutationFn: (amount: number) => initWalletFunding(amount),
         onSuccess: async () => {
-            await qc.invalidateQueries({ queryKey: ["wallet", "balance"] });
-            await qc.invalidateQueries({ queryKey: ["txlogs"] }); // invalidate all tx queries
+            await qc.invalidateQueries({ queryKey: privateQueryKey(userId, "wallet", "balance") });
+            await qc.invalidateQueries({ queryKey: privateQueryKey(userId, "txlogs") });
         },
     });
 }

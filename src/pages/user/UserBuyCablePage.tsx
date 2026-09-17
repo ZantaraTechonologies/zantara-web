@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { Monitor, Tv, Phone, AlertCircle, Info, Search, UserCheck, TrendingUp } from "lucide-react";
 import { ServiceSkeleton } from "../../components/feedback/Skeletons";
 import apiClient from "../../services/api/apiClient";
+import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
 
 const UserBuyCablePage: React.FC = () => {
     const { balance, currency, fetchBalance } = useWalletStore();
@@ -171,7 +172,7 @@ const UserBuyCablePage: React.FC = () => {
             await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
-                state: { 
+                state: createOwnedRouteState(getSessionIdentity(user), {
                     status: 'success', 
                     message: res.message || 'Subscription successful.', 
                     transaction: { 
@@ -181,14 +182,14 @@ const UserBuyCablePage: React.FC = () => {
                         reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
                         timestamp: new Date().toLocaleTimeString() 
                     } 
-                } 
+                })
             });
         } catch (err: any) {
             const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
             if (isTimeout) {
                 setShowPinModal(false);
                 navigate('/app/services/status', { 
-                    state: { 
+                    state: createOwnedRouteState(getSessionIdentity(user), {
                         status: 'timeout', 
                         message: 'This transaction is taking longer than expected. We are still processing it.', 
                         transaction: { 
@@ -198,7 +199,7 @@ const UserBuyCablePage: React.FC = () => {
                             reference: 'PENDING_VERIFICATION', 
                             timestamp: new Date().toLocaleTimeString() 
                         } 
-                    } 
+                    })
                 });
                 return;
             }

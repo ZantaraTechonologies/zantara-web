@@ -1,5 +1,11 @@
 import axios from 'axios';
 import { useAuthStore } from '../../store/auth/authStore.js';
+import {
+    captureSessionRequest,
+    getSessionRequestSignal,
+    isSessionRequestCurrent,
+    reloadForExternalSession
+} from '../../app/sessionLifecycle';
 
 // Runtime environment detection
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -10,8 +16,25 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const sessionToken = useAuthStore.getState().token;
+    const explicitAuthorization = config.headers?.get?.('Authorization')
+        || config.headers?.Authorization
+        || config.headers?.authorization;
+    if (!explicitAuthorization && sessionToken !== storedToken) {
+        reloadForExternalSession();
+        throw new axios.CanceledError('Session credentials changed');
+    }
+    const token = sessionToken;
+    if (token && !explicitAuthorization) config.headers.Authorization = `Bearer ${token}`;
+    const authorization = explicitAuthorization || (token ? `Bearer ${token}` : null);
+    const requestToken = typeof authorization === 'string'
+        ? authorization.replace(/^Bearer\s+/i, '')
+        : token;
+    if (requestToken) {
+        config.__sessionContext = captureSessionRequest(requestToken);
+        if (!config.signal) config.signal = getSessionRequestSignal();
+    }
     return config;
 });
 
@@ -20,16 +43,16 @@ API.interceptors.response.use(
     (error) => {
         const { setMaintenanceMode, setNoInternet } = useAuthStore.getState();
 
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token');
+        if (error.response?.status === 401 && isSessionRequestCurrent(error.config?.__sessionContext)) {
+            useAuthStore.getState().clearAuth();
             window.location.href = '/login';
         }
 
         if (error.response?.status === 403) {
             const message = error.response.data?.message;
             // If the token is invalid/expired, we should treat it like a 401
-            if (message === 'Invalid or expired token') {
-                localStorage.removeItem('token');
+            if (message === 'Invalid or expired token' && isSessionRequestCurrent(error.config?.__sessionContext)) {
+                useAuthStore.getState().clearAuth();
                 window.location.href = '/login';
             }
         }
@@ -38,7 +61,7 @@ API.interceptors.response.use(
             setMaintenanceMode(true);
         }
 
-        if (error.response?.status === 428) {
+        if (error.response?.status === 428 && isSessionRequestCurrent(error.config?.__sessionContext)) {
             // Guarded financial/service action blocked pending legal acceptance.
             const { setLegalActionBlocked } = useAuthStore.getState();
             setLegalActionBlocked(true);
