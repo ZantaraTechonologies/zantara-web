@@ -56,9 +56,9 @@ const UserWithdrawPage: React.FC = () => {
             setWithdrawalRes(data.request);
             setStep(3); // Success state
         } catch (error: any) {
-            console.error('Withdrawal failed:', error);
             alert(error.response?.data?.message || error.message || 'Withdrawal failed');
         } finally {
+            setPin(['', '', '', '']);
             setSubmitting(false);
         }
     };
@@ -183,7 +183,7 @@ const UserWithdrawPage: React.FC = () => {
                             {submitting ? 'Authorizing...' : 'Authorize & Send'}
                         </button>
                         <button 
-                            onClick={() => setStep(1)}
+                            onClick={() => { setPin(['', '', '', '']); setStep(1); }}
                             className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors"
                         >
                             Cancel Transaction
