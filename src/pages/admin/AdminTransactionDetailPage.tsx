@@ -55,7 +55,7 @@ export default function AdminTransactionDetailPage() {
         setVerifying(true);
         try {
             const ref = txn.transactionId || txn.refId || txn.reference;
-            await API.post("/services/transaction/status", { reference: ref });
+            await API.post("/services/transaction/status", { refId: ref });
             toast.success("State synchronized with provider");
             fetchData();
         } catch (err) {

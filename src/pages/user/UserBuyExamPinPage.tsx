@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { GraduationCap, Info, AlertCircle, UserCheck, TrendingUp } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
 import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
+import { getVtuPurchasePresentation } from "../../utils/vtuPurchaseOutcome";
 
 const UserBuyExamPinPage: React.FC = () => {
     const { balance, currency, fetchBalance } = useWalletStore();
@@ -166,18 +167,25 @@ const UserBuyExamPinPage: React.FC = () => {
                 pin, 
                 expectedPrice: finalAmount 
             });
-            await fetchBalance();
+            const result = getVtuPurchasePresentation(res, 'PIN purchased successfully.', 'Purchase failed.');
+            if (result.status === 'failed') {
+                setPinError(result.message);
+                toast.error(result.message);
+                return;
+            }
+            if (result.status === 'pending') void fetchBalance();
+            else await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
                 state: createOwnedRouteState(getSessionIdentity(user), {
-                    status: 'success', 
-                    message: res.message || 'PIN purchased successful.', 
+                    status: result.status,
+                    message: result.message,
                     transaction: { 
                         service: `${selectedIdentity?.name || 'Exam PIN'} ${purchasePlan.name}`, 
                         amount: finalAmount, 
                         target: isJamb ? profileCode : (user?.phone || user?.email), 
-                        reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
-                        token: res.data?.token || res.data?.purchased_code,
+                        reference: result.reference,
+                        token: result.status === 'success' ? res.data.token || res.data.purchased_code : undefined,
                         timestamp: new Date().toLocaleTimeString() 
                     } 
                 })

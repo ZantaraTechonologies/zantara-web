@@ -32,7 +32,7 @@ export type Txn = {
     userId?: string; // fallback
     service?: string; // e.g., airtime, data, electricity
     amount: number;
-    status: "success" | "pending" | "failed";
+    status: "success" | "pending" | "failed" | "reversed";
     reference?: string; // provider reference
     transactionId?: string; // system ID
     refId?: string; // fallback ID
@@ -50,6 +50,7 @@ function StatusTag({ status }: { status: Txn["status"] }) {
         success: "bg-green-100 text-green-700",
         pending: "bg-amber-100 text-amber-700",
         failed: "bg-rose-100 text-rose-700",
+        reversed: "bg-slate-100 text-slate-700",
     } as const;
     return (
         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${map[status]}`}>{status}</span>
@@ -171,7 +172,7 @@ export default function TransactionsPage() {
                 (copy[idx] as any).__checking = true;
                 setRows(copy);
             }
-            await API.post("/services/transaction/status", { reference: targetRef });
+            await API.post("/services/transaction/status", { refId: targetRef });
             await fetchData();
         } catch {
             console.error('Failed to recheck transaction status');

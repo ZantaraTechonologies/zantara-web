@@ -4,7 +4,7 @@ export type TxLog = {
     id: string;
     refId?: string;
     type: "wallet_fund" | "airtime" | "data" | "electricity" | "cable" | "exam_pin" | string;
-    status: "pending" | "success" | "failed" | "skipped";
+    status: "pending" | "success" | "failed" | "reversed" | "skipped";
     amount: number;
     costPrice?: number;
     profit?: number;

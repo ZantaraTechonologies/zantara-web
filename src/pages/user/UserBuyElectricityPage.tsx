@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { Lightbulb, Zap, Phone, AlertCircle, Info, UserCheck, TrendingUp } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
 import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
+import { getVtuPurchasePresentation } from "../../utils/vtuPurchaseOutcome";
 
 const METER_TYPES = [
     { id: "prepaid", label: "Prepaid" },
@@ -147,18 +148,25 @@ const UserBuyElectricityPage: React.FC = () => {
                 pin, 
                 expectedPrice: finalAmount 
             });
-            await fetchBalance();
+            const result = getVtuPurchasePresentation(res, 'Payment successful.', 'Payment failed.');
+            if (result.status === 'failed') {
+                setPinError(result.message);
+                toast.error(result.message);
+                return;
+            }
+            if (result.status === 'pending') void fetchBalance();
+            else await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
                 state: createOwnedRouteState(getSessionIdentity(user), {
-                    status: 'success', 
-                    message: res.message || 'Payment successful.', 
+                    status: result.status,
+                    message: result.message,
                     transaction: { 
                         service: `${selectedIdentity?.name || 'Electricity'} (${meterType.toUpperCase()})`, 
                         amount: Number(amount), 
                         target: meterNumber, 
-                        reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
-                        token: res.data?.token,
+                        reference: result.reference,
+                        token: result.status === 'success' ? res.data.token : undefined,
                         timestamp: new Date().toLocaleTimeString() 
                     } 
                 })

@@ -11,6 +11,7 @@ import { Monitor, Tv, Phone, AlertCircle, Info, Search, UserCheck, TrendingUp } 
 import { ServiceSkeleton } from "../../components/feedback/Skeletons";
 import apiClient from "../../services/api/apiClient";
 import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
+import { getVtuPurchasePresentation } from "../../utils/vtuPurchaseOutcome";
 
 const UserBuyCablePage: React.FC = () => {
     const { balance, currency, fetchBalance } = useWalletStore();
@@ -169,17 +170,24 @@ const UserBuyCablePage: React.FC = () => {
                 pin, 
                 expectedPrice: finalAmount 
             });
-            await fetchBalance();
+            const result = getVtuPurchasePresentation(res, 'Subscription successful.', 'Subscription failed.');
+            if (result.status === 'failed') {
+                setPinError(result.message);
+                toast.error(result.message);
+                return;
+            }
+            if (result.status === 'pending') void fetchBalance();
+            else await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
                 state: createOwnedRouteState(getSessionIdentity(user), {
-                    status: 'success', 
-                    message: res.message || 'Subscription successful.', 
+                    status: result.status,
+                    message: result.message,
                     transaction: { 
                         service: `${selectedIdentity?.name || 'Cable'} - ${purchasePlan.name}`, 
                         amount: Number(purchasePlan.variation_amount), 
                         target: smartcard, 
-                        reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
+                        reference: result.reference,
                         timestamp: new Date().toLocaleTimeString() 
                     } 
                 })

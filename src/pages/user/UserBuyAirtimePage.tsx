@@ -11,6 +11,7 @@ import { Phone, AlertCircle, Info, TriangleAlert } from "lucide-react";
 import apiClient from "../../services/api/apiClient";
 import { detectNetwork } from "../../utils/phoneValidation";
 import { createOwnedRouteState, getSessionIdentity } from "../../utils/sessionRouteState";
+import { getVtuPurchasePresentation } from "../../utils/vtuPurchaseOutcome";
 import mtnLogo from "../../assets/mtn.webp";
 import airtelLogo from "../../assets/airtel.webp";
 import gloLogo from "../../assets/glo.webp";
@@ -175,17 +176,24 @@ const UserBuyAirtimePage: React.FC = () => {
                 pin, 
                 expectedPrice: finalAmount 
             });
-            await fetchBalance();
+            const result = getVtuPurchasePresentation(res, 'Airtime purchase successful.', 'Purchase failed.');
+            if (result.status === 'failed') {
+                setPinError(result.message);
+                toast.error(result.message);
+                return;
+            }
+            if (result.status === 'pending') void fetchBalance();
+            else await fetchBalance();
             setShowPinModal(false);
             navigate('/app/services/status', { 
                 state: createOwnedRouteState(getSessionIdentity(user), {
-                    status: 'success', 
-                    message: res.message || 'Airtime purchase successful.', 
+                    status: result.status,
+                    message: result.message,
                     transaction: { 
                         service: `${selectedIdentity?.name || 'Airtime'}`, 
                         amount: Number(amount), 
                         target: phone, 
-                        reference: res.data?.reference || res.data?.transactionId || res.data?.requestId, 
+                        reference: result.reference,
                         timestamp: new Date().toLocaleTimeString() 
                     } 
                 })

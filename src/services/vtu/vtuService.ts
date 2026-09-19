@@ -1,4 +1,5 @@
 import apiClient from '../api/apiClient';
+import { normalizeVtuPurchaseResponse } from '../../utils/vtuPurchaseOutcome';
 
 const VTU_TIMEOUT = 30000; // 30 seconds
 
@@ -89,7 +90,7 @@ export const buyAirtime = async (data: any) => {
     try {
         const res = await apiClient.post('/services/airtime', data, { timeout: VTU_TIMEOUT });
         log('Airtime transaction success', res.data);
-        return res.data;
+        return normalizeVtuPurchaseResponse(res);
     } catch (err) {
         log('Airtime transaction failed', err);
         throw err;
@@ -101,7 +102,7 @@ export const buyData = async (data: any) => {
     try {
         const res = await apiClient.post('/services/data', data, { timeout: VTU_TIMEOUT });
         log('Data transaction success', res.data);
-        return res.data;
+        return normalizeVtuPurchaseResponse(res);
     } catch (err) {
         log('Data transaction failed', err);
         throw err;
@@ -113,7 +114,7 @@ export const buyElectricity = async (data: any) => {
     try {
         const res = await apiClient.post('/services/electricity', data, { timeout: VTU_TIMEOUT });
         log('Electricity transaction success', res.data);
-        return res.data;
+        return normalizeVtuPurchaseResponse(res);
     } catch (err) {
         log('Electricity transaction failed', err);
         throw err;
@@ -125,7 +126,7 @@ export const buyCable = async (data: any) => {
     try {
         const res = await apiClient.post('/services/cable', data, { timeout: VTU_TIMEOUT });
         log('Cable transaction success', res.data);
-        return res.data;
+        return normalizeVtuPurchaseResponse(res);
     } catch (err) {
         log('Cable transaction failed', err);
         throw err;
@@ -137,7 +138,7 @@ export const buyExamPin = async (data: any) => {
     try {
         const res = await apiClient.post('/services/purchase-pin', data, { timeout: VTU_TIMEOUT });
         log('Exam PIN transaction success', res.data);
-        return res.data;
+        return normalizeVtuPurchaseResponse(res);
     } catch (err) {
         log('Exam PIN transaction failed', err);
         throw err;
