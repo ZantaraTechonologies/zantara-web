@@ -1,7 +1,48 @@
+import { useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as investmentService from '../services/investment/investmentService';
 import { privateQueryKey } from '../app/queryClient';
 import { usePrivateQueryContext } from './usePrivateQueryContext';
+
+const useSecureInvestmentMutation = <TRequest, TResponse>(
+    key: string,
+    request: (data: TRequest) => Promise<TResponse>,
+    invalidateWallet = false,
+) => {
+    const queryClient = useQueryClient();
+    const { userId } = usePrivateQueryContext();
+    const pendingRequest = useRef<(() => Promise<TResponse>) | null>(null);
+    const requestInFlight = useRef(false);
+    const mutation = useMutation({
+        mutationKey: privateQueryKey(userId, key),
+        mutationFn: () => {
+            const execute = pendingRequest.current;
+            pendingRequest.current = null;
+            if (!execute) return Promise.reject(new Error('Investment request is unavailable'));
+            return execute();
+        },
+        retry: false,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'investment-summary') });
+            if (invalidateWallet) {
+                queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'wallet', 'balance') });
+            }
+        },
+        onSettled: () => {
+            pendingRequest.current = null;
+            requestInFlight.current = false;
+        },
+    });
+
+    const mutate = (data: TRequest, options?: Parameters<typeof mutation.mutate>[1]) => {
+        if (requestInFlight.current) return;
+        requestInFlight.current = true;
+        pendingRequest.current = () => request(data);
+        mutation.mutate(undefined, options);
+    };
+
+    return { ...mutation, mutate };
+};
 
 export const useInvestmentSummary = () => {
     const { userId, isAuthenticated } = usePrivateQueryContext();
@@ -23,65 +64,21 @@ export const useInvestmentHistory = (page = 1, limit = 20) => {
 };
 
 export const useBuyShares = () => {
-    const queryClient = useQueryClient();
-    const { userId } = usePrivateQueryContext();
-    return useMutation({
-        mutationKey: privateQueryKey(userId, 'buy-shares'),
-        mutationFn: (qty: number) => investmentService.buyShares(qty),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'investment-summary') });
-            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'wallet', 'balance') });
-        },
-    });
+    return useSecureInvestmentMutation('buy-shares', investmentService.buyShares, true);
 };
 
 export const useReinvestDividends = () => {
-    const queryClient = useQueryClient();
-    const { userId } = usePrivateQueryContext();
-    return useMutation({
-        mutationKey: privateQueryKey(userId, 'reinvest-dividends'),
-        mutationFn: (qty: number) => investmentService.reinvestDividends(qty),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'investment-summary') });
-        },
-    });
+    return useSecureInvestmentMutation('reinvest-dividends', investmentService.reinvestDividends);
 };
 
 export const useRedeemToMainWallet = () => {
-    const queryClient = useQueryClient();
-    const { userId } = usePrivateQueryContext();
-    return useMutation({
-        mutationKey: privateQueryKey(userId, 'redeem-to-main-wallet'),
-        mutationFn: ({ amount, source }: { amount: number; source: 'dividend' | 'referral' }) => 
-            investmentService.redeemToMainWallet(amount, source),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'investment-summary') });
-            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'wallet', 'balance') });
-        },
-    });
+    return useSecureInvestmentMutation('redeem-to-main-wallet', investmentService.redeemToMainWallet, true);
 };
 
 export const useRequestDividendWithdrawal = () => {
-    const queryClient = useQueryClient();
-    const { userId } = usePrivateQueryContext();
-    return useMutation({
-        mutationKey: privateQueryKey(userId, 'dividend-withdrawal'),
-        mutationFn: (data: { amount: number; bankName: string; accountNumber: string; accountName: string }) => 
-            investmentService.requestDividendWithdrawal(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'investment-summary') });
-        },
-    });
+    return useSecureInvestmentMutation('dividend-withdrawal', investmentService.requestDividendWithdrawal);
 };
 
 export const useRequestShareExit = () => {
-    const queryClient = useQueryClient();
-    const { userId } = usePrivateQueryContext();
-    return useMutation({
-        mutationKey: privateQueryKey(userId, 'share-exit'),
-        mutationFn: (qty: number) => investmentService.requestShareExit(qty),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'investment-summary') });
-        },
-    });
+    return useSecureInvestmentMutation('share-exit', investmentService.requestShareExit);
 };

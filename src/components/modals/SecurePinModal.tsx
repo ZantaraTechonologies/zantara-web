@@ -20,11 +20,14 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
 }) => {
     const [pin, setPin] = useState(['', '', '', '']);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const clearPin = () => setPin(['', '', '', '']);
 
     useEffect(() => {
         if (isOpen) {
-            setPin(['', '', '', '']);
+            clearPin();
             setTimeout(() => inputRefs.current[0]?.focus(), 100);
+        } else {
+            clearPin();
         }
     }, [isOpen]);
 
@@ -52,8 +55,14 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
         e.preventDefault();
         const pinString = pin.join('');
         if (pinString.length === 4) {
+            clearPin();
             onConfirm(pinString);
         }
+    };
+
+    const handleClose = () => {
+        clearPin();
+        onClose();
     };
 
     return (
@@ -67,8 +76,9 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
                         <h3 className="font-bold text-sm uppercase tracking-widest">{title}</h3>
                     </div>
                     <button 
-                        onClick={onClose}
+                        onClick={handleClose}
                         disabled={loading}
+                        aria-label="Close transaction PIN prompt"
                         className="p-2 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30"
                     >
                         <X size={20} />
@@ -100,6 +110,8 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
                                     ref={(el) => { inputRefs.current[idx] = el; }}
                                     type="password"
                                     inputMode="numeric"
+                                    autoComplete="off"
+                                    aria-label={`PIN digit ${idx + 1}`}
                                     maxLength={1}
                                     value={digit}
                                     onChange={(e) => handleChange(idx, e.target.value)}
@@ -127,7 +139,7 @@ const SecurePinModal: React.FC<SecurePinModalProps> = ({
                             </button>
                             <button
                                 type="button"
-                                onClick={onClose}
+                                onClick={handleClose}
                                 disabled={loading}
                                 className="w-full bg-surface border border-slate-200 text-slate-400 py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-30"
                             >

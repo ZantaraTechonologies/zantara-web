@@ -49,6 +49,7 @@ const InvestmentPage: React.FC = () => {
 
     const [activeModal, setActiveModal] = useState<'buy' | 'reinvest' | 'redeem' | 'exit' | null>(null);
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+    const [pinError, setPinError] = useState<string | null>(null);
     
     // New payment states
     const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'card' | 'transfer'>('wallet');
@@ -98,48 +99,62 @@ const InvestmentPage: React.FC = () => {
             return;
         }
 
+        setPinError(null);
         setActiveModal(action);
         setIsPinModalOpen(true);
     };
 
     const handlePinConfirm = (pin: string) => {
+        setPinError(null);
+        const handleError = (err: any, fallback: string) => {
+            const message = err.response?.data?.message || fallback;
+            setPinError(message);
+            toast.error(message);
+        };
+
         if (activeModal === 'buy') {
-            buyShares(Number(buyQty), {
+            buyShares({ qty: Number(buyQty), pin }, {
                 onSuccess: () => {
                     toast.success('Shares purchased successfully');
                     setBuyQty('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => toast.error(err.response?.data?.message || 'Purchase failed')
+                onError: (err: any) => handleError(err, 'Purchase failed')
             });
         } else if (activeModal === 'reinvest') {
-            reinvest(Number(reinvestQty), {
+            reinvest({ qty: Number(reinvestQty), pin }, {
                 onSuccess: () => {
                     toast.success('Dividends reinvested successfully');
                     setReinvestQty('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => toast.error(err.response?.data?.message || 'Reinvestment failed')
+                onError: (err: any) => handleError(err, 'Reinvestment failed')
             });
         } else if (activeModal === 'redeem') {
-            redeem({ amount: Number(redeemAmount), source: redeemSource }, {
+            redeem({ amount: Number(redeemAmount), source: redeemSource, pin }, {
                 onSuccess: () => {
                     toast.success(`${redeemSource === 'dividend' ? 'Dividends' : 'Referral earnings'} moved to main wallet`);
                     setRedeemAmount('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => toast.error(err.response?.data?.message || 'Redemption failed')
+                onError: (err: any) => handleError(err, 'Redemption failed')
             });
         } else if (activeModal === 'exit') {
-            requestExit(Number(exitQty), {
+            requestExit({ qty: Number(exitQty), pin }, {
                 onSuccess: () => {
                     toast.success('Exit request submitted');
                     setExitQty('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => toast.error(err.response?.data?.message || 'Exit request failed')
+                onError: (err: any) => handleError(err, 'Exit request failed')
             });
         }
+    };
+
+    const handlePinClose = () => {
+        setPinError(null);
+        setActiveModal(null);
+        setIsPinModalOpen(false);
     };
 
     if (isLoading) {
@@ -526,9 +541,10 @@ const InvestmentPage: React.FC = () => {
 
             <SecurePinModal 
                 isOpen={isPinModalOpen} 
-                onClose={() => setIsPinModalOpen(false)} 
+                onClose={handlePinClose}
                 onConfirm={handlePinConfirm}
                 loading={buyPending || reinvestPending || redeemPending || exitPending}
+                error={pinError}
             />
 
             <InvestmentTransferModal 

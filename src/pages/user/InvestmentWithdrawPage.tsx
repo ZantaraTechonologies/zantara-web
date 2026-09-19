@@ -42,10 +42,10 @@ const InvestmentWithdrawPage: React.FC = () => {
             accountNumber: bank.accountNumber,
             accountName: bank.accountName,
             source,
-            pin // We need the backend to verify the PIN
+            pin
         };
 
-        withdraw(payload as any, {
+        withdraw(payload, {
             onSuccess: (res) => {
                 setWithdrawalRes(res.data.data);
                 setStep(3);
