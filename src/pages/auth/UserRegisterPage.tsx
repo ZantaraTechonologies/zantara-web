@@ -86,7 +86,7 @@ const UserRegisterPage: React.FC = () => {
             navigate('/app/dashboard');
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.message || 'Registration failed. Please try again.';
-            console.error(`[Auth] Registration error:`, err);
+            console.error('[Auth] Registration failed');
             setErrorMsg(msg);
             toast.error(msg);
         } finally {
@@ -265,4 +265,3 @@ const UserRegisterPage: React.FC = () => {
 };
 
 export default UserRegisterPage;
-

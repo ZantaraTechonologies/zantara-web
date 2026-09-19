@@ -101,8 +101,8 @@ export async function getTransactionById(id: string): Promise<TxLog | null> {
             details: x.details,
             metadata: x.metadata
         };
-    } catch (err) {
-        console.error("Failed to fetch transaction details", err);
+    } catch {
+        console.error('Failed to fetch transaction details');
         return null;
     }
 }

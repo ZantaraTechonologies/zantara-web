@@ -41,8 +41,8 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
                         SITE_LOGO: res.data.data?.SITE_LOGO || '',
                     });
                 }
-            } catch (err) {
-                console.error("Failed to fetch public settings:", err);
+            } catch {
+                console.error('Failed to fetch public settings');
             } finally {
                 setLoading(false);
             }

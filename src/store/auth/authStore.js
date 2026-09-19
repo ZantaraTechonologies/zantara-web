@@ -80,12 +80,12 @@ export const useAuthStore = create((set, get) => ({
             if (user) {
                 get().setAuth(user, token, localStorage.getItem('token') === token);
             } else {
-                console.warn("fetchMe: No user data returned", data);
+                console.warn('fetchMe: No user data returned');
                 get().clearAuth();
             }
-        } catch (error) {
+        } catch {
             if (!isSessionEpochCurrent(epoch)) return;
-            console.error("fetchMe: Request failed", error);
+            console.error('fetchMe: Request failed');
             get().clearAuth();
         } finally {
             if (isSessionEpochCurrent(epoch)) set({ loading: false, isInitialized: true });
@@ -148,8 +148,8 @@ export const useAuthStore = create((set, get) => ({
         get().clearAuth();
         try {
             await authService.logout(token);
-        } catch (err) {
-            console.error('Logout error:', err);
+        } catch {
+            console.error('Logout failed');
         }
     },
 

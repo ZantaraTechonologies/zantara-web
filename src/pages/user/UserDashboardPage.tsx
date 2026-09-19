@@ -115,7 +115,7 @@ const UserDashboardPage: React.FC = () => {
     useEffect(() => {
         if (!initialLoading && (!virtualAccount || Object.keys(virtualAccount).length === 0)) {
             console.log('Silently generating virtual accounts...');
-            generateAccounts().catch(err => console.error('Silent VA generation failed:', err));
+            generateAccounts().catch(() => console.error('Silent VA generation failed'));
         }
     }, [initialLoading, !!virtualAccount]);
 

@@ -71,8 +71,8 @@ const CatalogInfrastructureTab: React.FC = () => {
                 const res = await apiClient.get('/admin/hierarchy/types');
                 setTypes(res.data.data);
             }
-        } catch (err) {
-            console.error("Failed to load dropdown metadata", err);
+        } catch {
+            console.error('Failed to load dropdown metadata');
         }
     };
 

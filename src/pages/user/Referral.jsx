@@ -27,8 +27,8 @@ export default function Referral() {
                 code: data.myReferralCode || '------',
                 history: []
             });
-        } catch (error) {
-            console.error("Failed to fetch referral data", error);
+        } catch {
+            console.error('Failed to fetch referral data');
             setStats(prev => ({ ...prev, code: 'ERROR' }));
         } finally {
             setLoading(false);

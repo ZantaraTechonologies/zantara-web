@@ -38,9 +38,9 @@ export const useWalletStore = create((set, get) => ({
                 currency: data.currency || '₦',
                 loading: false
             });
-        } catch (error) {
+        } catch {
             if (!isSessionEpochCurrent(epoch)) return;
-            console.error('Failed to fetch wallet balance:', error);
+            console.error('Failed to fetch wallet balance');
             set({ loading: false });
         }
     },
@@ -51,9 +51,9 @@ export const useWalletStore = create((set, get) => ({
             const data = await getVirtualAccount();
             if (!isSessionEpochCurrent(epoch)) return;
             set({ virtualAccount: data });
-        } catch (error) {
+        } catch {
             if (!isSessionEpochCurrent(epoch)) return;
-            console.error('Failed to fetch virtual account:', error);
+            console.error('Failed to fetch virtual account');
         }
     },
 
@@ -107,9 +107,9 @@ export const useWalletStore = create((set, get) => ({
             const data = await getMyWithdrawals();
             if (!isSessionEpochCurrent(epoch)) return;
             set({ withdrawals: data });
-        } catch (error) {
+        } catch {
             if (!isSessionEpochCurrent(epoch)) return;
-            console.error('Failed to fetch withdrawals', error);
+            console.error('Failed to fetch withdrawals');
         }
     },
 
@@ -124,7 +124,7 @@ export const useWalletStore = create((set, get) => ({
             set({ loading: false });
         } catch (error) {
             if (!isSessionEpochCurrent(epoch)) return;
-            console.error('Failed to generate virtual accounts:', error);
+            console.error('Failed to generate virtual accounts');
             set({ error: error.message, loading: false });
             throw error;
         }

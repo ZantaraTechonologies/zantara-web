@@ -106,8 +106,8 @@ const UserFundWalletPage: React.FC = () => {
             } else {
                 throw new Error('No authorization URL received');
             }
-        } catch (error) {
-            console.error('Payment init failed:', error);
+        } catch {
+            console.error('Payment initialization failed');
             alert('Failed to initialize payment. Please try again.');
             setLoadingPayment(false);
         }

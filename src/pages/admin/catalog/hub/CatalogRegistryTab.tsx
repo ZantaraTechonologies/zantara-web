@@ -112,8 +112,8 @@ const CatalogRegistryTab: React.FC = () => {
         try {
             const res = await apiClient.get('/admin/hierarchy/metadata');
             setMetadata({ ...res.data.data, brands: [] }); // Start with empty brands
-        } catch (err) {
-            console.error("Metadata load failed", err);
+        } catch {
+            console.error('Metadata load failed');
         }
     };
 
@@ -125,8 +125,8 @@ const CatalogRegistryTab: React.FC = () => {
         try {
             const res = await apiClient.get(`/admin/hierarchy/metadata?typeId=${typeId}`);
             setMetadata((prev: any) => ({ ...prev, brands: res.data.data.brands }));
-        } catch (err) {
-            console.error("Brand metadata load failed", err);
+        } catch {
+            console.error('Brand metadata load failed');
         }
     };
 

@@ -36,7 +36,7 @@ const UserLoginPage: React.FC = () => {
             navigate(from, { replace: true });
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.message || 'Invalid email or password';
-            console.error(`[Auth] Login error:`, err);
+            console.error('[Auth] Login failed');
             setErrorMsg(msg);
             toast.error(msg);
         } finally {

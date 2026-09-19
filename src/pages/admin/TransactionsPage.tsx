@@ -132,8 +132,8 @@ export default function TransactionsPage() {
             const result = response.data.data;
             setRows(result.transactions || []);
             setTotal(result.pagination?.total || 0);
-        } catch (e) {
-            console.error(e);
+        } catch {
+            console.error('Failed to fetch admin transactions');
             toast.error("Failed to fetch transactions");
         } finally {
             setLoading(false);
@@ -173,8 +173,8 @@ export default function TransactionsPage() {
             }
             await API.post("/services/transaction/status", { reference: targetRef });
             await fetchData();
-        } catch (e) {
-            console.error(e);
+        } catch {
+            console.error('Failed to recheck transaction status');
             setRows(prev);
         }
     }
