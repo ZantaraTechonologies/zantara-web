@@ -13,9 +13,83 @@ export interface AdminLegalDocumentInput {
     _id?: unknown;
 }
 
+export type AdminLegalDocumentType = 'terms' | 'privacy' | 'refund_complaints' | 'aml_kyc';
+export type AdminLegalAcceptanceMode = 'agreement' | 'acknowledgement' | 'none';
+
+export interface AdminLegalDocumentClass {
+    documentType: AdminLegalDocumentType;
+    label: string;
+    group: 'customer-facing' | 'internal';
+    visibility: 'public' | 'internal';
+    visibilityLabel: 'Public' | 'Internal';
+    acceptanceMode: AdminLegalAcceptanceMode;
+    acceptanceLabel: 'Agreement' | 'Acknowledgement' | 'Informational';
+    route: string | null;
+}
+
+export const ADMIN_LEGAL_DOCUMENT_CLASSES: readonly AdminLegalDocumentClass[] = [
+    {
+        documentType: 'terms',
+        label: 'Terms of Service',
+        group: 'customer-facing',
+        visibility: 'public',
+        visibilityLabel: 'Public',
+        acceptanceMode: 'agreement',
+        acceptanceLabel: 'Agreement',
+        route: '/terms'
+    },
+    {
+        documentType: 'privacy',
+        label: 'Privacy Policy',
+        group: 'customer-facing',
+        visibility: 'public',
+        visibilityLabel: 'Public',
+        acceptanceMode: 'acknowledgement',
+        acceptanceLabel: 'Acknowledgement',
+        route: '/privacy'
+    },
+    {
+        documentType: 'refund_complaints',
+        label: 'Refund, Reversal & Complaints Policy',
+        group: 'customer-facing',
+        visibility: 'public',
+        visibilityLabel: 'Public',
+        acceptanceMode: 'none',
+        acceptanceLabel: 'Informational',
+        route: '/refund-policy'
+    },
+    {
+        documentType: 'aml_kyc',
+        label: 'AML/KYC, Fraud Prevention & Acceptable Use Framework',
+        group: 'internal',
+        visibility: 'internal',
+        visibilityLabel: 'Internal',
+        acceptanceMode: 'none',
+        acceptanceLabel: 'Informational',
+        route: null
+    }
+];
+
+export function adminLegalDocumentClass(documentType: unknown): AdminLegalDocumentClass {
+    const config = ADMIN_LEGAL_DOCUMENT_CLASSES.find(item => item.documentType === documentType);
+    if (!config) throw new Error(`Unsupported Admin legal document type: ${String(documentType)}`);
+    return config;
+}
+
+export function canonicalAdminLegalDocumentPayload<T extends { documentType: AdminLegalDocumentType; requiresReacceptance?: boolean }>(form: T) {
+    const config = adminLegalDocumentClass(form.documentType);
+    return {
+        ...form,
+        title: config.label,
+        acceptanceMode: config.acceptanceMode,
+        isPublic: config.visibility === 'public',
+        requiresReacceptance: config.acceptanceMode === 'none' ? false : form.requiresReacceptance
+    };
+}
+
 export interface AdminLegalDocument {
     id: string;
-    documentType: string;
+    documentType: AdminLegalDocumentType;
     title: string;
     version: number | null;
     status: string;

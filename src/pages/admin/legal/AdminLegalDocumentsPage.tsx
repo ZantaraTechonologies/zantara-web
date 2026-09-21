@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import API from '../../../services/api/apiClient';
 import toast from 'react-hot-toast';
-import { normalizeAdminLegalDocument, adminLegalDocumentUrl } from './adminLegalDocument';
+import {
+    ADMIN_LEGAL_DOCUMENT_CLASSES,
+    adminLegalDocumentClass,
+    canonicalAdminLegalDocumentPayload,
+    normalizeAdminLegalDocument,
+    adminLegalDocumentUrl,
+    type AdminLegalDocumentType
+} from './adminLegalDocument';
 import { markdownToLegalHtml } from './clientLegalHtml';
 import { buildSectionHeading } from './legalMarkdownOps';
 import { Info, Plus, Eye, Code2, PenLine } from 'lucide-react';
@@ -11,7 +18,7 @@ import type { LegalVisualEditorHandle } from './LegalVisualEditor';
 
 interface Doc {
     id: string;
-    documentType: string;
+    documentType: AdminLegalDocumentType;
     title: string;
     version: number | null;
     status: string;
@@ -36,13 +43,11 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const EMPTY_FORM = {
-    documentType: 'terms',
-    title: '',
+    documentType: 'terms' as AdminLegalDocumentType,
+    title: 'Terms of Service',
     sourceMarkdown: '',
     changeSummary: '',
-    acceptanceMode: 'agreement',
     requiresReacceptance: false,
-    isPublic: true,
 };
 
 const MODE_TABS: { mode: EditorMode; label: string; icon: React.ReactNode }[] = [
@@ -50,6 +55,20 @@ const MODE_TABS: { mode: EditorMode; label: string; icon: React.ReactNode }[] = 
     { mode: 'markdown', label: 'Markdown', icon: <Code2 size={14} /> },
     { mode: 'preview', label: 'Preview', icon: <Eye size={14} /> },
 ];
+
+const LegalClassBadges: React.FC<{ documentType: AdminLegalDocumentType }> = ({ documentType }) => {
+    const config = adminLegalDocumentClass(documentType);
+    return (
+        <div className="flex flex-wrap gap-1.5">
+            <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${config.visibility === 'public' ? 'bg-sky-100 text-sky-700' : 'bg-violet-100 text-violet-700'}`}>
+                {config.visibilityLabel}
+            </span>
+            <span className="inline-block rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+                {config.acceptanceLabel}
+            </span>
+        </div>
+    );
+};
 
 const AdminLegalDocumentsPage: React.FC = () => {
     const [docs, setDocs] = useState<Doc[]>([]);
@@ -71,6 +90,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
         () => markdownToLegalHtml(form.sourceMarkdown || ''),
         [form.sourceMarkdown]
     );
+    const selectedDocumentClass = adminLegalDocumentClass(form.documentType);
 
     const fetchDocs = async () => {
         setLoading(true);
@@ -107,9 +127,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
                 title: full.title,
                 sourceMarkdown: full.sourceMarkdown || '',
                 changeSummary: full.changeSummary || '',
-                acceptanceMode: full.acceptanceMode,
                 requiresReacceptance: !!full.requiresReacceptance,
-                isPublic: full.isPublic ?? true,
             });
             setCreateOpen(true);
             enterFormMode();
@@ -130,11 +148,12 @@ const AdminLegalDocumentsPage: React.FC = () => {
     const handleSave = async () => {
         setSaving(true);
         try {
+            const payload = canonicalAdminLegalDocumentPayload(form);
             if (editDoc) {
-                await API.put(adminLegalDocumentUrl('update', editDoc), form);
+                await API.put(adminLegalDocumentUrl('update', editDoc), payload);
                 toast.success('Draft updated');
             } else {
-                await API.post('/legal/admin/documents', form);
+                await API.post('/legal/admin/documents', payload);
                 toast.success('Draft created');
             }
             setCreateOpen(false);
@@ -217,7 +236,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
                                 <th className="px-4 py-3">Title</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Version</th>
-                                <th className="px-4 py-3">Mode</th>
+                                <th className="px-4 py-3">Visibility / Acceptance</th>
                                 <th className="px-4 py-3">Reaccept</th>
                                 <th className="px-4 py-3">Actions</th>
                             </tr>
@@ -227,9 +246,14 @@ const AdminLegalDocumentsPage: React.FC = () => {
                                 <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400 font-medium">Loading…</td></tr>
                             ) : docs.length === 0 ? (
                                 <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400 font-medium">No documents found</td></tr>
-                            ) : docs.map(doc => (
+                            ) : docs.map(doc => {
+                                const config = adminLegalDocumentClass(doc.documentType);
+                                return (
                                 <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-4 py-3 font-semibold text-slate-700">{doc.documentType}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="font-semibold text-slate-700">{config.label}</div>
+                                        <div className="mt-0.5 font-mono text-xs text-slate-400">{doc.documentType}</div>
+                                    </td>
                                     <td className="px-4 py-3 text-slate-600 max-w-[220px] truncate">{doc.title}</td>
                                     <td className="px-4 py-3">
                                         <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${STATUS_COLORS[doc.status] || 'bg-slate-100 text-slate-500'}`}>
@@ -237,7 +261,7 @@ const AdminLegalDocumentsPage: React.FC = () => {
                                         </span>
                                     </td>
                                     <td className="px-4 py-3 font-mono text-slate-500">{doc.version ?? '—'}</td>
-                                    <td className="px-4 py-3 text-slate-500">{doc.acceptanceMode}</td>
+                                    <td className="px-4 py-3"><LegalClassBadges documentType={doc.documentType} /></td>
                                     <td className="px-4 py-3 text-slate-500">{doc.requiresReacceptance ? 'Yes' : 'No'}</td>
                                     <td className="px-4 py-3">
                                         <div className="flex gap-2">
@@ -254,7 +278,8 @@ const AdminLegalDocumentsPage: React.FC = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -268,47 +293,68 @@ const AdminLegalDocumentsPage: React.FC = () => {
                             <button onClick={() => { setCreateOpen(false); setEditDoc(null); }} className="text-slate-400 hover:text-slate-700 font-bold text-sm">✕</button>
                         </div>
                         <div className="space-y-4">
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Document Type</label>
-                                    <select value={form.documentType} onChange={e => setForm({ ...form, documentType: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50">
-                                        <option value="terms">Terms of Service</option>
-                                        <option value="privacy">Privacy Policy</option>
-                                        <option value="refund_complaints">Refund / Complaints Policy</option>
-                                    </select>
+                            <div>
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Document Type</label>
+                                <select
+                                    value={form.documentType}
+                                    disabled={!!editDoc}
+                                    onChange={e => {
+                                        const documentType = e.target.value as AdminLegalDocumentType;
+                                        const config = adminLegalDocumentClass(documentType);
+                                        setForm({
+                                            ...form,
+                                            documentType,
+                                            title: config.label,
+                                            requiresReacceptance: config.acceptanceMode === 'none' ? false : form.requiresReacceptance
+                                        });
+                                    }}
+                                    className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 disabled:bg-slate-100 disabled:text-slate-500"
+                                >
+                                    <optgroup label="CUSTOMER-FACING">
+                                        {ADMIN_LEGAL_DOCUMENT_CLASSES.filter(item => item.group === 'customer-facing').map(item => (
+                                            <option key={item.documentType} value={item.documentType}>{item.label}</option>
+                                        ))}
+                                    </optgroup>
+                                    <optgroup label="INTERNAL AML/KYC">
+                                        {ADMIN_LEGAL_DOCUMENT_CLASSES.filter(item => item.group === 'internal').map(item => (
+                                            <option key={item.documentType} value={item.documentType}>{item.label}</option>
+                                        ))}
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div className={`rounded-xl border px-4 py-3 ${selectedDocumentClass.visibility === 'internal' ? 'border-violet-200 bg-violet-50' : 'border-slate-100 bg-slate-50'}`}>
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Fixed classification</span>
+                                    <LegalClassBadges documentType={form.documentType} />
                                 </div>
-                                <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Acceptance Mode</label>
-                                    <select value={form.acceptanceMode} onChange={e => setForm({ ...form, acceptanceMode: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50">
-                                        <option value="agreement">Agreement (mandatory)</option>
-                                        <option value="acknowledgement">Acknowledgement (mandatory)</option>
-                                        <option value="none">Informational (optional)</option>
-                                    </select>
-                                </div>
+                                <p className="mt-2 text-xs font-medium text-slate-500">
+                                    Visibility and acceptance are fixed for this document class and cannot be changed.
+                                </p>
+                                {selectedDocumentClass.visibility === 'internal' && (
+                                    <p className="mt-2 text-sm font-bold text-violet-700">Internal only and hidden from customers.</p>
+                                )}
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Title</label>
-                                <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50" placeholder="Document title" />
+                                <input value={selectedDocumentClass.label} readOnly className="w-full border border-slate-200 rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-600" />
                             </div>
                             {editDoc && (
                                 <p className="text-xs font-semibold text-slate-400">
                                     Status: <span className="capitalize text-slate-600">{editDoc.status}</span>
                                     {' · '}Version: <span className="text-slate-600">{editDoc.version ?? 'draft'}</span>
                                     {' · '}Linked route: <span className="font-mono text-slate-600">
-                                        {form.documentType === 'terms' ? '/terms' : form.documentType === 'privacy' ? '/privacy' : '/refund-policy'}
+                                        {selectedDocumentClass.route || 'None (internal/customer-hidden)'}
                                     </span>
                                 </p>
                             )}
+                            {selectedDocumentClass.acceptanceMode !== 'none' && (
                             <div className="flex flex-wrap items-center gap-6">
                                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
                                     <input type="checkbox" checked={form.requiresReacceptance} onChange={e => setForm({ ...form, requiresReacceptance: e.target.checked })} className="w-5 h-5 text-brand-emerald border-slate-200 rounded-lg focus:ring-brand-emerald/20" />
                                     Require re-acceptance on next publish
                                 </label>
-                                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
-                                    <input type="checkbox" checked={form.isPublic} onChange={e => setForm({ ...form, isPublic: e.target.checked })} className="w-5 h-5 text-brand-emerald border-slate-200 rounded-lg focus:ring-brand-emerald/20" />
-                                    Public status
-                                </label>
                             </div>
+                            )}
                             <div>
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Change Summary</label>
                                 <input value={form.changeSummary} onChange={e => setForm({ ...form, changeSummary: e.target.value })} className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50" placeholder="Brief summary of changes" />
@@ -423,9 +469,17 @@ const AdminLegalDocumentsPage: React.FC = () => {
                     <div className="bg-surface rounded-2xl shadow-xl max-w-md w-full m-auto p-6">
                         <h2 className="text-lg font-bold text-brand-navy mb-2">Publish Document?</h2>
                         <p className="text-slate-500 text-sm mb-1">
-                            <span className="font-semibold">{publishTarget.title}</span> ({publishTarget.documentType})
+                            <span className="font-semibold">{publishTarget.title}</span> ({adminLegalDocumentClass(publishTarget.documentType).label})
                         </p>
-                        {publishTarget.acceptanceMode !== 'none' && (
+                        <div className="mt-3">
+                            <LegalClassBadges documentType={publishTarget.documentType} />
+                        </div>
+                        {adminLegalDocumentClass(publishTarget.documentType).visibility === 'internal' && (
+                            <p className="mt-3 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-bold text-violet-700">
+                                This AML/KYC document is internal only and will remain hidden from customers.
+                            </p>
+                        )}
+                        {adminLegalDocumentClass(publishTarget.documentType).acceptanceMode !== 'none' && (
                             <p className="text-amber-600 text-xs font-semibold mt-2 mb-4">
                                 This publishes a new version requiring user acceptance.
                                 {publishTarget.requiresReacceptance ? ' Existing users will be prompted to re-accept.' : ''}
@@ -452,8 +506,9 @@ const AdminLegalDocumentsPage: React.FC = () => {
                             <div>
                                 <h2 className="text-lg font-bold text-brand-navy">{preview.title}</h2>
                                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mt-1">
-                                    {preview.documentType} · v{preview.version ?? 'draft'} · {preview.status} · {preview.acceptanceMode}
+                                    {adminLegalDocumentClass(preview.documentType).label} · v{preview.version ?? 'draft'} · {preview.status}
                                 </p>
+                                <div className="mt-2"><LegalClassBadges documentType={preview.documentType} /></div>
                             </div>
                             <button onClick={() => setPreview(null)} className="text-slate-400 hover:text-slate-700 font-bold text-sm">✕</button>
                         </div>
