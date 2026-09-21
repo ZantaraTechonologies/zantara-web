@@ -13,8 +13,10 @@ import {
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/apiClient';
 import toast from 'react-hot-toast';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const AdminSettingsPage: React.FC = () => {
+    const { refetch: refetchSiteSettings } = useSiteSettings();
     const [settings, setSettings] = useState<any>({
         SITE_NAME: '',
         SITE_URL: '',
@@ -70,7 +72,7 @@ const AdminSettingsPage: React.FC = () => {
             const res = await apiClient.post('/admin/settings/business', settings);
             if (res.data.success) {
                 toast.success("Settings saved successfully!");
-                await loadSettings();
+                await Promise.all([loadSettings(), refetchSiteSettings()]);
             }
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Failed to update settings");

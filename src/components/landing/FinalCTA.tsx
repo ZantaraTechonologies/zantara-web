@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Power, ArrowRight } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const FinalCTA: React.FC = () => {
+    const { settings } = useSiteSettings();
+
     return (
         <section className="py-12 md:py-16 bg-gradient-to-b from-brand-mint/60 to-white text-center relative overflow-hidden">
             {/* Radial glow background */}
@@ -18,7 +21,7 @@ const FinalCTA: React.FC = () => {
                 </h2>
 
                 <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-2xl mb-12">
-                    Join thousands of verified users who trust Zantara for their daily digital transactions. Fast, secure, and built for velocity.
+                    Join thousands of verified users who trust {settings.SITE_NAME} for their daily digital transactions. Fast, secure, and built for velocity.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-5 w-full">

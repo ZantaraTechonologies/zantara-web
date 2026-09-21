@@ -10,8 +10,11 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import { getPostLoginPath } from '../../utils/sessionRouteState';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
+import SiteLogo from '../../components/common/SiteLogo';
 
 const UserLoginPage: React.FC = () => {
+    const { settings } = useSiteSettings();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +35,7 @@ const UserLoginPage: React.FC = () => {
         try {
             await login({ email, password }, rememberMe);
             console.info(`[Auth] Login successful for: ${email}`);
-            toast.success('Welcome back to Zantara!');
+            toast.success(`Welcome back to ${settings.SITE_NAME}!`);
             navigate(from, { replace: true });
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.message || 'Invalid email or password';
@@ -48,15 +51,15 @@ const UserLoginPage: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-brand-mint/50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
             {/* Logo */}
             <div className="mb-6 flex items-center gap-3">
-                <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-9 h-9 rounded-xl shadow-btn-navy" />
-                <span className="text-xl font-black text-brand-navy tracking-tight uppercase">Zantara</span>
+                <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-9 h-9 rounded-xl shadow-btn-navy object-contain" />
+                <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME}</span>
             </div>
 
             {/* Main Card */}
             <div className="w-full max-w-md bg-surface rounded-3xl shadow-card p-6 sm:p-8 border border-slate-100">
                 <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-brand-navy mb-1">Welcome back</h2>
-                    <p className="text-slate-500 font-medium text-sm">Sign in to continue to your Zantara account</p>
+                    <p className="text-slate-500 font-medium text-sm">Sign in to continue to your {settings.SITE_NAME} account</p>
                 </div>
 
                 {errorMsg && (
@@ -164,7 +167,7 @@ const UserLoginPage: React.FC = () => {
                 <Link to="/status" className="hover:text-brand-navy transition-colors">Status</Link>
             </div>
             <p className="mt-3 text-[10px] text-slate-300 font-bold uppercase tracking-[0.2em]">
-                © 2026 Zantara Technologies Inc. All rights reserved.
+                © {new Date().getFullYear()} {settings.SITE_NAME}. All rights reserved.
             </p>
         </div>
     );

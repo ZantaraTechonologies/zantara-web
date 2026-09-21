@@ -99,6 +99,7 @@ async function loadAuthUiHarness() {
         setup(builder) {
             builder.onResolve({ filter: /store[\\/]auth[\\/]authStore(?:\.[jt]s)?$/ }, () => ({ path: 'auth-store', namespace: 'sensitive-auth-ui' }));
             builder.onResolve({ filter: /services[\\/]api[\\/]apiClient(?:\.js)?$/ }, () => ({ path: 'api', namespace: 'sensitive-auth-ui' }));
+            builder.onResolve({ filter: /app[\\/]SiteSettingsContext(?:\.tsx)?$/ }, () => ({ path: 'site-settings', namespace: 'sensitive-auth-ui' }));
             builder.onResolve({ filter: /^react-router-dom$/ }, () => ({ path: 'router', namespace: 'sensitive-auth-ui' }));
             builder.onResolve({ filter: /^react-hot-toast$/ }, () => ({ path: 'toast', namespace: 'sensitive-auth-ui' }));
             builder.onLoad({ filter: /.*/, namespace: 'sensitive-auth-ui' }, ({ path }) => {
@@ -111,6 +112,13 @@ async function loadAuthUiHarness() {
                 if (path === 'api') return { loader: 'js', contents: `
                     const api = { get: (...args) => globalThis.__sensitiveAuth.apiGet(...args) };
                     export default api;
+                ` };
+                if (path === 'site-settings') return { loader: 'js', contents: `
+                    export const useSiteSettings = () => ({
+                        settings: { SITE_NAME: 'Zantara', SITE_URL: '', SITE_LOGO: '', SUPPORT_EMAIL: '', SUPPORT_PHONE: '' },
+                        loading: false,
+                        refetch: async () => {}
+                    });
                 ` };
                 if (path === 'router') return { loader: 'jsx', resolveDir: root, contents: `
                     import React from 'react';

@@ -10,8 +10,11 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
 import API from '../../services/api/apiClient';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
+import SiteLogo from '../../components/common/SiteLogo';
 
 const UserRegisterPage: React.FC = () => {
+    const { settings } = useSiteSettings();
     const [searchParams] = useSearchParams();
     const [formData, setFormData] = useState({
         name: '',
@@ -82,7 +85,7 @@ const UserRegisterPage: React.FC = () => {
                 legalAcceptances
             });
             console.info(`[Auth] Registration successful for: ${formData.email}`);
-            toast.success('Registration successful! Welcome to Zantara.');
+            toast.success(`Registration successful! Welcome to ${settings.SITE_NAME}.`);
             navigate('/app/dashboard');
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.message || 'Registration failed. Please try again.';
@@ -98,15 +101,15 @@ const UserRegisterPage: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-brand-mint/50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
             {/* Logo */}
             <div className="mb-5 flex items-center gap-3">
-                <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-8 h-8 rounded-lg shadow-btn-navy" />
-                <span className="text-xl font-black text-brand-navy tracking-tight uppercase">Zantara</span>
+                <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-8 h-8 rounded-lg shadow-btn-navy object-contain" />
+                <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME}</span>
             </div>
 
             {/* Main Card */}
             <div className="w-full max-w-xl bg-surface rounded-2xl shadow-card p-5 sm:p-6 border border-slate-100">
                 <div className="text-center mb-5">
                     <h1 className="text-xl font-bold text-brand-navy mb-1">Create your account</h1>
-                    <p className="text-slate-500 font-medium text-sm">Join the growing community of professionals on Zantara.</p>
+                    <p className="text-slate-500 font-medium text-sm">Join the growing community of professionals on {settings.SITE_NAME}.</p>
                 </div>
 
                 {errorMsg && (
@@ -258,7 +261,7 @@ const UserRegisterPage: React.FC = () => {
                 <Link to="/status" className="hover:text-brand-navy transition-colors">Status</Link>
             </div>
             <p className="mt-3 text-[10px] text-slate-300 font-bold uppercase tracking-[0.2em]">
-                © 2024 Zantara Technologies Inc. All rights reserved.
+                © {new Date().getFullYear()} {settings.SITE_NAME}. All rights reserved.
             </p>
         </div>
     );

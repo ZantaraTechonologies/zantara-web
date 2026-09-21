@@ -4,6 +4,7 @@ import { useAuthStore } from "../../store/auth/authStore";
 import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight, HelpCircle, BadgeDollarSign, BadgePercent, WalletCards, BarChart3, History, ChevronRight, Settings, PieChart } from "lucide-react";
 
 import { useSiteSettings } from "../../app/SiteSettingsContext";
+import SiteLogo from "../common/SiteLogo";
 import ThemeToggle from "../common/ThemeToggle";
 
 export default function Navbar() {
@@ -53,7 +54,7 @@ export default function Navbar() {
                 <div className="flex items-center justify-between gap-8">
                     {/* Brand */}
                     <Link to={isAdmin ? "/admin/dashboard" : "/"} className="flex items-center gap-3">
-                        <img src="/app_store_icon.webp" alt="Logo" className="w-9 h-9 rounded-xl shadow-btn-navy" />
+                        <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-9 h-9 rounded-xl shadow-btn-navy object-contain" />
                         <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME} {isAdmin && <span className="text-brand-emerald ml-1">Admin</span>}</span>
                     </Link>
 
@@ -175,7 +176,7 @@ export default function Navbar() {
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-surface relative z-20">
                         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
                             <div className="w-10 h-10 bg-brand-navy rounded-xl shadow-btn-navy flex items-center justify-center">
-                                <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-7 h-7" />
+                                <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-7 h-7 object-contain" />
                             </div>
                             <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME}</span>
                         </Link>
@@ -287,4 +288,3 @@ export default function Navbar() {
         </header>
     );
 }
-

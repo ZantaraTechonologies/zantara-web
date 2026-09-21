@@ -1,8 +1,9 @@
 import React from 'react';
 import { useMyTickets } from '../../hooks/useSupport';
-import { MessageSquare, Plus, Clock, CheckCircle2, AlertCircle, ChevronRight, HelpCircle } from 'lucide-react';
+import { MessageSquare, Plus, Clock, CheckCircle2, AlertCircle, ChevronRight, HelpCircle, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const StatusBadge = ({ status }: { status: string }) => {
     switch (status) {
@@ -19,6 +20,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const SupportCenterPage: React.FC = () => {
     const { data: tickets, isLoading } = useMyTickets();
+    const { settings } = useSiteSettings();
 
     if (isLoading) {
         return (
@@ -65,7 +67,21 @@ const SupportCenterPage: React.FC = () => {
                     </div>
                     <div className="flex-1">
                         <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Live Chat Support</h3>
-                        <p className="text-xs text-slate-400 mt-1">Chat directly with a Zantara agent for real-time problem resolution.</p>
+                        <p className="text-xs text-slate-400 mt-1">Chat directly with a {settings.SITE_NAME} agent for real-time problem resolution.</p>
+                        {(settings.SUPPORT_EMAIL || settings.SUPPORT_PHONE) && (
+                            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-xs font-semibold text-slate-500">
+                                {settings.SUPPORT_EMAIL && (
+                                    <a href={`mailto:${settings.SUPPORT_EMAIL}`} className="inline-flex items-center gap-1.5 hover:text-emerald-600">
+                                        <Mail size={14} /> {settings.SUPPORT_EMAIL}
+                                    </a>
+                                )}
+                                {settings.SUPPORT_PHONE && (
+                                    <a href={`tel:${settings.SUPPORT_PHONE}`} className="inline-flex items-center gap-1.5 hover:text-emerald-600">
+                                        <Phone size={14} /> {settings.SUPPORT_PHONE}
+                                    </a>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

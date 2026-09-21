@@ -36,6 +36,7 @@ import { ListSkeleton, PageLoader } from '../../components/feedback/Skeletons';
 import { format } from 'date-fns';
 import { copyToClipboard, shareContent } from '../../utils/clipboard';
 import { toast } from 'react-hot-toast';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const DashboardSkeleton = () => (
     <div className="space-y-6 animate-pulse">
@@ -72,6 +73,7 @@ const DashboardSkeleton = () => (
 
 const UserDashboardPage: React.FC = () => {
     const { user } = useAuthStore();
+    const { settings } = useSiteSettings();
     const {
         balance,
         frozenBalance,
@@ -201,8 +203,8 @@ const UserDashboardPage: React.FC = () => {
     const handleShare = () => {
         if (!myReferralCode) return;
         shareContent({
-            title: 'Join Zantara',
-            text: `Join me on Zantara and start earning! Use my code: ${myReferralCode}`,
+            title: `Join ${settings.SITE_NAME}`,
+            text: `Join me on ${settings.SITE_NAME} and start earning! Use my code: ${myReferralCode}`,
             url: `${window.location.origin}/register?ref=${myReferralCode}`
         });
     };

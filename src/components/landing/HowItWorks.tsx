@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserPlus, Wallet, Sparkles } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const steps = [
     {
@@ -23,12 +24,14 @@ const steps = [
 ];
 
 const HowItWorks: React.FC = () => {
+    const { settings } = useSiteSettings();
+
     return (
         <section id="how-it-works" className="py-12 md:py-16 bg-surface relative overflow-hidden">
              <div className="mx-auto max-w-7xl px-6 relative z-10">
                 <div className="text-center max-w-2xl mx-auto mb-20">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-emerald">Simple Mechanics</span>
-                    <h2 className="mt-4 text-4xl md:text-5xl font-black text-brand-navy tracking-tighter">How Zantara Works</h2>
+                    <h2 className="mt-4 text-4xl md:text-5xl font-black text-brand-navy tracking-tighter">How {settings.SITE_NAME} Works</h2>
                     <p className="mt-4 text-lg text-slate-500 font-medium leading-relaxed">
                         Say goodbye to complex onboarding. Jump straight into the action with our frictionless three-step process.
                     </p>

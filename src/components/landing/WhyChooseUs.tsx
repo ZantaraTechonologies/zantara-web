@@ -1,5 +1,6 @@
 import React from 'react';
 import { Shield, FastForward, Receipt, Layout, Gift, Activity } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const features = [
     {
@@ -35,6 +36,8 @@ const features = [
 ];
 
 const WhyChooseUs: React.FC = () => {
+    const { settings } = useSiteSettings();
+
     return (
         <section id="features" className="py-12 md:py-16 bg-brand-mint/40 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-96 h-96 bg-brand-emerald-100 rounded-full blur-[120px] -z-10 opacity-50 transform translate-x-1/2 -translate-y-1/2"></div>
@@ -42,7 +45,7 @@ const WhyChooseUs: React.FC = () => {
              <div className="mx-auto max-w-7xl px-6">
                 <div className="flex flex-col md:flex-row justify-between items-end gap-10 mb-20">
                     <div className="max-w-2xl">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-emerald">The Zantara Advantage</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-emerald">The {settings.SITE_NAME} Advantage</span>
                         <h2 className="mt-4 text-4xl md:text-5xl font-black text-brand-navy tracking-tighter">Why Choose Us?</h2>
                         <p className="mt-6 text-lg text-slate-500 font-medium leading-relaxed">
                             We don't just process transactions; we build robust, scalable financial pathways that businesses and individuals trust daily.

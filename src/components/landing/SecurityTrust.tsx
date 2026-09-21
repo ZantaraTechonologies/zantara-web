@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldCheck, Fingerprint, Lock, CheckCircle2 } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const trustFeatures = [
     {
@@ -20,6 +21,8 @@ const trustFeatures = [
 ];
 
 const SecurityTrust: React.FC = () => {
+    const { settings } = useSiteSettings();
+
     return (
         <section id="security" className="py-12 md:py-16 bg-surface relative border-t border-slate-100">
              <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-2 gap-16 items-center">
@@ -32,7 +35,7 @@ const SecurityTrust: React.FC = () => {
                          </div>
                          <h3 className="text-2xl font-black text-brand-navy tracking-tighter mb-4">Uncompromised Security</h3>
                          <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xs">
-                             Zantara utilizes industrial-standard encryption and strict KYC procedures to keep you completely safe.
+                              {settings.SITE_NAME} utilizes industrial-standard encryption and strict KYC procedures to keep you completely safe.
                          </p>
                           
                          <div className="w-full mt-10 space-y-4">
@@ -63,7 +66,7 @@ const SecurityTrust: React.FC = () => {
                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-emerald">Credibility & Trust</span>
                      <h2 className="mt-4 text-4xl md:text-5xl font-black text-brand-navy tracking-tighter mb-6">Designed with your safety in mind.</h2>
                      <p className="text-lg text-slate-500 font-medium leading-relaxed mb-12">
-                         At Zantara, preserving the integrity of your funds is our highest priority. We deploy cutting-edge anti-fraud systems to ensure true peace of mind.
+                          At {settings.SITE_NAME}, preserving the integrity of your funds is our highest priority. We deploy cutting-edge anti-fraud systems to ensure true peace of mind.
                      </p>
 
                      <div className="space-y-10">

@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Gift, ArrowRight, Share2, PhilippinePeso, Users } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const ReferralPromo: React.FC = () => {
+    const { settings } = useSiteSettings();
+
     return (
         <section className="py-12 md:py-16 bg-surface">
             <div className="mx-auto max-w-7xl px-6">
@@ -16,7 +19,7 @@ const ReferralPromo: React.FC = () => {
                         <div>
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-emerald/20 border border-brand-emerald/40 mb-8 backdrop-blur-md">
                                 <Gift className="w-4 h-4 text-brand-emerald" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-emerald">Zantara Rewards Program</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-emerald">{settings.SITE_NAME} Rewards Program</span>
                             </div>
                             
                             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-6 leading-[1.1]">
@@ -24,7 +27,7 @@ const ReferralPromo: React.FC = () => {
                             </h2>
                             
                             <p className="text-white/70 text-lg font-medium leading-relaxed mb-10 max-w-lg">
-                                When you bring your network to Zantara, we reward your growth. Earn a percentage bonus across our massive ecosystem every time your referrals make a transaction.
+                                When you bring your network to {settings.SITE_NAME}, we reward your growth. Earn a percentage bonus across our massive ecosystem every time your referrals make a transaction.
                             </p>
                             
                             <Link 

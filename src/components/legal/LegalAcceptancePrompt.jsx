@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../services/api/apiClient';
 import { useAuthStore } from '../../store/auth/authStore';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 export default function LegalAcceptancePrompt() {
+    const { settings } = useSiteSettings();
     const [requirements, setRequirements] = useState(null);
     const [loading, setLoading] = useState(true);
     const [accepting, setAccepting] = useState(null);
@@ -60,7 +62,7 @@ export default function LegalAcceptancePrompt() {
             <div className="bg-surface rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[85vh] overflow-y-auto">
                 <h2 className="text-xl font-bold text-brand-navy mb-2">Action Required</h2>
                 <p className="text-slate-500 text-sm mb-6">
-                    Please accept the updated legal agreements to continue using Zantara.
+                    Please accept the updated legal agreements to continue using {settings.SITE_NAME}.
                 </p>
                 <div className="space-y-4 mb-6">
                     {requiredDocs.map((doc) => (

@@ -1,15 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
+import SiteLogo, { getSafeSiteUrl } from './SiteLogo';
 
 const Footer = () => {
+    const { settings } = useSiteSettings();
+    const websiteUrl = getSafeSiteUrl(settings.SITE_URL);
+
     return (
         <footer id="contact" className="bg-surface border-t border-slate-100 pt-20 pb-10">
             <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
                 <div className="lg:col-span-1">
                     <div className="flex items-center gap-3 mb-6">
-                        <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-8 h-8 rounded-lg shadow-btn-navy" />
-                        <span className="font-black text-brand-navy text-xl tracking-tighter uppercase">Zantara</span>
+                        <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-8 h-8 rounded-lg shadow-btn-navy object-contain" />
+                        <span className="font-black text-brand-navy text-xl tracking-tighter uppercase">{settings.SITE_NAME}</span>
                     </div>
                     <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6">
                         The ultimate digital financial gateway. Fast, affordable, and secure data, airtime, and utility settlements for everyone.
@@ -33,20 +38,21 @@ const Footer = () => {
                         <li><Link to="/terms-and-conditions" className="text-slate-500 hover:text-brand-emerald font-medium text-sm transition-colors">Terms of Service</Link></li>
                         <li><Link to="/login" className="text-slate-500 hover:text-brand-emerald font-medium text-sm transition-colors">Referral & Agents</Link></li>
                         <li><Link to="/login" className="text-slate-500 hover:text-brand-emerald font-medium text-sm transition-colors">Support Center</Link></li>
+                        {websiteUrl && <li><a href={websiteUrl} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-brand-emerald font-medium text-sm transition-colors">Public Website</a></li>}
                     </ul>
                 </div>
 
                 <div>
                     <h5 className="font-black text-brand-navy text-sm uppercase tracking-widest mb-6">Contact Us</h5>
                     <ul className="space-y-4">
-                        <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
+                        {settings.SUPPORT_EMAIL && <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
                             <Mail className="w-4 h-4 text-brand-emerald shrink-0 mt-0.5" />
-                            <span>support@zantara.com</span>
-                        </li>
-                        <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
+                            <a href={`mailto:${settings.SUPPORT_EMAIL}`} className="hover:text-brand-emerald transition-colors">{settings.SUPPORT_EMAIL}</a>
+                        </li>}
+                        {settings.SUPPORT_PHONE && <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
                             <Phone className="w-4 h-4 text-brand-emerald shrink-0 mt-0.5" />
-                            <span>+234 Support Line</span>
-                        </li>
+                            <a href={`tel:${settings.SUPPORT_PHONE}`} className="hover:text-brand-emerald transition-colors">{settings.SUPPORT_PHONE}</a>
+                        </li>}
                         <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
                             <MapPin className="w-4 h-4 text-brand-emerald shrink-0 mt-0.5" />
                             <span>Nigeria, Mon–Sun 24/7 Operations</span>
@@ -57,7 +63,7 @@ const Footer = () => {
 
             <div className="mx-auto max-w-7xl px-6 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
                 <p className="text-xs text-slate-400 font-bold tracking-widest uppercase">
-                    © {new Date().getFullYear()} Zantara Technologies. All rights reserved.
+                    © {new Date().getFullYear()} {settings.SITE_NAME}. All rights reserved.
                 </p>
                 <div className="flex gap-4">
                     <div className="text-[10px] font-black uppercase tracking-widest text-brand-emerald bg-brand-mint px-3 py-1.5 rounded-lg border border-brand-emerald/30">

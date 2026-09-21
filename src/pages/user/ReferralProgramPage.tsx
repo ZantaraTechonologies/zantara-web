@@ -5,11 +5,13 @@ import { useWalletStore } from '../../store/wallet/walletStore';
 import { useAuthStore } from '../../store/auth/authStore';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const ReferralProgramPage: React.FC = () => {
     const { data: stats, isLoading } = useEarningsSummary();
     const { user } = useAuthStore();
     const { currency } = useWalletStore();
+    const { settings } = useSiteSettings();
 
     const referralCode = stats?.myReferralCode || user?.myReferralCode;
 
@@ -70,8 +72,8 @@ const ReferralProgramPage: React.FC = () => {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: 'Join Zantara',
-                    text: 'Join me on Zantara and start enjoying fast, secure digital payments!',
+                    title: `Join ${settings.SITE_NAME}`,
+                    text: `Join me on ${settings.SITE_NAME} and start enjoying fast, secure digital payments!`,
                     url: link,
                 });
                 return;
@@ -121,7 +123,7 @@ const ReferralProgramPage: React.FC = () => {
                     <div className="flex-1 space-y-4 text-center md:text-left">
                         <h2 className="text-xl font-bold text-slate-900 leading-tight">Build a Lifetime Income Stream</h2>
                         <p className="text-slate-500 text-sm leading-relaxed max-w-md">
-                            Earn <span className="text-emerald-500 font-bold">commissions</span> instantly on <span className="font-bold text-slate-900">every single purchase</span> made by your referred friends. The more they use Zantara, the more you earn!
+                            Earn <span className="text-emerald-500 font-bold">commissions</span> instantly on <span className="font-bold text-slate-900">every single purchase</span> made by your referred friends. The more they use {settings.SITE_NAME}, the more you earn!
                         </p>
                     </div>
                 </div>

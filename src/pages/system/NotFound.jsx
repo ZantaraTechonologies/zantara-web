@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Home, Search } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 export default function NotFound() {
+    const { settings } = useSiteSettings();
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 px-6 py-12">
             <div className="text-center space-y-8 animate-in fade-in zoom-in duration-500">
@@ -37,7 +39,7 @@ export default function NotFound() {
                 </div>
 
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest pt-8">
-                    Zantara VTU Service
+                    {settings.SITE_NAME} VTU Service
                 </p>
             </div>
         </div>

@@ -17,6 +17,7 @@ import {
     ReceiptModel,
 } from '../../utils/receiptUtils';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
+import SiteLogo from '../../components/common/SiteLogo';
 
 const STATUS_STYLES: Record<string, { chip: string; icon: typeof ShieldCheck }> = {
     'Success': { chip: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: ShieldCheck },
@@ -145,13 +146,7 @@ const ReceiptPage: React.FC = () => {
                 <div className="space-y-6 text-center">
                     <div className="space-y-4">
                         <div className="flex items-center justify-center gap-2">
-                            {brand.logo ? (
-                                <img src={brand.logo} alt={brand.displayName} className="h-10 w-10 object-contain" />
-                            ) : (
-                                <div className="bg-brand-navy text-white p-2.5 rounded-xl">
-                                    <ShieldCheck size={24} />
-                                </div>
-                            )}
+                            <SiteLogo src={brand.logo} siteName={brand.displayName} className="h-10 w-10 object-contain rounded-xl" />
                             <span className="text-xl font-black text-slate-900 tracking-tighter uppercase">{brand.displayName}</span>
                         </div>
                         <div className="space-y-1">

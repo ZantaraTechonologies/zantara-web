@@ -7,8 +7,11 @@ import {
     KeyRound,
     Lock
 } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
+import SiteLogo from '../../components/common/SiteLogo';
 
 const UserForgotPasswordPage: React.FC = () => {
+    const { settings } = useSiteSettings();
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSent, setIsSent] = useState(false);
@@ -31,8 +34,8 @@ const UserForgotPasswordPage: React.FC = () => {
             {/* Header */}
             <header className="w-full h-16 bg-surface border-b border-slate-100 flex items-center justify-between px-6 sm:px-12">
                 <div className="flex items-center gap-3">
-                    <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-8 h-8 rounded-lg" />
-                    <span className="text-xl font-black text-brand-navy tracking-tight uppercase">Zantara</span>
+                    <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-8 h-8 rounded-lg object-contain" />
+                    <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME}</span>
                 </div>
                 <div className="flex items-center gap-4">
                     <span className="hidden sm:inline text-sm font-medium text-slate-500">Need help?</span>
@@ -122,7 +125,7 @@ const UserForgotPasswordPage: React.FC = () => {
 
                     <div className="pt-10 flex items-center justify-center gap-2 text-xs font-bold text-slate-300 uppercase tracking-widest">
                         <Lock size={14} />
-                        <span>Protected by Zantara Secure Shield™</span>
+                        <span>Protected by {settings.SITE_NAME} Secure Shield™</span>
                     </div>
                 </div>
             </main>
@@ -130,7 +133,7 @@ const UserForgotPasswordPage: React.FC = () => {
             {/* Footer */}
             <footer className="w-full py-5 text-center border-t border-slate-100 bg-surface">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">
-                    © 2024 ZANTARA TECHNOLOGIES. ALL RIGHTS RESERVED.
+                    © {new Date().getFullYear()} {settings.SITE_NAME}. ALL RIGHTS RESERVED.
                 </p>
             </footer>
         </div>

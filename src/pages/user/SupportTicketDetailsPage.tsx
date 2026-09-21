@@ -3,8 +3,10 @@ import { useTicketDetails, useReplyToTicket } from '../../hooks/useSupport';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Send, User, ShieldCheck, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const SupportTicketDetailsPage: React.FC = () => {
+    const { settings } = useSiteSettings();
     const { id } = useParams<{ id: string }>();
     const { data: ticket, isLoading, isError, error } = useTicketDetails(id!);
     const { mutate: sendReply, isPending: isReplying } = useReplyToTicket();
@@ -137,7 +139,7 @@ const SupportTicketDetailsPage: React.FC = () => {
                                     <p>{res.message}</p>
                                 </div>
                                 <span className={`text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2`}>
-                                    {isAdmin ? 'Zantara Agent' : 'You'} • {safeFormatDate(res.createdAt)}
+                                    {isAdmin ? `${settings.SITE_NAME} Agent` : 'You'} • {safeFormatDate(res.createdAt)}
                                 </span>
                             </div>
                         );

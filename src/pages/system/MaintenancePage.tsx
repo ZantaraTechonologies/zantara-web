@@ -1,7 +1,9 @@
 import React from 'react';
 import { Settings, Clock, ShieldCheck } from 'lucide-react';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
 
 const MaintenancePage: React.FC = () => {
+    const { settings } = useSiteSettings();
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center animate-in fade-in duration-700">
             <div className="max-w-md w-full space-y-8">
@@ -15,7 +17,7 @@ const MaintenancePage: React.FC = () => {
                 <div className="space-y-3">
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">System Upgrade</h1>
                     <p className="text-slate-500 font-medium leading-relaxed px-4">
-                        We're currently refining Zantara to provide you with a more seamless experience. We'll be back online shortly.
+                        We're currently refining {settings.SITE_NAME} to provide you with a more seamless experience. We'll be back online shortly.
                     </p>
                 </div>
 
@@ -32,7 +34,7 @@ const MaintenancePage: React.FC = () => {
                     
                     <div className="pt-4 border-t border-slate-50 flex items-center gap-3 text-emerald-600/60 justify-center">
                         <ShieldCheck size={16} />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Zantara Secure Protocol Active</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{settings.SITE_NAME} Secure Protocol Active</span>
                     </div>
                 </div>
 

@@ -8,8 +8,11 @@ import {
     ArrowRight
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth/authStore';
+import { useSiteSettings } from '../../app/SiteSettingsContext';
+import SiteLogo from '../../components/common/SiteLogo';
 
 const AdminLoginPage: React.FC = () => {
+    const { settings } = useSiteSettings();
     const [credentials, setCredentials] = useState({
         username: '',
         password: '',
@@ -54,8 +57,8 @@ const AdminLoginPage: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-brand-mint/50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
             {/* Logo */}
             <div className="mb-6 flex items-center gap-3">
-                <img src="/app_store_icon.webp" alt="Zantara Logo" className="w-9 h-9 rounded-xl shadow-btn-navy" />
-                <span className="text-xl font-black text-brand-navy tracking-tight uppercase">Zantara</span>
+                <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-9 h-9 rounded-xl shadow-btn-navy object-contain" />
+                <span className="text-xl font-black text-brand-navy tracking-tight uppercase">{settings.SITE_NAME}</span>
                 <span className="text-xs font-black text-brand-emerald bg-brand-mint px-3 py-1.5 rounded-full border border-brand-emerald/20 ml-2 uppercase tracking-widest">Admin</span>
             </div>
 
@@ -65,7 +68,7 @@ const AdminLoginPage: React.FC = () => {
                     <div className="w-14 h-14 bg-brand-mint rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand-emerald/20">
                         <ShieldCheck className="w-7 h-7 text-brand-emerald" />
                     </div>
-                    <h1 className="text-xl font-bold text-brand-navy mb-1">Zantara Control</h1>
+                    <h1 className="text-xl font-bold text-brand-navy mb-1">{settings.SITE_NAME} Control</h1>
                     <p className="text-slate-500 font-medium text-sm">Restricted area. Authorized personnel only.</p>
                 </div>
 
@@ -144,7 +147,7 @@ const AdminLoginPage: React.FC = () => {
                 <Link to="/status" className="hover:text-brand-navy transition-colors">Status</Link>
             </div>
             <p className="mt-3 text-[10px] text-slate-300 font-bold uppercase tracking-[0.2em]">
-                © 2026 Zantara Technologies Inc. All rights reserved.
+                © {new Date().getFullYear()} {settings.SITE_NAME}. All rights reserved.
             </p>
         </div>
     );

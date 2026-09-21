@@ -72,6 +72,7 @@ async function loadRenderedRoutingHarness() {
             builder.onResolve({ filter: /services[\\/]user[\\/]userService(?:\.[jt]s)?$/ }, () => ({ path: 'user-service', namespace: 'routing' }));
             builder.onResolve({ filter: /components[\\/]buy[\\/]Buy(?:\.[jt]sx?)?$/ }, () => ({ path: 'buy', namespace: 'routing' }));
             builder.onResolve({ filter: /components[\\/]feedback[\\/]Skeletons(?:\.[jt]sx?)?$/ }, () => ({ path: 'skeletons', namespace: 'routing' }));
+            builder.onResolve({ filter: /app[\\/]SiteSettingsContext(?:\.tsx)?$/ }, () => ({ path: 'site-settings', namespace: 'routing' }));
             builder.onResolve({ filter: /^react-hot-toast$/ }, () => ({ path: 'hot-toast', namespace: 'routing' }));
             builder.onResolve({ filter: /^react-toastify$/ }, () => ({ path: 'toastify', namespace: 'routing' }));
             builder.onLoad({ filter: /.*/, namespace: 'routing' }, ({ path }) => {
@@ -106,6 +107,13 @@ async function loadRenderedRoutingHarness() {
                     }
                 ` };
                 if (path === 'skeletons') return { loader: 'jsx', contents: 'export function PageLoader() { return <div data-page-loader="true">Loading</div>; }' };
+                if (path === 'site-settings') return { loader: 'js', contents: `
+                    export const useSiteSettings = () => ({
+                        settings: { SITE_NAME: 'Zantara', SITE_URL: '', SITE_LOGO: '', SUPPORT_EMAIL: '', SUPPORT_PHONE: '' },
+                        loading: false,
+                        refetch: async () => {}
+                    });
+                ` };
                 if (path === 'hot-toast') return { loader: 'js', contents: `
                     const toast = { success() {}, error() {} };
                     export { toast };

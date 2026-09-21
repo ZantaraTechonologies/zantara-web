@@ -121,10 +121,16 @@ describe('Canonical receipt utilities', () => {
   it('buildReceiptModel returns complete receipt structure', () => {
     const model = buildReceiptModel(AIRTIME_DOC, {
       displayName: 'TestBrand',
+      logo: 'https://cdn.test/logo.png',
       supportEmail: 'help@test.com',
+      supportPhone: '+2348000000000',
+      website: 'https://test.example',
     });
     assert.equal(model.brand.displayName, 'TestBrand');
+    assert.equal(model.brand.logo, 'https://cdn.test/logo.png');
     assert.equal(model.brand.supportEmail, 'help@test.com');
+    assert.equal(model.brand.supportPhone, '+2348000000000');
+    assert.equal(model.brand.website, 'https://test.example');
     assert.equal(model.transaction.reference, 'ZNT-988-AF2');
     assert.equal(model.transaction.amountText, '₦200.00');
     assert.equal(model.transaction.status, 'Success');
