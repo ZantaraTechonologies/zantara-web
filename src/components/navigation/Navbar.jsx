@@ -91,9 +91,9 @@ export default function Navbar() {
                                 <ThemeToggle className="w-9 h-9" />
                                 <div className="relative hidden xl:block">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                                    <input 
-                                        type="text" 
-                                        placeholder="Search..." 
+                                    <input
+                                        type="text"
+                                        placeholder="Search..."
                                         className="bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all w-48"
                                     />
                                 </div>
@@ -105,12 +105,22 @@ export default function Navbar() {
                                 <div className="flex items-center gap-3">
                                     <div className="text-right hidden sm:block">
                                         <div className="text-xs font-bold text-brand-navy leading-none">{isAdmin ? 'Admin Operator' : (user?.name || 'User')}</div>
-                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">{isAdmin ? 'Full Access' : 'Verified'}</div>
+                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">
+                                            {isAdmin
+                                                ? 'Full Access'
+                                                : user?.kycStatus === 'verified'
+                                                    ? 'KYC Verified'
+                                                    : user?.kycStatus === 'pending'
+                                                        ? 'KYC Pending'
+                                                        : user?.kycStatus === 'rejected'
+                                                            ? 'KYC Rejected'
+                                                            : 'Starter Level'}
+                                        </div>
                                     </div>
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${isAdmin ? "bg-brand-navy text-brand-emerald border border-brand-emerald/30" : "bg-brand-mint border border-brand-emerald/20 text-brand-emerald"}`}>
                                         {isAdmin ? 'AD' : (user?.name?.substring(0, 2).toUpperCase() || 'AZ')}
                                     </div>
-                                    <button 
+                                    <button
                                         onClick={logout}
                                         className="p-2 text-slate-400 hover:text-red-500 transition-colors"
                                         title="Logout"
@@ -146,12 +156,12 @@ export default function Navbar() {
                                 <span className="absolute top-2 right-2 w-2 h-2 bg-brand-emerald border-2 border-white rounded-full"></span>
                             </Link>
                         )}
-                    <button
-                        onClick={() => setOpen((v) => !v)}
-                        className="inline-flex items-center justify-center rounded-xl p-2.5 bg-brand-navy text-white hover:bg-brand-navy-800 transition-all shadow-btn-navy active:scale-95"
-                        aria-expanded={open}
-                        aria-label="Toggle menu"
-                    >
+                        <button
+                            onClick={() => setOpen((v) => !v)}
+                            className="inline-flex items-center justify-center rounded-xl p-2.5 bg-brand-navy text-white hover:bg-brand-navy-800 transition-all shadow-btn-navy active:scale-95"
+                            aria-expanded={open}
+                            aria-label="Toggle menu"
+                        >
                             {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
@@ -159,17 +169,17 @@ export default function Navbar() {
             </div>
 
             {/* Mobile menu drawer */}
-            <div 
+            <div
                 className={`lg:hidden fixed inset-0 z-[100] transition-all duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
             >
                 {/* Backdrop */}
-                <div 
+                <div
                     className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
                     onClick={() => setOpen(false)}
                 />
-                
+
                 {/* Drawer Content */}
-                <div 
+                <div
                     className={`absolute inset-y-0 left-0 w-[300px] bg-surface opacity-100 shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] transform ${open ? "translate-x-0" : "-translate-x-full"}`}
                     style={{ height: '100dvh', minHeight: '-webkit-fill-available' }}
                 >
@@ -228,10 +238,10 @@ export default function Navbar() {
                                                 return <p key={idx} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mt-6 mb-3">{item.header}</p>
                                             }
                                             return (
-                                                <NavLink 
-                                                    key={item.path} 
-                                                    to={item.path} 
-                                                    className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-emerald text-white shadow-xl shadow-brand-emerald/25" : "text-slate-400 hover:bg-brand-mint hover:text-brand-emerald font-bold"}`} 
+                                                <NavLink
+                                                    key={item.path}
+                                                    to={item.path}
+                                                    className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-emerald text-white shadow-xl shadow-brand-emerald/25" : "text-slate-400 hover:bg-brand-mint hover:text-brand-emerald font-bold"}`}
                                                     onClick={() => setOpen(false)}
                                                 >
                                                     <item.icon size={18} />
@@ -270,7 +280,7 @@ export default function Navbar() {
 
                     {/* Fixed Logout Button at the bottom */}
                     {isAuthenticated && (
-                        <div 
+                        <div
                             className="p-5 border-t border-slate-50 bg-surface relative z-50 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.08)]"
                             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 3rem)' }}
                         >

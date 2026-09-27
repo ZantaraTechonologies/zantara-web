@@ -1,14 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth/authStore';
-import { 
-    User, 
-    Shield, 
-    ChevronRight, 
-    Mail, 
-    Phone, 
-    BadgeCheck, 
-    Lock, 
+import {
+    User,
+    Shield,
+    ChevronRight,
+    Mail,
+    Phone,
+    BadgeCheck,
+    Lock,
     Camera,
     Wallet,
     Bell,
@@ -89,7 +89,7 @@ const UserProfilePage: React.FC = () => {
                 <div className="h-24 bg-gradient-to-r from-slate-900 to-slate-800 relative">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
                 </div>
-                
+
                 <div className="px-6 pb-6 flex flex-col sm:flex-row items-end gap-5 -mt-12 relative z-10">
                     <div className="relative group">
                         <div className="w-24 h-24 rounded-3xl bg-surface p-1 shadow-2xl">
@@ -100,22 +100,23 @@ const UserProfilePage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-2xl border-4 border-white flex items-center justify-center text-white shadow-lg">
-                            <BadgeCheck size={16} />
-                        </div>
+                        {user?.kycStatus === 'verified' && (
+                            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-2xl border-4 border-white flex items-center justify-center text-white shadow-lg">
+                                <BadgeCheck size={16} />
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex-1 pb-1 space-y-1">
                         <div className="flex items-center gap-3">
                             <h1 className="text-xl font-bold text-slate-900 tracking-tight">{user?.name || 'Zantara User'}</h1>
-                            <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${
-                                user?.kycStatus === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                            <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${user?.kycStatus === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                 user?.kycStatus === 'pending' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                                'bg-slate-50 text-slate-400 border-slate-100'
-                            }`}>
-                                {user?.kycStatus === 'verified' ? 'Verified Level 2' : 
-                                 user?.kycStatus === 'pending' ? 'Verification Pending' : 
-                                 'Starter Level 1'}
+                                    'bg-slate-50 text-slate-400 border-slate-100'
+                                }`}>
+                                {user?.kycStatus === 'verified' ? 'Verified Level 2' :
+                                    user?.kycStatus === 'pending' ? 'Verification Pending' :
+                                        'Starter Level 1'}
                             </span>
                         </div>
                         <div className="flex flex-wrap gap-4 text-sm text-slate-500 font-medium">
@@ -130,7 +131,7 @@ const UserProfilePage: React.FC = () => {
                         </div>
                     </div>
 
-                    <button 
+                    <button
                         onClick={() => navigate('/app/profile/personal')}
                         className="bg-brand-emerald text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-emerald-600 transition-all shadow-btn active:scale-95"
                     >
@@ -141,48 +142,47 @@ const UserProfilePage: React.FC = () => {
 
             {/* Account Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                 <div className="bg-surface p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="bg-surface p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                     <div className="w-11 h-11 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0">
                         <Wallet size={18} />
                     </div>
                     <div>
-                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account Type</p>
-                         <p className="font-bold text-slate-900">Personal Savings</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account Type</p>
+                        <p className="font-bold text-slate-900">Personal Savings</p>
                     </div>
-                 </div>
-                 <div className="bg-surface p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+                </div>
+                <div className="bg-surface p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                     <div className="w-11 h-11 bg-purple-50 text-purple-500 rounded-xl flex items-center justify-center shrink-0">
                         <Shield size={18} />
                     </div>
                     <div>
-                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Security Level</p>
-                         <p className="font-bold text-slate-900">{user?.hasPIN ? 'High-Security' : 'Standard'}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Security Level</p>
+                        <p className="font-bold text-slate-900">{user?.hasPIN ? 'High-Security' : 'Standard'}</p>
                     </div>
-                 </div>
-                 <div className="bg-surface p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+                </div>
+                <div className="bg-surface p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                     <div className="w-11 h-11 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center shrink-0">
                         <BadgeCheck size={18} />
                     </div>
                     <div>
-                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">KYC Status</p>
-                         <p className={`font-bold uppercase ${
-                            user?.kycStatus === 'verified' ? 'text-emerald-600' :
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">KYC Status</p>
+                        <p className={`font-bold uppercase ${user?.kycStatus === 'verified' ? 'text-emerald-600' :
                             user?.kycStatus === 'pending' ? 'text-orange-600' :
-                            'text-slate-400'
-                         }`}>
+                                'text-slate-400'
+                            }`}>
                             {user?.kycStatus === 'verified' ? 'Level 2' :
-                             user?.kycStatus === 'pending' ? 'Pending' :
-                             'Level 1'}
-                         </p>
+                                user?.kycStatus === 'pending' ? 'Pending' :
+                                    'Level 1'}
+                        </p>
                     </div>
-                 </div>
+                </div>
             </div>
 
             {/* Menu List */}
             <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
                 <div className="divide-y divide-slate-50">
                     {menuItems.map((item, idx) => (
-                        <button 
+                        <button
                             key={idx}
                             onClick={() => navigate(item.path)}
                             className="w-full p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left"
@@ -205,7 +205,7 @@ const UserProfilePage: React.FC = () => {
             <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
                 <div className="divide-y divide-slate-50">
                     {legalItems.map((item, idx) => (
-                        <button 
+                        <button
                             key={idx}
                             onClick={() => navigate(item.path)}
                             className="w-full p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left"
