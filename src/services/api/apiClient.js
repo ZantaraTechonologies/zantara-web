@@ -57,7 +57,10 @@ API.interceptors.response.use(
             }
         }
 
-        if (error.response?.status === 503) {
+        if (
+            error.response?.status === 503 &&
+            error.response?.data?.code === 'SYSTEM_MAINTENANCE'
+        ) {
             setMaintenanceMode(true);
         }
 
