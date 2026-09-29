@@ -2,6 +2,7 @@ import React from 'react';
 import { 
     Zap, 
     Wifi, 
+    Radio,
     Tv, 
     GraduationCap, 
     Gamepad2, 
@@ -30,6 +31,15 @@ const ServicesPage: React.FC = () => {
             path: '/app/services/data', 
             color: 'bg-blue-50 text-blue-600',
             borderColor: 'border-blue-100'
+        },
+        {
+            id: 'broadband',
+            label: 'Internet & Broadband',
+            description: 'Pay for broadband plans and internet services',
+            icon: Radio,
+            path: '/app/services/broadband',
+            color: 'bg-emerald-50 text-emerald-600',
+            borderColor: 'border-emerald-100'
         },
         { 
             id: 'cable', 

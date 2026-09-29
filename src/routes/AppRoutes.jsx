@@ -31,6 +31,7 @@ const UserWithdrawPage = lazy(() => import('../pages/user/UserWithdrawPage'));
 const UserLinkedAccountsPage = lazy(() => import('../pages/user/UserLinkedAccountsPage'));
 const UserVirtualAccountPage = lazy(() => import('../pages/user/UserVirtualAccountPage'));
 const UserBuyDataPage = lazy(() => import('../pages/user/UserBuyDataPage'));
+const UserBuyBroadbandPage = lazy(() => import('../pages/user/UserBuyBroadbandPage'));
 const UserBuyAirtimePage = lazy(() => import('../pages/user/UserBuyAirtimePage'));
 const UserBuyElectricityPage = lazy(() => import('../pages/user/UserBuyElectricityPage'));
 const UserBuyCablePage = lazy(() => import('../pages/user/UserBuyCablePage'));
@@ -163,6 +164,7 @@ export default function AppRoutes() {
 
                             {/* Services Ecosystem (Batch 3) */}
                             <Route path="services/data" element={<UserBuyDataPage />} />
+                            <Route path="services/broadband" element={<UserBuyBroadbandPage />} />
                             <Route path="services/airtime" element={<UserBuyAirtimePage />} />
                             <Route path="services/electricity" element={<UserBuyElectricityPage />} />
                             <Route path="services/cable" element={<UserBuyCablePage />} />
