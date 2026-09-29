@@ -7,7 +7,7 @@ import { useSiteSettings } from "../../app/SiteSettingsContext";
 import SiteLogo from "../common/SiteLogo";
 import ThemeToggle from "../common/ThemeToggle";
 
-export default function Navbar() {
+export default function Navbar({ adminMenuItems = [] }) {
     const { settings } = useSiteSettings();
     const { isAuthenticated, logout, user } = useAuthStore();
     const [open, setOpen] = useState(false);
@@ -26,27 +26,6 @@ export default function Navbar() {
     const isAdmin = location.pathname.startsWith('/admin');
 
     const linkBase = "inline-flex items-center text-sm font-bold text-slate-600 hover:text-brand-emerald transition-colors";
-
-    const adminMenuItems = [
-        { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { path: "/admin/users", label: "User Management", icon: Users },
-        { path: "/admin/kyc", label: "KYC Queue", icon: ShieldCheck },
-        { path: "/admin/transactions", label: "Transactions", icon: ListOrdered },
-        { path: "/admin/withdrawals", label: "Withdrawals", icon: Banknote },
-        { path: "/admin/support", label: "Support Tickets", icon: MessageSquare },
-        { path: "/admin/notifications", label: "Message Center", icon: Bell },
-        { path: "/admin/status", label: "System Status", icon: Activity },
-        { header: "Business & Finance" },
-        { path: "/admin/business/intelligence", label: "Intelligence Hub", icon: Zap },
-        { path: "/admin/business/commissions", label: "Commission & Discounts", icon: BadgePercent },
-        { path: "/admin/business/wallet", label: "System Liquidity", icon: WalletCards },
-        { path: "/admin/business/shareholders", label: "Shareholders", icon: PieChart },
-        { header: "System & Security" },
-        { path: "/admin/status", label: "System Status", icon: Activity },
-        { path: "/admin/audit-logs", label: "Audit Logs", icon: Activity },
-        { path: "/admin/settings", label: "System Parameters", icon: Settings },
-        { path: "/admin/profile", label: "My Profile", icon: User },
-    ];
 
     return (
         <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 h-20 flex items-center dark:bg-surface/80 dark:border-slate-800/60">
@@ -184,7 +163,7 @@ export default function Navbar() {
                     style={{ height: '100dvh', minHeight: '-webkit-fill-available' }}
                 >
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-surface relative z-20">
-                        <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
+                        <Link to={isAdmin ? "/admin/dashboard" : "/"} className="flex items-center gap-3" onClick={() => setOpen(false)}>
                             <div className="w-10 h-10 bg-brand-navy rounded-xl shadow-btn-navy flex items-center justify-center">
                                 <SiteLogo src={settings.SITE_LOGO} siteName={settings.SITE_NAME} className="w-7 h-7 object-contain" />
                             </div>
@@ -205,38 +184,39 @@ export default function Navbar() {
                                         <>
                                             <NavLink to="/app" end className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-navy text-white shadow-xl shadow-brand-navy/20" : "text-slate-600 hover:bg-brand-mint"}`} onClick={() => setOpen(false)}>
                                                 <LayoutDashboard size={20} />
-                                                Dashboard Overview
-                                            </NavLink>
-                                            <NavLink to="/app/transactions" className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-navy text-white shadow-xl shadow-brand-navy/20" : "text-slate-600 hover:bg-brand-mint"}`} onClick={() => setOpen(false)}>
-                                                <ListOrdered size={20} />
-                                                Transactions History
+                                                Overview
                                             </NavLink>
                                             <NavLink to="/app/services" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <Zap size={20} />
-                                                Bill Payments
+                                                Services
+                                            </NavLink>
+                                            <NavLink to="/app/transactions" className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-navy text-white shadow-xl shadow-brand-navy/20" : "text-slate-600 hover:bg-brand-mint"}`} onClick={() => setOpen(false)}>
+                                                <ListOrdered size={20} />
+                                                Transactions
+                                            </NavLink>
+                                            <NavLink to="/app/profile" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
+                                                <User size={20} />
+                                                Profile
                                             </NavLink>
                                             <NavLink to="/app/referral" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <Users size={20} />
                                                 Refer & Earn
                                             </NavLink>
-                                            <NavLink to="/app/support" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
-                                                <HelpCircle size={20} />
-                                                Contact Support
-                                            </NavLink>
                                             <NavLink to="/app/investments" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <BarChart3 size={20} />
-                                                Investment Portfolio
+                                                Investments
                                             </NavLink>
-                                            <NavLink to="/app/profile" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
-                                                <User size={20} />
-                                                Account Security
+                                            <NavLink to="/app/support" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
+                                                <HelpCircle size={20} />
+                                                Support
                                             </NavLink>
                                         </>
                                     ) : (
                                         adminMenuItems.map((item, idx) => {
-                                            if (item.header) {
-                                                return <p key={idx} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mt-6 mb-3">{item.header}</p>
+                                            if (item.type === "header") {
+                                                return <p key={idx} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-4 mt-6 mb-3">{item.label}</p>
                                             }
+                                            const Icon = item.icon;
                                             return (
                                                 <NavLink
                                                     key={item.path}
@@ -244,7 +224,7 @@ export default function Navbar() {
                                                     className={({ isActive }) => `flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold transition-all ${isActive ? "bg-brand-emerald text-white shadow-xl shadow-brand-emerald/25" : "text-slate-400 hover:bg-brand-mint hover:text-brand-emerald font-bold"}`}
                                                     onClick={() => setOpen(false)}
                                                 >
-                                                    <item.icon size={18} />
+                                                    {Icon && <Icon size={18} />}
                                                     {item.label}
                                                 </NavLink>
                                             )

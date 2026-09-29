@@ -91,7 +91,7 @@ export default function AdminLayout() {
 
     return (
         <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
-            <Navbar />
+            <Navbar adminMenuItems={menuItems} />
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Desktop Sidebar */}

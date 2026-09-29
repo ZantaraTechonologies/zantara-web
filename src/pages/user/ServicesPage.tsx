@@ -34,7 +34,7 @@ const ServicesPage: React.FC = () => {
         },
         {
             id: 'broadband',
-            label: 'Internet & Broadband',
+            label: 'Broadband',
             description: 'Pay for broadband plans and internet services',
             icon: Radio,
             path: '/app/services/broadband',

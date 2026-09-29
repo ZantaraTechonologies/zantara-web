@@ -828,7 +828,7 @@ const UserBuyBroadbandPage: React.FC = () => {
     const interactionLocked = purchasing || verificationLoading;
 
     return (
-        <PurchaseLayout title="Internet & Broadband" subtitle="Pay for broadband plans and internet services securely.">
+        <PurchaseLayout title="Broadband" subtitle="Pay for broadband plans and internet services securely.">
             <form onSubmit={handleInitiate}>
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="flex-1 space-y-6">
