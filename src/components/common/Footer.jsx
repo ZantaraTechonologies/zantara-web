@@ -55,7 +55,10 @@ const Footer = () => {
                         </li>}
                         <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
                             <MapPin className="w-4 h-4 text-brand-emerald shrink-0 mt-0.5" />
-                            <span>Nigeria, Mon–Sun 24/7 Operations</span>
+                            <span>
+                                DE 28, Dawaki Usman,<br />
+                                Gombe, Gombe State, Nigeria.
+                            </span>
                         </li>
                     </ul>
                 </div>
