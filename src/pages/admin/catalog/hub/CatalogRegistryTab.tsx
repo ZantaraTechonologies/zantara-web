@@ -54,6 +54,29 @@ interface Plan {
     price: number;
 }
 
+type ServiceExecutionCategory =
+    | 'airtime'
+    | 'data'
+    | 'tv'
+    | 'electricity'
+    | 'pin'
+    | 'broadband';
+
+const resolveExecutionCategory = (typeName?: string): ServiceExecutionCategory | null => {
+    const normalizedType = typeName?.trim().toLowerCase();
+
+    if (!normalizedType) return null;
+
+    if (normalizedType.includes('broadband') || normalizedType.includes('internet')) return 'broadband';
+    if (normalizedType.includes('airtime')) return 'airtime';
+    if (normalizedType.includes('data')) return 'data';
+    if (normalizedType.includes('tv') || normalizedType.includes('cable')) return 'tv';
+    if (normalizedType.includes('electricity') || normalizedType.includes('electric')) return 'electricity';
+    if (normalizedType.includes('pin') || normalizedType.includes('exam')) return 'pin';
+
+    return null;
+};
+
 const CatalogRegistryTab: React.FC = () => {
     const [identities, setIdentities] = useState<Identity[]>([]);
     const [loading, setLoading] = useState(true);
@@ -206,16 +229,24 @@ const CatalogRegistryTab: React.FC = () => {
                 toast.success("Variant updated");
             } else {
                 // Create New
+                const executionCategory = resolveExecutionCategory(
+                    selectedIdentity.typeId?.name
+                );
+
+                if (!executionCategory) {
+                    toast.error(
+                        `Unsupported service type "${selectedIdentity.typeId?.name || 'Unknown'}". Configure a supported service type before adding a variant.`
+                    );
+                    return;
+                }
+
                 const payload = {
                     ...variantFormData,
                     identityId: selectedIdentity._id,
                     categoryId: selectedIdentity.categoryId?._id,
                     typeId: selectedIdentity.typeId?._id,
                     brandId: selectedIdentity.brandId?._id,
-                    category: selectedIdentity.typeId?.name.toLowerCase().includes('data') ? 'data' : 
-                              selectedIdentity.typeId?.name.toLowerCase().includes('airtime') ? 'airtime' :
-                              selectedIdentity.typeId?.name.toLowerCase().includes('tv') ? 'tv' :
-                              selectedIdentity.typeId?.name.toLowerCase().includes('electricity') ? 'electricity' : 'pin'
+                    category: executionCategory
                 };
                 await apiClient.post('/admin/services', payload);
                 toast.success("Variant added to identity");
