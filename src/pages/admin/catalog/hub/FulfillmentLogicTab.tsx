@@ -22,6 +22,38 @@ import { toast } from 'react-hot-toast';
 import { useWalletStore } from '../../../../store/wallet/walletStore';
 import { ListSkeleton } from '../../../../components/feedback/Skeletons';
 
+type PurchaseMode = 'plan' | 'amount';
+
+interface ServiceTypeMetadata {
+    name?: string;
+    slug?: string;
+    aliases?: string[];
+}
+
+const isBroadbandServiceType = (type?: ServiceTypeMetadata): boolean => {
+    if (!type) return false;
+
+    const values = [
+        type.name,
+        type.slug,
+        ...(Array.isArray(type.aliases) ? type.aliases : [])
+    ];
+
+    return values.some(value => typeof value === 'string' && value.trim().toLowerCase() === 'broadband');
+};
+
+const createInitialMappingForm = () => ({
+    serviceId: '',
+    providerId: '',
+    providerCode: '',
+    providerServiceCode: '',
+    costMode: 'fixed' as 'fixed' | 'dynamic',
+    costPrice: 0,
+    currency: '',
+    priority: 0,
+    status: true
+});
+
 const FulfillmentLogicTab: React.FC = () => {
     const [identities, setIdentities] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -35,17 +67,13 @@ const FulfillmentLogicTab: React.FC = () => {
     const [variants, setVariants] = useState<any[]>([]);
     const [providers, setProviders] = useState<any[]>([]);
     const [showMappingModal, setShowMappingModal] = useState(false);
-    const [mappingForm, setMappingForm] = useState({
-        serviceId: '',
-        providerId: '',
-        providerCode: '',
-        costMode: 'fixed' as 'fixed' | 'dynamic',
-        costPrice: 0,
-        priority: 0
-    });
+    const [mappingForm, setMappingForm] = useState(createInitialMappingForm);
+    const [mappingFormWasBroadband, setMappingFormWasBroadband] = useState(false);
     const [variantSearch, setVariantSearch] = useState('');
     const [showVariantList, setShowVariantList] = useState(false);
     const { currency } = useWalletStore();
+    const isBroadbandSelected = isBroadbandServiceType(selectedIdentity?.typeId);
+    const broadbandPurchaseMode = selectedIdentity?.purchaseMode as PurchaseMode | undefined;
 
     useEffect(() => {
         loadIdentities();
@@ -104,25 +132,118 @@ const FulfillmentLogicTab: React.FC = () => {
         }
     };
 
-    const handleUpdateOffer = async (id: string, updates: any) => {
+    const handleUpdateOffer = async (id: string, updates: any): Promise<boolean> => {
         try {
             await apiClient.put(`/admin/hierarchy/provider-offers/${id}`, updates);
             setOffers(offers.map(o => o._id === id ? { ...o, ...updates } : o));
             toast.success("Connection updated");
+            return true;
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Update failed");
+            if (isBroadbandSelected && selectedIdentity) {
+                loadOffers(selectedIdentity._id);
+            }
+            return false;
+        }
+    };
+
+    const handleInlineOfferUpdate = async (
+        offer: any,
+        field: string,
+        value: string | number,
+        input: HTMLInputElement
+    ) => {
+        const updated = await handleUpdateOffer(offer._id, { [field]: value });
+
+        if (!updated && isBroadbandSelected) {
+            input.value = String(offer[field] ?? '');
         }
     };
 
     const handleCreateMapping = async (e: React.FormEvent) => {
         e.preventDefault();
-        const payload = { ...mappingForm };
-        if (payload.costMode === 'dynamic') payload.costPrice = 0;
+
+        if (isBroadbandSelected) {
+            const selectedProvider = providers.find(provider => provider._id === mappingForm.providerId);
+
+            if (!mappingForm.serviceId) {
+                toast.error("Select a Broadband purchase service");
+                return;
+            }
+
+            if (!mappingForm.providerId) {
+                toast.error("Select a provider gateway");
+                return;
+            }
+
+            if (selectedProvider?.status && selectedProvider.status !== 'active') {
+                toast.error("Select an active provider gateway");
+                return;
+            }
+
+            if (!mappingForm.providerCode.trim()) {
+                toast.error("Provider Code is required for Broadband mappings");
+                return;
+            }
+
+            if (!mappingForm.providerServiceCode.trim()) {
+                toast.error("Provider Service Code is required for Broadband mappings");
+                return;
+            }
+
+            if (mappingForm.currency !== 'NGN') {
+                toast.error("Broadband ProviderOffer currency must be NGN");
+                return;
+            }
+
+            if (broadbandPurchaseMode === 'plan') {
+                if (mappingForm.costMode !== 'fixed') {
+                    toast.error("Broadband PLAN mappings require fixed cost mode");
+                    return;
+                }
+
+                if (!Number.isFinite(mappingForm.costPrice) || mappingForm.costPrice <= 0) {
+                    toast.error("Broadband PLAN cost price must be greater than 0");
+                    return;
+                }
+            } else if (broadbandPurchaseMode === 'amount') {
+                if (mappingForm.costMode !== 'dynamic') {
+                    toast.error("Broadband AMOUNT mappings require dynamic cost mode");
+                    return;
+                }
+            } else {
+                toast.error("Configure a valid Broadband purchase mode before creating a mapping");
+                return;
+            }
+        }
+
+        const payload = isBroadbandSelected
+            ? {
+                serviceId: mappingForm.serviceId,
+                providerId: mappingForm.providerId,
+                providerCode: mappingForm.providerCode.trim(),
+                providerServiceCode: mappingForm.providerServiceCode.trim(),
+                costMode: mappingForm.costMode,
+                costPrice: broadbandPurchaseMode === 'amount' ? 0 : mappingForm.costPrice,
+                currency: 'NGN',
+                priority: mappingForm.priority,
+                status: mappingForm.status
+            }
+            : {
+                serviceId: mappingForm.serviceId,
+                providerId: mappingForm.providerId,
+                providerCode: mappingForm.providerCode,
+                costMode: mappingForm.costMode,
+                costPrice: mappingForm.costMode === 'dynamic' ? 0 : mappingForm.costPrice,
+                priority: mappingForm.priority
+            };
+
         try {
             await apiClient.post('/admin/hierarchy/provider-offers', payload);
             toast.success("Route mapping established");
             setShowMappingModal(false);
-            setMappingForm({ serviceId: '', providerId: '', providerCode: '', costMode: 'fixed', costPrice: 0, priority: 0 });
+            setMappingForm(createInitialMappingForm());
+            setMappingFormWasBroadband(false);
             loadOffers(selectedIdentity._id);
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Mapping failed");
@@ -149,6 +270,7 @@ const FulfillmentLogicTab: React.FC = () => {
     const filteredOffers = offers.filter(o => 
         (o.serviceId?.name || '').toLowerCase().includes(offerSearchTerm.toLowerCase()) ||
         (o.providerCode || '').toLowerCase().includes(offerSearchTerm.toLowerCase()) ||
+        (isBroadbandSelected && (o.providerServiceCode || '').toLowerCase().includes(offerSearchTerm.toLowerCase())) ||
         (o.providerId?.name || '').toLowerCase().includes(offerSearchTerm.toLowerCase())
     );
 
@@ -240,7 +362,9 @@ const FulfillmentLogicTab: React.FC = () => {
                             <div>
                                 <h2 className="text-3xl font-black text-slate-900 tracking-tighter">{selectedIdentity.name} Fulfillment</h2>
                                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">
-                                    Provider mapping and prioritization for {selectedIdentity.name} variants
+                                    Provider mapping and prioritization for {selectedIdentity.name} {isBroadbandSelected
+                                        ? (broadbandPurchaseMode === 'amount' ? 'purchase service' : 'plans')
+                                        : 'variants'}
                                 </p>
                             </div>
                             <div className="flex gap-4">
@@ -254,9 +378,23 @@ const FulfillmentLogicTab: React.FC = () => {
                                     />
                                     <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => {
-                                        setMappingForm(prev => ({ ...prev, serviceId: variants[0]?._id || '' }));
+                                        if (isBroadbandSelected) {
+                                            setMappingForm({
+                                                ...createInitialMappingForm(),
+                                                serviceId: variants[0]?._id || '',
+                                                costMode: broadbandPurchaseMode === 'amount' ? 'dynamic' : 'fixed',
+                                                currency: 'NGN'
+                                            });
+                                            setMappingFormWasBroadband(true);
+                                        } else {
+                                            setMappingForm(prev => ({
+                                                ...(mappingFormWasBroadband ? createInitialMappingForm() : prev),
+                                                serviceId: variants[0]?._id || ''
+                                            }));
+                                            setMappingFormWasBroadband(false);
+                                        }
                                         setShowMappingModal(true);
                                     }}
                                     disabled={variants.length === 0}
@@ -283,9 +421,15 @@ const FulfillmentLogicTab: React.FC = () => {
                         ) : variants.length === 0 ? (
                             <div className="px-4 py-20 text-center bg-surface border border-slate-200 rounded-2xl">
                                 <Archive size={48} className="text-slate-800 mx-auto mb-6" />
-                                <h3 className="text-lg font-black text-slate-900 tracking-tighter">No Variants Created</h3>
+                                <h3 className="text-lg font-black text-slate-900 tracking-tighter">
+                                    {isBroadbandSelected
+                                        ? `No ${broadbandPurchaseMode === 'amount' ? 'Purchase Service' : 'Plans'} Created`
+                                        : 'No Variants Created'}
+                                </h3>
                                 <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">
-                                    You must add variants (e.g. 1GB, 2GB) in the <span className="text-indigo-600">Catalog Registry</span> first.
+                                    {isBroadbandSelected
+                                        ? <>Add the Broadband {broadbandPurchaseMode === 'amount' ? 'purchase service' : 'plans'} in the <span className="text-indigo-600">Catalog Registry</span> first.</>
+                                        : <>You must add variants (e.g. 1GB, 2GB) in the <span className="text-indigo-600">Catalog Registry</span> first.</>}
                                 </p>
                             </div>
                         ) : offers.length === 0 ? (
@@ -299,12 +443,19 @@ const FulfillmentLogicTab: React.FC = () => {
                         ) : (
                             <div className="bg-surface border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse min-w-[700px]">
+                                    <table className={`w-full text-left border-collapse ${isBroadbandSelected ? 'min-w-[850px]' : 'min-w-[700px]'}`}>
                                         <thead>
                                             <tr className="bg-slate-50/80 border-b border-slate-100">
-                                                <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Variant</th>
+                                                <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                                                    {isBroadbandSelected
+                                                        ? (broadbandPurchaseMode === 'amount' ? 'Purchase Service' : 'Plan')
+                                                        : 'Variant'}
+                                                </th>
                                                 <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Provider</th>
                                                 <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Provider Code</th>
+                                                {isBroadbandSelected && (
+                                                    <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Provider Service Code</th>
+                                                )}
                                                 <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Cost Mode</th>
                                                 <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Cost / Rule</th>
                                                 <th className="text-left px-4 py-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Priority</th>
@@ -315,7 +466,7 @@ const FulfillmentLogicTab: React.FC = () => {
                                         <tbody className="divide-y divide-slate-100">
                                             {paginatedOffers.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={8} className="px-4 py-14 text-center">
+                                                    <td colSpan={isBroadbandSelected ? 9 : 8} className="px-4 py-14 text-center">
                                                         <Network size={32} className="text-slate-800 mx-auto mb-4" />
                                                         <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em]">No matching routes found</p>
                                                     </td>
@@ -338,10 +489,20 @@ const FulfillmentLogicTab: React.FC = () => {
                                                         <input
                                                             type="text"
                                                             defaultValue={offer.providerCode}
-                                                            onBlur={(e) => handleUpdateOffer(offer._id, { providerCode: e.target.value })}
+                                                            onBlur={(e) => handleInlineOfferUpdate(offer, 'providerCode', e.currentTarget.value, e.currentTarget)}
                                                             className="text-[10px] font-mono text-slate-500 bg-surface px-2 py-1 rounded-lg border border-slate-200 focus:border-indigo-500 outline-none w-full"
                                                         />
                                                     </td>
+                                                    {isBroadbandSelected && (
+                                                        <td className="px-4 py-3">
+                                                            <input
+                                                                type="text"
+                                                                defaultValue={offer.providerServiceCode || ''}
+                                                                onBlur={(e) => handleInlineOfferUpdate(offer, 'providerServiceCode', e.currentTarget.value, e.currentTarget)}
+                                                                className="text-[10px] font-mono text-slate-500 bg-surface px-2 py-1 rounded-lg border border-slate-200 focus:border-indigo-500 outline-none w-full"
+                                                            />
+                                                        </td>
+                                                    )}
                                                     {/* Cost Mode */}
                                                     <td className="px-4 py-3">
                                                         {offer.costMode === 'dynamic' ? (
@@ -356,11 +517,11 @@ const FulfillmentLogicTab: React.FC = () => {
                                                             <span className="text-[10px] text-amber-600 font-black">Runtime Derived</span>
                                                         ) : (
                                                             <div className="flex items-center gap-1.5">
-                                                                <span className="text-[9px] text-indigo-600">{currency}</span>
+                                                                <span className="text-[9px] text-indigo-600">{isBroadbandSelected ? 'NGN' : currency}</span>
                                                                 <input
                                                                     type="number"
                                                                     defaultValue={offer.costPrice}
-                                                                    onBlur={(e) => handleUpdateOffer(offer._id, { costPrice: Number(e.target.value) })}
+                                                                    onBlur={(e) => handleInlineOfferUpdate(offer, 'costPrice', Number(e.currentTarget.value), e.currentTarget)}
                                                                     className="bg-transparent border-none w-16 text-sm text-slate-900 font-black focus:outline-none focus:text-indigo-600 transition-colors"
                                                                 />
                                                             </div>
@@ -373,7 +534,7 @@ const FulfillmentLogicTab: React.FC = () => {
                                                             <input
                                                                 type="number"
                                                                 defaultValue={offer.priority}
-                                                                onBlur={(e) => handleUpdateOffer(offer._id, { priority: Number(e.target.value) })}
+                                                                onBlur={(e) => handleInlineOfferUpdate(offer, 'priority', Number(e.currentTarget.value), e.currentTarget)}
                                                                 className="bg-transparent border-none w-12 text-sm text-slate-900 font-black focus:outline-none focus:text-emerald-600 transition-colors"
                                                             />
                                                         </div>
@@ -483,21 +644,35 @@ const FulfillmentLogicTab: React.FC = () => {
                     <div className="w-full max-w-xl max-h-[90vh] bg-surface border border-slate-200 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden">
                         <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                             <div>
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Establish Route Mapping</h3>
-                                <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">Link a variant to a provider API code</p>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">
+                                    {isBroadbandSelected ? 'Establish Broadband Provider Offer' : 'Establish Route Mapping'}
+                                </h3>
+                                <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">
+                                    {isBroadbandSelected
+                                        ? `Link a ${broadbandPurchaseMode === 'amount' ? 'purchase service' : 'plan'} to provider execution codes`
+                                        : 'Link a variant to a provider API code'}
+                                </p>
                             </div>
                             <button onClick={() => setShowMappingModal(false)} className="text-slate-500 hover:text-slate-900"><XCircle size={24} /></button>
                         </div>
                         
                         <form onSubmit={handleCreateMapping} className="p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Select Variant</label>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">
+                                    {isBroadbandSelected
+                                        ? `Select ${broadbandPurchaseMode === 'amount' ? 'Purchase Service' : 'Plan'}`
+                                        : 'Select Variant'}
+                                </label>
                                 <div className="relative">
                                     <div 
                                         onClick={() => setShowVariantList(!showVariantList)}
                                         className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 font-bold cursor-pointer flex justify-between items-center"
                                     >
-                                        <span>{mappingForm.serviceId ? variants.find(v => v._id === mappingForm.serviceId)?.name : 'Select Variant...'}</span>
+                                        <span>{mappingForm.serviceId
+                                            ? variants.find(v => v._id === mappingForm.serviceId)?.name
+                                            : (isBroadbandSelected
+                                                ? `Select ${broadbandPurchaseMode === 'amount' ? 'Purchase Service' : 'Plan'}...`
+                                                : 'Select Variant...')}</span>
                                         <ChevronRight size={16} className={`transition-transform ${showVariantList ? 'rotate-90' : ''}`} />
                                     </div>
                                     
@@ -508,7 +683,9 @@ const FulfillmentLogicTab: React.FC = () => {
                                                     <input 
                                                         autoFocus
                                                         type="text" 
-                                                        placeholder="Search variants..."
+                                                        placeholder={isBroadbandSelected
+                                                            ? `Search ${broadbandPurchaseMode === 'amount' ? 'purchase services' : 'plans'}...`
+                                                            : 'Search variants...'}
                                                         value={variantSearch}
                                                         onChange={(e) => setVariantSearch(e.target.value)}
                                                         className="w-full bg-surface border border-slate-200 rounded-xl p-3 pl-10 text-[11px] text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
@@ -537,7 +714,9 @@ const FulfillmentLogicTab: React.FC = () => {
                                                 ))}
                                                 {variants.length === 0 && (
                                                     <div className="p-8 text-center">
-                                                        <p className="text-[10px] font-black text-slate-600 uppercase">No variants found</p>
+                                                        <p className="text-[10px] font-black text-slate-600 uppercase">
+                                                            {isBroadbandSelected ? 'No purchase services found' : 'No variants found'}
+                                                        </p>
                                                     </div>
                                                 )}
                                             </div>
@@ -556,7 +735,14 @@ const FulfillmentLogicTab: React.FC = () => {
                                         className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
                                     >
                                         <option value="">Select Gateway...</option>
-                                        {providers.map((p: any) => <option key={p._id} value={p._id}>{p.name}</option>)}
+                                        {providers.map((p: any) => {
+                                            const isUnavailable = isBroadbandSelected && p.status && p.status !== 'active';
+                                            return (
+                                                <option key={p._id} value={p._id} disabled={isUnavailable}>
+                                                    {p.name}{isUnavailable ? ` (${p.status})` : ''}
+                                                </option>
+                                            );
+                                        })}
                                     </select>
                                 </div>
                                 <div className="space-y-2 col-span-2">
@@ -564,36 +750,62 @@ const FulfillmentLogicTab: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-3">
                                         <button
                                             type="button"
+                                            disabled={isBroadbandSelected}
                                             onClick={() => setMappingForm({...mappingForm, costMode: 'fixed'})}
-                                            className={`p-4 rounded-2xl border text-left transition-all ${mappingForm.costMode === 'fixed' ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-600' : 'bg-surface border-slate-200 text-slate-500 hover:border-slate-300'}`}
+                                            className={`p-4 rounded-2xl border text-left transition-all disabled:cursor-not-allowed ${mappingForm.costMode === 'fixed' ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-600' : 'bg-surface border-slate-200 text-slate-500 hover:border-slate-300'} ${isBroadbandSelected && mappingForm.costMode !== 'fixed' ? 'opacity-40' : ''}`}
                                         >
                                             <p className="text-[10px] font-black uppercase tracking-widest">Fixed Cost</p>
                                             <p className="text-[9px] text-slate-600 mt-1 font-medium">Set a fixed provider cost per transaction</p>
                                         </button>
                                         <button
                                             type="button"
+                                            disabled={isBroadbandSelected}
                                             onClick={() => setMappingForm({...mappingForm, costMode: 'dynamic'})}
-                                            className={`p-4 rounded-2xl border text-left transition-all ${mappingForm.costMode === 'dynamic' ? 'bg-amber-500/10 border-amber-500/40 text-amber-600' : 'bg-surface border-slate-200 text-slate-500 hover:border-slate-300'}`}
+                                            className={`p-4 rounded-2xl border text-left transition-all disabled:cursor-not-allowed ${mappingForm.costMode === 'dynamic' ? 'bg-amber-500/10 border-amber-500/40 text-amber-600' : 'bg-surface border-slate-200 text-slate-500 hover:border-slate-300'} ${isBroadbandSelected && mappingForm.costMode !== 'dynamic' ? 'opacity-40' : ''}`}
                                         >
                                             <p className="text-[10px] font-black uppercase tracking-widest">Dynamic Cost</p>
                                             <p className="text-[9px] text-slate-600 mt-1 font-medium">Cost derived at runtime (Airtime, Electricity)</p>
                                         </button>
                                     </div>
+                                    {isBroadbandSelected && (
+                                        <p className="text-[11px] leading-relaxed text-slate-500">
+                                            Cost mode is fixed by the identity's {broadbandPurchaseMode?.toUpperCase()} purchase mode.
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Provider SKU Code</label>
-                                    <input 
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">
+                                        {isBroadbandSelected ? 'Provider Code' : 'Provider SKU Code'}
+                                    </label>
+                                    <input
                                         required
-                                        type="text" 
-                                        placeholder="e.g., mtn-100mb"
+                                        type="text"
+                                        placeholder={isBroadbandSelected ? 'Provider routing code' : 'e.g., mtn-100mb'}
                                         value={mappingForm.providerCode}
                                         onChange={(e) => setMappingForm({...mappingForm, providerCode: e.target.value})}
                                         className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
+                                    {isBroadbandSelected && (
+                                        <p className="text-[11px] leading-relaxed text-slate-500">Provider-side routing or product-family code.</p>
+                                    )}
                                 </div>
+                                {isBroadbandSelected && (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Provider Service Code</label>
+                                        <input
+                                            required
+                                            type="text"
+                                            placeholder="Provider service or variation code"
+                                            value={mappingForm.providerServiceCode}
+                                            onChange={(e) => setMappingForm({...mappingForm, providerServiceCode: e.target.value})}
+                                            className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                        />
+                                        <p className="text-[11px] leading-relaxed text-slate-500">Provider-specific service, package or variation code used to execute this Broadband purchase.</p>
+                                    </div>
+                                )}
                                 {mappingForm.costMode === 'fixed' ? (
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Cost Price ({currency})</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Cost Price ({isBroadbandSelected ? 'NGN' : currency})</label>
                                         <input 
                                             required
                                             type="number" 
@@ -611,6 +823,18 @@ const FulfillmentLogicTab: React.FC = () => {
                                                 No fixed cost required. The provider's actual charge will be captured at the moment of transaction execution. Used for Airtime, Electricity, and variable-amount services.
                                             </p>
                                         </div>
+                                    </div>
+                                )}
+
+                                {isBroadbandSelected && (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Currency</label>
+                                        <input
+                                            readOnly
+                                            type="text"
+                                            value={mappingForm.currency}
+                                            className="w-full bg-slate-100 border border-slate-200 rounded-2xl p-4 text-sm text-slate-500 font-bold cursor-not-allowed"
+                                        />
                                     </div>
                                 )}
 

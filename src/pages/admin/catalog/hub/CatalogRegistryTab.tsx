@@ -25,12 +25,37 @@ import { ListSkeleton } from '../../../../components/feedback/Skeletons';
 import { toast } from 'react-hot-toast';
 import CatalogMaintenanceTools from './CatalogMaintenanceTools';
 
+type PurchaseMode = 'plan' | 'amount';
+
+interface IdentifierPolicy {
+    label: string;
+    kind: 'text' | 'phone' | 'numeric' | 'email';
+    placeholder?: string;
+    pattern?: string;
+    minLength?: number;
+    maxLength?: number;
+    normalization: 'none' | 'trim' | 'lowercase' | 'uppercase' | 'digits_only';
+}
+
+interface VerificationPolicy {
+    mode: 'none' | 'optional' | 'required';
+    evidenceRequired: boolean;
+    ttlSeconds: number;
+}
+
+interface AmountPolicy {
+    min: number;
+    max: number;
+    step: number;
+    currency: 'NGN';
+}
+
 interface Identity {
     _id: string;
     name: string;
     internalCode: string;
     categoryId?: { _id: string; name: string };
-    typeId?: { _id: string; name: string };
+    typeId?: { _id: string; name: string; slug?: string; aliases?: string[] };
     brandId?: { _id: string; name: string };
     providerCode?: string;
     plansCount: number;
@@ -38,6 +63,11 @@ interface Identity {
     hasPricing: boolean;
     status: boolean;
     fulfillmentMode: string;
+    purchaseMode?: PurchaseMode;
+    identifierPolicy?: IdentifierPolicy;
+    verificationPolicy?: VerificationPolicy;
+    amountPolicy?: AmountPolicy;
+    suggestedRetailPrice?: number;
     readiness: {
         hasVariants: boolean;
         hasFulfillment: boolean;
@@ -46,12 +76,126 @@ interface Identity {
     };
 }
 
+interface CreateIdentityFormData {
+    name: string;
+    internalCode: string;
+    categoryId: string;
+    typeId: string;
+    brandId: string;
+    providerCode: string;
+    fulfillmentMode: string;
+    suggestedRetailPrice: string;
+    status: boolean;
+    purchaseMode: PurchaseMode;
+    identifierPolicy: IdentifierPolicy;
+    verificationPolicy: VerificationPolicy;
+    amountPolicy: Partial<Pick<AmountPolicy, 'min' | 'max'>> & Pick<AmountPolicy, 'step' | 'currency'>;
+}
+
+interface ServiceTypeMetadata {
+    _id: string;
+    name?: string;
+    slug?: string;
+    aliases?: string[];
+}
+
+interface EditIdentityData extends Omit<Identity, 'purchaseMode' | 'identifierPolicy' | 'verificationPolicy' | 'amountPolicy' | 'suggestedRetailPrice'> {
+    suggestedRetailPrice: number | string;
+    purchaseMode: PurchaseMode;
+    identifierPolicy: IdentifierPolicy;
+    verificationPolicy: VerificationPolicy;
+    amountPolicy: Partial<Pick<AmountPolicy, 'min' | 'max'>> & Pick<AmountPolicy, 'step' | 'currency'>;
+}
+
+const createInitialFormData = (): CreateIdentityFormData => ({
+    name: '',
+    internalCode: '',
+    categoryId: '',
+    typeId: '',
+    brandId: '',
+    providerCode: '',
+    fulfillmentMode: 'sync',
+    suggestedRetailPrice: '',
+    status: true,
+    purchaseMode: 'plan',
+    identifierPolicy: {
+        label: '',
+        kind: 'text',
+        normalization: 'trim'
+    },
+    verificationPolicy: {
+        mode: 'none',
+        evidenceRequired: false,
+        ttlSeconds: 300
+    },
+    amountPolicy: {
+        step: 1,
+        currency: 'NGN'
+    }
+});
+
+const hasBroadbandSemantic = (type?: Pick<ServiceTypeMetadata, 'name' | 'slug' | 'aliases'>): boolean => {
+    if (!type) return false;
+
+    const values = [
+        type.name,
+        type.slug,
+        ...(Array.isArray(type.aliases) ? type.aliases : [])
+    ];
+
+    return values.some(value => typeof value === 'string' && value.trim().toLowerCase() === 'broadband');
+};
+
+const isBroadbandServiceType = (typeId: string, types: ServiceTypeMetadata[]): boolean => {
+    const selectedType = types.find(type => type._id === typeId);
+
+    return hasBroadbandSemantic(selectedType);
+};
+
+const isBroadbandIdentity = (identity: Pick<Identity, 'typeId'> | null, types: ServiceTypeMetadata[]): boolean => Boolean(
+    identity && (
+        hasBroadbandSemantic(identity.typeId) ||
+        isBroadbandServiceType(identity.typeId?._id || '', types)
+    )
+);
+
+const createEditIdentityData = (identity: Identity): EditIdentityData => ({
+    ...identity,
+    suggestedRetailPrice: identity.suggestedRetailPrice ?? '',
+    purchaseMode: identity.purchaseMode ?? 'plan',
+    identifierPolicy: {
+        label: identity.identifierPolicy?.label ?? '',
+        kind: identity.identifierPolicy?.kind ?? 'text',
+        placeholder: identity.identifierPolicy?.placeholder,
+        pattern: identity.identifierPolicy?.pattern,
+        minLength: identity.identifierPolicy?.minLength === undefined
+            ? undefined
+            : Number(identity.identifierPolicy.minLength),
+        maxLength: identity.identifierPolicy?.maxLength === undefined
+            ? undefined
+            : Number(identity.identifierPolicy.maxLength),
+        normalization: identity.identifierPolicy?.normalization ?? 'trim'
+    },
+    verificationPolicy: {
+        mode: identity.verificationPolicy?.mode ?? 'none',
+        evidenceRequired: identity.verificationPolicy?.evidenceRequired ?? false,
+        ttlSeconds: Number(identity.verificationPolicy?.ttlSeconds ?? 300)
+    },
+    amountPolicy: {
+        min: identity.amountPolicy?.min === undefined ? undefined : Number(identity.amountPolicy.min),
+        max: identity.amountPolicy?.max === undefined ? undefined : Number(identity.amountPolicy.max),
+        step: Number(identity.amountPolicy?.step ?? 1),
+        currency: identity.amountPolicy?.currency ?? 'NGN'
+    }
+});
+
 interface Plan {
     _id: string;
     name: string;
     code: string;
     status: boolean;
     price: number;
+    suggestedRetailPrice?: number;
 }
 
 type ServiceExecutionCategory =
@@ -92,21 +236,16 @@ const CatalogRegistryTab: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [metadata, setMetadata] = useState<any>({ categories: [], types: [], brands: [] });
-    const [formData, setFormData] = useState({
-        name: '',
-        internalCode: '',
-        categoryId: '',
-        typeId: '',
-        brandId: '',
-        providerCode: '',
-        fulfillmentMode: 'sync',
-        suggestedRetailPrice: ''
-    });
-
-    const [editData, setEditData] = useState<any>(null);
+    const [formData, setFormData] = useState<CreateIdentityFormData>(createInitialFormData);
+    const [editData, setEditData] = useState<EditIdentityData | null>(null);
+    const [editOriginalStatus, setEditOriginalStatus] = useState<boolean | null>(null);
+    const isBroadbandSelected = isBroadbandServiceType(formData.typeId, metadata.types);
+    const isBroadbandEdit = isBroadbandIdentity(editData, metadata.types);
+    const isSelectedIdentityBroadband = isBroadbandIdentity(selectedIdentity, metadata.types);
 
     const [showVariantModal, setShowVariantModal] = useState(false);
     const [editingVariant, setEditingVariant] = useState<Plan | null>(null);
+    const [variantOriginalStatus, setVariantOriginalStatus] = useState<boolean | null>(null);
     const [variantFormData, setVariantFormData] = useState({
         name: '',
         code: '',
@@ -172,14 +311,130 @@ const CatalogRegistryTab: React.FC = () => {
         }
     };
 
+    const openEditIdentity = (identity: Identity) => {
+        setEditData(createEditIdentityData(identity));
+        setEditOriginalStatus(identity.status);
+        setShowEditModal(true);
+    };
+
+    const openCreateVariant = (identity: Identity) => {
+        const isBroadband = isBroadbandIdentity(identity, metadata.types);
+        const existingPlanCount = selectedIdentity?._id === identity._id && !plansLoading
+            ? plans.length
+            : identity.plansCount;
+
+        if (
+            isBroadband &&
+            identity.purchaseMode === 'amount' &&
+            existingPlanCount > 0
+        ) {
+            toast.error("AMOUNT Broadband identities use one canonical purchase service.");
+            return;
+        }
+
+        setSelectedIdentity(identity);
+        if (selectedIdentity?._id !== identity._id) {
+            setPlans([]);
+            loadPlans(identity._id);
+        }
+        setEditingVariant(null);
+        setVariantOriginalStatus(null);
+        setVariantFormData({
+            name: '',
+            code: '',
+            status: !isBroadband,
+            suggestedRetailPrice: ''
+        });
+        setShowVariantModal(true);
+    };
+
+    const openEditVariant = (plan: Plan) => {
+        setEditingVariant(plan);
+        setVariantOriginalStatus(plan.status);
+        setVariantFormData({
+            name: plan.name,
+            code: plan.code,
+            status: plan.status,
+            suggestedRetailPrice: plan.suggestedRetailPrice === undefined
+                ? ''
+                : String(plan.suggestedRetailPrice)
+        });
+        setShowVariantModal(true);
+    };
+
     const handleCreateIdentity = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (isBroadbandSelected) {
+            const { minLength, maxLength } = formData.identifierPolicy;
+            const { ttlSeconds } = formData.verificationPolicy;
+
+            if (!formData.identifierPolicy.label.trim()) {
+                toast.error("Identifier Label is required for Broadband identities");
+                return;
+            }
+
+            if (
+                minLength !== undefined &&
+                maxLength !== undefined &&
+                maxLength < minLength
+            ) {
+                toast.error("Maximum Length must be greater than or equal to Minimum Length");
+                return;
+            }
+
+            if (!Number.isFinite(ttlSeconds) || ttlSeconds < 30 || ttlSeconds > 1800) {
+                toast.error("Verification TTL must be between 30 and 1800 seconds");
+                return;
+            }
+
+            if (formData.purchaseMode === 'amount') {
+                const { min, max, step } = formData.amountPolicy;
+
+                if (min === undefined || !Number.isFinite(min) || min <= 0) {
+                    toast.error("Minimum Amount must be greater than 0");
+                    return;
+                }
+
+                if (max === undefined || !Number.isFinite(max) || max < min) {
+                    toast.error("Maximum Amount must be greater than or equal to Minimum Amount");
+                    return;
+                }
+
+                if (!Number.isFinite(step) || step <= 0) {
+                    toast.error("Amount Increment / Step must be greater than 0");
+                    return;
+                }
+            }
+        }
+
         setIsProcessing(true);
         try {
-            await apiClient.post('/admin/hierarchy/identities', formData);
+            const {
+                purchaseMode,
+                identifierPolicy,
+                verificationPolicy,
+                amountPolicy,
+                ...identityData
+            } = formData;
+            const payload = isBroadbandSelected
+                ? {
+                    ...identityData,
+                    status: false,
+                    purchaseMode,
+                    identifierPolicy: {
+                        ...identifierPolicy,
+                        label: identifierPolicy.label.trim()
+                    },
+                    verificationPolicy,
+                    ...(purchaseMode === 'amount' ? { amountPolicy } : {})
+                }
+                : identityData;
+
+            await apiClient.post('/admin/hierarchy/identities', payload);
             toast.success("Service Identity registered successfully");
             setShowCreateModal(false);
-            setFormData({ name: '', internalCode: '', categoryId: '', typeId: '', brandId: '', providerCode: '', fulfillmentMode: 'sync', suggestedRetailPrice: '' });
+            setFormData(createInitialFormData());
             loadIdentities();
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Registration failed");
@@ -191,14 +446,133 @@ const CatalogRegistryTab: React.FC = () => {
     const handleUpdateIdentity = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editData) return;
+
+        if (isBroadbandEdit) {
+            const { minLength, maxLength } = editData.identifierPolicy;
+            const { mode, evidenceRequired, ttlSeconds } = editData.verificationPolicy;
+
+            if (editData.purchaseMode !== 'plan' && editData.purchaseMode !== 'amount') {
+                toast.error("Purchase Mode must be PLAN or AMOUNT");
+                return;
+            }
+
+            if (!editData.identifierPolicy.label.trim()) {
+                toast.error("Identifier Label is required for Broadband identities");
+                return;
+            }
+
+            if (
+                (minLength !== undefined && !Number.isFinite(minLength)) ||
+                (maxLength !== undefined && !Number.isFinite(maxLength))
+            ) {
+                toast.error("Identifier lengths must be valid numbers");
+                return;
+            }
+
+            if (
+                minLength !== undefined &&
+                maxLength !== undefined &&
+                maxLength < minLength
+            ) {
+                toast.error("Maximum Length must be greater than or equal to Minimum Length");
+                return;
+            }
+
+            if (!Number.isFinite(ttlSeconds) || ttlSeconds < 30 || ttlSeconds > 1800) {
+                toast.error("Verification TTL must be between 30 and 1800 seconds");
+                return;
+            }
+
+            if (evidenceRequired && mode !== 'required') {
+                toast.error("Evidence can only be required when Verification Mode is Required");
+                return;
+            }
+
+            if (editData.purchaseMode === 'amount') {
+                const { min, max, step, currency } = editData.amountPolicy;
+
+                if (min === undefined || !Number.isFinite(min) || min <= 0) {
+                    toast.error("Minimum Amount must be greater than 0");
+                    return;
+                }
+
+                if (max === undefined || !Number.isFinite(max) || max < min) {
+                    toast.error("Maximum Amount must be greater than or equal to Minimum Amount");
+                    return;
+                }
+
+                if (!Number.isFinite(step) || step <= 0) {
+                    toast.error("Amount Increment / Step must be greater than 0");
+                    return;
+                }
+
+                if (currency !== 'NGN') {
+                    toast.error("Broadband amount currency must be NGN");
+                    return;
+                }
+            }
+        }
+
         setIsProcessing(true);
         try {
-            await apiClient.put(`/admin/hierarchy/identities/${editData._id}`, editData);
+            const {
+                purchaseMode,
+                identifierPolicy,
+                verificationPolicy,
+                amountPolicy,
+                ...identityData
+            } = editData;
+            const payload = isBroadbandEdit
+                ? {
+                    name: editData.name,
+                    internalCode: editData.internalCode,
+                    providerCode: editData.providerCode,
+                    suggestedRetailPrice: editData.suggestedRetailPrice,
+                    status: editData.status,
+                    purchaseMode,
+                    identifierPolicy: {
+                        label: identifierPolicy.label.trim(),
+                        kind: identifierPolicy.kind,
+                        normalization: identifierPolicy.normalization,
+                        ...(identifierPolicy.placeholder !== undefined
+                            ? { placeholder: identifierPolicy.placeholder }
+                            : {}),
+                        ...(identifierPolicy.pattern !== undefined
+                            ? { pattern: identifierPolicy.pattern }
+                            : {}),
+                        ...(identifierPolicy.minLength !== undefined
+                            ? { minLength: Number(identifierPolicy.minLength) }
+                            : {}),
+                        ...(identifierPolicy.maxLength !== undefined
+                            ? { maxLength: Number(identifierPolicy.maxLength) }
+                            : {})
+                    },
+                    verificationPolicy: {
+                        mode: verificationPolicy.mode,
+                        ttlSeconds: Number(verificationPolicy.ttlSeconds),
+                        evidenceRequired: verificationPolicy.evidenceRequired
+                    },
+                    ...(purchaseMode === 'amount' ? {
+                        amountPolicy: {
+                            min: Number(amountPolicy.min),
+                            max: Number(amountPolicy.max),
+                            step: Number(amountPolicy.step),
+                            currency: 'NGN' as const
+                        }
+                    } : {})
+                }
+                : identityData;
+
+            await apiClient.put(`/admin/hierarchy/identities/${editData._id}`, payload);
             toast.success("Identity updated");
             setShowEditModal(false);
+            setEditOriginalStatus(null);
             setSelectedIdentity(null); // Return to list to refresh
             loadIdentities();
         } catch (err: any) {
+            if (isBroadbandEdit && editOriginalStatus !== null) {
+                setEditData(current => current ? { ...current, status: editOriginalStatus } : current);
+            }
             toast.error(err.response?.data?.message || "Update failed");
         } finally {
             setIsProcessing(false);
@@ -221,9 +595,56 @@ const CatalogRegistryTab: React.FC = () => {
         e.preventDefault();
         if (!selectedIdentity) return;
 
+        if (
+            isSelectedIdentityBroadband &&
+            !editingVariant &&
+            selectedIdentity.purchaseMode === 'amount' &&
+            (plansLoading ? selectedIdentity.plansCount : plans.length) > 0
+        ) {
+            toast.error("AMOUNT Broadband identities use one canonical purchase service.");
+            return;
+        }
+
+        const broadbandSuggestedRetailPrice = variantFormData.suggestedRetailPrice.trim();
+        if (
+            isSelectedIdentityBroadband &&
+            broadbandSuggestedRetailPrice &&
+            !Number.isFinite(Number(broadbandSuggestedRetailPrice))
+        ) {
+            toast.error("Suggested Retail Price must be a valid number");
+            return;
+        }
+
         setIsProcessing(true);
         try {
-            if (editingVariant) {
+            if (isSelectedIdentityBroadband) {
+                const payload = {
+                    name: variantFormData.name,
+                    code: variantFormData.code,
+                    identityId: selectedIdentity._id,
+                    categoryId: selectedIdentity.categoryId?._id,
+                    typeId: selectedIdentity.typeId?._id,
+                    brandId: selectedIdentity.brandId?._id,
+                    category: 'broadband' as const,
+                    fulfillmentMode: selectedIdentity.fulfillmentMode,
+                    status: editingVariant ? variantFormData.status : false,
+                    ...(broadbandSuggestedRetailPrice
+                        ? { suggestedRetailPrice: Number(broadbandSuggestedRetailPrice) }
+                        : {})
+                };
+
+                if (editingVariant) {
+                    await apiClient.put(`/admin/services/${editingVariant._id}`, payload);
+                    toast.success(selectedIdentity.purchaseMode === 'amount'
+                        ? "Amount purchase service updated"
+                        : "Broadband plan updated");
+                } else {
+                    await apiClient.post('/admin/services', payload);
+                    toast.success(selectedIdentity.purchaseMode === 'amount'
+                        ? "Amount purchase service created"
+                        : "Broadband plan created");
+                }
+            } else if (editingVariant) {
                 // Update Existing
                 await apiClient.put(`/admin/services/${editingVariant._id}`, variantFormData);
                 toast.success("Variant updated");
@@ -254,9 +675,17 @@ const CatalogRegistryTab: React.FC = () => {
             
             setShowVariantModal(false);
             setEditingVariant(null);
+            setVariantOriginalStatus(null);
             setVariantFormData({ name: '', code: '', status: true, suggestedRetailPrice: '' });
             loadPlans(selectedIdentity._id);
         } catch (err: any) {
+            if (
+                isSelectedIdentityBroadband &&
+                editingVariant &&
+                variantOriginalStatus !== null
+            ) {
+                setVariantFormData(current => ({ ...current, status: variantOriginalStatus }));
+            }
             toast.error(err.response?.data?.message || "Operation failed");
         } finally {
             setIsProcessing(false);
@@ -322,14 +751,8 @@ const CatalogRegistryTab: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <button 
-                                onClick={() => {
-                                    setEditData({ 
-                                        ...selectedIdentity,
-                                        suggestedRetailPrice: (selectedIdentity as any).suggestedRetailPrice || ''
-                                    });
-                                    setShowEditModal(true);
-                                }}
+                            <button
+                                onClick={() => openEditIdentity(selectedIdentity)}
                                 className="flex items-center gap-2 px-6 py-3 bg-surface hover:bg-slate-50 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 transition-all"
                             >
                                 <Edit3 size={14} /> Edit Identity
@@ -361,10 +784,12 @@ const CatalogRegistryTab: React.FC = () => {
                                         <Search size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" />
                                     </div>
                                     <button 
-                                        onClick={() => setShowVariantModal(true)}
+                                        onClick={() => openCreateVariant(selectedIdentity)}
                                         className="flex items-center gap-2 px-6 py-2.5 bg-indigo-500 text-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 hover:scale-105 transition-transform"
                                     >
-                                        <PlusCircle size={14} /> Add Variant
+                                        <PlusCircle size={14} /> {isSelectedIdentityBroadband
+                                            ? (selectedIdentity.purchaseMode === 'amount' ? 'Add Amount Service' : 'Add Plan')
+                                            : 'Add Variant'}
                                     </button>
                                 </div>
                             </div>
@@ -410,17 +835,8 @@ const CatalogRegistryTab: React.FC = () => {
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        <button 
-                                                            onClick={() => {
-                                                                setEditingVariant(plan);
-                                                                setVariantFormData({ 
-                                                                    name: plan.name, 
-                                                                    code: plan.code, 
-                                                                    status: plan.status,
-                                                                    suggestedRetailPrice: (plan as any).suggestedRetailPrice || ''
-                                                                });
-                                                                setShowVariantModal(true);
-                                                            }}
+                                                        <button
+                                                            onClick={() => openEditVariant(plan)}
                                                             className="p-2.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-900 transition-all hover:bg-indigo-500/20"
                                                         >
                                                             <Edit3 size={14} />
@@ -613,16 +1029,14 @@ const CatalogRegistryTab: React.FC = () => {
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex items-center justify-end gap-3 transition-opacity">
-                                                    {identity.plansCount === 0 ? (
-                                                        <button 
-                                                            onClick={() => {
-                                                                setSelectedIdentity(identity);
-                                                                loadPlans(identity._id);
-                                                                setShowVariantModal(true);
-                                                            }}
+                                                     {identity.plansCount === 0 ? (
+                                                        <button
+                                                            onClick={() => openCreateVariant(identity)}
                                                             className="px-4 py-2 bg-emerald-500 text-slate-950 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-emerald-500/20"
-                                                        >
-                                                            <Plus size={12} /> Add Variant
+                                                         >
+                                                            <Plus size={12} /> {isBroadbandIdentity(identity, metadata.types)
+                                                                ? (identity.purchaseMode === 'amount' ? 'Add Amount Service' : 'Add Plan')
+                                                                : 'Add Variant'}
                                                         </button>
                                                     ) : (
                                                         <button 
@@ -635,14 +1049,8 @@ const CatalogRegistryTab: React.FC = () => {
                                                             <LayoutGrid size={12} /> Manage Variants
                                                         </button>
                                                     )}
-                                                    <button 
-                                                        onClick={() => {
-                                                            setEditData({ 
-                                                                ...identity,
-                                                                suggestedRetailPrice: (identity as any).suggestedRetailPrice || ''
-                                                            });
-                                                            setShowEditModal(true);
-                                                        }}
+                                                    <button
+                                                        onClick={() => openEditIdentity(identity)}
                                                         className="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-100 transition-colors"
                                                     >
                                                         <Edit3 size={16} />
@@ -815,6 +1223,303 @@ const CatalogRegistryTab: React.FC = () => {
                                 </div>
                             </div>
 
+                            {isBroadbandSelected && (
+                                <section className="space-y-6 rounded-2xl border border-indigo-200 bg-indigo-50/40 p-6">
+                                    <div>
+                                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Broadband Configuration</h4>
+                                        <p className="mt-2 text-xs font-medium text-slate-500">Configure how customers identify their account and purchase this Broadband service.</p>
+                                    </div>
+
+                                    <div className="flex items-start gap-3 rounded-2xl border border-indigo-200 bg-surface p-4 text-xs font-semibold leading-relaxed text-slate-600">
+                                        <Info size={18} className="mt-0.5 shrink-0 text-indigo-500" />
+                                        <span>New Broadband identities are created disabled. Configure the purchase service, provider offer and pricing before activation.</span>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Purchase Mode</label>
+                                        <select
+                                            value={formData.purchaseMode}
+                                            onChange={(e) => setFormData({
+                                                ...formData,
+                                                purchaseMode: e.target.value as PurchaseMode
+                                            })}
+                                            className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                        >
+                                            <option value="plan">PLAN</option>
+                                            <option value="amount">AMOUNT</option>
+                                        </select>
+                                        <p className="text-[11px] leading-relaxed text-slate-500">PLAN means the customer selects a predefined Broadband plan. AMOUNT means the customer enters an allowed monetary amount.</p>
+                                    </div>
+
+                                    <div className="space-y-4 border-t border-indigo-100 pt-6">
+                                        <div>
+                                            <h5 className="text-xs font-black text-slate-900 uppercase tracking-widest">Identifier Policy</h5>
+                                            <p className="mt-2 text-[11px] leading-relaxed text-slate-500">Identifier Label is what the customer will see, for example Customer ID, Account Number, or Smile Number.</p>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="space-y-2 sm:col-span-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Identifier Label</label>
+                                                <input
+                                                    required
+                                                    type="text"
+                                                    placeholder="e.g., Customer ID"
+                                                    value={formData.identifierPolicy.label}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        identifierPolicy: {
+                                                            ...formData.identifierPolicy,
+                                                            label: e.target.value
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Identifier Kind</label>
+                                                <select
+                                                    value={formData.identifierPolicy.kind}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        identifierPolicy: {
+                                                            ...formData.identifierPolicy,
+                                                            kind: e.target.value as IdentifierPolicy['kind']
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                                >
+                                                    <option value="text">Text</option>
+                                                    <option value="phone">Phone</option>
+                                                    <option value="numeric">Numeric</option>
+                                                    <option value="email">Email</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Normalization</label>
+                                                <select
+                                                    value={formData.identifierPolicy.normalization}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        identifierPolicy: {
+                                                            ...formData.identifierPolicy,
+                                                            normalization: e.target.value as IdentifierPolicy['normalization']
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                                >
+                                                    <option value="none">None</option>
+                                                    <option value="trim">Trim</option>
+                                                    <option value="lowercase">Lowercase</option>
+                                                    <option value="uppercase">Uppercase</option>
+                                                    <option value="digits_only">Digits Only</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Placeholder</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Optional"
+                                                    value={formData.identifierPolicy.placeholder ?? ''}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        identifierPolicy: {
+                                                            ...formData.identifierPolicy,
+                                                            placeholder: e.target.value || undefined
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Validation Pattern</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Optional regular expression"
+                                                    value={formData.identifierPolicy.pattern ?? ''}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        identifierPolicy: {
+                                                            ...formData.identifierPolicy,
+                                                            pattern: e.target.value || undefined
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Minimum Length</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    placeholder="Optional"
+                                                    value={formData.identifierPolicy.minLength ?? ''}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        identifierPolicy: {
+                                                            ...formData.identifierPolicy,
+                                                            minLength: e.target.value === '' ? undefined : Number(e.target.value)
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Maximum Length</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    placeholder="Optional"
+                                                    value={formData.identifierPolicy.maxLength ?? ''}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        identifierPolicy: {
+                                                            ...formData.identifierPolicy,
+                                                            maxLength: e.target.value === '' ? undefined : Number(e.target.value)
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 border-t border-indigo-100 pt-6">
+                                        <h5 className="text-xs font-black text-slate-900 uppercase tracking-widest">Verification Policy</h5>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Verification Mode</label>
+                                                <select
+                                                    value={formData.verificationPolicy.mode}
+                                                    onChange={(e) => {
+                                                        const mode = e.target.value as VerificationPolicy['mode'];
+                                                        setFormData({
+                                                            ...formData,
+                                                            verificationPolicy: {
+                                                                ...formData.verificationPolicy,
+                                                                mode,
+                                                                evidenceRequired: mode === 'required'
+                                                                    ? formData.verificationPolicy.evidenceRequired
+                                                                    : false
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                                >
+                                                    <option value="none">None</option>
+                                                    <option value="optional">Optional</option>
+                                                    <option value="required">Required</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Verification TTL Seconds</label>
+                                                <input
+                                                    required
+                                                    type="number"
+                                                    min="30"
+                                                    max="1800"
+                                                    step="1"
+                                                    value={formData.verificationPolicy.ttlSeconds}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        verificationPolicy: {
+                                                            ...formData.verificationPolicy,
+                                                            ttlSeconds: Number(e.target.value)
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                disabled={formData.verificationPolicy.mode !== 'required'}
+                                                onClick={() => setFormData({
+                                                    ...formData,
+                                                    verificationPolicy: {
+                                                        ...formData.verificationPolicy,
+                                                        evidenceRequired: !formData.verificationPolicy.evidenceRequired
+                                                    }
+                                                })}
+                                                className={`w-12 h-6 rounded-full relative transition-all disabled:cursor-not-allowed disabled:opacity-40 ${formData.verificationPolicy.evidenceRequired ? 'bg-indigo-500' : 'bg-slate-200'}`}
+                                            >
+                                                <div className={`dark:border dark:border-slate-500/25 absolute top-1 w-4 h-4 rounded-full bg-surface transition-all ${formData.verificationPolicy.evidenceRequired ? 'left-7' : 'left-1'}`}></div>
+                                            </button>
+                                            <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Evidence Required</span>
+                                        </div>
+                                    </div>
+
+                                    {formData.purchaseMode === 'amount' && (
+                                        <div className="space-y-4 border-t border-indigo-100 pt-6">
+                                            <h5 className="text-xs font-black text-slate-900 uppercase tracking-widest">Amount Policy</h5>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Minimum Amount</label>
+                                                    <input
+                                                        required
+                                                        type="number"
+                                                        step="any"
+                                                        value={formData.amountPolicy.min ?? ''}
+                                                        onChange={(e) => setFormData({
+                                                            ...formData,
+                                                            amountPolicy: {
+                                                                ...formData.amountPolicy,
+                                                                min: e.target.value === '' ? undefined : Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Maximum Amount</label>
+                                                    <input
+                                                        required
+                                                        type="number"
+                                                        step="any"
+                                                        value={formData.amountPolicy.max ?? ''}
+                                                        onChange={(e) => setFormData({
+                                                            ...formData,
+                                                            amountPolicy: {
+                                                                ...formData.amountPolicy,
+                                                                max: e.target.value === '' ? undefined : Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Increment / Step</label>
+                                                    <input
+                                                        required
+                                                        type="number"
+                                                        step="any"
+                                                        value={formData.amountPolicy.step}
+                                                        onChange={(e) => setFormData({
+                                                            ...formData,
+                                                            amountPolicy: {
+                                                                ...formData.amountPolicy,
+                                                                step: Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Currency</label>
+                                                    <input
+                                                        readOnly
+                                                        type="text"
+                                                        value={formData.amountPolicy.currency}
+                                                        className="w-full bg-slate-100 border border-slate-200 rounded-2xl p-4 text-sm text-slate-500 font-bold cursor-not-allowed"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+
                             <button 
                                 type="submit"
                                 disabled={isProcessing}
@@ -833,31 +1538,66 @@ const CatalogRegistryTab: React.FC = () => {
                     <div className="w-full max-w-xl bg-surface border border-slate-200 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                         <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                             <div>
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">{editingVariant ? 'Edit Variant' : 'Add Product Variant'}</h3>
-                                <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">{editingVariant ? 'Update' : 'Define'} a specific plan under {selectedIdentity?.name}</p>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter">
+                                    {isSelectedIdentityBroadband
+                                        ? (selectedIdentity?.purchaseMode === 'amount'
+                                            ? `${editingVariant ? 'Edit' : 'Add'} Amount Purchase Service`
+                                            : `${editingVariant ? 'Edit' : 'Add'} Broadband Plan`)
+                                        : (editingVariant ? 'Edit Variant' : 'Add Product Variant')}
+                                </h3>
+                                <p className="text-slate-500 text-[10px] font-bold tracking-widest mt-1 uppercase">
+                                    {isSelectedIdentityBroadband && selectedIdentity?.purchaseMode === 'amount'
+                                        ? `${editingVariant ? 'Update' : 'Define'} the canonical purchase service under ${selectedIdentity?.name}`
+                                        : `${editingVariant ? 'Update' : 'Define'} a specific plan under ${selectedIdentity?.name}`}
+                                </p>
                             </div>
-                            <button onClick={() => { setShowVariantModal(false); setEditingVariant(null); }} className="text-slate-500 hover:text-slate-900"><XCircle size={24} /></button>
+                            <button onClick={() => { setShowVariantModal(false); setEditingVariant(null); setVariantOriginalStatus(null); }} className="text-slate-500 hover:text-slate-900"><XCircle size={24} /></button>
                         </div>
                         
                         <form onSubmit={handleSaveVariant} className="p-10 space-y-8">
+                            {isSelectedIdentityBroadband && !editingVariant && (
+                                <div className="flex items-start gap-3 rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4 text-xs font-semibold leading-relaxed text-slate-600">
+                                    <Info size={18} className="mt-0.5 shrink-0 text-indigo-500" />
+                                    <span>New Broadband purchase services are created disabled. Configure the provider offer and pricing before activation.</span>
+                                </div>
+                            )}
+
+                            {isSelectedIdentityBroadband && selectedIdentity?.purchaseMode === 'amount' && (
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-semibold leading-relaxed text-slate-600">
+                                    AMOUNT Broadband identities use one canonical purchase service.
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Variant Display Name</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">
+                                        {isSelectedIdentityBroadband
+                                            ? (selectedIdentity?.purchaseMode === 'amount' ? 'Service Display Name' : 'Plan Display Name')
+                                            : 'Variant Display Name'}
+                                    </label>
                                     <input 
                                         required
                                         type="text" 
-                                        placeholder="e.g., 1GB SME (30 Days)"
+                                        placeholder={isSelectedIdentityBroadband
+                                            ? (selectedIdentity?.purchaseMode === 'amount' ? 'e.g., Broadband Amount Purchase' : 'e.g., Home 50GB Monthly')
+                                            : 'e.g., 1GB SME (30 Days)'}
                                         value={variantFormData.name}
                                         onChange={(e) => setVariantFormData({...variantFormData, name: e.target.value})}
                                         className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Internal SKU Code (Universal)</label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">
+                                        {isSelectedIdentityBroadband
+                                            ? (selectedIdentity?.purchaseMode === 'amount' ? 'Internal Service Code' : 'Internal Plan Code')
+                                            : 'Internal SKU Code (Universal)'}
+                                    </label>
                                     <input 
                                         required
                                         type="text" 
-                                        placeholder="e.g., MTN_1GB_SME"
+                                        placeholder={isSelectedIdentityBroadband
+                                            ? (selectedIdentity?.purchaseMode === 'amount' ? 'e.g., BROADBAND_AMOUNT' : 'e.g., BROADBAND_PLAN_50GB')
+                                            : 'e.g., MTN_1GB_SME'}
                                         value={variantFormData.code}
                                         onChange={(e) => setVariantFormData({...variantFormData, code: e.target.value.toUpperCase()})}
                                         className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold uppercase"
@@ -875,23 +1615,43 @@ const CatalogRegistryTab: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <button 
-                                    type="button"
-                                    onClick={() => setVariantFormData({...variantFormData, status: !variantFormData.status})}
-                                    className={`w-12 h-6 rounded-full relative transition-all ${variantFormData.status ? 'bg-emerald-500' : 'bg-slate-200'}`}
-                                >
-                                    <div className={`dark:border dark:border-slate-500/25 absolute top-1 w-4 h-4 rounded-full bg-surface transition-all ${variantFormData.status ? 'left-7' : 'left-1'}`}></div>
-                                </button>
-                                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{variantFormData.status ? 'Active' : 'Disabled'}</span>
-                            </div>
+                            {(!isSelectedIdentityBroadband || editingVariant) && (
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setVariantFormData({...variantFormData, status: !variantFormData.status})}
+                                            className={`w-12 h-6 rounded-full relative transition-all ${variantFormData.status ? 'bg-emerald-500' : 'bg-slate-200'}`}
+                                        >
+                                            <div className={`dark:border dark:border-slate-500/25 absolute top-1 w-4 h-4 rounded-full bg-surface transition-all ${variantFormData.status ? 'left-7' : 'left-1'}`}></div>
+                                        </button>
+                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">
+                                            {variantFormData.status
+                                                ? 'Active'
+                                                : (isSelectedIdentityBroadband ? 'Disabled / Draft' : 'Disabled')}
+                                        </span>
+                                    </div>
+                                    {isSelectedIdentityBroadband && variantOriginalStatus === false && variantFormData.status && (
+                                        <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs font-semibold leading-relaxed text-amber-900">
+                                            <Info size={18} className="mt-0.5 shrink-0" />
+                                            <span>Activation performs a server-side readiness check. A valid eligible provider offer and required Broadband configuration must already exist.</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             <button 
                                 type="submit"
                                 disabled={isProcessing}
                                 className="w-full py-3 bg-indigo-500 text-slate-950 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-transform disabled:opacity-50"
                             >
-                                {isProcessing ? (editingVariant ? "Updating..." : "Adding to Registry...") : (editingVariant ? "Save Changes" : "Save Variant")}
+                                {isProcessing
+                                    ? (editingVariant ? "Updating..." : "Adding to Registry...")
+                                    : (editingVariant
+                                        ? "Save Changes"
+                                        : (isSelectedIdentityBroadband
+                                            ? (selectedIdentity?.purchaseMode === 'amount' ? "Create Amount Service" : "Create Broadband Plan")
+                                            : "Save Variant"))}
                             </button>
                         </form>
                     </div>
@@ -941,6 +1701,9 @@ const CatalogRegistryTab: React.FC = () => {
                                         onChange={(e) => setEditData({...editData, providerCode: e.target.value})}
                                         className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
                                     />
+                                    {isBroadbandEdit && (
+                                        <p className="text-[11px] leading-relaxed text-slate-500">Upstream provider routing and mapping are configured through Provider Offers. This identity field does not select the Broadband provider route.</p>
+                                    )}
                                 </div>
                                 <div className="space-y-2 col-span-2">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Suggested Retail Price (Market Price Reference)</label>
@@ -953,6 +1716,313 @@ const CatalogRegistryTab: React.FC = () => {
                                     />
                                 </div>
                             </div>
+
+                            {isBroadbandEdit && (
+                                <section className="space-y-6 rounded-2xl border border-indigo-200 bg-indigo-50/40 p-6">
+                                    <div>
+                                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest">Broadband Configuration</h4>
+                                        <p className="mt-2 text-xs font-medium text-slate-500">Update customer identification, purchase rules, verification, and availability.</p>
+                                    </div>
+
+                                    <div className="space-y-3 rounded-2xl border border-slate-200 bg-surface p-4">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div>
+                                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Identity Status</p>
+                                                <p className={`mt-1 text-sm font-black ${editData.status ? 'text-emerald-600' : 'text-slate-600'}`}>
+                                                    {editData.status ? 'Active' : 'Disabled / Draft'}
+                                                </p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditData({ ...editData, status: !editData.status })}
+                                                className={`w-14 h-7 rounded-full relative transition-all ${editData.status ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                                            >
+                                                <div className={`absolute top-1 w-5 h-5 rounded-full bg-surface transition-all ${editData.status ? 'left-8' : 'left-1'}`}></div>
+                                            </button>
+                                        </div>
+                                        {editOriginalStatus === false && editData.status && (
+                                            <div className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs font-semibold leading-relaxed text-amber-900">
+                                                <Info size={18} className="mt-0.5 shrink-0" />
+                                                <span>Activation performs a server-side readiness check. The identity must have a valid Broadband purchase service, eligible provider offer and required configuration before it can become active.</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Purchase Mode</label>
+                                        <select
+                                            value={editData.purchaseMode}
+                                            onChange={(e) => setEditData({
+                                                ...editData,
+                                                purchaseMode: e.target.value as PurchaseMode
+                                            })}
+                                            className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                        >
+                                            <option value="plan">PLAN</option>
+                                            <option value="amount">AMOUNT</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-4 border-t border-indigo-100 pt-6">
+                                        <h5 className="text-xs font-black text-slate-900 uppercase tracking-widest">Identifier Policy</h5>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="space-y-2 sm:col-span-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Identifier Label</label>
+                                                <input
+                                                    required
+                                                    type="text"
+                                                    value={editData.identifierPolicy.label}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        identifierPolicy: {
+                                                            ...editData.identifierPolicy,
+                                                            label: e.target.value
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Identifier Kind</label>
+                                                <select
+                                                    value={editData.identifierPolicy.kind}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        identifierPolicy: {
+                                                            ...editData.identifierPolicy,
+                                                            kind: e.target.value as IdentifierPolicy['kind']
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                                >
+                                                    <option value="text">Text</option>
+                                                    <option value="phone">Phone</option>
+                                                    <option value="numeric">Numeric</option>
+                                                    <option value="email">Email</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Normalization</label>
+                                                <select
+                                                    value={editData.identifierPolicy.normalization}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        identifierPolicy: {
+                                                            ...editData.identifierPolicy,
+                                                            normalization: e.target.value as IdentifierPolicy['normalization']
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                                >
+                                                    <option value="none">None</option>
+                                                    <option value="trim">Trim</option>
+                                                    <option value="lowercase">Lowercase</option>
+                                                    <option value="uppercase">Uppercase</option>
+                                                    <option value="digits_only">Digits Only</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Placeholder</label>
+                                                <input
+                                                    type="text"
+                                                    value={editData.identifierPolicy.placeholder ?? ''}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        identifierPolicy: {
+                                                            ...editData.identifierPolicy,
+                                                            placeholder: e.target.value || undefined
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Validation Pattern</label>
+                                                <input
+                                                    type="text"
+                                                    value={editData.identifierPolicy.pattern ?? ''}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        identifierPolicy: {
+                                                            ...editData.identifierPolicy,
+                                                            pattern: e.target.value || undefined
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Minimum Length</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    value={editData.identifierPolicy.minLength ?? ''}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        identifierPolicy: {
+                                                            ...editData.identifierPolicy,
+                                                            minLength: e.target.value === '' ? undefined : Number(e.target.value)
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Maximum Length</label>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    value={editData.identifierPolicy.maxLength ?? ''}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        identifierPolicy: {
+                                                            ...editData.identifierPolicy,
+                                                            maxLength: e.target.value === '' ? undefined : Number(e.target.value)
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 border-t border-indigo-100 pt-6">
+                                        <h5 className="text-xs font-black text-slate-900 uppercase tracking-widest">Verification Policy</h5>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Verification Mode</label>
+                                                <select
+                                                    value={editData.verificationPolicy.mode}
+                                                    onChange={(e) => {
+                                                        const mode = e.target.value as VerificationPolicy['mode'];
+                                                        setEditData({
+                                                            ...editData,
+                                                            verificationPolicy: {
+                                                                ...editData.verificationPolicy,
+                                                                mode,
+                                                                evidenceRequired: mode === 'required'
+                                                                    ? editData.verificationPolicy.evidenceRequired
+                                                                    : false
+                                                            }
+                                                        });
+                                                    }}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold appearance-none"
+                                                >
+                                                    <option value="none">None</option>
+                                                    <option value="optional">Optional</option>
+                                                    <option value="required">Required</option>
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Verification TTL Seconds</label>
+                                                <input
+                                                    required
+                                                    type="number"
+                                                    min="30"
+                                                    max="1800"
+                                                    step="1"
+                                                    value={editData.verificationPolicy.ttlSeconds}
+                                                    onChange={(e) => setEditData({
+                                                        ...editData,
+                                                        verificationPolicy: {
+                                                            ...editData.verificationPolicy,
+                                                            ttlSeconds: Number(e.target.value)
+                                                        }
+                                                    })}
+                                                    className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                disabled={editData.verificationPolicy.mode !== 'required'}
+                                                onClick={() => setEditData({
+                                                    ...editData,
+                                                    verificationPolicy: {
+                                                        ...editData.verificationPolicy,
+                                                        evidenceRequired: !editData.verificationPolicy.evidenceRequired
+                                                    }
+                                                })}
+                                                className={`w-12 h-6 rounded-full relative transition-all disabled:cursor-not-allowed disabled:opacity-40 ${editData.verificationPolicy.evidenceRequired ? 'bg-indigo-500' : 'bg-slate-200'}`}
+                                            >
+                                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-surface transition-all ${editData.verificationPolicy.evidenceRequired ? 'left-7' : 'left-1'}`}></div>
+                                            </button>
+                                            <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Evidence Required</span>
+                                        </div>
+                                    </div>
+
+                                    {editData.purchaseMode === 'amount' && (
+                                        <div className="space-y-4 border-t border-indigo-100 pt-6">
+                                            <h5 className="text-xs font-black text-slate-900 uppercase tracking-widest">Amount Policy</h5>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Minimum Amount</label>
+                                                    <input
+                                                        required
+                                                        type="number"
+                                                        step="any"
+                                                        value={editData.amountPolicy.min ?? ''}
+                                                        onChange={(e) => setEditData({
+                                                            ...editData,
+                                                            amountPolicy: {
+                                                                ...editData.amountPolicy,
+                                                                min: e.target.value === '' ? undefined : Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Maximum Amount</label>
+                                                    <input
+                                                        required
+                                                        type="number"
+                                                        step="any"
+                                                        value={editData.amountPolicy.max ?? ''}
+                                                        onChange={(e) => setEditData({
+                                                            ...editData,
+                                                            amountPolicy: {
+                                                                ...editData.amountPolicy,
+                                                                max: e.target.value === '' ? undefined : Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Increment / Step</label>
+                                                    <input
+                                                        required
+                                                        type="number"
+                                                        step="any"
+                                                        value={editData.amountPolicy.step}
+                                                        onChange={(e) => setEditData({
+                                                            ...editData,
+                                                            amountPolicy: {
+                                                                ...editData.amountPolicy,
+                                                                step: Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className="w-full bg-surface border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 font-bold"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Currency</label>
+                                                    <input
+                                                        readOnly
+                                                        type="text"
+                                                        value={editData.amountPolicy.currency}
+                                                        className="w-full bg-slate-100 border border-slate-200 rounded-2xl p-4 text-sm text-slate-500 font-bold cursor-not-allowed"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+                            )}
 
                             <button 
                                 type="submit"
