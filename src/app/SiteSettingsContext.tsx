@@ -7,6 +7,7 @@ interface SiteSettings {
     SUPPORT_PHONE: string;
     SITE_URL: string;
     SITE_LOGO: string;
+    BUSINESS_ADDRESS: string;
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -15,6 +16,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
     SUPPORT_PHONE: '',
     SITE_URL: '',
     SITE_LOGO: '',
+    BUSINESS_ADDRESS: '',
 };
 
 interface SiteSettingsContextType {
@@ -42,6 +44,7 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     SUPPORT_PHONE: res.data.data?.SUPPORT_PHONE || '',
                     SITE_URL: res.data.data?.SITE_URL || '',
                     SITE_LOGO: res.data.data?.SITE_LOGO || '',
+                    BUSINESS_ADDRESS: res.data.data?.BUSINESS_ADDRESS || '',
                 });
             }
         } catch {

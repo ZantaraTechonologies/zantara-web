@@ -144,7 +144,7 @@ async function withDom(run) {
 
 test('site settings fetch initially and refetch after a successful admin save', async () => {
     await withDom(async (harness, container) => {
-        let publicSettings = { SITE_NAME: 'Initial Brand', SITE_URL: '', SITE_LOGO: '', SUPPORT_EMAIL: '', SUPPORT_PHONE: '' };
+        let publicSettings = { SITE_NAME: 'Initial Brand', SITE_URL: '', SITE_LOGO: '', SUPPORT_EMAIL: '', SUPPORT_PHONE: '', BUSINESS_ADDRESS: '' };
         let publicFetches = 0;
         globalThis.__siteApi = {
             async get(path) {
@@ -185,7 +185,8 @@ test('footer renders configured identity, contacts, website, and broken-logo fal
                     SITE_URL: 'https://acme.example',
                     SITE_LOGO: 'https://cdn.example/missing.png',
                     SUPPORT_EMAIL: 'help@acme.example',
-                    SUPPORT_PHONE: '+234 800 123 4567'
+                    SUPPORT_PHONE: '+234 800 123 4567',
+                    BUSINESS_ADDRESS: '12 Example Street\nLagos, Nigeria'
                 } } };
             },
             async post() { throw new Error('Unexpected POST'); }
@@ -196,7 +197,9 @@ test('footer renders configured identity, contacts, website, and broken-logo fal
         assert.equal(container.querySelector('a[href="mailto:help@acme.example"]')?.textContent, 'help@acme.example');
         assert.equal(container.querySelector('a[href="tel:+234 800 123 4567"]')?.textContent, '+234 800 123 4567');
         assert.equal(container.querySelector('a[href="https://acme.example/"]')?.textContent, 'Public Website');
+        assert.match(container.textContent, /12 Example Street\s+Lagos, Nigeria/);
         assert.doesNotMatch(container.textContent, /support@zantara\.com|\+234 Support Line/);
+        assert.doesNotMatch(container.textContent, /DE 28|Dawaki Usman|Gombe State/);
         assert.equal(container.querySelector('img').getAttribute('src'), 'https://cdn.example/missing.png');
 
         await harness.failLogo(container);

@@ -53,13 +53,10 @@ const Footer = () => {
                             <Phone className="w-4 h-4 text-brand-emerald shrink-0 mt-0.5" />
                             <a href={`tel:${settings.SUPPORT_PHONE}`} className="hover:text-brand-emerald transition-colors">{settings.SUPPORT_PHONE}</a>
                         </li>}
-                        <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
+                        {settings.BUSINESS_ADDRESS && <li className="flex items-start gap-3 text-slate-500 font-medium text-sm">
                             <MapPin className="w-4 h-4 text-brand-emerald shrink-0 mt-0.5" />
-                            <span>
-                                DE 28, Dawaki Usman,<br />
-                                Gombe, Gombe State, Nigeria.
-                            </span>
-                        </li>
+                            <span className="whitespace-pre-line">{settings.BUSINESS_ADDRESS}</span>
+                        </li>}
                     </ul>
                 </div>
             </div>

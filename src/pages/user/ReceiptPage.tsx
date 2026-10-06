@@ -74,6 +74,7 @@ const ReceiptPage: React.FC = () => {
         supportEmail: settings.SUPPORT_EMAIL,
         supportPhone: settings.SUPPORT_PHONE,
         website: settings.SITE_URL,
+        businessAddress: settings.BUSINESS_ADDRESS,
     });
 
     const { transaction, brand, beneficiary, categoryDetails, receipt } = model;
@@ -244,6 +245,11 @@ const ReceiptPage: React.FC = () => {
                             {brand.supportEmail ? ` For inquiries, contact ${brand.supportEmail}` : ''}
                             {brand.supportPhone ? ` or call ${brand.supportPhone}` : ''}.
                         </div>
+                        {brand.businessAddress && (
+                            <div className="text-[9px] text-slate-500 font-medium px-6 text-center leading-relaxed whitespace-pre-line">
+                                {brand.businessAddress}
+                            </div>
+                        )}
                     </div>
                 </div>
 

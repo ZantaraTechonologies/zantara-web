@@ -20,6 +20,7 @@ export interface ReceiptBrand {
     supportEmail?: string;
     supportPhone?: string;
     website?: string;
+    businessAddress?: string;
 }
 
 export interface ReceiptDetailRow {
@@ -438,6 +439,7 @@ export function buildReceiptModel(tx: CustomerTransaction, brand: ReceiptBrand, 
         supportEmail: brand?.supportEmail,
         supportPhone: brand?.supportPhone,
         website: brand?.website,
+        businessAddress: brand?.businessAddress,
     };
 
     return {

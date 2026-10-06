@@ -23,6 +23,7 @@ const AdminSettingsPage: React.FC = () => {
         SITE_LOGO: '',
         SUPPORT_EMAIL: '',
         SUPPORT_PHONE: '',
+        BUSINESS_ADDRESS: '',
         REFERRAL_RATE: 0,
         APP_LOCK_TIMEOUT_MINUTES: 3,
         TRANSFER_FEE_CONFIG: {
@@ -184,6 +185,20 @@ const AdminSettingsPage: React.FC = () => {
                             />
                             <p className="text-xs text-slate-400 mt-2">
                                 International format (e.g. +234...). Shown on receipts and support pages.
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-500 mb-2">Business Address</label>
+                            <textarea
+                                value={settings.BUSINESS_ADDRESS || ''}
+                                onChange={(e) => setSettings({ ...settings, BUSINESS_ADDRESS: e.target.value })}
+                                maxLength={500}
+                                rows={4}
+                                placeholder="Enter your verified business address"
+                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-primary transition-all resize-y"
+                            />
+                            <p className="text-xs text-slate-400 mt-2">
+                                Shown on the public website, support page, and receipts. Line breaks are preserved.
                             </p>
                         </div>
                     </div>

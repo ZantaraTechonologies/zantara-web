@@ -13,5 +13,6 @@ test('receipt continues to pass all public site settings into the canonical rece
     assert.match(receiptPage, /supportEmail:\s*settings\.SUPPORT_EMAIL/);
     assert.match(receiptPage, /supportPhone:\s*settings\.SUPPORT_PHONE/);
     assert.match(receiptPage, /website:\s*settings\.SITE_URL/);
+    assert.match(receiptPage, /businessAddress:\s*settings\.BUSINESS_ADDRESS/);
     assert.match(receiptPage, /<SiteLogo\s+src=\{brand\.logo\}\s+siteName=\{brand\.displayName\}/);
 });
