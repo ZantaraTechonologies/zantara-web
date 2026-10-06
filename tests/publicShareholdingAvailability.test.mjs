@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url';
 
 import {
   isPublicShareholdingAvailable,
+  isPublicWalletWithdrawalAvailable,
   PUBLIC_SHAREHOLDING_KYC_HOLD,
+  PUBLIC_WALLET_WITHDRAWAL_KYC_HOLD,
 } from '../src/utils/publicFeatureAvailability.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -18,14 +20,30 @@ test('Monnify KYC hold disables public shareholding even when the backend settin
   assert.equal(isPublicShareholdingAvailable(false), false);
 });
 
-test('public shareholding routes are guarded while wallet and VTU routes remain available', () => {
+test('Monnify KYC hold disables public wallet withdrawal', () => {
+  assert.equal(PUBLIC_WALLET_WITHDRAWAL_KYC_HOLD, true);
+  assert.equal(isPublicWalletWithdrawalAvailable(), false);
+});
+
+test('public shareholding and wallet withdrawal routes are guarded', () => {
   const routes = readSource('routes', 'AppRoutes.jsx');
 
   assert.match(routes, /path="investments" element={<PublicShareholdingRoute><InvestmentPage \/><\/PublicShareholdingRoute>}/);
   assert.match(routes, /path="investments\/withdraw" element={<PublicShareholdingRoute><InvestmentWithdrawPage \/><\/PublicShareholdingRoute>}/);
   assert.match(routes, /return isAvailable \? children : <Navigate to="\/app" replace \/>/);
+  assert.match(routes, /isPublicWalletWithdrawalAvailable\(\) \? children : <Navigate to="\/app" replace \/>/);
+  assert.match(routes, /path="wallet\/withdraw" element={<PublicWalletWithdrawalRoute><UserWithdrawPage \/><\/PublicWalletWithdrawalRoute>}/);
+});
 
-  assert.match(routes, /path="wallet\/withdraw" element={<UserWithdrawPage \/>}/);
+test('wallet withdrawal navigation is hidden while wallet funding and VTU routes remain available', () => {
+  const dashboard = readSource('pages', 'user', 'UserDashboardPage.tsx');
+  const routes = readSource('routes', 'AppRoutes.jsx');
+
+  assert.match(dashboard, /walletWithdrawalAvailable && \(\s*<Link to="\/app\/wallet\/withdraw"/);
+  assert.match(routes, /path="wallet\/fund" element={<UserFundWalletPage \/>}/);
+  assert.match(routes, /path="wallet\/linked-accounts" element={<UserLinkedAccountsPage \/>}/);
+  assert.match(routes, /path="wallet\/virtual-account" element={<UserVirtualAccountPage \/>}/);
+  assert.match(routes, /path="services" element={<ServicesPage \/>}/);
   for (const service of ['data', 'broadband', 'airtime', 'electricity', 'cable', 'exam-pins']) {
     assert.match(routes, new RegExp(`path="services\\/${service}"`));
   }

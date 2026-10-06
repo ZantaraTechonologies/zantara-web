@@ -39,6 +39,7 @@ import { copyToClipboard, shareContent } from '../../utils/clipboard';
 import { toast } from 'react-hot-toast';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
 import { getServiceDisplayName } from '../../utils/receiptUtils';
+import { isPublicWalletWithdrawalAvailable } from '../../utils/publicFeatureAvailability';
 
 const DashboardSkeleton = () => (
     <div className="space-y-6 animate-pulse">
@@ -76,6 +77,7 @@ const DashboardSkeleton = () => (
 const UserDashboardPage: React.FC = () => {
     const { user } = useAuthStore();
     const { settings } = useSiteSettings();
+    const walletWithdrawalAvailable = isPublicWalletWithdrawalAvailable();
     const {
         balance,
         frozenBalance,
@@ -301,10 +303,12 @@ const UserDashboardPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link to="/app/wallet/withdraw" className="flex items-center gap-2 bg-surface border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-bold transition-all shadow-sm active:scale-95 text-xs">
-                        <ArrowUpRight size={14} />
-                        <span>Withdraw</span>
-                    </Link>
+                    {walletWithdrawalAvailable && (
+                        <Link to="/app/wallet/withdraw" className="flex items-center gap-2 bg-surface border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-bold transition-all shadow-sm active:scale-95 text-xs">
+                            <ArrowUpRight size={14} />
+                            <span>Withdraw</span>
+                        </Link>
+                    )}
                     <Link to="/app/wallet/fund" className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95 text-xs">
                         <Plus size={14} />
                         <span>Fund Node</span>

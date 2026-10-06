@@ -11,6 +11,7 @@ import AppErrorBoundary from '../components/errors/AppErrorBoundary';
 
 import { useAuthStore } from '../store/auth/authStore';
 import { usePublicShareholdingAvailability } from '../hooks/useInvestment';
+import { isPublicWalletWithdrawalAvailable } from '../utils/publicFeatureAvailability';
 
 // Public Pages
 const LandingPage = lazy(() => import('../pages/LandingPage'));
@@ -115,6 +116,10 @@ const PublicShareholdingRoute = ({ children }) => {
     return isAvailable ? children : <Navigate to="/app" replace />;
 };
 
+const PublicWalletWithdrawalRoute = ({ children }) => (
+    isPublicWalletWithdrawalAvailable() ? children : <Navigate to="/app" replace />
+);
+
 const RootStateController = ({ children }) => {
     const { isMaintenanceMode, isNoInternet, globalError } = useAuthStore();
 
@@ -166,7 +171,7 @@ export default function AppRoutes() {
                             {/* Wallet Ecosystem (Merged into Dashboard) */}
                             <Route path="wallet" element={<Navigate to="/app" replace />} />
                             <Route path="wallet/fund" element={<UserFundWalletPage />} />
-                            <Route path="wallet/withdraw" element={<UserWithdrawPage />} />
+                            <Route path="wallet/withdraw" element={<PublicWalletWithdrawalRoute><UserWithdrawPage /></PublicWalletWithdrawalRoute>} />
                             <Route path="wallet/linked-accounts" element={<UserLinkedAccountsPage />} />
                             <Route path="wallet/virtual-account" element={<UserVirtualAccountPage />} />
 
