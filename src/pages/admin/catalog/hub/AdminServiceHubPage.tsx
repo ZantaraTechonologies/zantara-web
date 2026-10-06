@@ -28,7 +28,7 @@ const AdminServiceHubPage: React.FC = () => {
 
     const tabs = [
         { id: 'registry', label: 'Catalog Registry', icon: Layers, desc: 'Identity & Structure' },
-        { id: 'pricing', label: 'Pricing Strategy', icon: Tags, desc: 'Markups & Yield' },
+        { id: 'pricing', label: 'Pricing Strategy', icon: Tags, desc: 'Markups & Margin' },
         { id: 'vendors', label: 'Vendor Gateways', icon: Cpu, desc: 'API Connections' },
         { id: 'fulfillment', label: 'Fulfillment Logic', icon: Network, desc: 'Product Mappings' },
         { id: 'infrastructure', label: 'Infrastructure', icon: Database, desc: 'Master Data Controls' },

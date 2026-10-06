@@ -120,7 +120,7 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
             case 'settlement': return { icon: RefreshCw, bg: 'bg-amber-50', text: 'text-amber-600', label: 'Settlement' };
             case 'transaction':
                 if (item.type === 'withdrawal') return { icon: ArrowDownRight, bg: 'bg-indigo-50', text: 'text-indigo-600', label: 'Withdrawal' };
-                if (item.type === 'share_purchase') return { icon: HandCoins, bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Capital' };
+                if (item.type === 'share_purchase') return { icon: HandCoins, bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Share Purchase' };
                 return { icon: ArrowUpRight, bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Sale' };
             default: return { icon: CreditCard, bg: 'bg-slate-50', text: 'text-slate-600', label: 'Activity' };
         }
@@ -238,7 +238,7 @@ const StrategicPulseTab: React.FC<Props> = ({ period, customDates }) => {
                         </div>
                         <div className="flex items-center gap-4 p-4 border border-slate-100 rounded-3xl bg-slate-50">
                             <ArrowRightCircle className="text-emerald-400" size={24} />
-                            <div><p className="text-[10px] font-black text-slate-400 uppercase">Referral Payouts</p><p className="text-xl font-black text-slate-900">₦{(referralCommissions || 0).toLocaleString()}</p></div>
+                            <div><p className="text-[10px] font-black text-slate-400 uppercase">Referral Commission Payouts</p><p className="text-xl font-black text-slate-900">₦{(referralCommissions || 0).toLocaleString()}</p></div>
                         </div>
                     </div>
                 </div>

@@ -23,11 +23,11 @@ const ReferralPromo: React.FC = () => {
                             </div>
                             
                             <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-6 leading-[1.1]">
-                                Invite friends and earn continuous rewards.
+                                Invite friends and earn referral rewards.
                             </h2>
                             
                             <p className="text-white/70 text-lg font-medium leading-relaxed mb-10 max-w-lg">
-                                When you bring your network to {settings.SITE_NAME}, we reward your growth. Earn a percentage bonus across our massive ecosystem every time your referrals make a transaction.
+                                When you bring your network to {settings.SITE_NAME}, we reward your growth. Earn referral bonuses on eligible transactions made by your referrals.
                             </p>
                             
                             <Link 

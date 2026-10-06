@@ -30,7 +30,7 @@ const AdminFinancialHubPage: React.FC = () => {
 
     const tabs = [
         { id: 'pulse', label: 'Strategic Pulse', icon: Activity, desc: 'Global platform health & growth' },
-        { id: 'margins', label: 'Margin Analysis', icon: PieChart, desc: 'Yield efficiency per category' },
+        { id: 'margins', label: 'Margin Analysis', icon: PieChart, desc: 'Margin efficiency per category' },
         { id: 'payouts', label: 'Payout Dynamics', icon: TrendingUp, desc: 'Referral & Agent distribution' },
         { id: 'ledger', label: 'Treasury Ledger', icon: History, desc: 'Unified activity & expense log' },
     ];
@@ -61,7 +61,7 @@ const AdminFinancialHubPage: React.FC = () => {
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Intelligence Hub</h1>
                     <p className="text-slate-500 text-xs font-medium mt-2 max-w-xl leading-relaxed uppercase tracking-tighter">
-                        Unified financial monitoring across <span className="text-indigo-400">Revenue</span>, <span className="text-emerald-400">Yield</span>, and <span className="text-rose-400">Expenditure</span> streams.
+                        Unified financial monitoring across <span className="text-indigo-400">Revenue</span>, <span className="text-emerald-400">Profit</span>, and <span className="text-rose-400">Expenditure</span> streams.
                     </p>
                 </div>
 

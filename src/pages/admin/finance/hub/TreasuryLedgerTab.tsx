@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { getCostLedger, getExpenses, createExpense } from '../../../../services/admin/adminBusinessService';
 import { toast } from 'react-hot-toast';
+import { getServiceDisplayName } from '../../../../utils/receiptUtils';
 
 interface Props {
     period: string;
@@ -73,15 +74,28 @@ const TreasuryLedgerTab: React.FC<Props> = ({ period, customDates }) => {
                 getExpenses(params)
             ]);
 
-            const normalizedLedger = (ledgerRes.data || []).map((t: any) => ({
-                ...t,
-                source: t.type === 'dividend_credit' ? 'manual' : 'auto',
-                displayDate: new Date(t.createdAt || Date.now()),
-                displayTitle: t.type === 'dividend_credit' ? `Dividend Payout` : `${t.service || t.type || 'Service'} Purchase Cost`,
-                displayUser: t.type === 'dividend_credit' ? 'Shareholders' : (t.user?.fullName || 'System'),
-                displayAmount: t.type === 'dividend_credit' ? (t.amount || 0) : (t.costPrice || 0),
-                displayCategory: t.type
-            }));
+            const normalizedLedger = (ledgerRes.data || []).map((t: any) => {
+                const isShareholdingEntry = [
+                    'investment_buy',
+                    'share_purchase',
+                    'share_exit',
+                    'dividend_credit',
+                    'dividend_reinvest',
+                    'dividend_redeem',
+                    'dividend_withdrawal',
+                    'referral_redeem',
+                ].includes(t.type);
+
+                return {
+                    ...t,
+                    source: t.type === 'dividend_credit' ? 'manual' : 'auto',
+                    displayDate: new Date(t.createdAt || Date.now()),
+                    displayTitle: isShareholdingEntry ? getServiceDisplayName(t) : `${t.service || t.type || 'Service'} Purchase Cost`,
+                    displayUser: t.type === 'dividend_credit' ? 'Shareholders' : (t.user?.fullName || 'System'),
+                    displayAmount: t.type === 'dividend_credit' ? (t.amount || 0) : (t.costPrice || 0),
+                    displayCategory: t.type
+                };
+            });
 
             const normalizedExpenses = (expenseRes.data || []).map((e: any) => ({
                 ...e,

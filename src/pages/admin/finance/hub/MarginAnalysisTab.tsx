@@ -95,7 +95,7 @@ const MarginAnalysisTab: React.FC<Props> = ({ period, customDates }) => {
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-4">
                             <Target className="text-emerald-500" size={18} />
-                            <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">Net Corporate Yield</p>
+                            <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">Net Corporate Profit</p>
                         </div>
                         <div className="flex flex-col md:flex-row md:items-end gap-6 mb-10">
                             <h2 className="text-4xl font-black text-slate-900 tracking-tighter">₦{(netProfit || 0).toLocaleString()}</h2>

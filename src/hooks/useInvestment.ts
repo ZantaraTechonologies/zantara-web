@@ -3,6 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as investmentService from '../services/investment/investmentService';
 import { privateQueryKey } from '../app/queryClient';
 import { usePrivateQueryContext } from './usePrivateQueryContext';
+import {
+    isPublicShareholdingAvailable,
+    PUBLIC_SHAREHOLDING_KYC_HOLD,
+} from '../utils/publicFeatureAvailability';
 
 const useSecureInvestmentMutation = <TRequest, TResponse>(
     key: string,
@@ -18,7 +22,7 @@ const useSecureInvestmentMutation = <TRequest, TResponse>(
         mutationFn: () => {
             const execute = pendingRequest.current;
             pendingRequest.current = null;
-            if (!execute) return Promise.reject(new Error('Investment request is unavailable'));
+            if (!execute) return Promise.reject(new Error('Shareholding request is unavailable'));
             return execute();
         },
         retry: false,
@@ -44,14 +48,24 @@ const useSecureInvestmentMutation = <TRequest, TResponse>(
     return { ...mutation, mutate };
 };
 
-export const useInvestmentSummary = () => {
+export const useInvestmentSummary = (enabled = true) => {
     const { userId, isAuthenticated } = usePrivateQueryContext();
     return useQuery({
         queryKey: privateQueryKey(userId, 'investment-summary'),
         queryFn: () => investmentService.fetchInvestmentSummary().then(res => res.data.data),
-        enabled: isAuthenticated,
+        enabled: isAuthenticated && enabled,
         refetchInterval: 60000, // Refresh every minute
     });
+};
+
+export const usePublicShareholdingAvailability = (enabled = true) => {
+    const shouldLoadSummary = enabled && !PUBLIC_SHAREHOLDING_KYC_HOLD;
+    const summary = useInvestmentSummary(shouldLoadSummary);
+
+    return {
+        isAvailable: enabled && isPublicShareholdingAvailable(summary.data?.settings?.investmentEnabled),
+        isLoading: shouldLoadSummary && summary.isLoading,
+    };
 };
 
 export const useInvestmentHistory = (page = 1, limit = 20) => {

@@ -4,6 +4,7 @@ import { useAuthStore } from "../../store/auth/authStore";
 import { LogOut, Menu, X, LayoutDashboard, Bell, Search, Users, ShieldCheck, ListOrdered, Banknote, MessageSquare, Activity, Zap, CreditCard, User, ArrowUpRight, HelpCircle, BadgeDollarSign, BadgePercent, WalletCards, BarChart3, History, ChevronRight, Settings, PieChart } from "lucide-react";
 
 import { useSiteSettings } from "../../app/SiteSettingsContext";
+import { usePublicShareholdingAvailability } from "../../hooks/useInvestment";
 import SiteLogo from "../common/SiteLogo";
 import ThemeToggle from "../common/ThemeToggle";
 
@@ -12,6 +13,7 @@ export default function Navbar({ adminMenuItems = [] }) {
     const { isAuthenticated, logout, user } = useAuthStore();
     const [open, setOpen] = useState(false);
     const location = useLocation();
+    const { isAvailable: isPublicShareholdingAvailable } = usePublicShareholdingAvailability(!location.pathname.startsWith('/admin'));
 
     // Body-scroll lock when menu is open
     React.useEffect(() => {
@@ -202,10 +204,12 @@ export default function Navbar({ adminMenuItems = [] }) {
                                                 <Users size={20} />
                                                 Refer & Earn
                                             </NavLink>
-                                            <NavLink to="/app/investments" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
-                                                <BarChart3 size={20} />
-                                                Investments
-                                            </NavLink>
+                                            {isPublicShareholdingAvailable && (
+                                                <NavLink to="/app/investments" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
+                                                    <BarChart3 size={20} />
+                                                    My Zantara Shares
+                                                </NavLink>
+                                            )}
                                             <NavLink to="/app/support" className="flex items-center gap-4 py-3.5 px-5 rounded-2xl font-bold text-slate-600 hover:bg-brand-mint" onClick={() => setOpen(false)}>
                                                 <HelpCircle size={20} />
                                                 Support

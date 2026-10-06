@@ -20,6 +20,7 @@ import { useMyTransactions } from '../../hooks/useWallet';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
+import { getServiceDisplayName } from '../../utils/receiptUtils';
 
 const getServiceIcon = (type: string) => {
     switch (type) {
@@ -159,7 +160,7 @@ const UserTransactionsPage: React.FC = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Asset / Service</th>
+                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Transaction / Service</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hidden md:table-cell">Reference ID</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hidden sm:table-cell">Timestamp</th>
                                 <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Settlement</th>
@@ -188,7 +189,7 @@ const UserTransactionsPage: React.FC = () => {
                                                     {getServiceIcon(tx.type)}
                                                 </div>
                                                 <span className="font-bold text-slate-900 text-sm truncate max-w-[120px] md:max-w-none">
-                                                    {tx.service || tx.type.replace('_', ' ').toUpperCase()}
+                                                    {getServiceDisplayName(tx)}
                                                 </span>
                                             </div>
                                         </td>
@@ -272,4 +273,3 @@ const UserTransactionsPage: React.FC = () => {
 };
 
 export default UserTransactionsPage;
-

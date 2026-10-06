@@ -39,8 +39,8 @@ const RedeemEarningsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Redemption Successful</h2>
-                    <p className="text-slate-500 text-sm">{currency}{Number(amount).toLocaleString()} has been moved to your main wallet.</p>
+                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Referral Commission Transfer Successful</h2>
+                    <p className="text-slate-500 text-sm">{currency}{Number(amount).toLocaleString()} in referral commissions has been moved to your main wallet.</p>
                 </div>
 
                 <div className="flex flex-col gap-3">
@@ -54,7 +54,7 @@ const RedeemEarningsPage: React.FC = () => {
                         to="/app/referral/wallet"
                         className="w-full bg-surface text-slate-500 py-4 rounded-2xl font-bold text-sm hover:text-slate-900 transition-all"
                     >
-                        Back to Referral Wallet
+                        Back to Referral Commissions
                     </Link>
                 </div>
             </div>
@@ -72,8 +72,8 @@ const RedeemEarningsPage: React.FC = () => {
                     <ArrowRight size={20} className="rotate-180" />
                 </Link>
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">Redeem Earnings</h1>
-                    <p className="text-slate-500 text-xs font-medium">Transfer funds to your main wallet balance.</p>
+                    <h1 className="text-xl font-bold text-slate-900 tracking-tight">Transfer Referral Commissions</h1>
+                    <p className="text-slate-500 text-xs font-medium">Transfer referral commissions to your main wallet balance.</p>
                 </div>
             </div>
 
@@ -83,8 +83,8 @@ const RedeemEarningsPage: React.FC = () => {
 
                 <div className="space-y-4">
                     <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        <span>Redemption Amount</span>
-                        <span>Available: {currency}{currentBalance.toLocaleString()}</span>
+                        <span>Referral Commission Amount</span>
+                        <span>Referral Commission Balance: {currency}{currentBalance.toLocaleString()}</span>
                     </div>
 
                     <div className="relative group">
@@ -145,7 +145,7 @@ const RedeemEarningsPage: React.FC = () => {
                 <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                     <Info size={16} className="text-slate-400 shrink-0 mt-0.5" />
                     <p className="text-[10px] leading-relaxed text-slate-400 font-medium">
-                        Transfers from the referral wallet to your main wallet are processed instantly. Ensure your Transaction PIN is active and secure before proceeding.
+                        Referral commission transfers to your main wallet are usually processed immediately. Ensure your Transaction PIN is active and secure before proceeding.
                     </p>
                 </div>
             </div>
@@ -155,7 +155,7 @@ const RedeemEarningsPage: React.FC = () => {
                 onClose={() => setIsPinModalOpen(false)}
                 onConfirm={handlePinSubmit}
                 loading={isPending}
-                title="Redemption Verification"
+                title="Referral Commission Transfer Verification"
             />
         </div>
     );

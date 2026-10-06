@@ -43,13 +43,13 @@ export const useRedeemEarnings = () => {
         mutationFn: ({ amount, pin }: { amount: number; pin: string }) => 
             referralService.redeemEarnings(amount, pin),
         onSuccess: (data) => {
-            toast.success(data.message || 'Earnings redeemed successfully');
+            toast.success(data.message || 'Referral commissions transferred successfully');
             queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'referral-stats') });
             queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'wallet', 'balance') });
             queryClient.invalidateQueries({ queryKey: privateQueryKey(userId, 'txlogs') });
         },
         onError: (error: any) => {
-            const msg = error.response?.data?.message || 'Failed to redeem earnings';
+            const msg = error.response?.data?.message || 'Failed to transfer referral commissions';
             toast.error(msg);
         }
     });

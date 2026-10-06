@@ -131,9 +131,9 @@ const AdminCommissionSettingsPage: React.FC = () => {
             );
 
             await Promise.all(promises);
-            toast.success("Investment protocols synchronized");
+            toast.success("Shareholder settings synchronized");
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || err.message || "Failed to update investment parameters");
+            toast.error(err?.response?.data?.message || err.message || "Failed to update shareholder settings");
         } finally {
             setSaving(null);
         }
@@ -184,13 +184,13 @@ const AdminCommissionSettingsPage: React.FC = () => {
                             <PieChart size={28} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Equity & Shareholder Governance</h3>
-                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Global capital rules & dividend distribution</p>
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Shareholder Settings</h3>
+                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Share Purchases, Shareholder Dividends & Dividend Payouts</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4 bg-slate-50 px-6 py-4 rounded-3xl border border-slate-100">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Investment System</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Share Purchase System</label>
                         <button 
                             type="button"
                             onClick={() => setSystemSettings({...systemSettings, investmentEnabled: !systemSettings?.investmentEnabled})}
@@ -204,7 +204,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Share Valuation ({currency})</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Share Purchase Price ({currency})</label>
                         <div className="relative">
                             <input 
                                 type="number" 
@@ -217,7 +217,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Investor Allocation (%)</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Shareholder Dividend Allocation (%)</label>
                         <div className="relative">
                             <input 
                                 type="number" 
@@ -227,7 +227,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                             />
                             <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 font-black">%</div>
                         </div>
-                        <p className="text-[9px] text-slate-600 font-bold uppercase tracking-tighter">Share of Monthly Net profits.</p>
+                        <p className="text-[9px] text-slate-600 font-bold uppercase tracking-tighter">Percentage of monthly net profit allocated to shareholder dividends.</p>
                     </div>
 
                     <div className="space-y-2">
@@ -242,7 +242,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Div. Withdrawal Fee (%)</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Dividend Payout Fee (%)</label>
                         <div className="relative">
                             <input 
                                 type="number" 
@@ -262,7 +262,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                         disabled={saving === 'invest'}
                         className="px-10 py-3 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.25em] hover:bg-indigo-500 transition-all flex items-center gap-3 shadow-2xl shadow-indigo-600/20 disabled:opacity-50"
                     >
-                        {saving === 'invest' ? <Loader2 className="animate-spin" size={20} /> : <><Lock size={20} /> Commit Equity Protocol</>}
+                        {saving === 'invest' ? <Loader2 className="animate-spin" size={20} /> : <><Lock size={20} /> Save Shareholder Settings</>}
                     </button>
                 </div>
             </div>
@@ -372,7 +372,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                                 <TrendingUp size={24} />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Yield Simulator</h3>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">Commission Split Simulator</h3>
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Real-time Transaction Modeling</p>
                             </div>
                         </div>
@@ -409,7 +409,7 @@ const AdminCommissionSettingsPage: React.FC = () => {
                             <div className="grid grid-cols-2 gap-6 pt-5 border-t border-slate-100">
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-600">
-                                        <span>Referral Payout</span>
+                                        <span>Referral Commission Payout</span>
                                         <span className="text-emerald-400 font-bold">₦{cappedReferral.toFixed(2)}</span>
                                     </div>
                                     <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden p-px">

@@ -112,7 +112,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                     </button>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Linked Hubs</h1>
-                        <p className="text-slate-500 font-medium text-sm">Manage your verified withdrawal destinations.</p>
+                        <p className="text-slate-500 font-medium text-sm">Manage your verified bank accounts.</p>
                     </div>
                 </div>
                     <button 
@@ -210,7 +210,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                         <div className="flex items-center gap-4 p-5 bg-brand-mint/60 rounded-2xl border border-brand-emerald/20 text-slate-600">
                             <ShieldCheck size={20} className="text-emerald-600 shrink-0" />
                             <p className="text-[10px] font-bold leading-relaxed uppercase tracking-widest">
-                                Your withdrawal node must match your KYC identity for successful settlements.
+                                Your withdrawal account must match your KYC identity for successful settlements.
                             </p>
                         </div>
 
@@ -288,7 +288,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                             </div>
                             <div className="space-y-1">
                                 <h3 className="text-xl font-bold text-slate-900">No Settlement Hubs</h3>
-                                <p className="text-slate-500 font-medium text-sm max-w-sm mx-auto">Link a verified bank account to enable professional withdrawal protocols.</p>
+                                <p className="text-slate-500 font-medium text-sm max-w-sm mx-auto">Link a verified bank account to enable bank withdrawals.</p>
                             </div>
                             <button 
                                 onClick={() => setIsAdding(true)}
@@ -305,7 +305,7 @@ const UserLinkedAccountsPage: React.FC = () => {
                 <div className="bg-orange-50 p-6 rounded-3xl border border-orange-100 flex items-start gap-4">
                     <AlertCircle className="text-orange-500 shrink-0 mt-1" size={20} />
                     <p className="text-xs text-orange-900 font-medium leading-relaxed">
-                        Security Note: To protect your capital, Zantara imposes a 24-hour settlement lock on newly established withdrawal nodes. Please plan your transactions accordingly.
+                        Security Note: To protect your funds, Zantara imposes a 24-hour withdrawal lock on newly established withdrawal accounts. Please plan your transactions accordingly.
                     </p>
                 </div>
             )}

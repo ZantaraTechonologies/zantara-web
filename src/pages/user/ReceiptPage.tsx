@@ -156,7 +156,7 @@ const ReceiptPage: React.FC = () => {
                     </div>
 
                     <div className="py-6 border-y border-dashed border-slate-200 space-y-2">
-                        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Total Value</p>
+                        <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Transaction Amount</p>
                         <h1 className="text-3xl font-black text-slate-900 tracking-tighter">{transaction.amountText}</h1>
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${statusStyle.chip}`}>
                             <StatusIcon size={10} />
@@ -183,6 +183,22 @@ const ReceiptPage: React.FC = () => {
                                 <p className="text-sm font-bold text-slate-900">{transaction.currency}</p>
                             </div>
                         </div>
+
+                        {transaction.description && [
+                            'investment_buy',
+                            'share_purchase',
+                            'share_exit',
+                            'dividend_credit',
+                            'dividend_reinvest',
+                            'dividend_redeem',
+                            'dividend_withdrawal',
+                            'referral_redeem',
+                        ].includes(transaction.type) && (
+                            <div className="bg-slate-50/50 p-5 rounded-2xl space-y-1 border border-slate-100">
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Description</p>
+                                <p className="text-sm font-bold text-slate-900">{transaction.description}</p>
+                            </div>
+                        )}
 
                         {categoryDetails.length > 0 && (
                             <div className="bg-slate-50/50 p-5 rounded-2xl space-y-2 border border-slate-100">

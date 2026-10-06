@@ -58,7 +58,7 @@ const UserSecuritySettingsPage: React.FC = () => {
                 </button>
                 <div>
                     <h1 className="text-xl font-bold text-slate-900 tracking-tight">Security Protocol</h1>
-                    <p className="text-xs text-slate-500 font-medium">Protect your capital and account data</p>
+                    <p className="text-xs text-slate-500 font-medium">Protect your funds and account data</p>
                 </div>
             </div>
 

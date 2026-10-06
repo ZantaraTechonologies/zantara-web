@@ -52,7 +52,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                 setIsPinModalOpen(false);
             },
             onError: (err: any) => {
-                toast.error(err.response?.data?.message || 'Withdrawal failed');
+                toast.error(err.response?.data?.message || 'Payout request failed');
                 setIsPinModalOpen(false);
             }
         });
@@ -70,6 +70,8 @@ const InvestmentWithdrawPage: React.FC = () => {
     const feePercent = summary?.settings?.dividendWithdrawalFee || 0;
     const fee = Number(amount) * (feePercent / 100);
     const netAmount = Number(amount) - fee;
+    const payoutName = source === 'referral' ? 'Referral Commission Payout' : 'Dividend Payout';
+    const sourceBalanceName = source === 'referral' ? 'Referral Commission Balance' : 'Dividend Balance';
 
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-6 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
@@ -79,8 +81,8 @@ const InvestmentWithdrawPage: React.FC = () => {
                     <ArrowLeft size={20} className="text-slate-900" />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Withdraw Investment Earnings</h1>
-                    <p className="text-slate-500 font-medium text-sm">Transfer your dividends to your local bank account.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{payoutName}</h1>
+                    <p className="text-slate-500 font-medium text-sm">Request a bank payout from your {sourceBalanceName}.</p>
                 </div>
             </div>
 
@@ -99,11 +101,11 @@ const InvestmentWithdrawPage: React.FC = () => {
                                 onClick={() => { setSource('referral'); setAmount(''); }}
                                 className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${source === 'referral' ? 'bg-amber-500 text-white' : 'text-slate-400 hover:text-slate-900'}`}
                             >
-                                Referrals
+                                Referral Commissions
                             </button>
                         </div>
                         <div className="bg-surface rounded-2xl px-6 py-3 border border-slate-100 text-center shadow-sm">
-                            <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${source === 'referral' ? 'text-amber-500' : 'text-emerald-500'}`}>Available {source}s</p>
+                            <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${source === 'referral' ? 'text-amber-500' : 'text-emerald-500'}`}>{sourceBalanceName}</p>
                             <h2 className="text-4xl font-black tracking-tighter text-slate-900">{currency} {balance.toLocaleString()}</h2>
                         </div>
                     </div>
@@ -111,12 +113,12 @@ const InvestmentWithdrawPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-6">
                             <div className="flex items-center justify-between px-1">
-                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-2">Withdrawal Amount ({currency})</label>
+                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-2">Payout Amount ({currency})</label>
                                 <button 
                                     onClick={() => setAmount(balance.toString())}
                                     className="text-[10px] font-black text-emerald-500 uppercase tracking-widest hover:text-emerald-600 transition-colors"
                                 >
-                                    [ Withdraw All ]
+                                    [ Use Full Balance ]
                                 </button>
                             </div>
                             <div className="relative group">
@@ -148,7 +150,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                             <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                                 <Info size={16} className="text-slate-400 shrink-0 mt-0.5" />
                                 <p className="text-[10px] leading-relaxed text-slate-400 font-medium italic">
-                                    Withdrawals from the investment wallet are subject to manual review and are typically processed within 24-48 business hours.
+                                    Dividend and referral commission payouts are subject to manual review. Processing times may vary.
                                 </p>
                             </div>
                         </div>
@@ -202,7 +204,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                         onClick={() => setIsPinModalOpen(true)}
                         className={`w-full text-white py-6 rounded-[1.5rem] font-black uppercase tracking-widest text-xs transition-all shadow-btn disabled:opacity-20 disabled:pointer-events-none active:scale-[0.98] ${source === 'referral' ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-200' : 'bg-brand-emerald hover:bg-brand-emerald-600'}`}
                     >
-                        {Number(amount) > balance ? `Insufficient ${source} Balance` : `Confirm ${source} Withdrawal`}
+                        {Number(amount) > balance ? `Insufficient ${sourceBalanceName}` : `Confirm ${payoutName}`}
                     </button>
                 </div>
             )}
@@ -215,7 +217,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                     
                     <div className="space-y-2">
                         <h2 className="text-2xl font-black text-slate-900 tracking-tight">Request Submitted</h2>
-                        <p className="text-slate-500 font-medium text-sm">Your withdrawal of {currency}{Number(amount).toLocaleString()} is being reviewed. You'll be notified once approved.</p>
+                        <p className="text-slate-500 font-medium text-sm">Your {payoutName.toLowerCase()} of {currency}{Number(amount).toLocaleString()} is being reviewed. You'll be notified once approved.</p>
                     </div>
 
                     <div className="bg-slate-50 p-6 rounded-[2rem] space-y-4">
@@ -233,7 +235,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                         onClick={() => navigate('/app/investments')}
                         className="w-full bg-brand-emerald text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-brand-emerald-600 transition-all shadow-btn active:scale-95"
                     >
-                        Back to Portfolio
+                        Back to My Zantara Shares
                     </button>
                 </div>
             )}
@@ -243,7 +245,7 @@ const InvestmentWithdrawPage: React.FC = () => {
                 onClose={() => setIsPinModalOpen(false)} 
                 onConfirm={handleWithdraw}
                 loading={submitting}
-                title="Investment Authorization"
+                title={`${payoutName} Authorization`}
             />
         </div>
     );

@@ -19,10 +19,12 @@ import {
 } from 'lucide-react';
 import Navbar from '../../components/navigation/Navbar';
 import LegalAcceptancePrompt from '../../components/legal/LegalAcceptancePrompt';
+import { usePublicShareholdingAvailability } from '../../hooks/useInvestment';
 
 export default function DashboardLayout() {
     const { logout, user } = useAuthStore();
     const location = useLocation();
+    const { isAvailable: isPublicShareholdingAvailable } = usePublicShareholdingAvailability();
 
     const menuItems = [
         { path: '/app', label: 'Overview', icon: LayoutDashboard },
@@ -30,7 +32,9 @@ export default function DashboardLayout() {
         { path: '/app/transactions', label: 'Transactions', icon: ArrowLeftRight },
         { path: '/app/profile', label: 'Profile', icon: User },
         { path: '/app/referral', label: 'Refer & Earn', icon: Users },
-        { path: '/app/investments', label: 'Investments', icon: TrendingUp },
+        ...(isPublicShareholdingAvailable
+            ? [{ path: '/app/investments', label: 'My Zantara Shares', icon: TrendingUp }]
+            : []),
         { path: '/app/support', label: 'Support', icon: HelpCircle },
     ];
 

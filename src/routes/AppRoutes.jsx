@@ -10,6 +10,7 @@ import RequireAccess from './guards/RequireAccess';
 import AppErrorBoundary from '../components/errors/AppErrorBoundary';
 
 import { useAuthStore } from '../store/auth/authStore';
+import { usePublicShareholdingAvailability } from '../hooks/useInvestment';
 
 // Public Pages
 const LandingPage = lazy(() => import('../pages/LandingPage'));
@@ -107,6 +108,13 @@ const RouteLoader = () => (
     </div>
 );
 
+const PublicShareholdingRoute = ({ children }) => {
+    const { isAvailable, isLoading } = usePublicShareholdingAvailability();
+
+    if (isLoading) return <RouteLoader />;
+    return isAvailable ? children : <Navigate to="/app" replace />;
+};
+
 const RootStateController = ({ children }) => {
     const { isMaintenanceMode, isNoInternet, globalError } = useAuthStore();
 
@@ -177,8 +185,8 @@ export default function AppRoutes() {
                             <Route path="referral" element={<ReferralProgramPage />} />
                             <Route path="referral/wallet" element={<ReferralWalletPage />} />
                             <Route path="referral/redeem" element={<RedeemEarningsPage />} />
-                            <Route path="investments" element={<InvestmentPage />} />
-                            <Route path="investments/withdraw" element={<InvestmentWithdrawPage />} />
+                            <Route path="investments" element={<PublicShareholdingRoute><InvestmentPage /></PublicShareholdingRoute>} />
+                            <Route path="investments/withdraw" element={<PublicShareholdingRoute><InvestmentWithdrawPage /></PublicShareholdingRoute>} />
 
                             {/* Communication (Batch 7) */}
                             <Route path="notifications" element={<UserNotificationsPage />} />

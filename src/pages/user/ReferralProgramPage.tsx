@@ -100,14 +100,14 @@ const ReferralProgramPage: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Refer & Earn</h1>
-                    <p className="text-slate-500 font-medium text-sm">Invite your network and build a stream of lifetime rewards.</p>
+                    <p className="text-slate-500 font-medium text-sm">Invite your network and earn referral commissions.</p>
                 </div>
                 <Link 
                     to="/app/referral/wallet"
                     className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl font-bold text-sm hover:bg-emerald-100 transition-colors border border-emerald-100 w-fit"
                 >
                     <Wallet size={18} />
-                    Manage Earnings
+                    Manage Referral Commissions
                 </Link>
             </div>
 
@@ -121,9 +121,9 @@ const ReferralProgramPage: React.FC = () => {
                     </div>
                     
                     <div className="flex-1 space-y-4 text-center md:text-left">
-                        <h2 className="text-xl font-bold text-slate-900 leading-tight">Build a Lifetime Income Stream</h2>
+                        <h2 className="text-xl font-bold text-slate-900 leading-tight">Earn Ongoing Referral Commissions</h2>
                         <p className="text-slate-500 text-sm leading-relaxed max-w-md">
-                            Earn <span className="text-emerald-500 font-bold">commissions</span> instantly on <span className="font-bold text-slate-900">every single purchase</span> made by your referred friends. The more they use {settings.SITE_NAME}, the more you earn!
+                            Earn <span className="text-emerald-500 font-bold">referral commissions</span> on eligible purchases made by referred friends, subject to the program rules.
                         </p>
                     </div>
                 </div>
@@ -132,7 +132,7 @@ const ReferralProgramPage: React.FC = () => {
                      <div className="absolute bottom-0 right-0 w-24 h-24 bg-brand-emerald-100/60 rounded-full -mr-8 -mb-8 blur-xl group-hover:bg-brand-emerald-100 transition-all"></div>
                      
                      <div className="space-y-1">
-                        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Spendable Balance</p>
+                        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Referral Commission Balance</p>
                         <h3 className="text-3xl font-bold tracking-tight text-slate-900">{currency}{stats?.referralBalance?.toLocaleString() || '0'}</h3>
                      </div>
 
@@ -140,7 +140,7 @@ const ReferralProgramPage: React.FC = () => {
                         to="/app/referral/redeem"
                         className="mt-6 flex items-center justify-center gap-2 bg-brand-emerald text-white py-3 rounded-xl font-bold text-sm hover:bg-brand-emerald-600 transition-all active:scale-95"
                      >
-                        Redeem Now
+                        Transfer to Main Wallet
                         <ArrowRight size={16} />
                      </Link>
                 </div>
@@ -183,7 +183,7 @@ const ReferralProgramPage: React.FC = () => {
 
             {/* How it works */}
             <div className="bg-surface rounded-2xl p-8 border border-slate-100 shadow-sm">
-                <h3 className="text-lg font-bold text-slate-900 mb-8">Earning Protocol</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-8">How It Works</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
                     {/* Progress line for desktop */}
@@ -192,7 +192,7 @@ const ReferralProgramPage: React.FC = () => {
                     {[
                         { step: '01', title: 'Share Link', desc: 'Securely transmit your unique referral code to friends and network.' },
                         { step: '02', title: 'Link Accounts', desc: 'New users link to your profile permanently when they sign up with your code.' },
-                        { step: '03', title: 'Lifetime Yield', desc: 'Receive a commission automatically on every purchase they ever make.' }
+                        { step: '03', title: 'Ongoing Commissions', desc: 'Receive a commission on eligible purchases they make.' }
                     ].map((item, idx) => (
                         <div key={idx} className="relative z-10 space-y-4 text-center md:text-left">
                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl border italic ${idx === 2 ? 'bg-brand-emerald text-white border-brand-emerald' : 'bg-surface text-emerald-500 border-slate-100'}`}>
@@ -212,21 +212,21 @@ const ReferralProgramPage: React.FC = () => {
                     <Zap size={18} className="text-emerald-500 shrink-0 mt-0.5" />
                     <div>
                         <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-1">Instant Settlement</h4>
-                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Rewards are credited to your earnings wallet the moment a referred friend's transaction is confirmed.</p>
+                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Referral commissions are credited to your Referral Commission Balance when a referred friend's transaction is confirmed.</p>
                     </div>
                 </div>
                 <div className="p-5 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start gap-3">
                     <ShieldCheck size={18} className="text-blue-500 shrink-0 mt-0.5" />
                     <div>
                         <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-1">Margin Protection</h4>
-                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">To keep the platform sustainable, rewards may be capped or skipped on extremely low-margin transactions.</p>
+                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">To keep the platform sustainable, referral commissions may be capped or skipped on extremely low-margin transactions.</p>
                     </div>
                 </div>
             </div>
 
             <div className="p-4">
                 <p className="text-center text-[10px] text-slate-400 font-medium">
-                    * Referral rewards are calculated based on service profit margins. Multi-account fraud or referral gaming will result in immediate suspension.
+                    * Referral commissions are calculated based on service margins. Multi-account fraud or referral gaming will result in immediate suspension.
                 </p>
             </div>
         </div>

@@ -180,14 +180,28 @@ const TYPE_DISPLAY_FALLBACKS: Record<string, string> = {
     transfer_out: 'Transfer',
     transfer_in: 'Transfer',
     withdrawal: 'Bank Withdrawal',
-    referral_redeem: 'Referral Earnings Redemption',
-    referral_bonus: 'Referral Commission Bonus',
+    investment_buy: 'Zantara Share Purchase',
+    share_purchase: 'Zantara Share Purchase',
+    share_exit: 'Share Exit Request',
+    dividend_credit: 'Shareholder Dividend',
+    dividend_reinvest: 'Shares Purchased with Dividends',
+    dividend_redeem: 'Dividend Transfer to Main Wallet',
+    dividend_withdrawal: 'Dividend Bank Payout',
+    referral_bonus: 'Referral Commission',
     referral_skipped: 'Skipped Commission',
+    agent_profit: 'Agent Earnings',
 };
+
+const isReferralCommissionPayout = (tx: CustomerTransaction): boolean =>
+    (tx.type || '').toLowerCase() === 'dividend_withdrawal'
+    && String(tx.service || '').toLowerCase() === 'referral commission payout';
 
 export function getServiceDisplayName(tx: CustomerTransaction): string {
     const type = (tx.type || '').toLowerCase();
     const network = detectNetwork(tx);
+
+    if (isReferralCommissionPayout(tx)) return 'Referral Commission Payout';
+    if (type === 'referral_redeem') return 'Referral Commission Transfer to Main Wallet';
 
     if (type === 'airtime') return network ? `${network} Airtime` : 'Airtime';
     if (type === 'data') return network ? `${network} Data` : 'Data';
@@ -216,6 +230,17 @@ export function getPaymentMethod(tx: CustomerTransaction): string {
         return tx.service ? String(tx.service).replace(/-|_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Direct Deposit';
     }
     if (type === 'transfer_in' || type === 'transfer_out') return 'Zantara Transfer';
+    if (type === 'investment_buy' || type === 'share_purchase') {
+        return tx.service
+            ? String(tx.service).replace(/-|_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+            : 'Zantara Balance';
+    }
+    if (isReferralCommissionPayout(tx)) return 'Referral Commission Balance';
+    if (type === 'dividend_credit' || type === 'dividend_reinvest' || type === 'dividend_redeem' || type === 'dividend_withdrawal') {
+        return 'Dividend Balance';
+    }
+    if (type === 'referral_redeem') return 'Referral Commission Balance';
+    if (type === 'share_exit') return 'Shareholding Record';
     return 'Zantara Balance';
 }
 
@@ -298,20 +323,20 @@ export function getCategoryDetailRows(tx: CustomerTransaction): ReceiptDetailRow
         add('Recipient', safeStr(d.recipientName) || maskPhone(safeStr(d.recipientPhone)));
         add('Recipient', maskPhone(safeStr(d.recipientPhone)));
         add('Sender', safeStr(d.senderName) || maskPhone(safeStr(d.senderPhone)));
-    } else if (type === 'share_purchase' || type === 'dividend_reinvest') {
-        add('Shares', safeStr(d.sharesQty));
-        add('Price / Share', safeStr(d.pricePerShare));
-        add('Fee', safeStr(d.fee));
+    } else if (type === 'investment_buy' || type === 'share_purchase' || type === 'dividend_reinvest') {
+        add('Number of Shares', safeStr(d.sharesQty) || safeStr(d.qty));
+        add('Price per Share', safeStr(d.pricePerShare));
+        add(type === 'dividend_reinvest' ? 'Dividend Share Purchase Fee' : 'Share Purchase Fee', safeStr(d.fee));
     } else if (type === 'share_exit') {
-        add('Shares Returned', safeStr(d.sharesReturned));
-        add('Gross Amount', safeStr(d.grossAmount));
-        add('Exit Fee', safeStr(d.exitFeeCharged));
+        add('Shares in Exit Request', safeStr(d.sharesReturned) || safeStr(d.sharesRequested) || safeStr(d.qty));
+        add('Gross Share Exit Amount', safeStr(d.grossAmount));
+        add('Share Exit Fee', safeStr(d.exitFeeCharged));
     } else if (type === 'dividend_redeem') {
-        add('Net Amount', safeStr(d.netAmount));
-        add('Fee', safeStr(d.fee));
+        add('Dividend Amount Transferred', safeStr(d.netAmount) || safeStr(tx.amount));
+        add('Transfer Fee', safeStr(d.fee));
     } else if (type === 'dividend_withdrawal') {
-        add('Bank', safeStr(d.bankName));
-        add('Fee Charged', safeStr(d.feeCharged));
+        add('Destination Bank', safeStr(d.bankName));
+        add(isReferralCommissionPayout(tx) ? 'Referral Commission Payout Fee' : 'Dividend Payout Fee', safeStr(d.feeCharged));
     }
 
     return rows;
@@ -377,11 +402,17 @@ export function getDescription(tx: CustomerTransaction): string {
     const type = (tx.type || '').toLowerCase();
     const d = tx.details || {};
     const remarks = safeStr(d.remarks);
+    if (type === 'investment_buy' || type === 'share_purchase') return 'Purchase of Zantara shares';
+    if (type === 'share_exit') return 'Share exit request';
+    if (type === 'dividend_credit') return 'Shareholder dividend received';
+    if (type === 'dividend_reinvest') return 'Shares purchased with dividends';
+    if (type === 'dividend_redeem') return 'Dividend transferred to main wallet';
+    if (type === 'dividend_withdrawal') return isReferralCommissionPayout(tx) ? 'Referral commission bank payout' : 'Dividend bank payout';
+    if (type === 'referral_redeem') return 'Referral commission transferred to main wallet';
     if (remarks) return remarks;
 
     const base = getServiceDisplayName(tx);
-    if (type === 'referral_redeem') return 'Referral Earnings Redemption';
-    if (type === 'referral_bonus') return 'Referral Commission Bonus';
+    if (type === 'referral_bonus') return 'Referral Commission';
     if (type === 'referral_skipped') return 'Commission skipped due to low service margin';
     if (type === 'transfer_out') return `Transfer to ${safeStr(d.recipientName) || maskPhone(safeStr(d.recipientPhone)) || 'recipient'}`;
     if (type === 'transfer_in') return `Transfer from ${safeStr(d.senderName) || maskPhone(safeStr(d.senderPhone)) || 'sender'}`;

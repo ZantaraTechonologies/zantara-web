@@ -18,6 +18,7 @@ import { useMyTransactions } from '../../hooks/useWallet';
 import { format } from 'date-fns';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { FUNDED_SUCCESS_TEXT, FUNDED_FAILED_TEXT } from '../../utils/paymentReturnNotices';
+import { getServiceDisplayName } from '../../utils/receiptUtils';
 
 const UserWalletPage: React.FC = () => {
     const { 
@@ -67,7 +68,7 @@ const UserWalletPage: React.FC = () => {
 
     const stats = [
         { label: 'Total Balance', amount: `${currency} ${(totalBalance || 0).toLocaleString()}`, icon: Wallet, color: 'text-blue-500', bg: 'bg-blue-50' },
-        { label: 'Frozen Capital', amount: `${currency} ${(frozenBalance || 0).toLocaleString()}`, icon: Lock, color: 'text-red-500', bg: 'bg-red-50' },
+        { label: 'Frozen Balance', amount: `${currency} ${(frozenBalance || 0).toLocaleString()}`, icon: Lock, color: 'text-red-500', bg: 'bg-red-50' },
     ];
 
     return (
@@ -122,7 +123,7 @@ const UserWalletPage: React.FC = () => {
                             <div className="relative z-10 space-y-6">
                                 <div className="flex justify-between items-start">
                                     <div className="space-y-2">
-                                        <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Available Capital</p>
+                                        <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Available Balance</p>
                                         <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tighter">
                                             {currency} {balance?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                         </h2>
@@ -196,7 +197,7 @@ const UserWalletPage: React.FC = () => {
                                             return (
                                                 <tr key={tx.id ?? i} className="transition-colors hover:bg-slate-50/60">
                                                     <td className="px-6 py-3">
-                                                        <span className="font-bold text-slate-900 text-xs">{tx.service || tx.type || 'Transaction'}</span>
+                                                        <span className="font-bold text-slate-900 text-xs">{getServiceDisplayName(tx)}</span>
                                                     </td>
                                                     <td className="px-6 py-3 text-[10px] text-slate-500 font-medium whitespace-nowrap">
                                                         {new Date(tx.createdAt).toLocaleDateString()}

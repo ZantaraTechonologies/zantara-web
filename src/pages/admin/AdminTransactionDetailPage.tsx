@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import API from '../../services/api/apiClient';
 import { toast } from 'react-hot-toast';
+import { getDescription, getServiceDisplayName } from '../../utils/receiptUtils';
 
 export default function AdminTransactionDetailPage() {
     const { id } = useParams();
@@ -73,6 +74,18 @@ export default function AdminTransactionDetailPage() {
 
     const isCredit = ['funding', 'credit', 'settlement', 'referral_bonus', 'commission'].includes((txn.type || txn.service || '').toLowerCase());
     const userDisplay = typeof txn.userId === 'object' ? (txn.userId?.email || txn.userId?.name) : (txn.userId || "Unknown");
+    const transactionDisplayName = getServiceDisplayName(txn);
+    const transactionDescription = getDescription(txn);
+    const usesControlledShareholdingLabel = [
+        'investment_buy',
+        'share_purchase',
+        'share_exit',
+        'dividend_credit',
+        'dividend_reinvest',
+        'dividend_redeem',
+        'dividend_withdrawal',
+        'referral_redeem',
+    ].includes((txn.type || '').toLowerCase());
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
@@ -110,7 +123,7 @@ export default function AdminTransactionDetailPage() {
                         </h1>
                         <p className="text-slate-400 font-medium flex items-center gap-2">
                             <Layers size={16} className="text-emerald-500" />
-                            Provisioning: <span className="text-white capitalize">{txn.service}</span>
+                            Transaction: <span className="text-white">{transactionDisplayName}</span>
                         </p>
                     </div>
 
@@ -153,7 +166,9 @@ export default function AdminTransactionDetailPage() {
                                     <Info size={40} />
                                 </div>
                                 <p className="text-slate-700 leading-relaxed font-medium">
-                                    {isCredit 
+                                    {usesControlledShareholdingLabel
+                                        ? `This entry records ${transactionDescription.toLowerCase()} for account ${userDisplay}.`
+                                        : isCredit
                                         ? `This entry represents a successful wallet inflow. The ledger system verified the external payment reference and incremented the balance for account ${userDisplay} by ₦${txn.amount}.`
                                         : `This entry represents a service purchase. The system successfully debited ₦${txn.amount} from ${userDisplay}'s ledger and dispatched a request to the ${txn.service} protocol provider.`
                                     }
@@ -310,15 +325,15 @@ export default function AdminTransactionDetailPage() {
 
                             <div className="flex items-center justify-between p-4 bg-emerald-500 rounded-2xl text-slate-950 shadow-lg shadow-emerald-500/10">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-70">Platform Yield</span>
-                                    <span className="text-[8px] font-bold uppercase tracking-tighter opacity-50">Net Realized Profit</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-70">Platform Net Profit</span>
+                                    <span className="text-[8px] font-bold uppercase tracking-tighter opacity-50">Net Profit After Commission</span>
                                 </div>
                                 <span className="text-lg font-black tracking-tighter">₦{(txn.netProfitAfterCommission ?? txn.profit ?? 0).toLocaleString()}</span>
                             </div>
 
                             {txn.commission > 0 && (
                                 <div className="flex items-center justify-between p-3 bg-rose-50 rounded-xl border border-rose-100">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-rose-500">Referral Payout</span>
+                                     <span className="text-[10px] font-bold uppercase tracking-widest text-rose-500">Referral Commission</span>
                                     <span className="text-[10px] font-bold text-rose-500">-₦{txn.commission}</span>
                                 </div>
                             )}

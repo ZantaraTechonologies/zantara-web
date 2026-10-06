@@ -30,6 +30,7 @@ import InvestmentTransferModal from '../../components/modals/InvestmentTransferM
 import { paymentService } from '../../services/payment/paymentService';
 import { toast } from 'react-hot-toast';
 import { CreditCard, Building2 } from 'lucide-react';
+import { getServiceDisplayName } from '../../utils/receiptUtils';
 
 const InvestmentPage: React.FC = () => {
     const { data: summary, isLoading: summaryLoading } = useInvestmentSummary();
@@ -119,34 +120,34 @@ const InvestmentPage: React.FC = () => {
                     setBuyQty('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => handleError(err, 'Purchase failed')
+                onError: (err: any) => handleError(err, 'Share purchase failed')
             });
         } else if (activeModal === 'reinvest') {
             reinvest({ qty: Number(reinvestQty), pin }, {
                 onSuccess: () => {
-                    toast.success('Dividends reinvested successfully');
+                    toast.success('Additional shares purchased with dividends');
                     setReinvestQty('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => handleError(err, 'Reinvestment failed')
+                onError: (err: any) => handleError(err, 'Additional share purchase with dividends failed')
             });
         } else if (activeModal === 'redeem') {
             redeem({ amount: Number(redeemAmount), source: redeemSource, pin }, {
                 onSuccess: () => {
-                    toast.success(`${redeemSource === 'dividend' ? 'Dividends' : 'Referral earnings'} moved to main wallet`);
+                    toast.success(`${redeemSource === 'dividend' ? 'Dividends' : 'Referral commissions'} moved to main wallet`);
                     setRedeemAmount('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => handleError(err, 'Redemption failed')
+                onError: (err: any) => handleError(err, 'Balance transfer failed')
             });
         } else if (activeModal === 'exit') {
             requestExit({ qty: Number(exitQty), pin }, {
                 onSuccess: () => {
-                    toast.success('Exit request submitted');
+                    toast.success('Share exit request submitted');
                     setExitQty('');
                     setIsPinModalOpen(false);
                 },
-                onError: (err: any) => handleError(err, 'Exit request failed')
+                onError: (err: any) => handleError(err, 'Share exit request failed')
             });
         }
     };
@@ -171,32 +172,32 @@ const InvestmentPage: React.FC = () => {
         <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in duration-500 pb-12">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Shareholder Portfolio</h1>
-                <p className="text-slate-500 font-medium">Invest in Zantara technologies and earn monthly dividends.</p>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tighter">My Zantara Shares</h1>
+                <p className="text-slate-500 font-medium">Purchase available shares in Zantara Intelligent Systems Limited and receive dividends when declared.</p>
             </div>
 
             {/* Main Dashboard Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Portfolio Summary Card */}
+                {/* Shareholding Summary Card */}
                 <div className="lg:col-span-2 bg-surface border border-slate-100 rounded-3xl p-6 text-slate-900 shadow-card relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-brand-emerald-100/60 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-brand-emerald-100 transition-all duration-700"></div>
                     
                     <div className="relative z-10 space-y-6">
                         <div className="flex justify-between items-start">
                             <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.3em]">Total Value</span>
+                                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.3em]">Indicative Shareholding Value</span>
                                 <h2 className="text-4xl font-black tracking-tighter text-slate-900">
                                     {currency}{(summary.sharesOwned * (settings?.sharePrice || 0)).toLocaleString()}
                                 </h2>
                             </div>
                             <div className="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100">
-                                <span className="text-xs font-bold text-emerald-600">{summary.sharesOwned} Shares owned</span>
+                                <span className="text-xs font-bold text-emerald-600">{summary.sharesOwned} Shares held</span>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 py-8 border-y border-slate-100">
                             <div>
-                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Lifetime Dividends</p>
+                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Total Dividends Received</p>
                                 <p className="text-2xl font-black text-slate-900">{currency}{summary.totalDividendsEarned.toLocaleString()}</p>
                             </div>
                             <div>
@@ -204,7 +205,7 @@ const InvestmentPage: React.FC = () => {
                                 <p className="text-2xl font-black text-slate-900">{currency}{summary.dividendBalance.toLocaleString()}</p>
                             </div>
                             <div>
-                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Referral Balance</p>
+                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Referral Commission Balance</p>
                                 <p className="text-2xl font-black text-slate-900">{currency}{summary.referralBalance.toLocaleString()}</p>
                             </div>
                         </div>
@@ -222,12 +223,12 @@ const InvestmentPage: React.FC = () => {
                                         onClick={() => { setRedeemSource('referral'); setRedeemAmount(''); }}
                                         className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${redeemSource === 'referral' ? 'bg-amber-500 text-white' : 'text-slate-400 hover:text-slate-900'}`}
                                     >
-                                        Referrals
+                                        Referral Commissions
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                        Amount to {redeemSource === 'referral' ? 'Referral' : 'Dividend'} Wallet
+                                        Amount to Transfer from {redeemSource === 'referral' ? 'Referral Commissions' : 'Dividend Balance'}
                                     </span>
                                     {((redeemSource === 'dividend' ? summary.dividendBalance : summary.referralBalance) > 0) && (
                                         <button 
@@ -243,7 +244,7 @@ const InvestmentPage: React.FC = () => {
                                 <div className="flex-1 relative group">
                                     <input 
                                         type="number" 
-                                        placeholder={`Enter amount from ${redeemSource}s`}
+                                        placeholder={`Enter amount from ${redeemSource === 'referral' ? 'referral commissions' : 'dividends'}`}
                                         value={redeemAmount}
                                         onChange={(e) => setRedeemAmount(e.target.value)}
                                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 text-sm font-bold text-slate-900 outline-none focus:border-emerald-500/50 transition-all placeholder:text-slate-300"
@@ -260,7 +261,7 @@ const InvestmentPage: React.FC = () => {
                                     className={`px-6 py-3 rounded-2xl font-black text-sm transition-all disabled:opacity-20 flex items-center justify-center gap-2 whitespace-nowrap ${redeemSource === 'referral' ? 'bg-amber-500 text-white hover:bg-amber-400' : 'bg-brand-emerald text-white hover:bg-brand-emerald-600'}`}
                                 >
                                     <RefreshCw size={18} className={redeemPending ? 'animate-spin' : ''} />
-                                    Move {redeemSource === 'referral' ? 'Referral' : 'Earnings'} 
+                                    Transfer {redeemSource === 'referral' ? 'Referral Commissions' : 'Dividends'}
                                 </button>
                             </div>
                         </div>
@@ -271,7 +272,7 @@ const InvestmentPage: React.FC = () => {
                                 className="w-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-6 py-3 rounded-2xl font-black text-sm text-center hover:bg-brand-emerald hover:text-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                             >
                                 <LogOut size={18} />
-                                Withdraw to Bank Account
+                                Dividend or Referral Commission Payout
                             </Link>
                         </div>
                     </div>
@@ -287,31 +288,31 @@ const InvestmentPage: React.FC = () => {
 
                     <div className="space-y-6">
                         <div>
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Company Profit Allocation</p>
+                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Monthly Net Profit Allocation for Shareholder Dividends</p>
                             <h4 className="text-3xl font-black text-slate-900 tracking-tight">{settings?.investorAllocationPercent || 20}%</h4>
                         </div>
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs font-bold text-slate-500">
-                                <span>Next Payout Day</span>
+                                <span>Dividend Processing Day</span>
                                 <span className="text-blue-600">Day {settings?.dividendPayoutDay || 1}</span>
                             </div>
                             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                                 <div className="bg-blue-500 h-full w-1/3 rounded-full"></div>
                             </div>
-                            <p className="text-[10px] text-slate-400 font-medium italic">Dividends are calculated from monthly net profit.</p>
+                            <p className="text-[10px] text-slate-400 font-medium italic">Declared dividends are based on the portion of monthly net profit allocated to shareholders.</p>
                         </div>
                     </div>
 
                     <div className="pt-6 mt-6 border-t border-slate-50">
                         <div className="flex items-center gap-3 text-slate-400">
                             <ShieldCheck size={16} className="text-blue-500" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Audited & Verified Distribution</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Dividend Distribution Information</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Investment Actions Grid */}
+            {/* Shareholding Actions Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Buy Shares Form */}
                 <div className="bg-surface rounded-3xl p-6 border border-slate-100 shadow-card space-y-5">
@@ -321,13 +322,13 @@ const InvestmentPage: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="font-black text-slate-900 tracking-tight">Purchase Additional Shares</h3>
-                            <p className="text-xs text-slate-400 font-medium">Accumulate more ownership in Zantara profit.</p>
+                            <p className="text-xs text-slate-400 font-medium">Increase your shareholding in Zantara Intelligent Systems Limited.</p>
                         </div>
                     </div>
 
                     <div className="space-y-4">
                         <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 px-1">
-                            <span>Current Share Price</span>
+                            <span>Share Purchase Price</span>
                             <span className="text-emerald-500">{currency}{settings?.sharePrice?.toLocaleString()}</span>
                         </div>
                         <input 
@@ -371,13 +372,13 @@ const InvestmentPage: React.FC = () => {
                             onClick={() => handleActionClick('buy')}
                             className="w-full bg-brand-emerald text-white py-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-brand-emerald-600 disabled:opacity-50 transition-all active:scale-[0.98]"
                         >
-                            {initializingPayment ? 'Initializing...' : buyPending ? 'Processing...' : (Number(buyQty) > 0 && Number(buyQty) < (settings?.minSharesPerPurchase || 1)) ? `Min ${settings?.minSharesPerPurchase} Shares Required` : 'Purchase Shares Now'}
+                            {initializingPayment ? 'Initializing...' : buyPending ? 'Processing...' : (Number(buyQty) > 0 && Number(buyQty) < (settings?.minSharesPerPurchase || 1)) ? `Minimum: ${settings?.minSharesPerPurchase} shares` : 'Purchase Shares'}
                             <ArrowRight size={18} />
                         </button>
                         <div className="flex items-center justify-between text-[10px] text-slate-400 font-medium px-1">
                             <div className="flex items-center gap-2">
                                 <Plus size={12} />
-                                <span>Max {settings?.maxSharesPerUser} shares per user.</span>
+                                <span>Maximum holding: {settings?.maxSharesPerUser} shares per shareholder.</span>
                             </div>
                             <span className="font-bold text-emerald-500">Min: {settings?.minSharesPerPurchase || 1} Shares</span>
                         </div>
@@ -393,8 +394,8 @@ const InvestmentPage: React.FC = () => {
                                 <Coins size={24} />
                             </div>
                             <div>
-                                <h3 className="font-black text-slate-900 tracking-tight">Compound Dividends</h3>
-                                <p className="text-xs text-slate-400 font-medium">Reinvest earnings into more shares.</p>
+                                <h3 className="font-black text-slate-900 tracking-tight">Use Dividends to Buy More Shares</h3>
+                                <p className="text-xs text-slate-400 font-medium">Use your Dividend Balance to purchase additional shares.</p>
                             </div>
                         </div>
                         
@@ -433,8 +434,8 @@ const InvestmentPage: React.FC = () => {
                                 <Briefcase size={24} />
                             </div>
                             <div>
-                                <h3 className="font-black text-slate-900 tracking-tight">Principal Exit</h3>
-                                <p className="text-xs text-slate-400 font-medium">Liquidate shares and return principal.</p>
+                                <h3 className="font-black text-slate-900 tracking-tight">Share Exit</h3>
+                                <p className="text-xs text-slate-400 font-medium">Request an exit for eligible shares under the applicable shareholding terms.</p>
                             </div>
                         </div>
 
@@ -475,7 +476,7 @@ const InvestmentPage: React.FC = () => {
                         <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100 flex items-center gap-3">
                             <AlertCircle size={20} className="text-amber-500 shrink-0" />
                             <p className="text-[11px] font-bold text-amber-800 tracking-tight">
-                                Your principal investment is locked until <span className="font-black underline">{summary.lockExpiresAt ? format(new Date(summary.lockExpiresAt), 'MMM dd, yyyy') : 'N/A'}</span> (6 Month Lock Policy).
+                                These shares are subject to a minimum holding period until <span className="font-black underline">{summary.lockExpiresAt ? format(new Date(summary.lockExpiresAt), 'MMM dd, yyyy') : 'N/A'}</span>.
                             </p>
                         </div>
                     )}
@@ -487,7 +488,7 @@ const InvestmentPage: React.FC = () => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <History size={24} className="text-slate-400" />
-                        <h3 className="text-xl font-black text-slate-900 tracking-tighter">Earnings History</h3>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tighter">Shareholding History</h3>
                     </div>
                 </div>
 
@@ -514,7 +515,7 @@ const InvestmentPage: React.FC = () => {
                                                     'bg-amber-500'
                                                 }`}></div>
                                                 <span className="text-xs font-black text-slate-900 uppercase tracking-widest">
-                                                    {item.type?.replace(/_/g, ' ')}
+                                                    {getServiceDisplayName(item)}
                                                 </span>
                                             </div>
                                         </td>
@@ -529,7 +530,7 @@ const InvestmentPage: React.FC = () => {
                                     <td colSpan={4} className="py-20 text-center">
                                         <div className="flex flex-col items-center gap-3 text-slate-300">
                                             <Receipt size={40} />
-                                            <p className="text-xs font-bold uppercase tracking-widest">No investment history available yet</p>
+                                            <p className="text-xs font-bold uppercase tracking-widest">No shareholding history available yet</p>
                                         </div>
                                     </td>
                                 </tr>

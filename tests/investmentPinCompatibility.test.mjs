@@ -333,12 +333,12 @@ test('internal investment services send required PIN request bodies', async () =
 test('wallet buy forwards entered PIN and cancellation sends no request', async () => {
     await uiHarness.mount();
     await uiHarness.input('input[placeholder="Enter quantity of shares"]', '2');
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     await uiHarness.enterPin('1234');
     await uiHarness.clickText('Cancel');
     assert.deepEqual(uiCalls, []);
 
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     await uiHarness.enterPin('2345');
     await uiHarness.clickText('Authorize Transaction');
     assert.deepEqual(uiCalls, [{ name: 'buy', payload: { qty: 2, pin: '2345' } }]);
@@ -375,14 +375,14 @@ test('reinvest forwards entered PIN and cancellation sends no request', async ()
 test('redeem requires PIN for dividend and referral sources', async () => {
     await uiHarness.mount();
     await uiHarness.input('input[placeholder="Enter amount from dividends"]', '500');
-    await uiHarness.clickText('Move Earnings');
+    await uiHarness.clickText('Transfer Dividends');
     await uiHarness.enterPin('1234');
     await uiHarness.clickText('Authorize Transaction');
 
     await uiHarness.clickText('Cancel');
-    await uiHarness.clickText('Referrals');
-    await uiHarness.input('input[placeholder="Enter amount from referrals"]', '250');
-    await uiHarness.clickText('Move Referral');
+    await uiHarness.clickText('Referral Commissions');
+    await uiHarness.input('input[placeholder="Enter amount from referral commissions"]', '250');
+    await uiHarness.clickText('Transfer Referral Commissions');
     await uiHarness.enterPin('2345');
     await uiHarness.clickText('Authorize Transaction');
 
@@ -410,7 +410,7 @@ test('withdrawal runtime includes bank fields, source, and PIN', async () => {
     await uiHarness.mount('withdraw');
     await uiHarness.input('input[placeholder="0.00"]', '750');
     await uiHarness.clickText('Test Bank');
-    await uiHarness.clickText('Confirm dividend Withdrawal');
+    await uiHarness.clickText('Confirm Dividend Payout');
     await uiHarness.enterPin('6789');
     await uiHarness.clickText('Authorize Transaction');
     assert.deepEqual(uiCalls, [{
@@ -443,13 +443,13 @@ test('PIN inputs clear after success and reopening starts empty', async () => {
     globalThis.__batch4bUi.outcome = 'success';
     await uiHarness.mount();
     await uiHarness.input('input[placeholder="Enter quantity of shares"]', '2');
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     await uiHarness.enterPin('1234');
     await uiHarness.clickText('Authorize Transaction');
     assert.equal(uiHarness.hasPinModal(), false);
 
     await uiHarness.input('input[placeholder="Enter quantity of shares"]', '2');
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     assert.deepEqual(uiHarness.pinValues(), ['', '', '', '']);
 });
 
@@ -457,7 +457,7 @@ test('PIN inputs clear after failure while preserving the backend PIN error', as
     globalThis.__batch4bUi.outcome = 'error';
     await uiHarness.mount();
     await uiHarness.input('input[placeholder="Enter quantity of shares"]', '2');
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     await uiHarness.enterPin('1234');
     await uiHarness.clickText('Authorize Transaction');
 
@@ -469,12 +469,12 @@ test('PIN inputs clear after failure while preserving the backend PIN error', as
 test('PIN inputs clear after modal cancellation and are not reused', async () => {
     await uiHarness.mount();
     await uiHarness.input('input[placeholder="Enter quantity of shares"]', '2');
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     await uiHarness.enterPin('1234');
     await uiHarness.clickText('Cancel');
     assert.equal(uiHarness.hasPinModal(), false);
 
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     assert.deepEqual(uiHarness.pinValues(), ['', '', '', '']);
     assert.deepEqual(uiCalls, []);
 });
@@ -488,7 +488,7 @@ test('investment PIN is not written to browser storage or URL parameters', async
 
     await uiHarness.mount();
     await uiHarness.input('input[placeholder="Enter quantity of shares"]', '2');
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     await uiHarness.enterPin('1234');
     await uiHarness.clickText('Authorize Transaction');
 
@@ -519,7 +519,7 @@ test('external Paystack investment initialization remains PIN-free and separate'
     await uiHarness.mount();
     await uiHarness.input('input[placeholder="Enter quantity of shares"]', '2');
     await uiHarness.clickText('Card');
-    await uiHarness.clickText('Purchase Shares Now');
+    await uiHarness.clickText('Purchase Shares');
     await uiHarness.settle();
 
     assert.deepEqual(paymentCalls, [[2000, 'investment_buy', { qty: 2 }, false]]);

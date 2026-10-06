@@ -22,6 +22,7 @@ import {
     XCircle
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { getServiceDisplayName } from "../../utils/receiptUtils";
 
 // Types — align to your backend fields
 export type Txn = {
@@ -92,7 +93,7 @@ export default function TransactionsPage() {
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
 
-    const getTransactionConfig = (type: string) => {
+    const getTransactionConfig = (type: string, tx?: Txn) => {
         switch (type) {
             case 'funding':
             case 'credit':
@@ -111,7 +112,7 @@ export default function TransactionsPage() {
             case 'expense':
                 return { icon: <MinusCircle size={14} />, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'Withdrawal' };
             default:
-                return { icon: <Activity size={14} />, color: 'text-slate-400', bg: 'bg-slate-100', label: String(type || 'UNKNOWN').toUpperCase() };
+                return { icon: <Activity size={14} />, color: 'text-slate-400', bg: 'bg-slate-100', label: getServiceDisplayName(tx || { type }) };
         }
     };
 
@@ -286,7 +287,7 @@ export default function TransactionsPage() {
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Client</th>
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Protocol</th>
                                 <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">User Paid</th>
-                                <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Platform Yield</th>
+                                <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Platform Net Profit</th>
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Status</th>
                                 <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Reference</th>
                                 <th className="text-right px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Actions</th>
@@ -305,7 +306,7 @@ export default function TransactionsPage() {
                             )}
                             {!loading && rows.map((r) => {
                                 const typeOrService = (r.type || r.service || 'data').toLowerCase();
-                                const config = getTransactionConfig(typeOrService);
+                                 const config = getTransactionConfig(typeOrService, r);
                                 const isCredit = ['funding', 'credit', 'settlement', 'referral_bonus', 'commission'].includes(typeOrService);
                                 
                                 const userText = typeof r.user === "string" 

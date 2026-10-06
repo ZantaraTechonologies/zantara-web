@@ -72,7 +72,7 @@ const UserWithdrawPage: React.FC = () => {
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Withdraw Funds</h1>
-                    <p className="text-slate-500 font-medium text-sm">Liquidate your Zantara capital to local bank.</p>
+                    <p className="text-slate-500 font-medium text-sm">Withdraw funds from your Zantara wallet to a local bank.</p>
                 </div>
             </div>
 
@@ -144,7 +144,7 @@ const UserWithdrawPage: React.FC = () => {
                         onClick={() => setStep(2)}
                         className="w-full bg-brand-emerald text-white py-3.5 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn disabled:opacity-30 disabled:pointer-events-none"
                     >
-                        {Number(amount) > balance ? 'Insufficient Capital' : 'Initiate Settlement'}
+                        {Number(amount) > balance ? 'Insufficient Balance' : 'Initiate Settlement'}
                     </button>
                 </div>
             )}

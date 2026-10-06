@@ -45,16 +45,16 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                             <CheckCircle2 size={40} />
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-xl font-bold text-slate-900">Awaiting Payment Detection</h3>
+                            <h3 className="text-xl font-bold text-slate-900">Awaiting Payment Confirmation</h3>
                             <p className="text-sm text-slate-500 leading-relaxed">
-                                Our system is currently monitoring for your deposit. Once the payment is detected, your investment portfolio will be <span className="text-emerald-600 font-bold">automatically updated</span>.
+                                We are monitoring for your payment. Once it is confirmed, your Zantara shareholding will be <span className="text-emerald-600 font-bold">automatically updated</span>.
                             </p>
                         </div>
                         <button 
                             onClick={onClose}
                             className="w-full bg-brand-emerald text-white py-4 rounded-xl font-bold uppercase tracking-widest text-[11px] hover:bg-brand-emerald-600 transition-all shadow-btn"
                         >
-                            Return to Portfolio
+                            Return to My Zantara Shares
                         </button>
                     </div>
                 </div>
@@ -73,7 +73,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                         </div>
                         <div>
                             <h4 className="font-bold text-sm tracking-tight text-white">Direct Bank Transfer</h4>
-                            <p className="text-[10px] text-white/80 font-bold uppercase tracking-[0.2em]">Transaction Registry</p>
+                            <p className="text-[10px] text-white/80 font-bold uppercase tracking-[0.2em]">Share Purchase Payment</p>
                         </div>
                     </div>
                     <button 
@@ -91,7 +91,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
                             <Info size={28} />
                         </div>
                         <h4 className="text-xl font-black text-slate-900">Transfer {details.currency || '₦'}{details.amount.toLocaleString()}</h4>
-                        <p className="text-xs text-slate-500 font-medium px-4">Transfer the exact amount below to secure your shares.</p>
+                        <p className="text-xs text-slate-500 font-medium px-4">Transfer the exact amount below to complete your share purchase.</p>
                     </div>
 
                     {/* Account Details */}
@@ -145,7 +145,7 @@ const InvestmentTransferModal: React.FC<InvestmentTransferModalProps> = ({
 
                 <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-2">
                     <CheckCircle2 size={12} className="text-emerald-500" />
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Zantara Secure Settlement</span>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Zantara Payment Processing</span>
                 </div>
             </div>
         </div>

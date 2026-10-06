@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { useAdminEarnings } from "../../../../hooks/admin/useAdminAnalytics";
 import { useWalletStore } from "../../../../store/wallet/walletStore";
+import { getServiceDisplayName } from "../../../../utils/receiptUtils";
 
 interface Props {
     period: string;
@@ -54,9 +55,9 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
     const pagination = analytics?.data?.pagination;
 
     const statsCards = [
-        { label: "Referral Payouts", value: overview?.totalReferralPayouts || 0, icon: Users, color: "emerald", desc: "Cumulative commissions disbursed" },
+        { label: "Referral Commission Payouts", value: overview?.totalReferralPayouts || 0, icon: Users, color: "emerald", desc: "Cumulative commissions disbursed" },
         { label: "Capped Events", value: overview?.cappedCommissionsCount || 0, icon: ShieldCheck, color: "amber", desc: "Margin-protected transactions" },
-        { label: "Skipped (Low Margin)", value: overview?.skippedCommissionsCount || 0, icon: Zap, color: "slate", desc: "Zero-yield commission bypass" },
+        { label: "Skipped (Low Margin)", value: overview?.skippedCommissionsCount || 0, icon: Zap, color: "slate", desc: "Zero-margin commission bypass" },
     ];
 
     if (isLoading && !analytics) {
@@ -97,7 +98,7 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
                     <div className="bg-surface border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                         <div className="bg-slate-50/80 border-b border-slate-100 px-6 py-5 flex items-center justify-between">
                             <div>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Top Yield Performers</h3>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Top Commission Recipients</h3>
                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Global conversion leaders</p>
                             </div>
                             <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
@@ -111,7 +112,7 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
                                         <th className="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Rank</th>
                                         <th className="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Partner Identity</th>
                                         <th className="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Volume</th>
-                                        <th className="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Total Yield</th>
+                                        <th className="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Total Commissions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -134,16 +135,16 @@ const PayoutDynamicsTab: React.FC<Props> = ({ period, customDates }) => {
 
                     <div className="bg-surface border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col min-h-[500px]">
                         <div className="bg-slate-50/80 border-b border-slate-100 px-6 py-5 flex items-center justify-between">
-                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Platform Earnings History</h3>
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Commission History</h3>
                             {pagination && <span className="text-[10px] font-black text-indigo-600 bg-indigo-500/10 px-3 py-1 rounded-full uppercase border border-indigo-500/20">{pagination.total} Records</span>}
                         </div>
                         <div className="overflow-x-auto flex-1">
                             <table className="w-full text-left border-collapse min-w-[700px]">
-                                <thead className="sticky top-0 z-10"><tr className="bg-slate-50/80 border-b border-slate-100"><th className="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Activity Node</th><th className="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Partner</th><th className="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Net Yield</th><th className="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Timestamp</th></tr></thead>
+                                <thead className="sticky top-0 z-10"><tr className="bg-slate-50/80 border-b border-slate-100"><th className="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Activity Node</th><th className="px-4 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Partner</th><th className="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Net Commission</th><th className="px-4 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">Timestamp</th></tr></thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {history.map((item: any, i: number) => (
                                         <tr key={i} className="group hover:bg-slate-50/60 transition-colors">
-                                            <td className="px-4 py-3"><div className="flex items-center gap-3"><div className={`w-2 h-2 rounded-full ${item.type === 'referral_bonus' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : item.type === 'agent_profit' ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-slate-300'}`}></div><span className="text-[10px] font-black text-slate-600 uppercase">{item.type.replace('_', ' ')}</span></div></td>
+                                            <td className="px-4 py-3"><div className="flex items-center gap-3"><div className={`w-2 h-2 rounded-full ${item.type === 'referral_bonus' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : item.type === 'agent_profit' ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-slate-300'}`}></div><span className="text-[10px] font-black text-slate-600 uppercase">{getServiceDisplayName(item)}</span></div></td>
                                             <td className="px-4 py-3"><div className="flex flex-col"><span className="text-xs font-black text-slate-700">{item.userName}</span><span className="text-[9px] text-slate-600 font-bold uppercase truncate max-w-[140px]">{item.userEmail}</span></div></td>
                                             <td className="px-4 py-3 text-right"><span className={`text-sm font-black tabular-nums ${item.type === 'referral_redeem' ? 'text-rose-600' : 'text-emerald-600'}`}>{currency}{item.amount.toLocaleString()}</span></td>
                                             <td className="px-4 py-3 text-right font-mono text-[10px] text-slate-600">{format(new Date(item.createdAt), "HH:mm:ss · MMM dd")}</td>

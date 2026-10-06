@@ -87,7 +87,7 @@ export const updateUserAgentDiscount = async (userId: string, data: any) => {
     return response.data;
 };
 
-// --- System & Investment Settings ---
+// --- System & Shareholder Settings ---
 
 export const getSystemSettings = async () => {
     const response = await apiClient.get(`/admin/settings`);

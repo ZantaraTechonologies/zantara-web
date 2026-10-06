@@ -20,6 +20,7 @@ import {
 import { useTransactionDetails } from '../../hooks/useWallet';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import { toast } from 'react-hot-toast';
+import { getPaymentMethod, getServiceDisplayName } from '../../utils/receiptUtils';
 
 const TransactionDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -64,9 +65,9 @@ const TransactionDetailsPage: React.FC = () => {
 
     const detailRows = [
         { label: 'Reference ID', value: tx.refId || tx.id, icon: Hash, copyable: true },
-        { label: 'Service Type', value: tx.service || tx.type.replace('_', ' ').toUpperCase(), icon: FileText },
+        { label: 'Service Type', value: getServiceDisplayName(tx), icon: FileText },
         { label: 'Transaction Date', value: new Date(tx.createdAt).toLocaleString(), icon: Calendar },
-        { label: 'Payment Method', value: tx.type === 'wallet_fund' ? 'Direct Deposit / Paystack' : 'Zantara Wallet', icon: CreditCard },
+        { label: 'Payment Method', value: getPaymentMethod(tx), icon: CreditCard },
         { label: 'Currency', value: tx.currency || 'NGN', icon: Info },
     ];
 
@@ -163,7 +164,7 @@ const TransactionDetailsPage: React.FC = () => {
                     <div className="p-6 border-b border-slate-50 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <ShieldCheck size={18} className="text-emerald-500" />
-                            <h3 className="font-bold text-slate-900">Earnings Transparency</h3>
+                            <h3 className="font-bold text-slate-900">Commission Details</h3>
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Reward Metadata</span>
                     </div>
@@ -173,9 +174,9 @@ const TransactionDetailsPage: React.FC = () => {
                         <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
                             <Info size={16} className="text-emerald-500" />
                             <p className="text-xs font-bold text-slate-800">
-                                {tx.type === 'referral_bonus' ? 'You earned a referral bonus from this purchase.' :
-                                 tx.type === 'agent_profit' ? 'Agent profit generated from this sale.' :
-                                 tx.type === 'referral_redeem' ? 'Earnings redeemed to your main wallet.' :
+                                {tx.type === 'referral_bonus' ? 'You earned a referral commission from this purchase.' :
+                                 tx.type === 'agent_profit' ? 'Agent earnings generated from this sale.' :
+                                 tx.type === 'referral_redeem' ? (tx.details?.bankName || tx.service === 'Referral Commission Payout' ? 'Referral commission payout completed.' : 'Referral commissions transferred to your main wallet.') :
                                  'This commission was skipped due to low service margin.'}
                             </p>
                         </div>

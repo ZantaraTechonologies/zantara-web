@@ -33,6 +33,7 @@ import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons'
 import { toast } from 'react-toastify';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
 import { hasAnyRole } from '../../utils/access';
+import { getServiceDisplayName } from '../../utils/receiptUtils';
 
 const AdminUserDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -48,7 +49,7 @@ const AdminUserDetailPage: React.FC = () => {
     // Pricing Overrides State
     const [customCommRate, setCustomCommRate] = useState<number | ''>('');
 
-    const getTransactionConfig = (type: string) => {
+    const getTransactionConfig = (type: string, tx?: any) => {
         switch (type) {
             case 'funding':
             case 'credit':
@@ -68,9 +69,9 @@ const AdminUserDetailPage: React.FC = () => {
                 return { icon: <MinusCircle size={16} />, color: 'text-rose-500', bg: 'bg-rose-500/10', label: 'Funds Withdrawal' };
             case 'referral_redeem':
             case 'referral_bonus':
-                return { icon: <ArrowUpRight size={16} />, color: 'text-indigo-500', bg: 'bg-indigo-500/10', label: 'Referral Bonus' };
+                return { icon: <ArrowUpRight size={16} />, color: 'text-indigo-500', bg: 'bg-indigo-500/10', label: getServiceDisplayName(tx || { type }) };
             default:
-                return { icon: <Activity size={16} />, color: 'text-slate-400', bg: 'bg-slate-100', label: type.toUpperCase() };
+                return { icon: <Activity size={16} />, color: 'text-slate-400', bg: 'bg-slate-100', label: getServiceDisplayName(tx || { type }) };
         }
     };
 
@@ -378,7 +379,7 @@ const AdminUserDetailPage: React.FC = () => {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {(user.transactions || []).map((tx: any, i: number) => {
-                                        const config = getTransactionConfig(tx.type);
+                                        const config = getTransactionConfig(tx.type, tx);
                                         const isCredit = ['funding', 'credit', 'referral_bonus', 'settlement'].includes(tx.type);
                                         
                                         return (

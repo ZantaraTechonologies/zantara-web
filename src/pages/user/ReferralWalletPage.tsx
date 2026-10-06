@@ -4,6 +4,7 @@ import { Wallet, TrendingUp, Users, ArrowRight, Receipt, Info, ShieldCheck, Aler
 import { useWalletStore } from '../../store/wallet/walletStore';
 import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import { getServiceDisplayName } from '../../utils/receiptUtils';
 
 const ReferralWalletPage: React.FC = () => {
     const navigate = useNavigate();
@@ -27,8 +28,8 @@ const ReferralWalletPage: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Earnings & Rewards</h1>
-                    <p className="text-slate-500 font-medium text-sm">Manage your referrals, agent profits, and commissions.</p>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Referral Commissions & Agent Earnings</h1>
+                    <p className="text-slate-500 font-medium text-sm">Manage your referral commissions and agent earnings.</p>
                 </div>
                 <Link 
                     to="/app/referral"
@@ -44,7 +45,7 @@ const ReferralWalletPage: React.FC = () => {
                     <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
                     
                     <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Spendable Balance</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Referral Commission Balance</span>
                         <h2 className="text-5xl font-black text-slate-900 tracking-tighter">
                             {currency}{stats?.referralBalance?.toLocaleString() || '0'}
                         </h2>
@@ -52,7 +53,7 @@ const ReferralWalletPage: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-8 py-6 border-y border-slate-50 w-full">
                         <div className="text-center group border-r border-slate-50">
-                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:text-emerald-500 transition-colors">Total Earned</p>
+                            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1 group-hover:text-emerald-500 transition-colors">Total Earnings</p>
                             <p className="text-xl font-bold text-slate-800">{currency}{stats?.totalEarnings?.toLocaleString() || '0'}</p>
                         </div>
                         <div className="text-center group">
@@ -69,14 +70,14 @@ const ReferralWalletPage: React.FC = () => {
                             : 'bg-brand-emerald text-white hover:bg-brand-emerald-600 shadow-btn'
                         }`}
                     >
-                        Redeem into Main Wallet
+                        Transfer Referral Commissions to Main Wallet
                         <ArrowRight size={18} />
                     </Link>
 
                     {(!stats?.referralBalance || stats.referralBalance < 100) && (
                         <div className="flex items-center gap-2 text-slate-400">
                             <Info size={14} />
-                            <span className="text-[11px] font-medium italic">Minimum redemption amount is {currency}100</span>
+                            <span className="text-[11px] font-medium italic">Minimum transfer amount is {currency}100</span>
                         </div>
                     )}
                 </div>
@@ -90,7 +91,7 @@ const ReferralWalletPage: React.FC = () => {
                             </div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Agent Level</span>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Agent Profit</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Agent Earnings</p>
                         <h4 className="text-xl font-bold text-slate-900 tracking-tight">{currency}{stats?.agentProfit?.toLocaleString() || '0'}</h4>
                     </div>
 
@@ -121,7 +122,7 @@ const ReferralWalletPage: React.FC = () => {
                 <div className="p-6 border-b border-slate-50 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <TrendingUp size={20} className="text-emerald-500" />
-                        <h3 className="text-base font-bold text-slate-900">Earnings Activity</h3>
+                        <h3 className="text-base font-bold text-slate-900">Commission & Agent Earnings Activity</h3>
                     </div>
                 </div>
 
@@ -154,10 +155,7 @@ const ReferralWalletPage: React.FC = () => {
                                                     <Receipt size={16} />
                                                 </div>
                                                 <span className="font-bold text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">
-                                                    {item.type === 'referral_bonus' ? 'Referral Bonus' : 
-                                                     item.type === 'agent_profit' ? 'Agent Profit' :
-                                                     item.type === 'referral_skipped' ? 'Skipped (Low Margin)' :
-                                                     'Earnings Redemption'}
+                                                     {getServiceDisplayName(item)}
                                                 </span>
                                             </div>
                                         </td>
@@ -191,7 +189,7 @@ const ReferralWalletPage: React.FC = () => {
                             </div>
                             <div className="space-y-1">
                                 <p className="text-sm font-bold text-slate-400">No activity detected</p>
-                                <p className="text-xs text-slate-400 max-w-[200px] mx-auto italic">Your reward activity will appear here once transactions occur.</p>
+                                <p className="text-xs text-slate-400 max-w-[200px] mx-auto italic">Your commission and agent earnings activity will appear here once transactions occur.</p>
                             </div>
                         </div>
                     )}

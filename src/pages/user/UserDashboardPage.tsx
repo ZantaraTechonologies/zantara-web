@@ -38,6 +38,7 @@ import { format } from 'date-fns';
 import { copyToClipboard, shareContent } from '../../utils/clipboard';
 import { toast } from 'react-hot-toast';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
+import { getServiceDisplayName } from '../../utils/receiptUtils';
 
 const DashboardSkeleton = () => (
     <div className="space-y-6 animate-pulse">
@@ -182,9 +183,9 @@ const UserDashboardPage: React.FC = () => {
     if (initialLoading) return <DashboardSkeleton />;
 
     const stats = [
-        { label: 'Network Assets', value: `${currency} ${balance?.toLocaleString()}`, icon: LayoutDashboard, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        { label: 'Frozen Capital', value: `${currency} ${frozenBalance?.toLocaleString() || '0'}`, icon: ShieldAlert, color: 'text-red-500', bg: 'bg-red-50' },
-        { label: 'Yield Balance', value: `${currency} ${referralBalance?.toLocaleString() || '0'}`, icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
+        { label: 'Wallet Balance', value: `${currency} ${balance?.toLocaleString()}`, icon: LayoutDashboard, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+        { label: 'Frozen Balance', value: `${currency} ${frozenBalance?.toLocaleString() || '0'}`, icon: ShieldAlert, color: 'text-red-500', bg: 'bg-red-50' },
+        { label: 'Referral Commission Balance', value: `${currency} ${referralBalance?.toLocaleString() || '0'}`, icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
     ];
 
     const quickActions = [
@@ -206,7 +207,7 @@ const UserDashboardPage: React.FC = () => {
         if (!myReferralCode) return;
         shareContent({
             title: `Join ${settings.SITE_NAME}`,
-            text: `Join me on ${settings.SITE_NAME} and start earning! Use my code: ${myReferralCode}`,
+            text: `Join me on ${settings.SITE_NAME} and earn referral commissions on eligible purchases. Use my code: ${myReferralCode}`,
             url: `${window.location.origin}/register?ref=${myReferralCode}`
         });
     };
@@ -435,7 +436,7 @@ const UserDashboardPage: React.FC = () => {
                                                                 }`}>
                                                                 <CreditCard size={14} />
                                                             </div>
-                                                            <span className="font-bold text-slate-900 text-xs">{item.service || item.type.replace('_', ' ').toUpperCase()}</span>
+                                                             <span className="font-bold text-slate-900 text-xs">{getServiceDisplayName(item)}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-3.5 text-[10px] text-slate-500 font-medium whitespace-nowrap">
@@ -501,7 +502,7 @@ const UserDashboardPage: React.FC = () => {
                                 </div>
                             </div>
                             <p className="text-[10px] text-emerald-700/70 font-medium leading-relaxed">
-                                Share your code and earn a lifetime commission on every purchase made by nodes assigned to you.
+                                Share your code and earn referral commissions on eligible purchases made by people who sign up with it.
                             </p>
                             <Link to="/app/referral" className="w-full flex items-center justify-center py-3 bg-brand-emerald text-white rounded-xl font-bold text-xs hover:bg-brand-emerald-600 transition-colors uppercase tracking-widest shadow-btn">
                                 View Network

@@ -46,13 +46,13 @@ export default function Referral() {
         <div className="space-y-6 animate-in fade-in duration-500">
             <header>
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Refer & Earn</h1>
-                <p className="text-slate-500 font-medium text-sm">Invite your friends and earn 2% on their first transaction</p>
+                <p className="text-slate-500 font-medium text-sm">Invite friends and earn referral commissions on eligible purchases.</p>
             </header>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-brand-emerald rounded-2xl p-6 text-white shadow-card flex flex-col justify-between min-h-[140px]">
-                    <p className="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Total Earnings</p>
+                    <p className="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">Total Referral Commissions</p>
                     <h2 className="text-4xl font-extrabold tracking-tighter">{currency}{stats.earnings.toLocaleString()}</h2>
                 </div>
                 
@@ -89,7 +89,7 @@ export default function Referral() {
                                     <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User</th>
                                     <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
                                     <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
-                                    <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Bonus</th>
+                                    <th className="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Referral Commission</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -133,7 +133,7 @@ export default function Referral() {
                 <div className="lg:col-span-4 bg-brand-mint/60 rounded-2xl p-8 text-brand-navy h-fit shadow-card border border-brand-emerald/20 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-brand-emerald-100/60 rounded-full blur-3xl -mr-16 -mt-16"></div>
                     
-                    <h3 className="text-xl font-bold mb-8 tracking-tight text-brand-navy">Earning Protocol</h3>
+                    <h3 className="text-xl font-bold mb-8 tracking-tight text-brand-navy">How It Works</h3>
                     <ul className="space-y-10 relative z-10">
                         <li className="flex gap-5">
                             <span className="flex-shrink-0 w-10 h-10 bg-brand-emerald-100/60 text-emerald-500 rounded-2xl flex items-center justify-center font-bold text-lg border border-brand-emerald/20 italic">01</span>
@@ -152,8 +152,8 @@ export default function Referral() {
                         <li className="flex gap-5">
                             <span className="flex-shrink-0 w-10 h-10 bg-brand-emerald text-white rounded-2xl flex items-center justify-center font-bold text-lg italic">03</span>
                             <div>
-                                <p className="font-bold text-emerald-600 uppercase text-[11px] tracking-widest">Yield Harvest</p>
-                                <p className="text-emerald-600/80 text-xs mt-1 font-bold leading-relaxed">Receive 2% commission instantly on their first settlement.</p>
+                                <p className="font-bold text-emerald-600 uppercase text-[11px] tracking-widest">Earn Commission</p>
+                                <p className="text-emerald-600/80 text-xs mt-1 font-bold leading-relaxed">Receive a referral commission on eligible purchases.</p>
                             </div>
                         </li>
                     </ul>

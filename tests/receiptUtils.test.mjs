@@ -17,6 +17,7 @@ import {
   maskAccount,
   getCategoryDetailRows,
   getBeneficiary,
+  getDescription,
   buildReceiptModel,
   RECEIPT_TIMEZONE_LABEL,
 } from '../src/utils/receiptUtils.ts';
@@ -64,7 +65,20 @@ describe('Canonical receipt utilities', () => {
   it('getServiceDisplayName: cable → DSTV Cable TV', () => { assert.equal(getServiceDisplayName(CABLE_DOC), 'DSTV Cable TV'); });
   it('getServiceDisplayName: electricity → Ikeja Electric Electricity', () => { assert.equal(getServiceDisplayName(ELEC_DOC), 'Ikeja Electric Electricity'); });
   it('getServiceDisplayName: exam_pin → Exam PIN', () => { assert.equal(getServiceDisplayName(PIN_DOC), 'Exam PIN'); });
-  it('getServiceDisplayName: referral_bonus → Referral Commission Bonus', () => { assert.equal(getServiceDisplayName(REF_DOC), 'Referral Commission Bonus'); });
+  it('getServiceDisplayName: referral_bonus → Referral Commission', () => { assert.equal(getServiceDisplayName(REF_DOC), 'Referral Commission'); });
+  it('getServiceDisplayName uses controlled shareholding terminology', () => {
+    assert.equal(getServiceDisplayName({ type: 'investment_buy' }), 'Zantara Share Purchase');
+    assert.equal(getServiceDisplayName({ type: 'share_purchase' }), 'Zantara Share Purchase');
+    assert.equal(getServiceDisplayName({ type: 'share_exit' }), 'Share Exit Request');
+    assert.equal(getServiceDisplayName({ type: 'dividend_credit' }), 'Shareholder Dividend');
+    assert.equal(getServiceDisplayName({ type: 'dividend_reinvest' }), 'Shares Purchased with Dividends');
+    assert.equal(getServiceDisplayName({ type: 'dividend_redeem' }), 'Dividend Transfer to Main Wallet');
+    assert.equal(getServiceDisplayName({ type: 'dividend_withdrawal' }), 'Dividend Bank Payout');
+  });
+  it('getServiceDisplayName distinguishes referral commission transfer destinations', () => {
+    assert.equal(getServiceDisplayName({ type: 'referral_redeem' }), 'Referral Commission Transfer to Main Wallet');
+    assert.equal(getServiceDisplayName({ type: 'dividend_withdrawal', service: 'Referral Commission Payout' }), 'Referral Commission Payout');
+  });
   it('getServiceDisplayName: unknown type uses service field title-cased', () => {
     assert.equal(getServiceDisplayName({ type: 'unknown', service: 'some_provider' }), 'Some Provider');
   });
@@ -99,6 +113,58 @@ describe('Canonical receipt utilities', () => {
     const rows = getCategoryDetailRows(PIN_DOC);
     assert.ok(rows.some(r => r.label === 'Exam' && r.value === 'WAEC'));
     assert.ok(rows.some(r => r.label === 'Quantity' && r.value === '2'));
+  });
+  it('getCategoryDetailRows uses accurate share exit and dividend payout labels', () => {
+    assert.deepStrictEqual(getCategoryDetailRows({
+      type: 'share_purchase',
+      details: { sharesQty: 4, pricePerShare: 1000, fee: 25 },
+    }), [
+      { label: 'Number of Shares', value: '4' },
+      { label: 'Price per Share', value: '1000' },
+      { label: 'Share Purchase Fee', value: '25' },
+    ]);
+    assert.deepStrictEqual(getCategoryDetailRows({
+      type: 'share_exit',
+      details: { sharesReturned: 3, grossAmount: 3000, exitFeeCharged: 100 },
+    }), [
+      { label: 'Shares in Exit Request', value: '3' },
+      { label: 'Gross Share Exit Amount', value: '3000' },
+      { label: 'Share Exit Fee', value: '100' },
+    ]);
+    assert.deepStrictEqual(getCategoryDetailRows({
+      type: 'dividend_withdrawal',
+      details: { bankName: 'Test Bank', feeCharged: 50 },
+    }), [
+      { label: 'Destination Bank', value: 'Test Bank' },
+      { label: 'Dividend Payout Fee', value: '50' },
+    ]);
+    assert.deepStrictEqual(getCategoryDetailRows({
+      type: 'dividend_withdrawal',
+      service: 'Referral Commission Payout',
+      details: { bankName: 'Test Bank', feeCharged: 50 },
+    }), [
+      { label: 'Destination Bank', value: 'Test Bank' },
+      { label: 'Referral Commission Payout Fee', value: '50' },
+    ]);
+    assert.deepStrictEqual(getCategoryDetailRows({
+      type: 'dividend_redeem',
+      details: { netAmount: 950, fee: 50 },
+    }), [
+      { label: 'Dividend Amount Transferred', value: '950' },
+      { label: 'Transfer Fee', value: '50' },
+    ]);
+  });
+
+  it('getDescription avoids generic purchase wording for shareholding transactions', () => {
+    assert.equal(getDescription({ type: 'share_purchase' }), 'Purchase of Zantara shares');
+    assert.equal(getDescription({ type: 'share_exit' }), 'Share exit request');
+    assert.equal(getDescription({ type: 'dividend_credit' }), 'Shareholder dividend received');
+    assert.equal(getDescription({ type: 'dividend_reinvest' }), 'Shares purchased with dividends');
+    assert.equal(getDescription({ type: 'dividend_redeem' }), 'Dividend transferred to main wallet');
+    assert.equal(getDescription({ type: 'dividend_withdrawal' }), 'Dividend bank payout');
+    assert.equal(getDescription({ type: 'referral_redeem' }), 'Referral commission transferred to main wallet');
+    assert.equal(getDescription({ type: 'dividend_withdrawal', service: 'Referral Commission Payout' }), 'Referral commission bank payout');
+    assert.equal(getPaymentMethod({ type: 'dividend_withdrawal', service: 'Referral Commission Payout' }), 'Referral Commission Balance');
   });
 
   it('getBeneficiary: airtime returns masked phone', () => {

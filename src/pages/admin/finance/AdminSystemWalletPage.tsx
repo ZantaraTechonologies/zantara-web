@@ -50,7 +50,7 @@ const AdminSystemWalletPage: React.FC = () => {
                     <div className="w-16 h-16 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
                     <Loader2 className="w-6 h-6 text-emerald-500 animate-pulse absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                 </div>
-                <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">Auditing Platform Equity Tokens...</p>
+                <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">Auditing Platform Balances...</p>
             </div>
         );
     }
