@@ -1,4 +1,5 @@
 import API from "../api/apiClient";
+import type { VirtualAccount } from '../../utils/virtualAccounts';
 
 export type WalletBalance = {
     balance: number;
@@ -20,9 +21,9 @@ export async function getWalletBalance(): Promise<WalletBalance> {
 
 // Virtual accounts are part of the user profile, but we can keep this for abstraction
 // if the authStore is already fetching 'me', we can just use that.
-export async function getVirtualAccount(): Promise<any> {
+export async function getVirtualAccounts(): Promise<VirtualAccount[]> {
     const { data } = await API.get("/auth/me");
-    return data.virtualAccounts?.[0] || null;
+    return Array.isArray(data.virtualAccounts) ? data.virtualAccounts : [];
 }
 
 export type FundingMethod = {
@@ -31,6 +32,23 @@ export type FundingMethod = {
     supportedChannels: string[];
     isDefault: boolean;
     environment: string;
+    virtualAccounts?: {
+        supported: boolean;
+        type: string | null;
+        providerSlugs: string[];
+    };
+};
+
+export type VirtualAccountProvisioningOptions = {
+    consent?: boolean;
+    preferredBank?: string;
+};
+
+export type VirtualAccountProvisioningResult = {
+    success: boolean;
+    status: 'pending' | 'active' | string;
+    existing?: boolean;
+    accounts?: VirtualAccount[];
 };
 
 export async function getFundingMethods(): Promise<FundingMethod[]> {
@@ -84,7 +102,15 @@ export async function verifyFunding(reference: string): Promise<any> {
     return data;
 }
 
-export async function generateVirtualAccounts(): Promise<any> {
-    const { data } = await API.post("/monnify/generate-virtual-accounts");
+export async function provisionVirtualAccount(
+    provider: string,
+    options: VirtualAccountProvisioningOptions = {},
+): Promise<VirtualAccountProvisioningResult> {
+    const normalizedProvider = String(provider || '').trim().toLowerCase();
+    const payload = {
+        ...(options.consent !== undefined ? { consent: options.consent === true } : {}),
+        ...(options.preferredBank ? { preferredBank: options.preferredBank } : {}),
+    };
+    const { data } = await API.post(`/wallet/virtual-accounts/${encodeURIComponent(normalizedProvider)}`, payload);
     return data;
 }

@@ -40,6 +40,12 @@ import { toast } from 'react-hot-toast';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
 import { getServiceDisplayName } from '../../utils/receiptUtils';
 import { isPublicWalletWithdrawalAvailable } from '../../utils/publicFeatureAvailability';
+import {
+    getVirtualAccountProviderLabel,
+    isPendingVirtualAccount,
+    isUsableVirtualAccount,
+} from '../../utils/virtualAccounts';
+import { usePendingVirtualAccountRefresh } from '../../hooks/usePendingVirtualAccountRefresh';
 
 const DashboardSkeleton = () => (
     <div className="space-y-6 animate-pulse">
@@ -85,8 +91,7 @@ const UserDashboardPage: React.FC = () => {
         fetchBalance,
         fetchVirtualAccount,
         fetchLinkedAccounts,
-        generateAccounts,
-        virtualAccount
+        virtualAccounts = [],
     } = useWalletStore();
 
     const earningsRes = useEarningsSummary();
@@ -116,14 +121,6 @@ const UserDashboardPage: React.FC = () => {
             fetchLinkedAccounts()
         ]).finally(() => setInitialLoading(false));
     }, []);
-
-    // Auto-generate virtual accounts if empty
-    useEffect(() => {
-        if (!initialLoading && (!virtualAccount || Object.keys(virtualAccount).length === 0)) {
-            console.log('Silently generating virtual accounts...');
-            generateAccounts().catch(() => console.error('Silent VA generation failed'));
-        }
-    }, [initialLoading, !!virtualAccount]);
 
     // Show broadcast modal when we have active broadcasts (runs once when notifications load/change)
     useEffect(() => {
@@ -181,6 +178,9 @@ const UserDashboardPage: React.FC = () => {
     };
 
     const handleCloseBroadcast = () => setShowBroadcast(false);
+    const usableVirtualAccounts = virtualAccounts.filter(isUsableVirtualAccount);
+    const hasPendingVirtualAccount = virtualAccounts.some(isPendingVirtualAccount);
+    usePendingVirtualAccountRefresh(virtualAccounts, fetchVirtualAccount);
 
     if (initialLoading) return <DashboardSkeleton />;
 
@@ -335,40 +335,49 @@ const UserDashboardPage: React.FC = () => {
                 {/* Primary Content Area */}
                 <div className="lg:col-span-8 space-y-6">
                     {/* Virtual Account Banner (Pro-Tip) */}
-                    {virtualAccount && (
-                        <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex items-center justify-between group hover:border-emerald-200 transition-all shadow-sm">
-                            <div className="flex items-center gap-5">
-                                <div className="w-12 h-12 bg-surface rounded-2xl border border-slate-100 flex items-center justify-center text-emerald-500 shadow-inner group-hover:scale-110 transition-transform">
-                                    <Building2 size={24} />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-0.5">Instant Funding Account</p>
-                                    <div className="flex items-center gap-3">
-                                        <h3 className="text-base font-bold text-slate-900 tracking-tight">{virtualAccount.bankName}</h3>
-                                        <span className="text-slate-300">•</span>
-                                        <div className="flex items-center gap-2">
-                                            <code className="text-sm font-bold text-slate-600 tracking-widest">{virtualAccount.accountNumber}</code>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    copyToClipboard(virtualAccount.accountNumber, 'Account number copied!');
-                                                }}
-                                                className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"
-                                            >
-                                                <Copy size={14} />
-                                            </button>
+                    {usableVirtualAccounts.length > 0 ? (
+                        <div className="space-y-3">
+                            {usableVirtualAccounts.map((account, index) => (
+                                <div key={account._id || `${account.provider}-${account.accountNumber}-${index}`} className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex items-center justify-between gap-4 group hover:border-emerald-200 transition-all shadow-sm">
+                                    <div className="flex items-center gap-5 min-w-0">
+                                        <div className="w-12 h-12 bg-surface rounded-2xl border border-slate-100 flex items-center justify-center text-emerald-500 shadow-inner group-hover:scale-110 transition-transform shrink-0">
+                                            <Building2 size={24} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-0.5">{getVirtualAccountProviderLabel(account)} funding account</p>
+                                            <div className="flex flex-wrap items-center gap-3">
+                                                <h3 className="text-base font-bold text-slate-900 tracking-tight">{account.bankName}</h3>
+                                                <div className="flex items-center gap-2">
+                                                    <code className="text-sm font-bold text-slate-600 tracking-widest">{account.accountNumber}</code>
+                                                    <button
+                                                        onClick={() => copyToClipboard(account.accountNumber || '', 'Account number copied!')}
+                                                        className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"
+                                                        aria-label={`Copy ${getVirtualAccountProviderLabel(account)} account number`}
+                                                    >
+                                                        <Copy size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                    <Link to="/app/wallet/virtual-account" className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-emerald-500 transition-colors shrink-0">
+                                        <span>Details</span>
+                                        <ChevronRight size={16} />
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <Link to="/app/wallet/virtual-account" className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex items-center justify-between gap-4 hover:border-emerald-200 transition-all shadow-sm">
+                            <div className="flex items-center gap-4">
+                                <Building2 size={24} className="text-emerald-500" />
+                                <div>
+                                    <p className="font-bold text-slate-900">{hasPendingVirtualAccount ? 'Funding account setup in progress' : 'Request a funding account'}</p>
+                                    <p className="text-xs font-medium text-slate-500 mt-1">{hasPendingVirtualAccount ? 'Open account details to check its status.' : 'Choose Paystack or Monnify from the account details page.'}</p>
                                 </div>
                             </div>
-                            <Link
-                                to="/app/wallet/virtual-account"
-                                className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-emerald-500 transition-colors"
-                            >
-                                <span>Details</span>
-                                <ChevronRight size={16} />
-                            </Link>
-                        </div>
+                            <ChevronRight size={18} className="text-slate-400" />
+                        </Link>
                     )}
 
                     {/* Action Grid */}

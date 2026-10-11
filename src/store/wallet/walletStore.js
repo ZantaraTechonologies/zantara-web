@@ -1,24 +1,30 @@
 import { create } from 'zustand';
 import { 
     getWalletBalance, 
-    getVirtualAccount, 
+    getVirtualAccounts,
     getLinkedAccounts, 
     addLinkedAccount, 
     deleteLinkedAccount, 
     getMyWithdrawals,
-    generateVirtualAccounts
+    provisionVirtualAccount
 } from '../../services/wallet/walletService';
 import { getSessionEpoch, isSessionEpochCurrent, registerSessionReset } from '../../app/sessionLifecycle';
+import { useAuthStore } from '../auth/authStore';
+import { mergeVirtualAccounts } from '../../utils/virtualAccounts';
+
+let virtualAccountRefreshGeneration = 0;
+let virtualAccountRefreshPromise = null;
 
 const walletResetState = {
     balance: 0,
     totalBalance: undefined,
     frozenBalance: undefined,
     currency: 'NGN',
-    virtualAccount: null,
+    virtualAccounts: [],
     linkedAccounts: [],
     withdrawals: [],
     loading: false,
+    provisioningProvider: null,
     error: null,
 };
 
@@ -46,15 +52,25 @@ export const useWalletStore = create((set, get) => ({
     },
 
     fetchVirtualAccount: async () => {
+        if (virtualAccountRefreshPromise) return virtualAccountRefreshPromise;
         const epoch = getSessionEpoch();
-        try {
-            const data = await getVirtualAccount();
-            if (!isSessionEpochCurrent(epoch)) return;
-            set({ virtualAccount: data });
-        } catch {
-            if (!isSessionEpochCurrent(epoch)) return;
-            console.error('Failed to fetch virtual account');
-        }
+        const generation = ++virtualAccountRefreshGeneration;
+        const request = (async () => {
+            try {
+                const data = await getVirtualAccounts();
+                if (!isSessionEpochCurrent(epoch) || generation !== virtualAccountRefreshGeneration) return;
+                set({ virtualAccounts: data });
+                const user = useAuthStore.getState().user;
+                if (user) useAuthStore.getState().setUser({ ...user, virtualAccounts: data });
+            } catch {
+                if (!isSessionEpochCurrent(epoch)) return;
+                console.error('Failed to fetch virtual account');
+            } finally {
+                if (virtualAccountRefreshPromise === request) virtualAccountRefreshPromise = null;
+            }
+        })();
+        virtualAccountRefreshPromise = request;
+        return request;
     },
 
     fetchLinkedAccounts: async () => {
@@ -113,27 +129,43 @@ export const useWalletStore = create((set, get) => ({
         }
     },
 
-    generateAccounts: async () => {
+    provisionAccount: async (provider, options = {}) => {
+        if (get().provisioningProvider) return null;
         const epoch = getSessionEpoch();
-        set({ loading: true });
+        const normalizedProvider = String(provider || '').trim().toLowerCase();
+        set({ provisioningProvider: normalizedProvider, error: null });
         try {
-            await generateVirtualAccounts();
+            const result = await provisionVirtualAccount(normalizedProvider, options);
             if (!isSessionEpochCurrent(epoch)) return;
+            if (Array.isArray(result?.accounts)) {
+                virtualAccountRefreshGeneration += 1;
+                virtualAccountRefreshPromise = null;
+                const virtualAccounts = mergeVirtualAccounts(get().virtualAccounts, result.accounts);
+                set({ virtualAccounts });
+                const user = useAuthStore.getState().user;
+                if (user) useAuthStore.getState().setUser({ ...user, virtualAccounts });
+            }
             await get().fetchVirtualAccount();
             if (!isSessionEpochCurrent(epoch)) return;
-            set({ loading: false });
+            return result;
         } catch (error) {
             if (!isSessionEpochCurrent(epoch)) return;
-            console.error('Failed to generate virtual accounts');
-            set({ error: error.message, loading: false });
+            const message = error.response?.data?.message || error.message || 'Failed to request virtual account';
+            set({ error: message });
             throw error;
+        } finally {
+            if (isSessionEpochCurrent(epoch)) set({ provisioningProvider: null });
         }
     },
 
     setBalance: (balance) => set({ balance, loading: false, error: null }),
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
-    reset: () => set(walletResetState),
+    reset: () => {
+        virtualAccountRefreshGeneration += 1;
+        virtualAccountRefreshPromise = null;
+        set(walletResetState);
+    },
 }));
 
 registerSessionReset('wallet', () => useWalletStore.getState().reset());

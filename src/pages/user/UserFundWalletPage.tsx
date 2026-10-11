@@ -7,31 +7,43 @@ import {
     Copy,
     ShieldCheck,
     Smartphone,
-    RefreshCw
+    Clock3,
+    CircleAlert
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import * as walletService from '../../services/wallet/walletService';
+import type { FundingMethod } from '../../services/wallet/walletService';
 import { toast } from 'react-hot-toast';
+import { copyToClipboard } from '../../utils/clipboard';
+import VirtualAccountProvisioningPanel from '../../components/wallet/VirtualAccountProvisioningPanel';
+import {
+    getVirtualAccountProviderLabel,
+    isFailedVirtualAccount,
+    isPendingVirtualAccount,
+    isUsableVirtualAccount,
+} from '../../utils/virtualAccounts';
 
 const UserFundWalletPage: React.FC = () => {
     const navigate = useNavigate();
     const [selected, setSelected] = useState<'bank' | 'card' | 'ussd' | null>(null);
     const [amount, setAmount] = useState('');
     const [loadingPayment, setLoadingPayment] = useState(false);
-    const [generating, setGenerating] = useState(false);
     const [availableChannels, setAvailableChannels] = useState<Set<string>>(new Set());
-    const { virtualAccount, fetchVirtualAccount, generateAccounts, currency } = useWalletStore();
+    const [fundingMethods, setFundingMethods] = useState<FundingMethod[] | null>(null);
+    const { virtualAccounts = [], fetchVirtualAccount, currency } = useWalletStore();
 
     React.useEffect(() => {
         fetchVirtualAccount();
         walletService.getFundingMethods()
             .then((methods) => {
+                setFundingMethods(methods || []);
                 const set = new Set<string>();
                 (methods || []).forEach((m) => (m.supportedChannels || []).forEach((c) => set.add(c)));
                 setAvailableChannels(set);
             })
             .catch(() => {
+                setFundingMethods([]);
                 // Funding-methods lookup failed — fall back to Bank Transfer + Card, hide USSD.
             });
     }, []);
@@ -40,6 +52,9 @@ const UserFundWalletPage: React.FC = () => {
     const showCard = !channelsKnown || availableChannels.has('card');
     const showUssd = channelsKnown && availableChannels.has('ussd');
     const isBankTransfer = selected === 'bank';
+    const usableAccounts = virtualAccounts.filter(isUsableVirtualAccount);
+    const pendingAccounts = virtualAccounts.filter(isPendingVirtualAccount);
+    const failedAccounts = virtualAccounts.filter(isFailedVirtualAccount);
 
     const methods = [
         {
@@ -64,25 +79,6 @@ const UserFundWalletPage: React.FC = () => {
             badge: 'Mobile'
         }] : [])
     ];
-
-    const copyToClipboard = (text: string) => {
-        if (!text || text.includes('Not Generated')) return;
-        navigator.clipboard.writeText(text)
-            .then(() => toast.success('Account number copied to clipboard'))
-            .catch(() => {});
-    };
-
-    const handleGenerateAccount = async () => {
-        try {
-            setGenerating(true);
-            await generateAccounts();
-            toast.success('Permanent account generated successfully');
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to generate your account. Please try again.');
-        } finally {
-            setGenerating(false);
-        }
-    };
 
     const handlePayment = async () => {
         if (isBankTransfer) return;
@@ -164,43 +160,69 @@ const UserFundWalletPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {virtualAccount ? (
+                    {usableAccounts.length > 0 ? (
                         <div className="space-y-5">
-                            <div className="rounded-2xl bg-slate-50 border border-slate-100 divide-y divide-slate-100">
-                                <div className="flex items-center justify-between px-5 py-4">
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bank</p>
-                                        <p className="font-bold text-slate-900 mt-0.5">{virtualAccount.bankName || 'Not Generated'}</p>
-                                    </div>
-                                    {virtualAccount.bankName && (
-                                        <button onClick={() => copyToClipboard(virtualAccount.bankName)} className="text-slate-400 hover:text-brand-emerald transition-colors p-2">
-                                            <Copy size={18} />
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="flex items-center justify-between px-5 py-4">
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Account Number</p>
-                                        <p className="text-2xl font-extrabold tracking-[0.1em] text-brand-emerald mt-0.5">{virtualAccount.accountNumber || '----------'}</p>
-                                    </div>
-                                    {virtualAccount.accountNumber && (
-                                        <button onClick={() => copyToClipboard(virtualAccount.accountNumber)} className="text-brand-emerald hover:text-slate-900 transition-colors p-2">
-                                            <Copy size={20} />
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="flex items-center justify-between px-5 py-4">
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Account Name</p>
-                                        <p className="font-bold text-slate-900 mt-0.5">{virtualAccount.accountName || 'Not Generated'}</p>
-                                    </div>
-                                    {virtualAccount.accountName && (
-                                        <button onClick={() => copyToClipboard(virtualAccount.accountName)} className="text-slate-400 hover:text-brand-emerald transition-colors p-2">
-                                            <Copy size={18} />
-                                        </button>
-                                    )}
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {usableAccounts.map((account, index) => {
+                                    const providerLabel = getVirtualAccountProviderLabel(account);
+                                    return (
+                                        <div
+                                            key={account._id || `${account.provider || 'monnify'}-${account.accountNumber}-${index}`}
+                                            data-virtual-account-provider={providerLabel.toLowerCase()}
+                                            className="rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden"
+                                        >
+                                            <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-100">
+                                                <div>
+                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{providerLabel}</p>
+                                                    <p className="font-bold text-slate-900 mt-0.5">{account.bankName}</p>
+                                                </div>
+                                                <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-emerald-700">Active</span>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-100">
+                                                <div className="min-w-0">
+                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Account Number</p>
+                                                    <p className="text-xl sm:text-2xl font-extrabold tracking-[0.08em] text-brand-emerald mt-0.5 break-all">{account.accountNumber}</p>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    aria-label={`Copy ${providerLabel} account number`}
+                                                    onClick={() => copyToClipboard(account.accountNumber || '', 'Account number copied to clipboard')}
+                                                    className="text-brand-emerald hover:text-slate-900 transition-colors p-2 shrink-0"
+                                                >
+                                                    <Copy size={20} />
+                                                </button>
+                                            </div>
+                                            <div className="px-5 py-4">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Account Name</p>
+                                                <p className="font-bold text-slate-900 mt-0.5">{account.accountName}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
+
+                            {(pendingAccounts.length > 0 || failedAccounts.length > 0) && (
+                                <div className="space-y-3">
+                                    {pendingAccounts.map((account, index) => (
+                                        <div key={account._id || `pending-${index}`} className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex items-start gap-3">
+                                            <Clock3 size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="text-xs font-bold text-amber-900">{getVirtualAccountProviderLabel(account)} account setup in progress</p>
+                                                <p className="text-xs text-amber-700 font-medium mt-1">We will show the account details here when they are ready.</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {failedAccounts.map((account, index) => (
+                                        <div key={account._id || `failed-${index}`} className="bg-rose-50 border border-rose-100 rounded-xl p-4 flex items-start gap-3">
+                                            <CircleAlert size={18} className="text-rose-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="text-xs font-bold text-rose-900">{getVirtualAccountProviderLabel(account)} account unavailable</p>
+                                                <p className="text-xs text-rose-700 font-medium mt-1">Account setup could not be completed. Please contact support if this continues.</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                             <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-start gap-3">
                                 <ShieldCheck size={18} className="text-emerald-600 shrink-0 mt-0.5" />
@@ -216,22 +238,41 @@ const UserFundWalletPage: React.FC = () => {
                                 Use your bank's mobile app, internet banking, or USSD transfer to send money to the account above.
                             </p>
                         </div>
+                    ) : pendingAccounts.length > 0 || failedAccounts.length > 0 ? (
+                        <div className="space-y-3">
+                            {pendingAccounts.map((account, index) => (
+                                <div key={account._id || `pending-${index}`} className="bg-amber-50 border border-amber-100 rounded-xl p-5 flex items-start gap-3">
+                                    <Clock3 size={20} className="text-amber-600 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold text-amber-900">{getVirtualAccountProviderLabel(account)} account setup in progress</p>
+                                        <p className="text-xs text-amber-700 font-medium mt-1">We will show the account details here when they are ready.</p>
+                                    </div>
+                                </div>
+                            ))}
+                            {failedAccounts.map((account, index) => (
+                                <div key={account._id || `failed-${index}`} className="bg-rose-50 border border-rose-100 rounded-xl p-5 flex items-start gap-3">
+                                    <CircleAlert size={20} className="text-rose-600 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-bold text-rose-900">{getVirtualAccountProviderLabel(account)} account unavailable</p>
+                                        <p className="text-xs text-rose-700 font-medium mt-1">Account setup could not be completed. Please contact support if this continues.</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
-                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                            <div className="flex-1">
-                                <p className="font-bold text-slate-900">Provision your permanent account</p>
-                                <p className="text-xs text-slate-500 font-medium mt-0.5">We'll create a dedicated account you can reuse for every top-up.</p>
+                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 flex items-start gap-3">
+                            <Building2 size={20} className="text-slate-400 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-bold text-slate-900">No bank transfer account available yet</p>
+                                <p className="text-xs text-slate-500 font-medium mt-1">Choose an enabled provider below to request one.</p>
                             </div>
-                            <button
-                                onClick={handleGenerateAccount}
-                                disabled={generating}
-                                className="flex items-center gap-2 justify-center bg-brand-emerald text-white py-3 px-5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-emerald-600 transition-all shadow-btn disabled:opacity-50"
-                            >
-                                {generating ? <RefreshCw size={15} className="animate-spin" /> : <Building2 size={15} />}
-                                {generating ? 'Generating...' : 'Generate Account'}
-                            </button>
                         </div>
                     )}
+
+                    <VirtualAccountProvisioningPanel
+                        virtualAccounts={virtualAccounts}
+                        fundingMethods={fundingMethods}
+                    />
                 </div>
             )}
 

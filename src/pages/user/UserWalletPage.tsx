@@ -19,6 +19,8 @@ import { format } from 'date-fns';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { FUNDED_SUCCESS_TEXT, FUNDED_FAILED_TEXT } from '../../utils/paymentReturnNotices';
 import { getServiceDisplayName } from '../../utils/receiptUtils';
+import { getVirtualAccountProviderLabel, isPendingVirtualAccount, isUsableVirtualAccount } from '../../utils/virtualAccounts';
+import { usePendingVirtualAccountRefresh } from '../../hooks/usePendingVirtualAccountRefresh';
 
 const UserWalletPage: React.FC = () => {
     const { 
@@ -28,7 +30,7 @@ const UserWalletPage: React.FC = () => {
         currency, 
         fetchBalance, 
         fetchVirtualAccount, 
-        virtualAccount,
+        virtualAccounts = [],
         fetchLinkedAccounts,
         linkedAccounts,
         loadingBalance,
@@ -70,6 +72,9 @@ const UserWalletPage: React.FC = () => {
         { label: 'Total Balance', amount: `${currency} ${(totalBalance || 0).toLocaleString()}`, icon: Wallet, color: 'text-blue-500', bg: 'bg-blue-50' },
         { label: 'Frozen Balance', amount: `${currency} ${(frozenBalance || 0).toLocaleString()}`, icon: Lock, color: 'text-red-500', bg: 'bg-red-50' },
     ];
+    const usableVirtualAccounts = virtualAccounts.filter(isUsableVirtualAccount);
+    const hasPendingVirtualAccount = virtualAccounts.some(isPendingVirtualAccount);
+    usePendingVirtualAccountRefresh(virtualAccounts, fetchVirtualAccount);
 
     return (
         <div className="p-4 sm:p-5 lg:p-6 space-y-6 animate-in fade-in duration-700 font-sans">
@@ -230,26 +235,31 @@ const UserWalletPage: React.FC = () => {
                             <h3 className="text-xl font-bold text-slate-900">Direct Transfer</h3>
                         </div>
 
-                        {virtualAccount ? (
+                        {usableVirtualAccounts.length > 0 ? (
                             <div className="space-y-4">
-                                <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white dark:bg-surface/60 dark:border-slate-700/40">
-                                    <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Bank Name</p>
-                                    <p className="font-bold text-slate-900 text-sm">{virtualAccount.bankName || 'Loading...'}</p>
-                                </div>
-                                <div className="space-y-1 bg-white/60 p-4 rounded-xl border border-white flex justify-between items-center dark:bg-surface/60 dark:border-slate-700/40">
-                                    <div>
-                                        <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">Account Number</p>
-                                        <p className="font-bold text-slate-900 text-base tracking-widest">{virtualAccount.accountNumber || 'Generating...'}</p>
+                                {usableVirtualAccounts.map((account, index) => (
+                                    <div key={account._id || `${account.provider}-${account.accountNumber}-${index}`} className="space-y-3 bg-white/60 p-4 rounded-xl border border-white dark:bg-surface/60 dark:border-slate-700/40">
+                                        <div>
+                                            <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest">{getVirtualAccountProviderLabel(account)} · {account.bankName}</p>
+                                            <p className="font-bold text-slate-900 text-base tracking-widest mt-1">{account.accountNumber}</p>
+                                        </div>
+                                        <p className="text-xs font-medium text-slate-500">{account.accountName}</p>
                                     </div>
-                                    <button className="text-emerald-500 hover:text-emerald-600"><Plus size={16} /></button>
-                                </div>
+                                ))}
                             </div>
                         ) : (
                             <div className="text-center py-5 space-y-3">
                                 <Building2 className="w-10 h-10 text-emerald-200 mx-auto" />
-                                <p className="text-slate-500 text-xs font-medium">Auto-generating your dedicated funding node...</p>
+                                <p className="text-slate-500 text-xs font-medium">
+                                    {hasPendingVirtualAccount ? 'Bank transfer account setup is in progress.' : 'No bank transfer account has been requested yet.'}
+                                </p>
                             </div>
                         )}
+
+                        <Link to="/app/wallet/virtual-account" className="w-full inline-flex items-center justify-center gap-2 py-3 bg-brand-emerald text-white rounded-xl font-bold text-xs hover:bg-brand-emerald-600 transition-colors">
+                            Manage transfer accounts
+                            <ChevronRight size={14} />
+                        </Link>
 
                         <div className="flex items-center gap-2 p-3 bg-emerald-500/10 rounded-xl">
                             <Info size={14} className="text-emerald-500 shrink-0" />

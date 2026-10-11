@@ -54,12 +54,13 @@ globalThis.__batch2d = {
     },
     wallet: {
         getWalletBalance: (...args) => walletBalanceRequest(...args),
+        getVirtualAccounts: async () => [],
         getVirtualAccount: async () => null,
         getLinkedAccounts: async () => [],
         addLinkedAccount: async () => {},
         deleteLinkedAccount: async () => {},
         getMyWithdrawals: async () => [],
-        generateVirtualAccounts: async () => {}
+        provisionVirtualAccount: async () => ({})
     },
     admin: {
         fetchDashboardStats: (...args) => adminStatsRequest(...args)
@@ -84,12 +85,13 @@ const mockPlugin = {
             if (path === 'wallet') {
                 return { loader: 'js', contents: `
                     export const getWalletBalance = (...args) => globalThis.__batch2d.wallet.getWalletBalance(...args);
+                    export const getVirtualAccounts = (...args) => globalThis.__batch2d.wallet.getVirtualAccounts(...args);
                     export const getVirtualAccount = (...args) => globalThis.__batch2d.wallet.getVirtualAccount(...args);
                     export const getLinkedAccounts = (...args) => globalThis.__batch2d.wallet.getLinkedAccounts(...args);
                     export const addLinkedAccount = (...args) => globalThis.__batch2d.wallet.addLinkedAccount(...args);
                     export const deleteLinkedAccount = (...args) => globalThis.__batch2d.wallet.deleteLinkedAccount(...args);
                     export const getMyWithdrawals = (...args) => globalThis.__batch2d.wallet.getMyWithdrawals(...args);
-                    export const generateVirtualAccounts = (...args) => globalThis.__batch2d.wallet.generateVirtualAccounts(...args);
+                    export const provisionVirtualAccount = (...args) => globalThis.__batch2d.wallet.provisionVirtualAccount(...args);
                 ` };
             }
             return { loader: 'js', contents: `
@@ -149,12 +151,13 @@ async function loadAdminLogoutHarness() {
                 ` };
                 if (path === 'wallet') return { loader: 'js', contents: `
                     export const getWalletBalance = async () => ({});
+                    export const getVirtualAccounts = async () => [];
                     export const getVirtualAccount = async () => null;
                     export const getLinkedAccounts = async () => [];
                     export const addLinkedAccount = async () => ({});
                     export const deleteLinkedAccount = async () => ({});
                     export const getMyWithdrawals = async () => [];
-                    export const generateVirtualAccounts = async () => ({});
+                    export const provisionVirtualAccount = async () => ({});
                 ` };
                 return { loader: 'js', contents: 'export const fetchDashboardStats = async () => ({ data: {} });' };
             });
@@ -175,7 +178,7 @@ async function loadAdminLogoutHarness() {
                 let root;
                 export function seed() {
                     useAuthStore.getState().setAuth({ id: 'admin-a', roles: ['superAdmin'] }, 'token-admin-a', true);
-                    useWalletStore.setState({ balance: 4200, virtualAccount: { accountNumber: 'private' }, linkedAccounts: [{ id: 'bank-a' }] });
+                    useWalletStore.setState({ balance: 4200, virtualAccounts: [{ accountNumber: 'private' }], linkedAccounts: [{ id: 'bank-a' }] });
                     useAdminStore.setState({ stats: { revenue: 99 }, pendingKycCount: 3 });
                     queryClient.setQueryData(privateQueryKey('admin-a', 'wallet', 'balance'), { balance: 4200 });
                 }
@@ -228,7 +231,7 @@ function seedPrivateState() {
         balance: 4200,
         totalBalance: 5000,
         frozenBalance: 800,
-        virtualAccount: { accountNumber: '0123456789' },
+        virtualAccounts: [{ accountNumber: '0123456789' }],
         linkedAccounts: [{ id: 'bank-a' }],
         withdrawals: [{ id: 'withdrawal-a' }],
         error: 'private wallet error'
@@ -247,7 +250,7 @@ beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
     useAuthStore.setState({ user: null, token: null, isAuthenticated: false, loading: false, isInitialized: true, error: null, legalActionBlocked: false });
-    useWalletStore.setState({ balance: 0, totalBalance: undefined, frozenBalance: undefined, currency: 'NGN', virtualAccount: null, linkedAccounts: [], withdrawals: [], loading: false, error: null });
+    useWalletStore.setState({ balance: 0, totalBalance: undefined, frozenBalance: undefined, currency: 'NGN', virtualAccounts: [], linkedAccounts: [], withdrawals: [], loading: false, provisioningProvider: null, error: null });
     useAdminStore.setState({ stats: null, loadingStats: false, error: null, pendingKycCount: 0, pendingWithdrawalsCount: 0, failedTxsToday: 0, todayProfit: 0 });
     walletBalanceRequest = async () => ({ available: 0, balance: 0, frozen: 0, currency: 'NGN' });
     adminStatsRequest = async () => ({ data: {} });
@@ -268,7 +271,8 @@ test('C1 normal logout synchronously removes auth, wallet, and privileged in-mem
 
     assert.equal(useAuthStore.getState().user, null);
     assert.equal(useWalletStore.getState().balance, 0);
-    assert.equal(useWalletStore.getState().virtualAccount, null);
+    assert.deepEqual(useWalletStore.getState().virtualAccounts, []);
+    assert.equal(useWalletStore.getState().virtualAccount, undefined);
     assert.deepEqual(useWalletStore.getState().linkedAccounts, []);
     assert.equal(useAdminStore.getState().stats, null);
     assert.equal(useAdminStore.getState().pendingKycCount, 0);
@@ -285,7 +289,8 @@ test('wallet/admin state from A remains cleared after logout and customer B logi
 
     assert.equal(useAuthStore.getState().user?.id, 'user-b');
     assert.equal(useWalletStore.getState().balance, 0);
-    assert.equal(useWalletStore.getState().virtualAccount, null);
+    assert.deepEqual(useWalletStore.getState().virtualAccounts, []);
+    assert.equal(useWalletStore.getState().virtualAccount, undefined);
     assert.deepEqual(useWalletStore.getState().linkedAccounts, []);
     assert.equal(useAdminStore.getState().stats, null);
     assert.equal(useAdminStore.getState().pendingKycCount, 0);

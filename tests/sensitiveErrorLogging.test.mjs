@@ -212,12 +212,13 @@ async function loadStoreHarness() {
                 ` };
                 if (path === 'wallet-service') return { loader: 'js', contents: `
                     export const getWalletBalance = (...args) => globalThis.__sensitiveStore.wallet(...args);
+                    export const getVirtualAccounts = async () => [];
                     export const getVirtualAccount = async () => null;
                     export const getLinkedAccounts = async () => [];
                     export const addLinkedAccount = async () => ({});
                     export const deleteLinkedAccount = async () => ({});
                     export const getMyWithdrawals = async () => [];
-                    export const generateVirtualAccounts = async () => ({});
+                    export const provisionVirtualAccount = async () => ({});
                 ` };
                 return { loader: 'js', contents: `
                     const api = { get: (...args) => globalThis.__sensitiveStore.apiGet(...args) };
