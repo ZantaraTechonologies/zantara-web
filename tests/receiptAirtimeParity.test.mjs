@@ -14,9 +14,36 @@
  */
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { buildReceiptModel as webBuild, getCategoryDetailRows as webRows, getServiceDisplayName as webService, getReceiptReference as webRef } from '../src/utils/receiptUtils.ts';
-import { buildReceiptModel as mobileBuild, getCategoryDetailRows as mobileRows, getServiceDisplayName as mobileService, getReceiptReference as mobileRef } from '../../mobile_app/src/utils/receiptUtils.ts';
+
+const mobileReceiptUtilsPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../mobile_app/src/utils/receiptUtils.ts'
+);
+
+const mobileAvailable = fs.existsSync(mobileReceiptUtilsPath);
+
+let mobileBuild;
+let mobileRows;
+let mobileService;
+let mobileRef;
+
+if (mobileAvailable) {
+  const mobileReceiptUtilsUrl = new URL(
+    `file://${mobileReceiptUtilsPath.replace(/\\/g, '/')}`
+  );
+
+  ({
+    buildReceiptModel: mobileBuild,
+    getCategoryDetailRows: mobileRows,
+    getServiceDisplayName: mobileService,
+    getReceiptReference: mobileRef
+  } = await import(mobileReceiptUtilsUrl.href));
+}
 
 const AIRTIME_DOC = {
   _id: 'txn-airtime-1',
@@ -34,7 +61,7 @@ const AIRTIME_DOC = {
 const BRAND = { displayName: 'Zantara', supportEmail: 'support@zantara.com', supportPhone: '+2348000000000' };
 const GENERATED_AT = new Date('2026-09-11T17:00:00.000Z');
 
-describe('Airtime receipt parity (Web vs Mobile)', () => {
+describe('Airtime receipt parity (Web vs Mobile)', { skip: !mobileAvailable }, () => {
   it('service display name is identical', () => {
     assert.equal(webService(AIRTIME_DOC), mobileService(AIRTIME_DOC));
     assert.equal(webService(AIRTIME_DOC), 'MTN Airtime');
