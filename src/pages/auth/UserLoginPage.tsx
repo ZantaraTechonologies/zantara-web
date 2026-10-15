@@ -12,6 +12,7 @@ import { useAuthStore } from '../../store/auth/authStore';
 import { getPostLoginPath } from '../../utils/sessionRouteState';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
 import SiteLogo from '../../components/common/SiteLogo';
+import { resolvePostAuthPath } from '../../utils/onboarding';
 
 const UserLoginPage: React.FC = () => {
     const { settings } = useSiteSettings();
@@ -29,17 +30,14 @@ const UserLoginPage: React.FC = () => {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.info(`[Auth] Attempting login for: ${email}`);
         setIsLoading(true);
         setErrorMsg('');
         try {
-            await login({ email, password }, rememberMe);
-            console.info(`[Auth] Login successful for: ${email}`);
+            const response = await login({ identifier: email, password }, rememberMe);
             toast.success(`Welcome back to ${settings.SITE_NAME}!`);
-            navigate(from, { replace: true });
+            navigate(resolvePostAuthPath(response.onboarding, from), { replace: true });
         } catch (err: any) {
             const msg = err?.response?.data?.message || err?.message || 'Invalid email or password';
-            console.error('[Auth] Login failed');
             setErrorMsg(msg);
             toast.error(msg);
         } finally {

@@ -12,6 +12,7 @@ import { useAuthStore } from '../../store/auth/authStore';
 import API from '../../services/api/apiClient';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
 import SiteLogo from '../../components/common/SiteLogo';
+import { buildRegistrationPayload, resolvePostAuthPath, validateRegistration } from '../../utils/onboarding';
 
 const UserRegisterPage: React.FC = () => {
     const { settings } = useSiteSettings();
@@ -21,11 +22,13 @@ const UserRegisterPage: React.FC = () => {
         email: '',
         phone: '',
         password: '',
+        confirmPassword: '',
         referrerCode: '',
         agreeToTerms: false
     });
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
     const { register } = useAuthStore();
     const navigate = useNavigate();
@@ -35,7 +38,6 @@ const UserRegisterPage: React.FC = () => {
         const ref = searchParams.get('ref');
         if (ref) {
             setFormData(prev => ({ ...prev, referrerCode: ref }));
-            console.info(`[Auth] Referral code detected from URL: ${ref}`);
         }
     }, [searchParams]);
 
@@ -46,15 +48,21 @@ const UserRegisterPage: React.FC = () => {
             [name]: type === 'checkbox' ? checked : value
         }));
         if (errorMsg) setErrorMsg('');
+        if (fieldErrors[name]) setFieldErrors(prev => ({ ...prev, [name]: '' }));
     };
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        console.info(`[Auth] Attempting registration for: ${formData.email}`);
-
         if (!formData.agreeToTerms) {
             toast.error('Please agree to the Terms of Service and Privacy Policy');
+            return;
+        }
+
+        const validation = validateRegistration(formData);
+        setFieldErrors(validation.errors);
+        if (!validation.valid) {
+            setErrorMsg('Check the highlighted fields and try again.');
             return;
         }
 
@@ -65,7 +73,7 @@ const UserRegisterPage: React.FC = () => {
             // The server re-validates version/hash and derives documentId semantics.
             const docsRes = await API.get('/legal/documents/current');
             const docs: any[] = docsRes.data?.data || [];
-            const legalAcceptances: Array<{ documentType: string; version: number; contentHash: string; channel: string }> = [];
+            const legalAcceptances: Array<{ documentType: string; version: number; contentHash: string; channel: 'web' }> = [];
 
             const termsDoc = docs.find(d => d.documentType === 'terms');
             const privacyDoc = docs.find(d => d.documentType === 'privacy');
@@ -76,19 +84,17 @@ const UserRegisterPage: React.FC = () => {
                 legalAcceptances.push({ documentType: 'privacy', version: privacyDoc.version, contentHash: privacyDoc.contentHash, channel: 'web' });
             }
 
-            await register({
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                password: formData.password,
-                referrerCode: formData.referrerCode,
-                legalAcceptances
-            });
-            console.info(`[Auth] Registration successful for: ${formData.email}`);
+            const response = await register(buildRegistrationPayload(formData, legalAcceptances));
             toast.success(`Registration successful! Welcome to ${settings.SITE_NAME}.`);
-            navigate('/app/dashboard');
+            navigate(resolvePostAuthPath(response.onboarding, '/app'), { replace: true });
         } catch (err: any) {
-            const msg = err?.response?.data?.message || err?.message || 'Registration failed. Please try again.';
+            const data = err?.response?.data;
+            const serverFieldErrors: Record<string, string> = {};
+            for (const field of data?.data?.missingFields || []) serverFieldErrors[field] = 'This field is required.';
+            for (const field of data?.data?.invalidFields || []) serverFieldErrors[field] = 'Check this value and try again.';
+            if (data?.code === 'PASSWORD_CONFIRMATION_MISMATCH') serverFieldErrors.confirmPassword = 'Passwords do not match.';
+            if (Object.keys(serverFieldErrors).length) setFieldErrors(serverFieldErrors);
+            const msg = data?.message || err?.message || 'Registration failed. Please try again.';
             console.error('[Auth] Registration failed');
             setErrorMsg(msg);
             toast.error(msg);
@@ -113,7 +119,7 @@ const UserRegisterPage: React.FC = () => {
                 </div>
 
                 {errorMsg && (
-                    <div className="mb-6 p-4 text-sm font-semibold text-red-600 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
+                    <div role="alert" className="mb-6 p-4 text-sm font-semibold text-red-600 bg-red-50 rounded-xl border border-red-100 flex items-start gap-3">
                         <span className="mt-0.5 animate-pulse">⚠️</span>
                         {errorMsg}
                     </div>
@@ -123,78 +129,122 @@ const UserRegisterPage: React.FC = () => {
                     <div className="grid grid-cols-1 gap-4">
                         {/* Full Name */}
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 block">Full Name</label>
+                            <label htmlFor="name" className="text-sm font-bold text-slate-700 block">Full Name</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
                                     <User size={18} />
                                 </div>
                                 <input
                                     name="name"
+                                    id="name"
                                     type="text"
+                                    autoComplete="name"
                                     required
                                     value={formData.name}
                                     onChange={handleChange}
                                     className="block w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
                                     placeholder="Your Full Name"
+                                    aria-invalid={!!fieldErrors.name}
+                                    aria-describedby={fieldErrors.name ? 'register-name-error' : undefined}
                                 />
                             </div>
+                            {fieldErrors.name && <p id="register-name-error" role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.name}</p>}
                         </div>
 
                         {/* Email Address */}
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700 block">Email Address</label>
+                            <label htmlFor="email" className="text-sm font-bold text-slate-700 block">Email Address</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
                                     <Mail size={18} />
                                 </div>
                                 <input
                                     name="email"
+                                    id="email"
                                     type="email"
+                                    autoComplete="email"
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
                                     className="block w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
                                     placeholder="john@example.com"
+                                    aria-invalid={!!fieldErrors.email}
+                                    aria-describedby={fieldErrors.email ? 'register-email-error' : undefined}
                                 />
                             </div>
+                            {fieldErrors.email && <p id="register-email-error" role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.email}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="phone" className="text-sm font-bold text-slate-700 block">Nigerian Phone Number</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
+                                    <Phone size={18} />
+                                </div>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    inputMode="tel"
+                                    autoComplete="tel"
+                                    required
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    aria-invalid={!!fieldErrors.phone}
+                                    aria-describedby={fieldErrors.phone ? 'register-phone-error' : undefined}
+                                    className="block w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
+                                    placeholder="08012345678"
+                                />
+                            </div>
+                            {fieldErrors.phone && <p id="register-phone-error" role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.phone}</p>}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-slate-700 block">Phone Number</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
-                                        <Phone size={18} />
-                                    </div>
-                                    <input
-                                        name="phone"
-                                        type="tel"
-                                        required
-                                        value={formData.phone}
-                                        onChange={handleChange}
-                                        className="block w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
-                                        placeholder="+1 (555) 000-0000"
-                                    />
-                                </div>
-                            </div>
-
                             {/* Password */}
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-slate-700 block">Password</label>
+                                <label htmlFor="password" className="text-sm font-bold text-slate-700 block">Password</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
                                         <Lock size={18} />
                                     </div>
                                     <input
                                         name="password"
+                                        id="password"
                                         type="password"
+                                        autoComplete="new-password"
                                         required
                                         value={formData.password}
                                         onChange={handleChange}
+                                        aria-invalid={!!fieldErrors.password}
+                                        aria-describedby={fieldErrors.password ? 'register-password-error' : undefined}
                                         className="block w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
                                         placeholder="••••••••"
                                     />
                                 </div>
+                                {fieldErrors.password && <p id="register-password-error" role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.password}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                                <label htmlFor="confirmPassword" className="text-sm font-bold text-slate-700 block">Confirm Password</label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-emerald transition-colors">
+                                        <Lock size={18} />
+                                    </div>
+                                    <input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type="password"
+                                        autoComplete="new-password"
+                                        required
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        aria-invalid={!!fieldErrors.confirmPassword}
+                                        aria-describedby={fieldErrors.confirmPassword ? 'register-confirm-password-error' : undefined}
+                                        className="block w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald/50 transition-all font-medium"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                                {fieldErrors.confirmPassword && <p id="register-confirm-password-error" role="alert" className="text-xs font-semibold text-red-600">{fieldErrors.confirmPassword}</p>}
                             </div>
                         </div>
 

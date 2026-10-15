@@ -20,8 +20,8 @@ const LegalDocumentPage = lazy(() => import('../components/legal/LegalDocumentPa
 // Auth Pages
 const UserLoginPage = lazy(() => import('../pages/auth/UserLoginPage'));
 const UserRegisterPage = lazy(() => import('../pages/auth/UserRegisterPage'));
-const UserOtpPage = lazy(() => import('../pages/auth/UserOtpPage'));
 const UserForgotPasswordPage = lazy(() => import('../pages/auth/UserForgotPasswordPage'));
+const UserOnboardingPage = lazy(() => import('../pages/onboarding/UserOnboardingPage'));
 
 // User Pages
 const DashboardLayout = lazy(() => import('../layouts/user/DashboardLayout'));
@@ -148,8 +148,12 @@ export default function AppRoutes() {
                         {/* ---------- Auth Routes ---------- */}
                         <Route path="/login" element={<AuthRoute><UserLoginPage /></AuthRoute>} />
                         <Route path="/register" element={<AuthRoute><UserRegisterPage /></AuthRoute>} />
-                        <Route path="/otp" element={<UserOtpPage />} />
+                        <Route path="/otp" element={<ProtectedRoute allowOnboarding><Navigate to="/onboarding/contact-verification" replace /></ProtectedRoute>} />
                         <Route path="/forgot-password" element={<UserForgotPasswordPage />} />
+
+                        {/* ---------- Server-directed onboarding ---------- */}
+                        <Route path="/onboarding" element={<ProtectedRoute allowOnboarding><UserOnboardingPage /></ProtectedRoute>} />
+                        <Route path="/onboarding/:step" element={<ProtectedRoute allowOnboarding><UserOnboardingPage /></ProtectedRoute>} />
                         
                         {/* Admin Auth */}
                         <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -217,9 +221,9 @@ export default function AppRoutes() {
                         <Route path="/wallet-page" element={<Navigate to="/app/wallet" replace />} />
                         <Route path="/referral" element={<Navigate to="/app/referral" replace />} />
                         {/* Gateway return pages — one shared handler; the backend is authoritative */}
-                        <Route path="/paystack/return" element={<ProtectedRoute><PaymentReturnPage gateway="paystack" /></ProtectedRoute>} />
-                        <Route path="/monnify/return" element={<ProtectedRoute><PaymentReturnPage gateway="monnify" /></ProtectedRoute>} />
-                        <Route path="/flutterwave/return" element={<ProtectedRoute><PaymentReturnPage gateway="flutterwave" /></ProtectedRoute>} />
+                        <Route path="/paystack/return" element={<ProtectedRoute allowRecovery><PaymentReturnPage gateway="paystack" /></ProtectedRoute>} />
+                        <Route path="/monnify/return" element={<ProtectedRoute allowRecovery><PaymentReturnPage gateway="monnify" /></ProtectedRoute>} />
+                        <Route path="/flutterwave/return" element={<ProtectedRoute allowRecovery><PaymentReturnPage gateway="flutterwave" /></ProtectedRoute>} />
 
                         {/* ---------- Admin Protected Routes ---------- */}
                         <Route element={<AdminProtectedRoute />}>

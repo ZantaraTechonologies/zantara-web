@@ -73,7 +73,7 @@ const AdminPinSetupPage: React.FC = () => {
 
         setLoading(true);
         try {
-            await userService.setupPin({ pin: newPinStr });
+            await userService.setupPin({ pin: newPinStr, confirmPin: confirmStr });
             await fetchMe();
             toast.success("SYSTEM DIRECTIVE: OVERRIDE CODE ACTIVATED");
             navigate('/admin');

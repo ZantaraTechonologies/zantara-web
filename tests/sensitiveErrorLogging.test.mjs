@@ -208,17 +208,18 @@ async function loadStoreHarness() {
                     export const login = async () => ({});
                     export const register = async () => ({});
                     export const getMe = async () => ({});
+                    export const getOnboardingStatus = async () => ({});
                     export const logout = (...args) => globalThis.__sensitiveStore.logout(...args);
                 ` };
                 if (path === 'wallet-service') return { loader: 'js', contents: `
                     export const getWalletBalance = (...args) => globalThis.__sensitiveStore.wallet(...args);
-                    export const getVirtualAccounts = async () => [];
+                    export const getVirtualAccounts = async () => ({ accounts: [], providers: {}, legacyReviewRequired: false });
                     export const getVirtualAccount = async () => null;
                     export const getLinkedAccounts = async () => [];
                     export const addLinkedAccount = async () => ({});
                     export const deleteLinkedAccount = async () => ({});
                     export const getMyWithdrawals = async () => [];
-                    export const provisionVirtualAccount = async () => ({});
+                    export const requestVirtualAccounts = async () => ({ accounts: [], providers: {}, status: 'action_required' });
                 ` };
                 return { loader: 'js', contents: `
                     const api = { get: (...args) => globalThis.__sensitiveStore.apiGet(...args) };
@@ -332,6 +333,7 @@ test('failed registration preserves user error without logging password or token
     await authUiHarness.input('input[name="email"]', 'user@example.test');
     await authUiHarness.input('input[name="phone"]', '08000000000');
     await authUiHarness.input('input[name="password"]', PASSWORD_SENTINEL);
+    await authUiHarness.input('input[name="confirmPassword"]', PASSWORD_SENTINEL);
     await authUiHarness.click('input[name="agreeToTerms"]');
     await authUiHarness.submit();
 

@@ -44,23 +44,25 @@ let adminStatsRequest = async () => ({ data: {} });
 let authLoginRequest = async () => ({});
 let authRegisterRequest = async () => ({});
 let authLogoutRequest = async () => {};
+let authOnboardingRequest = async () => ({});
 
 globalThis.__batch2d = {
     auth: {
         login: (...args) => authLoginRequest(...args),
         register: (...args) => authRegisterRequest(...args),
         logout: (...args) => authLogoutRequest(...args),
-        getMe: async () => ({})
+        getMe: async () => ({}),
+        getOnboardingStatus: (...args) => authOnboardingRequest(...args)
     },
     wallet: {
         getWalletBalance: (...args) => walletBalanceRequest(...args),
-        getVirtualAccounts: async () => [],
+        getVirtualAccounts: async () => ({ accounts: [], providers: {}, legacyReviewRequired: false }),
         getVirtualAccount: async () => null,
         getLinkedAccounts: async () => [],
         addLinkedAccount: async () => {},
         deleteLinkedAccount: async () => {},
         getMyWithdrawals: async () => [],
-        provisionVirtualAccount: async () => ({})
+        requestVirtualAccounts: async () => ({ accounts: [], providers: {}, status: 'action_required' })
     },
     admin: {
         fetchDashboardStats: (...args) => adminStatsRequest(...args)
@@ -80,6 +82,7 @@ const mockPlugin = {
                     export const register = (...args) => globalThis.__batch2d.auth.register(...args);
                     export const logout = (...args) => globalThis.__batch2d.auth.logout(...args);
                     export const getMe = (...args) => globalThis.__batch2d.auth.getMe(...args);
+                    export const getOnboardingStatus = (...args) => globalThis.__batch2d.auth.getOnboardingStatus(...args);
                 ` };
             }
             if (path === 'wallet') {
@@ -91,7 +94,7 @@ const mockPlugin = {
                     export const addLinkedAccount = (...args) => globalThis.__batch2d.wallet.addLinkedAccount(...args);
                     export const deleteLinkedAccount = (...args) => globalThis.__batch2d.wallet.deleteLinkedAccount(...args);
                     export const getMyWithdrawals = (...args) => globalThis.__batch2d.wallet.getMyWithdrawals(...args);
-                    export const provisionVirtualAccount = (...args) => globalThis.__batch2d.wallet.provisionVirtualAccount(...args);
+                    export const requestVirtualAccounts = (...args) => globalThis.__batch2d.wallet.requestVirtualAccounts(...args);
                 ` };
             }
             return { loader: 'js', contents: `
@@ -147,17 +150,18 @@ async function loadAdminLogoutHarness() {
                     export const login = async () => ({});
                     export const register = async () => ({});
                     export const getMe = async () => ({});
+                    export const getOnboardingStatus = async () => ({});
                     export const logout = (...args) => globalThis.__batch2dAdminLogout(...args);
                 ` };
                 if (path === 'wallet') return { loader: 'js', contents: `
                     export const getWalletBalance = async () => ({});
-                    export const getVirtualAccounts = async () => [];
+                    export const getVirtualAccounts = async () => ({ accounts: [], providers: {}, legacyReviewRequired: false });
                     export const getVirtualAccount = async () => null;
                     export const getLinkedAccounts = async () => [];
                     export const addLinkedAccount = async () => ({});
                     export const deleteLinkedAccount = async () => ({});
                     export const getMyWithdrawals = async () => [];
-                    export const provisionVirtualAccount = async () => ({});
+                    export const requestVirtualAccounts = async () => ({ accounts: [], providers: {}, status: 'action_required' });
                 ` };
                 return { loader: 'js', contents: 'export const fetchDashboardStats = async () => ({ data: {} });' };
             });
@@ -249,7 +253,7 @@ function seedPrivateState() {
 beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
-    useAuthStore.setState({ user: null, token: null, isAuthenticated: false, loading: false, isInitialized: true, error: null, legalActionBlocked: false });
+    useAuthStore.setState({ user: null, token: null, onboarding: null, onboardingStatus: 'idle', onboardingError: null, isAuthenticated: false, loading: false, isInitialized: true, error: null, legalActionBlocked: false });
     useWalletStore.setState({ balance: 0, totalBalance: undefined, frozenBalance: undefined, currency: 'NGN', virtualAccounts: [], linkedAccounts: [], withdrawals: [], loading: false, provisioningProvider: null, error: null });
     useAdminStore.setState({ stats: null, loadingStats: false, error: null, pendingKycCount: 0, pendingWithdrawalsCount: 0, failedTxsToday: 0, todayProfit: 0 });
     walletBalanceRequest = async () => ({ available: 0, balance: 0, frozen: 0, currency: 'NGN' });
@@ -257,6 +261,7 @@ beforeEach(() => {
     authLoginRequest = async () => ({});
     authRegisterRequest = async () => ({});
     authLogoutRequest = async () => {};
+    authOnboardingRequest = async () => ({});
     queryClient.clear();
     window.location.href = '/';
 });
@@ -332,6 +337,38 @@ test('a stale registration rejection cannot mutate the newer authenticated sessi
     assert.equal(current.loading, true);
     assert.equal(current.error, 'user-b-owned-state');
     assert.equal(current.legalActionBlocked, false);
+});
+
+test('a delayed onboarding refresh from user A cannot overwrite user B', async () => {
+    let resolveOnboarding;
+    authOnboardingRequest = () => new Promise((resolve) => { resolveOnboarding = resolve; });
+    const userAState = { mode: 'new_users', enforced: true, status: 'incomplete', currentStep: 'contact_verification', complete: false, dashboardAllowed: false };
+    const userBState = { mode: 'new_users', enforced: true, status: 'complete', currentStep: 'complete', complete: true, dashboardAllowed: true };
+    useAuthStore.getState().setAuth({ id: 'user-a' }, 'token-user-a', true, userAState);
+
+    const pending = useAuthStore.getState().refreshOnboarding(true);
+    useAuthStore.getState().setAuth({ id: 'user-b' }, 'token-user-b', true, userBState);
+    resolveOnboarding(userAState);
+    await pending;
+
+    assert.equal(useAuthStore.getState().user?.id, 'user-b');
+    assert.deepEqual(useAuthStore.getState().onboarding, userBState);
+});
+
+test('an older onboarding refresh cannot overwrite a newer mutation snapshot', async () => {
+    let resolveOnboarding;
+    authOnboardingRequest = () => new Promise((resolve) => { resolveOnboarding = resolve; });
+    const oldState = { mode: 'new_users', enforced: true, status: 'incomplete', currentStep: 'contact_verification', complete: false, dashboardAllowed: false };
+    const newState = { mode: 'new_users', enforced: true, status: 'incomplete', currentStep: 'legal_acceptance', complete: false, dashboardAllowed: false };
+    useAuthStore.getState().setAuth({ id: 'user-a' }, 'token-user-a', true, oldState);
+
+    const pending = useAuthStore.getState().refreshOnboarding(true);
+    useAuthStore.getState().setOnboarding(newState);
+    resolveOnboarding(oldState);
+    await pending;
+
+    assert.deepEqual(useAuthStore.getState().onboarding, newState);
+    assert.equal(useAuthStore.getState().onboardingStatus, 'ready');
 });
 
 test('remote logout failure cannot restore local private session state', async () => {

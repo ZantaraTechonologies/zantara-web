@@ -12,13 +12,13 @@ export const changePassword = async (data: any) => {
     return res.data;
 };
 
-export const setupPin = async (data: { pin: string }) => {
+export const setupPin = async (data: { pin: string, confirmPin: string }) => {
     const res = await apiClient.post('/auth/set-pin', data, { timeout: USER_TIMEOUT });
     return res.data;
 };
 
-export const updatePin = async (data: { oldPin: string, newPin: string }) => {
-    const res = await apiClient.post('/auth/update-pin', data, { timeout: USER_TIMEOUT });
+export const updatePin = async (data: { oldPin: string, newPin: string, confirmNewPin: string }) => {
+    const res = await apiClient.post('/auth/change-pin', data, { timeout: USER_TIMEOUT });
     return res.data;
 };
 

@@ -81,14 +81,32 @@ async function loadRenderedRoutingHarness() {
                     export const useAuthStore = create((set, get) => ({
                         user: null,
                         token: null,
+                        onboarding: null,
+                        onboardingStatus: 'idle',
                         isAuthenticated: false,
                         isInitialized: true,
-                        login: async () => set({
-                            user: { id: 'user-a', isPinSet: globalThis.__batch2dLoginHasPin },
-                            token: 'token-user-a',
-                            isAuthenticated: true,
-                            isInitialized: true
-                        }),
+                        login: async () => {
+                            const onboarding = {
+                                policyVersion: null,
+                                mode: 'off',
+                                enrolled: false,
+                                enforced: false,
+                                status: 'not_applicable',
+                                currentStep: null,
+                                complete: false,
+                                dashboardAllowed: true
+                            };
+                            set({
+                                user: { id: 'user-a', isPinSet: globalThis.__batch2dLoginHasPin },
+                                token: 'token-user-a',
+                                onboarding,
+                                onboardingStatus: 'ready',
+                                isAuthenticated: true,
+                                isInitialized: true
+                            });
+                            return { onboarding };
+                        },
+                        refreshOnboarding: async () => get().onboarding,
                         fetchMe: async () => set({ user: { ...(get().user || { id: 'user-a' }), isPinSet: true } })
                     }));
                 ` };
@@ -142,14 +160,14 @@ async function loadRenderedRoutingHarness() {
                 const profile = <div data-route="profile">Profile</div>;
 
                 function resetAuth() {
-                    useAuthStore.setState({ user: null, token: null, isAuthenticated: false, isInitialized: true });
+                    useAuthStore.setState({ user: null, token: null, onboarding: null, onboardingStatus: 'idle', isAuthenticated: false, isInitialized: true });
                 }
                 export async function mountFlow(container, initialPath, loginHasPin) {
                     resetAuth();
                     globalThis.__batch2dLoginHasPin = loginHasPin;
                     router = createMemoryRouter([
                         { path: '/login', element: <AuthRoute><UserLoginPage /></AuthRoute> },
-                        { path: '/paystack/return', element: <ProtectedRoute>{callback}</ProtectedRoute> },
+                        { path: '/paystack/return', element: <ProtectedRoute allowRecovery>{callback}</ProtectedRoute> },
                         { path: '/app/profile/security/pin', element: <ProtectedRoute><UserPinSetupPage /></ProtectedRoute> },
                         { path: '/app/profile', element: <ProtectedRoute>{profile}</ProtectedRoute> }
                     ], { initialEntries: [initialPath] });
@@ -299,7 +317,7 @@ test('PIN setup preserves a protected payment callback before resuming it', () =
     assert.match(pinPage, /navigate\(returnTo,\s*\{\s*replace:\s*true\s*\}\)/);
 });
 
-test('payment callback behaviorally survives login and required PIN setup with full destination', async () => {
+test('payment callback behaviorally survives login without imposing onboarding or PIN setup', async () => {
     const environment = installDom('http://localhost/paystack/return?reference=ABC123#verify');
     let setupPayload = null;
     globalThis.__batch2dSetupPin = async (payload) => { setupPayload = payload; };
@@ -312,14 +330,8 @@ test('payment callback behaviorally survives login and required PIN setup with f
         await waitFor(harness, () => harness.location().pathname === '/login');
 
         await harness.submitLogin(container);
-        await waitFor(harness, () => harness.location().pathname === '/app/profile/security/pin');
-        assert.equal(harness.location().state.from.pathname, '/paystack/return');
-        assert.equal(harness.location().state.from.search, '?reference=ABC123');
-        assert.equal(harness.location().state.from.hash, '#verify');
-
-        await harness.completePin(container);
         await waitFor(harness, () => container.querySelector('[data-route="payment-callback"]'));
-        assert.deepEqual(setupPayload, { pin: '1234' });
+        assert.equal(setupPayload, null);
         assert.equal(harness.location().pathname, '/paystack/return');
         assert.equal(harness.location().search, '?reference=ABC123');
         assert.equal(harness.location().hash, '#verify');

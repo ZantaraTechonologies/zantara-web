@@ -1,4 +1,5 @@
 import API from '../api/apiClient';
+import type { OnboardingState } from '../../utils/onboarding';
 
 export interface User {
     id: string;
@@ -10,6 +11,9 @@ export interface User {
     myReferralCode?: string;
     hasPIN?: boolean;
     kycStatus?: 'none' | 'pending' | 'verified' | 'rejected';
+    isPhoneVerified?: boolean;
+    isEmailVerified?: boolean;
+    isPinSet?: boolean;
 }
 
 export interface AuthResponse {
@@ -17,6 +21,7 @@ export interface AuthResponse {
     user?: User;
     token?: string;
     message?: string;
+    onboarding?: OnboardingState;
 }
 
 export const login = async (credentials: any): Promise<AuthResponse> => {
@@ -38,4 +43,9 @@ export const logout = async (token?: string | null): Promise<void> => {
 export const getMe = async (): Promise<AuthResponse> => {
     const res = await API.get('/auth/me');
     return res.data;
+};
+
+export const getOnboardingStatus = async (): Promise<OnboardingState> => {
+    const res = await API.get('/onboarding/status');
+    return res.data.onboarding;
 };

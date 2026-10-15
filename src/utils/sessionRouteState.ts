@@ -18,7 +18,7 @@ export function getSessionIdentity(user: { id?: unknown; _id?: unknown } | null 
     return identity == null ? null : String(identity);
 }
 
-export function getPostLoginPath(state: LoginLocationState | null | undefined, fallback = '/app/wallet') {
+export function getPostLoginPath(state: LoginLocationState | null | undefined, fallback = '/app') {
     const from = state?.from;
     const pathname = from?.pathname;
     if (!pathname || !pathname.startsWith('/') || pathname.startsWith('//')) return fallback;

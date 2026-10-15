@@ -10,9 +10,13 @@ import {
 } from '../../app/sessionLifecycle';
 
 const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token') || null;
+let onboardingRevision = 0;
 const authResetState = {
     user: null,
     token: null,
+    onboarding: null,
+    onboardingStatus: 'idle',
+    onboardingError: null,
     isAuthenticated: false,
     loading: false,
     isInitialized: true,
@@ -22,9 +26,19 @@ const authResetState = {
 
 const identityOf = (user) => user?.id || user?._id || null;
 
+const userFromResponse = (data) => {
+    if (data?.user) return data.user;
+    if (!data?.id && !data?._id) return null;
+    const { onboarding: _onboarding, token: _token, ok: _ok, success: _success, ...user } = data;
+    return user;
+};
+
 export const useAuthStore = create((set, get) => ({
     user: null,
     token: storedToken,
+    onboarding: null,
+    onboardingStatus: 'idle',
+    onboardingError: null,
     isAuthenticated: !!storedToken,
     loading: !!storedToken,
     isInitialized: !storedToken,
@@ -34,7 +48,7 @@ export const useAuthStore = create((set, get) => ({
     globalError: null,
     legalActionBlocked: false,
 
-    setAuth: (user, token, rememberMe = true) => {
+    setAuth: (user, token, rememberMe = true, onboarding) => {
         const activeToken = token || user?.token || localStorage.getItem('token') || sessionStorage.getItem('token');
         const current = get();
         if (identityOf(current.user) !== identityOf(user) || current.token !== activeToken) {
@@ -53,7 +67,80 @@ export const useAuthStore = create((set, get) => ({
                 localStorage.removeItem('token');
             }
         }
-        set({ user, token: activeToken, isAuthenticated: !!activeToken, loading: false, isInitialized: true, error: null });
+        onboardingRevision += 1;
+        set({
+            user,
+            token: activeToken,
+            isAuthenticated: !!activeToken,
+            loading: false,
+            isInitialized: true,
+            error: null,
+            onboarding: onboarding ?? null,
+            onboardingStatus: onboarding ? 'ready' : 'idle',
+            onboardingError: null,
+        });
+    },
+
+    hydrateAuthResponse: (data) => {
+        if (!data) return;
+        const current = get();
+        const responseUser = userFromResponse(data);
+        const user = responseUser ? { ...current.user, ...responseUser } : current.user;
+        const token = data.token || data.accessToken || data.access_token || data.data?.token || current.token;
+        const onboarding = data.onboarding || data.data?.onboarding || current.onboarding;
+        if (user && token) {
+            get().setAuth(user, token, localStorage.getItem('token') === current.token, onboarding);
+        } else if (onboarding) {
+            onboardingRevision += 1;
+            set({ onboarding, onboardingStatus: 'ready', onboardingError: null });
+        }
+    },
+
+    setOnboarding: (onboarding) => {
+        onboardingRevision += 1;
+        set({
+            onboarding,
+            onboardingStatus: onboarding ? 'ready' : 'idle',
+            onboardingError: null,
+        });
+    },
+
+    setOnboardingFailure: (code, message, onboarding = null) => {
+        onboardingRevision += 1;
+        set((state) => ({
+            onboarding: onboarding || (state.onboarding ? {
+                ...state.onboarding,
+                status: 'unavailable',
+                complete: false,
+                dashboardAllowed: false,
+                code,
+            } : null),
+            onboardingStatus: 'error',
+            onboardingError: { code, message },
+        }));
+    },
+
+    refreshOnboarding: async (force = false) => {
+        if (!get().isAuthenticated) return null;
+        if (!force && get().onboardingStatus === 'loading') return get().onboarding;
+        const epoch = getSessionEpoch();
+        const revision = onboardingRevision;
+        set({ onboardingStatus: 'loading', onboardingError: null });
+        try {
+            const onboarding = await authService.getOnboardingStatus();
+            if (!isSessionEpochCurrent(epoch) || revision !== onboardingRevision) return get().onboarding;
+            get().setOnboarding(onboarding);
+            return onboarding;
+        } catch (error) {
+            if (!isSessionEpochCurrent(epoch) || revision !== onboardingRevision) return get().onboarding;
+            const data = error.response?.data;
+            get().setOnboardingFailure(
+                data?.code || 'ONBOARDING_STATE_UNAVAILABLE',
+                data?.message || 'Unable to determine onboarding status',
+                data?.data?.onboarding || null,
+            );
+            throw error;
+        }
     },
 
     clearAuth: () => {
@@ -75,10 +162,10 @@ export const useAuthStore = create((set, get) => ({
             const data = await authService.getMe();
             if (!isSessionEpochCurrent(epoch)) return;
             // Loosening the check: if data exists and looks like a user or has a user field
-            const user = data.user || (data.id || data._id ? data : null);
+            const user = userFromResponse(data);
             
             if (user) {
-                get().setAuth(user, token, localStorage.getItem('token') === token);
+                get().setAuth(user, token, localStorage.getItem('token') === token, data.onboarding);
             } else {
                 console.warn('fetchMe: No user data returned');
                 get().clearAuth();
@@ -103,7 +190,7 @@ export const useAuthStore = create((set, get) => ({
             const user = data.user || data.data?.user || (data.id || data._id ? data : null);
 
             if (token || user) {
-                get().setAuth(user, token, rememberMe);
+                get().setAuth(user, token, rememberMe, data.onboarding || data.data?.onboarding);
                 return data;
             } else {
                 throw new Error(data.message || 'Login failed: No user or token in response');
@@ -128,7 +215,7 @@ export const useAuthStore = create((set, get) => ({
             const user = data.user || data.data?.user || (data.id || data._id ? data : null);
 
             if (token || user) {
-                get().setAuth(user, token);
+                get().setAuth(user, token, true, data.onboarding || data.data?.onboarding);
                 return data;
             } else {
                 // If the API returns success but no immediate session, that's fine too (e.g. redirect to OTP)

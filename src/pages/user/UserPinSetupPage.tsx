@@ -74,9 +74,9 @@ const UserPinSetupPage: React.FC = () => {
         setLoading(true);
         try {
             if (hasPin) {
-                await userService.updatePin({ oldPin: oldPinStr, newPin: newPinStr });
+                await userService.updatePin({ oldPin: oldPinStr, newPin: newPinStr, confirmNewPin: confirmStr });
             } else {
-                await userService.setupPin({ pin: newPinStr });
+                await userService.setupPin({ pin: newPinStr, confirmPin: confirmStr });
             }
             await fetchMe();
             toast.success(hasPin ? "Transaction PIN updated successfully" : "Transaction PIN created successfully");
@@ -177,7 +177,7 @@ const UserPinSetupPage: React.FC = () => {
                 <div className="space-y-0.5">
                     <p className="text-[11px] text-brand-navy font-bold uppercase tracking-widest">Zero-Persistence Policy</p>
                     <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
-                        Your PIN is encrypted during transmission and is NEVER stored locally on this device or in your browser memory.
+                        Your PIN is submitted only to the authenticated backend and is never written to browser storage or application logs.
                     </p>
                 </div>
             </div>
