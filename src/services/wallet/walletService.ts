@@ -1,5 +1,10 @@
 import API from "../api/apiClient";
-import type { VirtualAccount } from '../../utils/virtualAccounts';
+import type {
+    VirtualAccountRequestPayload,
+    VirtualAccountRequestResponse,
+    VirtualAccountStatusResponse,
+} from '../../utils/virtualAccounts';
+import { isVirtualAccountRequestResponse, isVirtualAccountStatusResponse } from '../../utils/virtualAccounts';
 
 export type WalletBalance = {
     balance: number;
@@ -21,9 +26,12 @@ export async function getWalletBalance(): Promise<WalletBalance> {
 
 // Virtual accounts are part of the user profile, but we can keep this for abstraction
 // if the authStore is already fetching 'me', we can just use that.
-export async function getVirtualAccounts(): Promise<VirtualAccount[]> {
-    const { data } = await API.get("/auth/me");
-    return Array.isArray(data.virtualAccounts) ? data.virtualAccounts : [];
+export async function getVirtualAccounts(): Promise<VirtualAccountStatusResponse> {
+    const { data } = await API.get("/wallet/virtual-accounts");
+    if (!isVirtualAccountStatusResponse(data)) {
+        throw new Error('Invalid virtual-account status response');
+    }
+    return data;
 }
 
 export type FundingMethod = {
@@ -37,18 +45,6 @@ export type FundingMethod = {
         type: string | null;
         providerSlugs: string[];
     };
-};
-
-export type VirtualAccountProvisioningOptions = {
-    consent?: boolean;
-    preferredBank?: string;
-};
-
-export type VirtualAccountProvisioningResult = {
-    success: boolean;
-    status: 'pending' | 'active' | string;
-    existing?: boolean;
-    accounts?: VirtualAccount[];
 };
 
 export async function getFundingMethods(): Promise<FundingMethod[]> {
@@ -91,26 +87,71 @@ export async function getMyWithdrawals(): Promise<any[]> {
     return data;
 }
 
-export async function initWalletFunding(amount: number, channel: string = 'card', callback_url?: string): Promise<{ authorization_url: string; reference: string }> {
-    // The backend resolves the active gateway for the requested channel — no provider is pinned here.
-    const { data } = await API.post("/wallet/fund", { amount, channel, callback_url });
-    return data;
+export type FundingInitialization = {
+    kind: 'checkout' | 'pending';
+    httpStatus: number;
+    reference: string;
+    provider: string;
+    checkoutProvider: string;
+    authorizationUrl?: string;
+    callbackUrl?: string;
+    code?: string;
+};
+
+export async function initWalletFunding(amount: number): Promise<FundingInitialization> {
+    // Amount-only is intentional: the backend selects the configured default
+    // gateway and its hosted checkout exposes merchant-enabled methods.
+    const response = await API.post("/wallet/fund", { amount });
+    const data = response.data || {};
+    const reference = typeof data.reference === 'string' ? data.reference.trim() : '';
+    const provider = typeof data.provider === 'string' ? data.provider.trim().toLowerCase() : '';
+    const checkoutProvider = typeof data.checkoutProvider === 'string'
+        ? data.checkoutProvider.trim().toLowerCase()
+        : provider;
+    if (!reference || !provider) throw new Error('Invalid funding initialization response');
+
+    const authorizationUrl = typeof data.authorization_url === 'string'
+        ? data.authorization_url.trim()
+        : '';
+    if (response.status === 202 || data.status === 'pending' || !authorizationUrl) {
+        return {
+            kind: 'pending',
+            httpStatus: response.status,
+            reference,
+            provider,
+            checkoutProvider,
+            code: typeof data.code === 'string' ? data.code : 'PAYMENT_INITIALIZATION_PENDING',
+        };
+    }
+    return {
+        kind: 'checkout',
+        httpStatus: response.status,
+        reference,
+        provider,
+        checkoutProvider,
+        authorizationUrl,
+        callbackUrl: typeof data.callbackUrl === 'string' ? data.callbackUrl : undefined,
+    };
 }
 
 export async function verifyFunding(reference: string): Promise<any> {
-    const { data } = await API.get(`/wallet/verify?reference=${reference}`);
-    return data;
+    try {
+        const { data } = await API.get('/wallet/verify', { params: { reference } });
+        return data;
+    } catch (error: any) {
+        if (error?.response?.status === 404 && error?.response?.data?.status === 'not_found') {
+            return { status: 'not_found' };
+        }
+        throw error;
+    }
 }
 
-export async function provisionVirtualAccount(
-    provider: string,
-    options: VirtualAccountProvisioningOptions = {},
-): Promise<VirtualAccountProvisioningResult> {
-    const normalizedProvider = String(provider || '').trim().toLowerCase();
-    const payload = {
-        ...(options.consent !== undefined ? { consent: options.consent === true } : {}),
-        ...(options.preferredBank ? { preferredBank: options.preferredBank } : {}),
-    };
-    const { data } = await API.post(`/wallet/virtual-accounts/${encodeURIComponent(normalizedProvider)}`, payload);
+export async function requestVirtualAccounts(
+    payload: VirtualAccountRequestPayload = {},
+): Promise<VirtualAccountRequestResponse> {
+    const { data } = await API.post('/wallet/virtual-accounts/request', payload);
+    if (!isVirtualAccountRequestResponse(data)) {
+        throw new Error('Invalid virtual-account request response');
+    }
     return data;
 }

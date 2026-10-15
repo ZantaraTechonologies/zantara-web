@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import {
     ArrowLeft,
     Building2,
-    CircleAlert,
-    Clock3,
     Copy,
     ShieldCheck,
     Zap,
@@ -14,23 +12,22 @@ import { useWalletStore } from '../../store/wallet/walletStore';
 import { copyToClipboard } from '../../utils/clipboard';
 import {
     getVirtualAccountProviderLabel,
-    isFailedVirtualAccount,
-    isPendingVirtualAccount,
     isUsableVirtualAccount,
 } from '../../utils/virtualAccounts';
 
 const UserVirtualAccountPage: React.FC = () => {
     const navigate = useNavigate();
-    const { virtualAccounts = [], fetchVirtualAccount } = useWalletStore();
+    const {
+        virtualAccounts = [],
+        virtualAccountProviders = {},
+        fetchVirtualAccount,
+    } = useWalletStore();
 
     useEffect(() => {
         fetchVirtualAccount();
     }, [fetchVirtualAccount]);
 
     const usableAccounts = virtualAccounts.filter(isUsableVirtualAccount);
-    const pendingAccounts = virtualAccounts.filter(isPendingVirtualAccount);
-    const failedAccounts = virtualAccounts.filter(isFailedVirtualAccount);
-
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
             <div className="flex items-center gap-4">
@@ -94,34 +91,15 @@ const UserVirtualAccountPage: React.FC = () => {
                         <div className="rounded-2xl border border-dashed border-slate-200 bg-surface p-8 text-center">
                             <Building2 size={36} className="mx-auto text-slate-300" />
                             <h2 className="mt-4 font-bold text-slate-900">No active transfer account</h2>
-                            <p className="mt-1 text-xs font-medium text-slate-500">Use the provider options below to request one.</p>
+                            <p className="mt-1 text-xs font-medium text-slate-500">Use the provider-neutral request below to create available accounts.</p>
                         </div>
                     )}
 
-                    {(pendingAccounts.length > 0 || failedAccounts.length > 0) && (
-                        <div className="space-y-3">
-                            {pendingAccounts.map((account, index) => (
-                                <div key={account._id || `pending-${index}`} className="flex items-start gap-3 rounded-xl border border-amber-100 bg-amber-50 p-4">
-                                    <Clock3 size={18} className="mt-0.5 shrink-0 text-amber-600" />
-                                    <div>
-                                        <p className="text-sm font-bold text-amber-900">{getVirtualAccountProviderLabel(account)} setup in progress</p>
-                                        <p className="mt-1 text-xs font-medium text-amber-700">This page refreshes automatically while the provider completes assignment.</p>
-                                    </div>
-                                </div>
-                            ))}
-                            {failedAccounts.map((account, index) => (
-                                <div key={account._id || `failed-${index}`} className="flex items-start gap-3 rounded-xl border border-rose-100 bg-rose-50 p-4">
-                                    <CircleAlert size={18} className="mt-0.5 shrink-0 text-rose-600" />
-                                    <div>
-                                        <p className="text-sm font-bold text-rose-900">{getVirtualAccountProviderLabel(account)} setup failed</p>
-                                        <p className="mt-1 text-xs font-medium text-rose-700">Review the provider option below and retry when ready.</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <VirtualAccountProvisioningPanel virtualAccounts={virtualAccounts} />
+                    <VirtualAccountProvisioningPanel
+                        virtualAccounts={virtualAccounts}
+                        providers={virtualAccountProviders}
+                        showWhenAccountExists
+                    />
                 </div>
 
                 <div className="space-y-5">

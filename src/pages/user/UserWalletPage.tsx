@@ -19,8 +19,7 @@ import { format } from 'date-fns';
 import { CardSkeleton, ListSkeleton } from '../../components/feedback/Skeletons';
 import { FUNDED_SUCCESS_TEXT, FUNDED_FAILED_TEXT } from '../../utils/paymentReturnNotices';
 import { getServiceDisplayName } from '../../utils/receiptUtils';
-import { getVirtualAccountProviderLabel, isPendingVirtualAccount, isUsableVirtualAccount } from '../../utils/virtualAccounts';
-import { usePendingVirtualAccountRefresh } from '../../hooks/usePendingVirtualAccountRefresh';
+import { getVirtualAccountProviderLabel, isUsableVirtualAccount } from '../../utils/virtualAccounts';
 
 const UserWalletPage: React.FC = () => {
     const { 
@@ -73,8 +72,6 @@ const UserWalletPage: React.FC = () => {
         { label: 'Frozen Balance', amount: `${currency} ${(frozenBalance || 0).toLocaleString()}`, icon: Lock, color: 'text-red-500', bg: 'bg-red-50' },
     ];
     const usableVirtualAccounts = virtualAccounts.filter(isUsableVirtualAccount);
-    const hasPendingVirtualAccount = virtualAccounts.some(isPendingVirtualAccount);
-    usePendingVirtualAccountRefresh(virtualAccounts, fetchVirtualAccount);
 
     return (
         <div className="p-4 sm:p-5 lg:p-6 space-y-6 animate-in fade-in duration-700 font-sans">
@@ -251,7 +248,7 @@ const UserWalletPage: React.FC = () => {
                             <div className="text-center py-5 space-y-3">
                                 <Building2 className="w-10 h-10 text-emerald-200 mx-auto" />
                                 <p className="text-slate-500 text-xs font-medium">
-                                    {hasPendingVirtualAccount ? 'Bank transfer account setup is in progress.' : 'No bank transfer account has been requested yet.'}
+                                    No active bank transfer account is available yet.
                                 </p>
                             </div>
                         )}

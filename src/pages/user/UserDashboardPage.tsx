@@ -30,7 +30,7 @@ import {
 import { useAuthStore } from '../../store/auth/authStore';
 import { useWalletStore } from '../../store/wallet/walletStore';
 import { useEarningsSummary } from '../../hooks/useReferral';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMyTransactions } from '../../hooks/useWallet';
 import { useNotifications } from '../../hooks/useNotifications';
 import { ListSkeleton, PageLoader } from '../../components/feedback/Skeletons';
@@ -40,12 +40,11 @@ import { toast } from 'react-hot-toast';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
 import { getServiceDisplayName } from '../../utils/receiptUtils';
 import { isPublicWalletWithdrawalAvailable } from '../../utils/publicFeatureAvailability';
+import { FUNDED_FAILED_TEXT, FUNDED_SUCCESS_TEXT } from '../../utils/paymentReturnNotices';
 import {
     getVirtualAccountProviderLabel,
-    isPendingVirtualAccount,
     isUsableVirtualAccount,
 } from '../../utils/virtualAccounts';
-import { usePendingVirtualAccountRefresh } from '../../hooks/usePendingVirtualAccountRefresh';
 
 const DashboardSkeleton = () => (
     <div className="space-y-6 animate-pulse">
@@ -99,12 +98,24 @@ const UserDashboardPage: React.FC = () => {
     const { totalReferrals, referralBalance } = (earningsRes.data as any) || {};
     const refLoading = earningsRes.isLoading;
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     // Fetch transactions for "Recent Activity"
     const { data: txData, isLoading: txLoading } = useMyTransactions({ limit: 4 });
     const recentActivities = txData?.items ?? [];
 
     const [initialLoading, setInitialLoading] = useState(true);
+
+    useEffect(() => {
+        const funded = searchParams.get('funded');
+        if (!funded) return;
+        if (funded === '1') toast.success(FUNDED_SUCCESS_TEXT);
+        else if (funded === '0') toast.error(FUNDED_FAILED_TEXT);
+        else toast('Payment is still being confirmed. Your wallet will update automatically.');
+        const next = new URLSearchParams(searchParams);
+        next.delete('funded');
+        setSearchParams(next, { replace: true });
+    }, [searchParams, setSearchParams]);
 
     const { data: notifData } = useNotifications();
     const notifications = Array.isArray(notifData) ? notifData : [];
@@ -179,8 +190,6 @@ const UserDashboardPage: React.FC = () => {
 
     const handleCloseBroadcast = () => setShowBroadcast(false);
     const usableVirtualAccounts = virtualAccounts.filter(isUsableVirtualAccount);
-    const hasPendingVirtualAccount = virtualAccounts.some(isPendingVirtualAccount);
-    usePendingVirtualAccountRefresh(virtualAccounts, fetchVirtualAccount);
 
     if (initialLoading) return <DashboardSkeleton />;
 
@@ -335,7 +344,7 @@ const UserDashboardPage: React.FC = () => {
                 {/* Primary Content Area */}
                 <div className="lg:col-span-8 space-y-6">
                     {/* Virtual Account Banner (Pro-Tip) */}
-                    {usableVirtualAccounts.length > 0 ? (
+                    {usableVirtualAccounts.length > 0 && (
                         <div className="space-y-3">
                             {usableVirtualAccounts.map((account, index) => (
                                 <div key={account._id || `${account.provider}-${account.accountNumber}-${index}`} className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex items-center justify-between gap-4 group hover:border-emerald-200 transition-all shadow-sm">
@@ -367,17 +376,6 @@ const UserDashboardPage: React.FC = () => {
                                 </div>
                             ))}
                         </div>
-                    ) : (
-                        <Link to="/app/wallet/virtual-account" className="bg-slate-50 border border-slate-200 rounded-3xl p-5 flex items-center justify-between gap-4 hover:border-emerald-200 transition-all shadow-sm">
-                            <div className="flex items-center gap-4">
-                                <Building2 size={24} className="text-emerald-500" />
-                                <div>
-                                    <p className="font-bold text-slate-900">{hasPendingVirtualAccount ? 'Funding account setup in progress' : 'Request a funding account'}</p>
-                                    <p className="text-xs font-medium text-slate-500 mt-1">{hasPendingVirtualAccount ? 'Open account details to check its status.' : 'Choose Paystack or Monnify from the account details page.'}</p>
-                                </div>
-                            </div>
-                            <ChevronRight size={18} className="text-slate-400" />
-                        </Link>
                     )}
 
                     {/* Action Grid */}

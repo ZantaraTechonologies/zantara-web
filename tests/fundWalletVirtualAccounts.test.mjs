@@ -1,367 +1,244 @@
-import { after, afterEach, before, beforeEach, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
-import { build } from 'esbuild';
-import { JSDOM } from 'jsdom';
+import { dirname, join } from 'node:path';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
     getEnvironmentBankSlugs,
     getFundingMethodAccountProvider,
-    mergeVirtualAccounts,
+    getVirtualAccountProviderLabel,
+    isUsableVirtualAccount,
+    isValidVirtualAccountConsent,
+    isVirtualAccountRequestResponse,
+    isVirtualAccountStatusResponse,
+    PERMANENT_VIRTUAL_ACCOUNT_CONSENT_VERSION,
+    replaceVirtualAccounts,
 } from '../src/utils/virtualAccounts.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-let dom;
-let harness;
-let copiedValues;
+const read = (relative) => readFileSync(join(root, relative), 'utf8');
 
-class TestMessageChannel {
-    constructor() {
-        let onmessage = null;
-        this.port1 = {
-            get onmessage() { return onmessage; },
-            set onmessage(handler) { onmessage = handler; },
-            close() { onmessage = null; },
-        };
-        this.port2 = {
-            postMessage(data) { setTimeout(() => onmessage?.({ data }), 0); },
-            close() {},
-        };
-    }
-}
-
-const activeAccount = (provider, accountNumber, overrides = {}) => ({
-    _id: `${provider}-${accountNumber}`,
+const activeAccount = (provider = 'paystack', overrides = {}) => ({
+    _id: `${provider}-account`,
     provider,
-    bankName: provider === 'paystack' ? 'Paystack Test Bank' : 'Monnify Test Bank',
+    bankName: 'Test Bank',
     accountName: 'ZANTARA / TEST USER',
-    accountNumber,
+    accountNumber: '0123456789',
+    currency: 'NGN',
     provisioningStatus: 'active',
     active: true,
     assigned: true,
     ...overrides,
 });
 
-async function loadHarness() {
-    const mocks = {
-        name: 'fund-wallet-virtual-account-mocks',
-        setup(builder) {
-            builder.onResolve({ filter: /store[\\/]wallet[\\/]walletStore(?:\.js)?$/ }, () => ({ path: 'wallet-store', namespace: 'fund-wallet' }));
-            builder.onResolve({ filter: /services[\\/]wallet[\\/]walletService(?:\.ts)?$/ }, () => ({ path: 'wallet-service', namespace: 'fund-wallet' }));
-            builder.onResolve({ filter: /^react-hot-toast$/ }, () => ({ path: 'toast', namespace: 'fund-wallet' }));
-            builder.onLoad({ filter: /.*/, namespace: 'fund-wallet' }, ({ path }) => {
-                if (path === 'wallet-store') return { loader: 'js', contents: `
-                    export const useWalletStore = () => globalThis.__fundWalletTest.store;
-                ` };
-                if (path === 'wallet-service') return { loader: 'js', contents: `
-                    export const getFundingMethods = async () => [
-                        {
-                            code: 'paystack-primary',
-                            name: 'Paystack',
-                            supportedChannels: ['card', 'ussd'],
-                            isDefault: true,
-                            environment: 'test',
-                            virtualAccounts: { supported: true, type: 'dedicated', providerSlugs: ['wema-bank', 'titan-paystack', 'test-bank'] }
-                        },
-                        {
-                            code: 'paystack-backup',
-                            name: 'Paystack Backup',
-                            supportedChannels: ['card'],
-                            isDefault: false,
-                            environment: 'test',
-                            virtualAccounts: { supported: true, type: 'dedicated', providerSlugs: ['test-bank'] }
-                        },
-                        {
-                            code: 'monnify',
-                            name: 'Monnify',
-                            supportedChannels: ['bank_transfer'],
-                            environment: 'test',
-                            virtualAccounts: { supported: true, type: 'reserved', providerSlugs: [] }
-                        }
-                    ];
-                    export const initWalletFunding = async () => ({ authorization_url: 'https://checkout.example', reference: 'ref' });
-                ` };
-                return { loader: 'js', contents: `
-                    export const toast = {
-                        success: (...args) => globalThis.__fundWalletTest.toasts.push(['success', ...args]),
-                        error: (...args) => globalThis.__fundWalletTest.toasts.push(['error', ...args])
-                    };
-                ` };
-            });
-        },
-    };
+const consentRequired = provider => ({
+    status: 'consent_required',
+    consent: {
+        required: true,
+        version: PERMANENT_VIRTUAL_ACCOUNT_CONSENT_VERSION,
+        purpose: 'permanent_virtual_account',
+        provider,
+    },
+});
 
-    const result = await build({
-        stdin: {
-            contents: `
-                import React, { act } from 'react';
-                import { createRoot } from 'react-dom/client';
-                import { MemoryRouter } from 'react-router-dom';
-                import UserFundWalletPage from './src/pages/user/UserFundWalletPage.tsx';
+test('only complete backend-displayable accounts are usable', () => {
+    const account = activeAccount();
+    assert.equal(isUsableVirtualAccount(account), true);
 
-                let appRoot;
-                const container = () => document.getElementById('root');
-
-                export async function mount(accounts) {
-                    globalThis.__fundWalletTest.store = {
-                        virtualAccounts: accounts,
-                        currency: '₦',
-                        fetchVirtualAccount: async () => {},
-                        provisioningProvider: null,
-                        provisionAccount: async (...args) => {
-                            globalThis.__fundWalletTest.provisionCalls.push(args);
-                            return { status: 'pending' };
-                        }
-                    };
-                    appRoot = createRoot(container());
-                    await act(async () => {
-                        appRoot.render(<MemoryRouter><UserFundWalletPage /></MemoryRouter>);
-                    });
-                    const bankButton = [...container().querySelectorAll('button')]
-                        .find((button) => button.textContent.includes('Bank Transfer'));
-                    await act(async () => { bankButton.click(); });
-                }
-
-                export async function clickCopy(provider) {
-                    const button = container().querySelector('[aria-label="Copy ' + provider + ' account number"]');
-                    if (!button) throw new Error('Copy control not found for ' + provider);
-                    await act(async () => { button.click(); });
-                }
-
-                export const text = () => container().textContent;
-                export const accountProviders = () => [...container().querySelectorAll('[data-virtual-account-provider]')]
-                    .map((node) => node.getAttribute('data-virtual-account-provider'));
-                export const hasGenerateButton = () => [...container().querySelectorAll('button')]
-                    .some((button) => button.textContent.includes('Generate Account'));
-                export const provisionProviders = () => [...container().querySelectorAll('[data-provision-provider]')]
-                    .map((button) => button.getAttribute('data-provision-provider'));
-                export async function clickProvision(provider) {
-                    const button = container().querySelector('[data-provision-provider="' + provider + '"]');
-                    if (!button) throw new Error('Provision control not found for ' + provider);
-                    await act(async () => { button.click(); });
-                }
-                export async function unmount() {
-                    if (appRoot) await act(async () => { appRoot.unmount(); });
-                    appRoot = null;
-                }
-            `,
-            resolveDir: root,
-            sourcefile: 'fund-wallet-virtual-accounts-entry.tsx',
-            loader: 'tsx',
-        },
-        bundle: true,
-        format: 'esm',
-        platform: 'browser',
-        target: 'es2022',
-        write: false,
-        plugins: [mocks],
-        define: { 'process.env.NODE_ENV': '"test"' },
-    });
-
-    return import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
-}
-
-before(async () => {
-    dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', {
-        url: 'https://localhost/app/wallet/fund',
-        pretendToBeVisual: true,
-    });
-    const globals = {
-        window: dom.window,
-        self: dom.window,
-        document: dom.window.document,
-        navigator: dom.window.navigator,
-        Node: dom.window.Node,
-        HTMLElement: dom.window.HTMLElement,
-        Event: dom.window.Event,
-        MouseEvent: dom.window.MouseEvent,
-        MutationObserver: dom.window.MutationObserver,
-        MessageChannel: TestMessageChannel,
-        getComputedStyle: dom.window.getComputedStyle.bind(dom.window),
-        requestAnimationFrame: dom.window.requestAnimationFrame.bind(dom.window),
-        cancelAnimationFrame: dom.window.cancelAnimationFrame.bind(dom.window),
-        IS_REACT_ACT_ENVIRONMENT: true,
-    };
-    for (const [key, value] of Object.entries(globals)) {
-        Object.defineProperty(globalThis, key, { configurable: true, writable: true, value });
+    for (const patch of [
+        { provider: undefined },
+        { currency: 'USD' },
+        { provisioningStatus: 'pending' },
+        { active: false },
+        { assigned: false },
+        { bankName: '' },
+        { accountName: '' },
+        { accountNumber: '' },
+    ]) {
+        assert.equal(isUsableVirtualAccount({ ...account, ...patch }), false);
     }
-    Object.defineProperty(dom.window, 'isSecureContext', { configurable: true, value: true });
-    Object.defineProperty(dom.window.navigator, 'clipboard', {
-        configurable: true,
-        value: { writeText: async (value) => copiedValues.push(value) },
+});
+
+test('provider-less legacy rows are quarantined instead of guessed as Monnify', () => {
+    const legacy = activeAccount(undefined, { provider: undefined });
+    assert.equal(isUsableVirtualAccount(legacy), false);
+    assert.equal(getVirtualAccountProviderLabel(legacy), 'Unverified provider');
+});
+
+test('authoritative account replacement removes stale and non-displayable records', () => {
+    const current = activeAccount('monnify', { accountNumber: '1000000001' });
+    const replacement = activeAccount('paystack', { accountNumber: '2000000002' });
+    const pending = activeAccount('monnify', { provisioningStatus: 'pending', active: false, assigned: false });
+
+    assert.deepEqual(replaceVirtualAccounts([replacement, pending]), [replacement]);
+    assert.notDeepEqual(replaceVirtualAccounts([replacement]), [current, replacement]);
+});
+
+test('zero, one, and multiple usable accounts remain distinct display states', () => {
+    const first = activeAccount('paystack', { accountNumber: '1000000001' });
+    const second = activeAccount('monnify', { accountNumber: '2000000002' });
+    assert.equal(replaceVirtualAccounts([]).length, 0);
+    assert.deepEqual(replaceVirtualAccounts([first]), [first]);
+    assert.deepEqual(replaceVirtualAccounts([first, second]), [first, second]);
+});
+
+test('authoritative replacement strips internal and unexpected provider fields', () => {
+    const account = activeAccount('paystack', {
+        gatewayId: 'internal-gateway',
+        accountReference: 'internal-reference',
+        provisioningKey: 'internal-key',
+        secretKey: 'provider-secret',
     });
-    harness = await loadHarness();
+    const [display] = replaceVirtualAccounts([account]);
+    assert.equal(display.accountNumber, account.accountNumber);
+    assert.equal('gatewayId' in display, false);
+    assert.equal('accountReference' in display, false);
+    assert.equal('provisioningKey' in display, false);
+    assert.equal('secretKey' in display, false);
 });
 
-beforeEach(() => {
-    copiedValues = [];
-    globalThis.__fundWalletTest = { store: {}, toasts: [], provisionCalls: [] };
-    document.body.innerHTML = '<div id="root"></div>';
-});
-
-afterEach(async () => {
-    await harness.unmount();
-});
-
-after(() => {
-    dom.window.close();
-    delete globalThis.__fundWalletTest;
-});
-
-test('shows one active Paystack account with provider and bank details', async () => {
-    await harness.mount([activeAccount('paystack', '0123456789')]);
-
-    assert.deepEqual(harness.accountProviders(), ['paystack']);
-    assert.match(harness.text(), /Paystack/);
-    assert.match(harness.text(), /Paystack Test Bank/);
-    assert.match(harness.text(), /ZANTARA \/ TEST USER/);
-    assert.match(harness.text(), /0123456789/);
-    assert.match(harness.text(), /Debit Card/);
-    assert.match(harness.text(), /USSD/);
-});
-
-test('shows one active Monnify account', async () => {
-    await harness.mount([activeAccount('monnify', '1000000001')]);
-
-    assert.deepEqual(harness.accountProviders(), ['monnify']);
-    assert.match(harness.text(), /Monnify/);
-    assert.match(harness.text(), /Monnify Test Bank/);
-    assert.match(harness.text(), /1000000001/);
-});
-
-test('shows Paystack and Monnify accounts together without choosing index zero', async () => {
-    await harness.mount([
-        activeAccount('monnify', '1000000001'),
-        activeAccount('paystack', '2000000002'),
-    ]);
-
-    assert.deepEqual(harness.accountProviders(), ['monnify', 'paystack']);
-    assert.match(harness.text(), /1000000001/);
-    assert.match(harness.text(), /2000000002/);
-});
-
-test('shows every usable account when one provider has multiple accounts', async () => {
-    await harness.mount([
-        activeAccount('paystack', '2000000001', { bankName: 'Wema Bank' }),
-        activeAccount('paystack', '2000000002', { bankName: 'Titan Trust Bank' }),
-        activeAccount('monnify', '1000000001'),
-    ]);
-
-    assert.deepEqual(harness.accountProviders(), ['paystack', 'paystack', 'monnify']);
-    assert.match(harness.text(), /Wema Bank/);
-    assert.match(harness.text(), /Titan Trust Bank/);
-    assert.match(harness.text(), /Monnify Test Bank/);
-});
-
-test('presents pending Paystack provisioning as status, not an active account', async () => {
-    await harness.mount([{
-        provider: 'paystack',
-        provisioningStatus: 'pending',
-        active: false,
-        assigned: false,
-        accountNumber: 'SHOULD_NOT_RENDER',
-    }]);
-
-    assert.deepEqual(harness.accountProviders(), []);
-    assert.match(harness.text(), /Paystack account setup in progress/);
-    assert.match(harness.text(), /account details here when they are ready/);
-    assert.doesNotMatch(harness.text(), /SHOULD_NOT_RENDER/);
-    assert.equal(harness.hasGenerateButton(), false);
-});
-
-test('presents failed provisioning as unavailable without leaking placeholder details', async () => {
-    await harness.mount([{
-        provider: 'paystack',
-        provisioningStatus: 'failed',
-        active: false,
-        assigned: false,
-        bankName: 'SHOULD_NOT_RENDER',
-    }]);
-
-    assert.deepEqual(harness.accountProviders(), []);
-    assert.match(harness.text(), /Paystack account unavailable/);
-    assert.doesNotMatch(harness.text(), /SHOULD_NOT_RENDER/);
-    assert.equal(harness.hasGenerateButton(), false);
-});
-
-test('shows explicit enabled-provider actions in the empty state', async () => {
-    await harness.mount([]);
-
-    assert.deepEqual(harness.accountProviders(), []);
-    assert.match(harness.text(), /No bank transfer account available yet/);
-    assert.match(harness.text(), /Choose an enabled provider below/);
-    assert.deepEqual(harness.provisionProviders(), ['paystack-primary', 'monnify']);
-    assert.equal(harness.hasGenerateButton(), false);
-});
-
-test('submits explicit Paystack consent with an environment-safe preferred bank', async () => {
-    await harness.mount([]);
-
-    await harness.clickProvision('paystack-primary');
-
-    assert.deepEqual(globalThis.__fundWalletTest.provisionCalls, [
-        ['paystack-primary', { consent: true, preferredBank: 'test-bank' }],
-    ]);
-    assert.deepEqual(globalThis.__fundWalletTest.toasts, [
-        ['success', 'Paystack account request submitted'],
-    ]);
-});
-
-test('submits Monnify through the provider-neutral provisioning action', async () => {
-    await harness.mount([]);
-
-    await harness.clickProvision('monnify');
-
-    assert.deepEqual(globalThis.__fundWalletTest.provisionCalls, [
-        ['monnify', {}],
-    ]);
-});
-
-test('filters preferred-bank slugs by gateway environment', () => {
+test('Paystack preferred-bank choices are constrained to the active gateway environment', () => {
     const slugs = ['wema-bank', 'titan-paystack', 'test-bank'];
     assert.deepEqual(getEnvironmentBankSlugs('test', slugs), ['test-bank']);
     assert.deepEqual(getEnvironmentBankSlugs('live', slugs), ['wema-bank', 'titan-paystack']);
-    assert.deepEqual(getEnvironmentBankSlugs('test', ['wema-bank']), []);
     assert.deepEqual(getEnvironmentBankSlugs('staging', slugs), []);
+    assert.equal(getFundingMethodAccountProvider({ code: 'alias', virtualAccounts: { type: 'dedicated' } }), 'paystack');
 });
 
-test('derives adapter identity from capability type when a gateway code is aliased', () => {
-    assert.equal(getFundingMethodAccountProvider({ code: 'paystack-primary', virtualAccounts: { type: 'dedicated' } }), 'paystack');
-    assert.equal(getFundingMethodAccountProvider({ code: 'monnify-backup', virtualAccounts: { type: 'reserved' } }), 'monnify');
+test('consent is bound to the exact provider, purpose, and permanent-account version', () => {
+    const status = {
+        status: 'consent_required',
+        consent: {
+            required: true,
+            version: PERMANENT_VIRTUAL_ACCOUNT_CONSENT_VERSION,
+            purpose: 'permanent_virtual_account',
+            provider: 'paystack',
+        },
+    };
+
+    assert.equal(isValidVirtualAccountConsent('paystack', status), true);
+    assert.equal(isValidVirtualAccountConsent('monnify', status), false);
+    assert.equal(isValidVirtualAccountConsent('Paystack', {
+        ...status,
+        consent: { ...status.consent, provider: 'Paystack' },
+    }), false);
+    assert.equal(isValidVirtualAccountConsent('paystack', {
+        ...status,
+        consent: { ...status.consent, version: 'stale_version' },
+    }), false);
+    assert.equal(isValidVirtualAccountConsent('paystack', {
+        ...status,
+        consent: { ...status.consent, purpose: 'other' },
+    }), false);
 });
 
-test('merges accepted pending provisioning into existing accounts before profile refresh', () => {
-    const monnify = activeAccount('monnify', '1000000001');
-    const pending = { provider: 'paystack', gatewayId: 'gateway-a', provisioningKey: 'key-a', provisioningStatus: 'pending' };
-    assert.deepEqual(mergeVirtualAccounts([monnify], [pending]), [monnify, pending]);
+test('authoritative status validation rejects unsuccessful and malformed nested data', () => {
+    const valid = {
+        success: true,
+        accounts: [activeAccount()],
+        providers: { paystack: { status: 'active' }, monnify: consentRequired('monnify') },
+        legacyReviewRequired: false,
+    };
+
+    assert.equal(isVirtualAccountStatusResponse(valid), true);
+    assert.equal(isVirtualAccountStatusResponse({ ...valid, success: false }), false);
+    assert.equal(isVirtualAccountStatusResponse({ ...valid, accounts: [null] }), false);
+    assert.equal(isVirtualAccountStatusResponse({
+        ...valid,
+        accounts: [activeAccount('paystack', { accountNumber: {} })],
+    }), false);
+    assert.equal(isVirtualAccountStatusResponse({ ...valid, providers: { paystack: {} } }), false);
+    assert.equal(isVirtualAccountStatusResponse({
+        ...valid,
+        providers: { paystack: { status: 'consent_required', consent: { version: {} } } },
+    }), false);
+    assert.equal(isVirtualAccountStatusResponse({ ...valid, providers: { Paystack: { status: 'active' } } }), false);
+    assert.equal(isVirtualAccountStatusResponse({
+        ...valid,
+        providers: { paystack: { status: 'future_state' }, monnify: consentRequired('monnify') },
+    }), false);
+    assert.equal(isVirtualAccountStatusResponse({
+        ...valid,
+        providers: { paystack: { status: 'active' }, monnify: { status: 'active' } },
+    }), false);
 });
 
-test('web provisioning has no legacy generator or singular wallet compatibility state', () => {
-    const read = (relative) => readFileSync(join(root, relative), 'utf8');
+test('request response validation enforces aggregate status and provider structure', () => {
+    const valid = {
+        success: true,
+        status: 'partial',
+        accounts: [activeAccount()],
+        providers: { paystack: { status: 'active' }, monnify: { status: 'definitive_rejection' } },
+    };
+    assert.equal(isVirtualAccountRequestResponse(valid), true);
+    assert.equal(isVirtualAccountRequestResponse({ ...valid, status: 'future_state' }), false);
+    assert.equal(isVirtualAccountRequestResponse({ ...valid, success: false }), false);
+    assert.equal(isVirtualAccountRequestResponse({ ...valid, providers: { paystack: { status: 'active' } } }), false);
+});
+
+test('web service uses the authoritative status and provider-neutral request routes', () => {
     const service = read('src/services/wallet/walletService.ts');
-    const store = read('src/store/wallet/walletStore.js');
-    const dashboard = read('src/pages/user/UserDashboardPage.tsx');
-
-    assert.match(service, /\/wallet\/virtual-accounts\/\$\{encodeURIComponent\(normalizedProvider\)\}/);
-    assert.doesNotMatch(service, /monnify\/generate-virtual-accounts|api\.paystack\.co/i);
-    assert.doesNotMatch(store, /\bvirtualAccount\s*:/);
-    assert.doesNotMatch(store, /generateAccounts|generateVirtualAccounts/);
-    assert.match(store, /virtualAccountRefreshPromise/);
-    assert.match(store, /virtualAccountRefreshGeneration/);
-    assert.doesNotMatch(dashboard, /Silently generating|generateAccounts/);
+    assert.match(service, /API\.get\("\/wallet\/virtual-accounts"\)/);
+    assert.match(service, /isVirtualAccountStatusResponse\(data\)/);
+    assert.match(service, /API\.post\('\/wallet\/virtual-accounts\/request', payload\)/);
+    assert.match(service, /isVirtualAccountRequestResponse\(data\)/);
+    assert.doesNotMatch(service, /virtual-accounts\/\$\{encodeURIComponent/);
+    assert.doesNotMatch(service, /\/auth\/me/);
 });
 
-test('copies the selected provider account number through the shared clipboard helper', async () => {
-    await harness.mount([
-        activeAccount('monnify', '1000000001'),
-        activeAccount('paystack', '2000000002'),
-    ]);
+test('request UI shows provider-specific versioned consent but submits one aggregate action', () => {
+    const panel = read('src/components/wallet/VirtualAccountProvisioningPanel.tsx');
+    assert.match(panel, /I consent to <strong>\{label\}<\/strong> creating and maintaining a permanent bank transfer account/);
+    assert.match(panel, /Consent version \{consentVersion/);
+    assert.match(panel, /isValidVirtualAccountConsent\(provider, status\)/);
+    assert.match(panel, /PERMANENT_VIRTUAL_ACCOUNT_CONSENT_VERSION/);
+    assert.match(panel, /!allowedBanks\.includes\(selectedBanks\[provider\]\)/);
+    assert.match(panel, /preferredBank: selectedBanks\[provider\]/);
+    assert.match(panel, /retryRejectedProviders/);
+    assert.match(panel, /const payload = buildPayload\(\)/);
+    assert.match(panel, /requestAccounts\(payload\)/);
+    assert.match(panel, /Request Bank Account/);
+    assert.doesNotMatch(panel, /data-provision-provider|Choose an enabled provider/);
+});
 
-    await harness.clickCopy('Paystack');
+test('dashboard displays active accounts only and has no empty, pending, failure, or request card', () => {
+    const dashboard = read('src/pages/user/UserDashboardPage.tsx');
+    assert.match(dashboard, /usableVirtualAccounts\.length > 0 &&/);
+    assert.doesNotMatch(dashboard, /Request a funding account|setup in progress|account unavailable|usePendingVirtualAccountRefresh/);
+});
 
-    assert.deepEqual(copiedValues, ['2000000002']);
-    assert.deepEqual(globalThis.__fundWalletTest.toasts, [
-        ['success', 'Account number copied to clipboard'],
-    ]);
+test('pending refresh is bounded and session-owned stores replace authoritative account state', () => {
+    const refreshHook = read('src/hooks/usePendingVirtualAccountRefresh.ts');
+    const store = read('src/store/wallet/walletStore.js');
+    assert.match(refreshHook, /MAX_REFRESH_ATTEMPTS = 6/);
+    assert.match(refreshHook, /attempts >= MAX_REFRESH_ATTEMPTS/);
+    assert.match(refreshHook, /clearInterval\(interval\)/);
+    assert.match(store, /isSessionEpochCurrent\(epoch\)/);
+    assert.match(store, /replaceVirtualAccounts\(data\.accounts\)/);
+    assert.match(store, /virtualAccountStatusError: 'Unable to check bank account availability/);
+    assert.match(store, /virtualAccounts: \[\],[\s\S]*virtualAccountProviders: \{\}/);
+    assert.match(store, /if \(!refreshed\) return null/);
+    assert.doesNotMatch(store, /mergeVirtualAccounts/);
+    assert.doesNotMatch(store, /replaceVirtualAccounts\(result\.accounts\)/);
+});
+
+test('dedicated account page keeps partial-provider actions in one panel', () => {
+    const details = read('src/pages/user/UserVirtualAccountPage.tsx');
+    assert.match(details, /showWhenAccountExists/);
+    assert.doesNotMatch(details, /providerOutcomes/);
+    const panel = read('src/components/wallet/VirtualAccountProvisioningPanel.tsx');
+    assert.match(panel, /virtualAccountStatusError \? \(/);
+    assert.equal((details.match(/<VirtualAccountProvisioningPanel/g) || []).length, 1);
+});
+
+test('hosted funding is amount-only while permanent accounts remain separately accessible', () => {
+    const funding = read('src/pages/user/UserFundWalletPage.tsx');
+    const service = read('src/services/wallet/walletService.ts');
+    assert.match(funding, /initWalletFunding\(fundingAmount\)/);
+    assert.match(funding, /Continue to Payment/);
+    assert.match(funding, /wallet\/virtual-account/);
+    assert.doesNotMatch(funding, /selected === 'card'|selected === 'ussd'|Debit Card|Pay with USSD/);
+    assert.match(service, /API\.post\("\/wallet\/fund", \{ amount \}\)/);
+    assert.doesNotMatch(service, /\{ amount, channel/);
+    assert.doesNotMatch(funding, /api\.paystack\.co|fetch\([^)]*paystack/i);
 });

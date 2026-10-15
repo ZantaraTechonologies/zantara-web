@@ -59,5 +59,5 @@ test('return flow only produces ?funded=1 after the backend reports success', as
         attempts: 1, delayMs: 1, confirmDelayMs: 1
     };
     await runPaymentReturn('paystack', '?reference=PS_OK', deps2);
-    assert.deepEqual(called, ['/app/wallet?funded=1']);
+    assert.deepEqual(called, ['/app?funded=1']);
 });

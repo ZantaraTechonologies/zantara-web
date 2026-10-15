@@ -83,21 +83,21 @@ test('monnify paymentReference reaches /wallet/verify', async () => {
     const { deps, called, verifyCalls } = makeDeps({ verifyResult: { status: 'success' } });
     await runPaymentReturn('monnify', '?paymentReference=MNFY_A&transactionReference=TX_A&status=paid', deps);
     assert.deepEqual(verifyCalls, ['MNFY_A']);
-    assert.deepEqual(called.navigate, ['/app/wallet?funded=1']);
+    assert.deepEqual(called.navigate, ['/app?funded=1']);
 });
 
 test('paystack reference reaches /wallet/verify', async () => {
     const { deps, called, verifyCalls } = makeDeps({ verifyResult: { status: 'success' } });
     await runPaymentReturn('paystack', '?reference=PS_A&trxref=PS_A', deps);
     assert.deepEqual(verifyCalls, ['PS_A']);
-    assert.deepEqual(called.navigate, ['/app/wallet?funded=1']);
+    assert.deepEqual(called.navigate, ['/app?funded=1']);
 });
 
 test('flutterwave tx_ref reaches /wallet/verify', async () => {
     const { deps, called, verifyCalls } = makeDeps({ verifyResult: { status: 'success' } });
     await runPaymentReturn('flutterwave', '?status=successful&tx_ref=FLW_A', deps);
     assert.deepEqual(verifyCalls, ['FLW_A']);
-    assert.deepEqual(called.navigate, ['/app/wallet?funded=1']);
+    assert.deepEqual(called.navigate, ['/app?funded=1']);
 });
 
 test('network error on verify is never terminal (confirming path, no failed verdict)', async () => {
@@ -106,7 +106,17 @@ test('network error on verify is never terminal (confirming path, no failed verd
     deps.verify = async (reference) => { recorded.push(reference); throw new Error('transport'); };
     await runPaymentReturn('paystack', '?reference=PS_NET', deps);
     assert.deepEqual(recorded, ['PS_NET']);
-    assert.deepEqual(called.navigate, ['/app/wallet']);
+    assert.deepEqual(called.navigate, ['/app?funded=pending']);
+});
+
+test('authenticated not-found verification is terminal failure, not indefinite pending', async () => {
+    const { deps, called } = makeDeps({});
+    const terminalCalls = [];
+    deps.verify = async () => { throw { response: { status: 404 } }; };
+    deps.onTerminal = (reference, status) => terminalCalls.push([reference, status]);
+    await runPaymentReturn('paystack', '?reference=PS_UNKNOWN', deps);
+    assert.deepEqual(terminalCalls, [['PS_UNKNOWN', 'failed']]);
+    assert.deepEqual(called.navigate, ['/app?funded=0']);
 });
 
 test('pending is not terminal: confirms after bounded retries, wallet stays recoverable', async () => {
@@ -116,21 +126,35 @@ test('pending is not terminal: confirms after bounded retries, wallet stays reco
     deps.attempts = 2;
     await runPaymentReturn('paystack', '?reference=PS_PEND', deps);
     assert.equal(confirmingCalls, 1);
-    assert.deepEqual(called.navigate, ['/app/wallet']);
+    assert.deepEqual(called.navigate, ['/app?funded=pending']);
 });
 
 test('reconciliation_required is not terminal locally', async () => {
     const { deps, called } = makeDeps({ verifyResult: { status: 'reconciliation_required' } });
     deps.attempts = 2;
     await runPaymentReturn('monnify', '?paymentReference=MNFY_REC', deps);
-    assert.deepEqual(called.navigate, ['/app/wallet']);
+    assert.deepEqual(called.navigate, ['/app?funded=pending']);
 });
 
 test('terminal failed is only shown when the BACKEND reports failed', async () => {
     const { deps, called, verifyCalls } = makeDeps({ verifyResult: { status: 'failed' } });
     await runPaymentReturn('paystack', '?reference=PS_F', deps);
     assert.deepEqual(verifyCalls, ['PS_F']);
-    assert.deepEqual(called.navigate, ['/app/wallet?funded=0']);
+    assert.deepEqual(called.navigate, ['/app?funded=0']);
+});
+
+test('terminal and pending callbacks preserve owner-bound recovery semantics', async () => {
+    const terminal = makeDeps({ verifyResult: { status: 'success' } });
+    const terminalCalls = [];
+    terminal.deps.onTerminal = (reference, status) => terminalCalls.push([reference, status]);
+    await runPaymentReturn('paystack', '?reference=PS_TERM', terminal.deps);
+    assert.deepEqual(terminalCalls, [['PS_TERM', 'success']]);
+
+    const pending = makeDeps({ verifyResult: { status: 'pending' } });
+    const pendingCalls = [];
+    pending.deps.onPending = reference => pendingCalls.push(reference);
+    await runPaymentReturn('paystack', '?reference=PS_PENDING', pending.deps);
+    assert.deepEqual(pendingCalls, ['PS_PENDING']);
 });
 
 test('investment_buy type keeps the legacy investment navigation', async () => {

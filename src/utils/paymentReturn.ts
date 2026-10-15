@@ -64,6 +64,8 @@ export interface PaymentReturnDeps {
         metadata?: { type?: string };
     }>;
     onConfirming?: () => void;
+    onTerminal?: (reference: string, status: 'success' | 'failed') => void;
+    onPending?: (reference: string) => void;
     attempts?: number;
     delayMs?: number;
     confirmDelayMs?: number;
@@ -97,25 +99,33 @@ export async function runPaymentReturn(
             const data = await deps.verify(reference);
             const status = String(data?.status || '');
             if (status === 'success' || status === 'approved') {
+                deps.onTerminal?.(reference, 'success');
                 deps.navigate(
                     typeOf(data) === 'investment_buy'
                         ? '/app/investments?success=1'
-                        : '/app/wallet?funded=1'
+                        : '/app?funded=1'
                 );
                 return;
             }
             if (status === 'failed') {
+                deps.onTerminal?.(reference, 'failed');
                 deps.navigate(
                     typeOf(data) === 'investment_buy'
                         ? '/app/investments?success=0'
-                        : '/app/wallet?funded=0'
+                        : '/app?funded=0'
                 );
                 return;
             }
             // pending / processing / reconciliation_required / anything else:
             // not terminal — keep polling for a bounded window.
-        } catch {
-            // network / transport error — never a terminal failure; keep polling.
+        } catch (error) {
+            const httpStatus = Number((error as { response?: { status?: number } })?.response?.status);
+            if (httpStatus === 404) {
+                deps.onTerminal?.(reference, 'failed');
+                deps.navigate('/app?funded=0');
+                return;
+            }
+            // Other network / transport errors are never terminal; keep polling.
         }
         if (attempt < attempts - 1) {
             await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -123,6 +133,7 @@ export async function runPaymentReturn(
     }
 
     deps.onConfirming?.();
+    deps.onPending?.(reference);
     await new Promise((resolve) => setTimeout(resolve, deps.confirmDelayMs ?? 1500));
-    deps.navigate('/app/wallet');
+    deps.navigate('/app?funded=pending');
 }

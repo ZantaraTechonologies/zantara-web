@@ -6,11 +6,11 @@ import {
     addLinkedAccount, 
     deleteLinkedAccount, 
     getMyWithdrawals,
-    provisionVirtualAccount
+    requestVirtualAccounts
 } from '../../services/wallet/walletService';
 import { getSessionEpoch, isSessionEpochCurrent, registerSessionReset } from '../../app/sessionLifecycle';
 import { useAuthStore } from '../auth/authStore';
-import { mergeVirtualAccounts } from '../../utils/virtualAccounts';
+import { replaceVirtualAccounts } from '../../utils/virtualAccounts';
 
 let virtualAccountRefreshGeneration = 0;
 let virtualAccountRefreshPromise = null;
@@ -21,10 +21,13 @@ const walletResetState = {
     frozenBalance: undefined,
     currency: 'NGN',
     virtualAccounts: [],
+    virtualAccountProviders: {},
+    legacyVirtualAccountReviewRequired: false,
+    virtualAccountStatusError: null,
     linkedAccounts: [],
     withdrawals: [],
     loading: false,
-    provisioningProvider: null,
+    requestingVirtualAccounts: false,
     error: null,
 };
 
@@ -58,13 +61,29 @@ export const useWalletStore = create((set, get) => ({
         const request = (async () => {
             try {
                 const data = await getVirtualAccounts();
-                if (!isSessionEpochCurrent(epoch) || generation !== virtualAccountRefreshGeneration) return;
-                set({ virtualAccounts: data });
+                if (!isSessionEpochCurrent(epoch) || generation !== virtualAccountRefreshGeneration) return false;
+                const virtualAccounts = replaceVirtualAccounts(data.accounts);
+                set({
+                    virtualAccounts,
+                    virtualAccountProviders: data.providers,
+                    legacyVirtualAccountReviewRequired: data.legacyReviewRequired,
+                    virtualAccountStatusError: null,
+                });
                 const user = useAuthStore.getState().user;
-                if (user) useAuthStore.getState().setUser({ ...user, virtualAccounts: data });
+                if (user) useAuthStore.getState().setUser({ ...user, virtualAccounts });
+                return true;
             } catch {
-                if (!isSessionEpochCurrent(epoch)) return;
+                if (!isSessionEpochCurrent(epoch) || generation !== virtualAccountRefreshGeneration) return false;
                 console.error('Failed to fetch virtual account');
+                set({
+                    virtualAccounts: [],
+                    virtualAccountProviders: {},
+                    legacyVirtualAccountReviewRequired: false,
+                    virtualAccountStatusError: 'Unable to check bank account availability. Please try again.',
+                });
+                const user = useAuthStore.getState().user;
+                if (user) useAuthStore.getState().setUser({ ...user, virtualAccounts: [] });
+                return false;
             } finally {
                 if (virtualAccountRefreshPromise === request) virtualAccountRefreshPromise = null;
             }
@@ -129,32 +148,29 @@ export const useWalletStore = create((set, get) => ({
         }
     },
 
-    provisionAccount: async (provider, options = {}) => {
-        if (get().provisioningProvider) return null;
+    requestAccounts: async (payload = {}) => {
+        if (get().requestingVirtualAccounts) return null;
         const epoch = getSessionEpoch();
-        const normalizedProvider = String(provider || '').trim().toLowerCase();
-        set({ provisioningProvider: normalizedProvider, error: null });
+        set({ requestingVirtualAccounts: true, error: null });
         try {
-            const result = await provisionVirtualAccount(normalizedProvider, options);
+            const result = await requestVirtualAccounts(payload);
             if (!isSessionEpochCurrent(epoch)) return;
-            if (Array.isArray(result?.accounts)) {
-                virtualAccountRefreshGeneration += 1;
-                virtualAccountRefreshPromise = null;
-                const virtualAccounts = mergeVirtualAccounts(get().virtualAccounts, result.accounts);
-                set({ virtualAccounts });
-                const user = useAuthStore.getState().user;
-                if (user) useAuthStore.getState().setUser({ ...user, virtualAccounts });
-            }
-            await get().fetchVirtualAccount();
+            virtualAccountRefreshGeneration += 1;
+            virtualAccountRefreshPromise = null;
+            const refreshed = await get().fetchVirtualAccount();
             if (!isSessionEpochCurrent(epoch)) return;
+            if (!refreshed) return null;
             return result;
         } catch (error) {
             if (!isSessionEpochCurrent(epoch)) return;
-            const message = error.response?.data?.message || error.message || 'Failed to request virtual account';
-            set({ error: message });
+            virtualAccountRefreshGeneration += 1;
+            virtualAccountRefreshPromise = null;
+            await get().fetchVirtualAccount();
+            if (!isSessionEpochCurrent(epoch)) return;
+            set({ error: 'Unable to request a bank account. Please check availability and try again.' });
             throw error;
         } finally {
-            if (isSessionEpochCurrent(epoch)) set({ provisioningProvider: null });
+            if (isSessionEpochCurrent(epoch)) set({ requestingVirtualAccounts: false });
         }
     },
 
