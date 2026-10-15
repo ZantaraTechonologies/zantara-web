@@ -13,7 +13,8 @@ interface Props {
 export default function OnboardingShell({ currentStep, children }: Props) {
     const { settings } = useSiteSettings();
     const logout = useAuthStore(state => state.logout);
-    const currentIndex = ONBOARDING_STEPS.findIndex(item => item.step === currentStep);
+    const matchedIndex = ONBOARDING_STEPS.findIndex(item => item.step === currentStep);
+    const currentIndex = matchedIndex === -1 && currentStep && currentStep !== 'complete' ? 0 : matchedIndex;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-mint/50">
@@ -39,10 +40,10 @@ export default function OnboardingShell({ currentStep, children }: Props) {
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10"><ShieldCheck size={21} /></div>
                         <div>
                             <p className="text-sm font-bold">Account readiness</p>
-                            <p className="text-xs text-white/60">A few secure steps</p>
+                            <p className="text-xs text-white/60">One secure step</p>
                         </div>
                     </div>
-                    <ol className="grid grid-cols-4 gap-2 lg:grid-cols-1 lg:gap-1">
+                    <ol className="grid gap-2 lg:gap-1">
                         {ONBOARDING_STEPS.map((item, index) => {
                             const complete = currentIndex > index || currentStep === 'complete';
                             const active = currentIndex === index;

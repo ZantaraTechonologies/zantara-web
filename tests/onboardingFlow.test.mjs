@@ -8,6 +8,7 @@ import { JSDOM } from 'jsdom';
 import {
     buildRegistrationPayload,
     getOnboardingPath,
+    ONBOARDING_STEPS,
     resolvePostAuthPath,
     shouldRestrictDashboard,
     validateBasicKyc,
@@ -77,12 +78,20 @@ test('registration payload preserves an optional referral and sends confirmation
     assert.doesNotMatch(registerSource, /localStorage.*confirmPassword|sessionStorage.*confirmPassword/);
 });
 
-test('authoritative resolver maps every interrupted step and completed onboarding', () => {
+test('authoritative resolver keeps restored wire steps compatible and maps completed onboarding', () => {
     assert.equal(resolvePostAuthPath(incompleteState('basic_kyc')), '/onboarding/basic-kyc');
     assert.equal(resolvePostAuthPath(incompleteState('contact_verification')), '/onboarding/contact-verification');
     assert.equal(resolvePostAuthPath(incompleteState('legal_acceptance')), '/onboarding/legal-acceptance');
     assert.equal(resolvePostAuthPath(incompleteState('transaction_pin')), '/onboarding/transaction-pin');
     assert.equal(resolvePostAuthPath(completeState, '/app/transactions'), '/app/transactions');
+});
+
+test('normal onboarding displays transaction PIN as its only mandatory stage', () => {
+    assert.deepEqual(ONBOARDING_STEPS, [{ step: 'transaction_pin', label: 'Security' }]);
+    const pageSource = source('src/pages/onboarding/UserOnboardingPage.tsx');
+    assert.match(pageSource, /content = <TransactionPinStep \/>/);
+    assert.doesNotMatch(pageSource, /BasicKycStep|ContactVerificationStep|LegalAcceptanceStep/);
+    assert.doesNotMatch(pageSource, /updateProfile|sendPhoneVerificationCode|acceptLegalDocument/);
 });
 
 test('missing or unavailable authoritative state never resolves to the dashboard', () => {
@@ -102,32 +111,20 @@ test('off, observe, and legacy not-applicable states preserve requested navigati
     }
 });
 
-test('Basic KYC collects only the approved profile fields', () => {
+test('registration continues to validate the profile fields completed before onboarding', () => {
     assert.equal(validateBasicKyc({ name: 'Ada Lovelace', email: 'ada@example.com', phone: '08012345678' }).valid, true);
-    const pageSource = source('src/pages/onboarding/UserOnboardingPage.tsx');
-    assert.match(pageSource, /updateProfile\(validation\.values\)/);
-    assert.doesNotMatch(pageSource, /name="(?:bvn|nin|dateOfBirth|address|document)"/i);
-    assert.doesNotMatch(pageSource, /uploadKYC/);
+    const registerSource = source('src/pages/auth/UserRegisterPage.tsx');
+    assert.match(registerSource, /buildRegistrationPayload/);
+    assert.doesNotMatch(registerSource, /name="(?:bvn|nin|dateOfBirth|address|document)"/i);
 });
 
-test('contact verification uses real backend OTP endpoints with controlled resend', () => {
-    const serviceSource = source('src/services/onboarding/onboardingService.ts');
-    assert.match(serviceSource, /\/auth\/send-otp/);
-    assert.match(serviceSource, /\/auth\/verify-otp/);
-    assert.match(serviceSource, /\/auth\/email\/send-otp/);
-    assert.match(serviceSource, /\/auth\/email\/verify-otp/);
-    const pageSource = source('src/pages/onboarding/UserOnboardingPage.tsx');
-    assert.match(pageSource, /setCooldown\(60\)/);
-    assert.match(pageSource, /refreshOnboarding\(true\)/);
-});
-
-test('legal onboarding requests only missing documents and registration acceptance remains intact', () => {
+test('legal acceptance remains in registration and outside mandatory onboarding', () => {
     const pageSource = source('src/pages/onboarding/UserOnboardingPage.tsx');
     const registerSource = source('src/pages/auth/UserRegisterPage.tsx');
-    assert.match(pageSource, /filter\(document => document\.acceptanceRequired\)/);
-    assert.match(pageSource, /acceptLegalDocument\(document\)/);
+    assert.doesNotMatch(pageSource, /legal\/requirements|acceptLegalDocument|LegalAcceptanceStep/);
     assert.match(registerSource, /legal\/documents\/current/);
     assert.match(registerSource, /legalAcceptances/);
+    assert.match(source('src/components/legal/LegalAcceptancePrompt.jsx'), /legal/);
 });
 
 test('PIN validation requires matching four-digit values and neither PIN nor OTP is persisted or logged', () => {
@@ -163,6 +160,7 @@ test('403 and onboarding 503 responses update authoritative routing state withou
 test('onboarding routes render outside DashboardLayout and recovery callbacks remain exempt', () => {
     const routesSource = source('src/routes/AppRoutes.jsx');
     assert.ok(routesSource.indexOf('path="/onboarding"') < routesSource.indexOf('path="/app"'));
+    assert.match(routesSource, /path="\/otp"[\s\S]*?<Navigate to="\/onboarding" replace/);
     assert.match(routesSource, /ProtectedRoute allowRecovery/);
     assert.match(routesSource, /ProtectedRoute allowOnboarding/);
     assert.doesNotMatch(source('src/pages/onboarding/UserOnboardingPage.tsx'), /DashboardLayout|walletService|useWalletStore/);
@@ -283,7 +281,14 @@ const guardState = onboarding => ({
 });
 
 test('direct dashboard access redirects an enrolled incomplete user before dashboard mounts', async () => {
-    const result = await harness.mount('/app/transactions', guardState(incompleteState('contact_verification')));
+    const result = await harness.mount('/app/transactions', guardState(incompleteState('transaction_pin')));
+    assert.equal(result.route, 'onboarding');
+    assert.equal(result.text, '/onboarding/transaction-pin');
+    assert.equal(result.dashboardMounts, 0);
+});
+
+test('restored sessions with historical wire steps still reach the compatibility onboarding route', async () => {
+    const result = await harness.mount('/app', guardState(incompleteState('contact_verification')));
     assert.equal(result.route, 'onboarding');
     assert.equal(result.text, '/onboarding/contact-verification');
     assert.equal(result.dashboardMounts, 0);

@@ -148,7 +148,7 @@ export default function AppRoutes() {
                         {/* ---------- Auth Routes ---------- */}
                         <Route path="/login" element={<AuthRoute><UserLoginPage /></AuthRoute>} />
                         <Route path="/register" element={<AuthRoute><UserRegisterPage /></AuthRoute>} />
-                        <Route path="/otp" element={<ProtectedRoute allowOnboarding><Navigate to="/onboarding/contact-verification" replace /></ProtectedRoute>} />
+                        <Route path="/otp" element={<ProtectedRoute allowOnboarding><Navigate to="/onboarding" replace /></ProtectedRoute>} />
                         <Route path="/forgot-password" element={<UserForgotPasswordPage />} />
 
                         {/* ---------- Server-directed onboarding ---------- */}

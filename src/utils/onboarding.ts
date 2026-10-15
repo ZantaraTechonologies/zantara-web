@@ -53,9 +53,6 @@ export const ONBOARDING_STEP_PATHS: Record<Exclude<OnboardingStep, 'complete'>, 
 };
 
 export const ONBOARDING_STEPS: Array<{ step: Exclude<OnboardingStep, 'complete'>; label: string }> = [
-    { step: 'basic_kyc', label: 'Profile' },
-    { step: 'contact_verification', label: 'Verify' },
-    { step: 'legal_acceptance', label: 'Agreements' },
     { step: 'transaction_pin', label: 'Security' },
 ];
 

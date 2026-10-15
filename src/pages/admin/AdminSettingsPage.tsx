@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/apiClient';
 import toast from 'react-hot-toast';
 import { useSiteSettings } from '../../app/SiteSettingsContext';
+import AdminOnboardingSettingsCard from '../../components/admin/AdminOnboardingSettingsCard';
 
 const AdminSettingsPage: React.FC = () => {
     const { refetch: refetchSiteSettings } = useSiteSettings();
@@ -82,14 +83,6 @@ const AdminSettingsPage: React.FC = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <RefreshCw className="w-8 h-8 text-primary animate-spin" />
-            </div>
-        );
-    }
-
     return (
         <div className="p-6 max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
             {/* Header */}
@@ -110,7 +103,13 @@ const AdminSettingsPage: React.FC = () => {
                 </button>
             </div>
 
-            <form onSubmit={handleSave} className="space-y-6 pb-10">
+            <AdminOnboardingSettingsCard />
+
+            {loading ? (
+                <div className="flex min-h-[400px] items-center justify-center rounded-2xl border border-slate-100 bg-surface">
+                    <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+                </div>
+            ) : <form onSubmit={handleSave} className="space-y-6 pb-10">
                 {/* Site Identity Card */}
                 <div className="bg-surface border border-slate-100 rounded-2xl overflow-hidden group hover:border-primary/30 transition-all duration-300">
                     <div className="p-6 border-b border-slate-100 flex items-center gap-3">
@@ -449,7 +448,7 @@ const AdminSettingsPage: React.FC = () => {
                         {saving ? "Saving Changes..." : "Save Settings"}
                     </button>
                 </div>
-            </form>
+            </form>}
         </div>
     );
 };
