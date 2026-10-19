@@ -64,6 +64,8 @@ test('amount-only funding handles pending responses and guards duplicate submiss
     assert.match(page, /Do not start another payment/);
     assert.match(page, /isTrustedHostedCheckoutUrl/);
     assert.match(page, /window\.location\.assign/);
+    assert.match(page, /error\?\.response\?\.data\?\.message/);
+    assert.match(page, /typeof backendMessage === 'string'/);
     const initialization = page.slice(page.indexOf('const result = await walletService.initWalletFunding'));
     assert.ok(
         initialization.indexOf("result.kind === 'checkout'") < initialization.indexOf('savePendingFunding(record)'),

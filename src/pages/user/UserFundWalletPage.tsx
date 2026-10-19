@@ -119,9 +119,14 @@ const UserFundWalletPage: React.FC = () => {
                 return;
             }
             window.location.assign(result.authorizationUrl);
-        } catch {
+        } catch (error: any) {
             if (isSessionEpochCurrent(epoch)) {
-                toast.error('We could not safely confirm payment initialization. Check your transactions before trying again.');
+                const backendMessage = error?.response?.data?.message;
+                toast.error(
+                    typeof backendMessage === 'string' && backendMessage.trim()
+                        ? backendMessage
+                        : 'We could not safely confirm payment initialization. Check your transactions before trying again.',
+                );
             }
         } finally {
             submissionStarted.current = false;
