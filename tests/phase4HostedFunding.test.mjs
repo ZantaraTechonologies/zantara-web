@@ -23,6 +23,9 @@ class MemoryStorage {
 test('hosted checkout URLs require HTTPS and the selected provider domain', () => {
     assert.equal(isTrustedHostedCheckoutUrl('https://checkout.paystack.com/start', 'paystack'), true);
     assert.equal(isTrustedHostedCheckoutUrl('https://sandbox.monnify.com/checkout', 'monnify'), true);
+    assert.equal(isTrustedHostedCheckoutUrl('https://sandbox.monnify.com/checkout', 'monnify', 'sandbox.monnify.com'), true);
+    assert.equal(isTrustedHostedCheckoutUrl('https://checkout.monnify.com/checkout', 'monnify', 'sandbox.monnify.com'), false);
+    assert.equal(isTrustedHostedCheckoutUrl(['https://sandbox.monnify.com/checkout'], 'monnify', 'sandbox.monnify.com'), false);
     assert.equal(isTrustedHostedCheckoutUrl('https://checkout.flutterwave.com/pay', 'flutterwave'), true);
     assert.equal(isTrustedHostedCheckoutUrl('http://checkout.paystack.com/start', 'paystack'), false);
     assert.equal(isTrustedHostedCheckoutUrl('https://checkout.paystack.com.evil.test/start', 'paystack'), false);

@@ -30,10 +30,13 @@ import {
     updateGatewayStatus,
     setDefaultGateway,
     testGatewayConnection,
+    replaceMonnifyMerchant,
+    testMonnifyHostedCheckout,
     getReconciliationTransactions,
     getAdapterCapabilities,
 } from '../../../services/admin/adminPaymentGatewayService';
 import { toast } from 'react-hot-toast';
+import { isTrustedHostedCheckoutUrl } from '../../../utils/hostedCheckout';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PILOT FORM STYLE SYSTEM  ─  Payment Gateway modal
@@ -121,6 +124,15 @@ const FieldLabel: React.FC<{ children: React.ReactNode; htmlFor?: string; extra?
     </label>
 );
 
+const emptyReplacementCredentials = () => ({
+    publicKey: '',
+    secretKey: '',
+    webhookSecret: '',
+    contractCode: '',
+    currentPassword: '',
+    confirmed: false,
+});
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 const AdminPaymentGatewaysPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'gateways' | 'reconciliation'>('gateways');
@@ -150,6 +162,17 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     // Credential fields: keyed by field.key (publicKey / secretKey / webhookSecret)
     const [formCredentials, setFormCredentials] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
+
+    const [replacementGateway, setReplacementGateway] = useState<PaymentGatewayItem | null>(null);
+    const [replacementCredentials, setReplacementCredentials] = useState(emptyReplacementCredentials);
+    const [replacementSaving, setReplacementSaving] = useState(false);
+    const [checkoutGateway, setCheckoutGateway] = useState<PaymentGatewayItem | null>(null);
+    const [checkoutAmount, setCheckoutAmount] = useState('100');
+    const [checkoutPassword, setCheckoutPassword] = useState('');
+    const [checkoutUrl, setCheckoutUrl] = useState('');
+    const [checkoutReference, setCheckoutReference] = useState('');
+    const [checkoutPending, setCheckoutPending] = useState(false);
+    const [checkoutStarting, setCheckoutStarting] = useState(false);
 
     // Confirmation dialog
     const [confirmDialog, setConfirmDialog] = useState<{
@@ -254,6 +277,113 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 }
             }
         });
+    };
+
+    const openMerchantReplacement = (gateway: PaymentGatewayItem) => {
+        setReplacementGateway(gateway);
+        setReplacementCredentials(emptyReplacementCredentials());
+    };
+
+    const closeMerchantReplacement = () => {
+        if (replacementSaving) return;
+        setReplacementGateway(null);
+        setReplacementCredentials(emptyReplacementCredentials());
+    };
+
+    const handleMerchantReplacement = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!replacementGateway) return;
+        if (!replacementCredentials.confirmed) {
+            toast.error('Confirm the intentional Monnify merchant replacement before continuing');
+            return;
+        }
+        try {
+            setReplacementSaving(true);
+            await replaceMonnifyMerchant(replacementGateway._id, {
+                publicKey: replacementCredentials.publicKey.trim(),
+                secretKey: replacementCredentials.secretKey.trim(),
+                webhookSecret: replacementCredentials.webhookSecret.trim() || undefined,
+                contractCode: replacementCredentials.contractCode.trim(),
+                currentPassword: replacementCredentials.currentPassword,
+                confirmation: 'replace-monnify-merchant',
+            });
+            toast.success('Monnify sandbox merchant replaced after validation');
+            setReplacementGateway(null);
+            fetchData();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || error.message || 'Merchant replacement failed');
+        } finally {
+            setReplacementCredentials(emptyReplacementCredentials());
+            setReplacementSaving(false);
+        }
+    };
+
+    const openCheckoutTest = (gateway: PaymentGatewayItem) => {
+        setCheckoutGateway(gateway);
+        setCheckoutAmount('100');
+        setCheckoutPassword('');
+        setCheckoutUrl('');
+        setCheckoutReference('');
+        setCheckoutPending(false);
+    };
+
+    const closeCheckoutTest = () => {
+        if (checkoutStarting) return;
+        setCheckoutGateway(null);
+        setCheckoutAmount('100');
+        setCheckoutPassword('');
+        setCheckoutUrl('');
+        setCheckoutReference('');
+        setCheckoutPending(false);
+    };
+
+    const handleCheckoutTest = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!checkoutGateway) return;
+        try {
+            setCheckoutStarting(true);
+            const result = await testMonnifyHostedCheckout(
+                checkoutGateway._id,
+                Number(checkoutAmount),
+                checkoutPassword,
+            );
+            if (result.httpStatus === 202 || result.code === 'PAYMENT_INITIALIZATION_AMBIGUOUS') {
+                setCheckoutUrl('');
+                setCheckoutReference(result.reference || 'Unavailable');
+                setCheckoutPending(true);
+                toast(result.message || 'Checkout initialization is pending. Do not retry this reference.');
+                return;
+            }
+            if (!isTrustedHostedCheckoutUrl(result.authorizationUrl || '', 'monnify', 'sandbox.monnify.com')) {
+                setCheckoutUrl('');
+                setCheckoutReference(result.reference || 'Unavailable');
+                setCheckoutPending(true);
+                toast.error('Checkout was initialized with an unsafe response. Do not retry; reconcile this reference.');
+                return;
+            }
+            setCheckoutUrl(result.authorizationUrl || '');
+            setCheckoutReference(result.reference || '');
+            setCheckoutPending(false);
+            toast.success('Sandbox checkout initialized');
+        } catch (error: any) {
+            const failure = error.response?.data;
+            if (failure?.reference && ['PAYMENT_INITIALIZATION_AMBIGUOUS', 'MONNIFY_SANDBOX_CHECKOUT_CONFIGURATION_CHANGED'].includes(failure.code)) {
+                setCheckoutUrl('');
+                setCheckoutReference(failure.reference);
+                setCheckoutPending(true);
+                toast(failure.message || 'Checkout initialization is pending. Do not retry this reference.');
+            } else if (!error.response) {
+                setCheckoutUrl('');
+                setCheckoutReference('Unavailable');
+                setCheckoutPending(true);
+                toast.error('The checkout response was lost. Do not retry until the attempt is reconciled.');
+            } else {
+                toast.error(failure?.message || error.message || 'Sandbox checkout test failed');
+            }
+        } finally {
+            setCheckoutPassword('');
+            setCheckoutStarting(false);
+        }
     };
 
     // ─── Modal open ──────────────────────────────────────────────────────────
@@ -603,6 +733,36 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                             <span>{isTesting ? 'Testing...' : 'Test Connection'}</span>
                                         </button>
                                     </div>
+
+                                    {gw.code === 'monnify' && gw.adapterType === 'monnify' && (
+                                        <div className="mb-5 rounded-xl border border-violet-200 bg-violet-50/70 p-3 space-y-2 dark:border-violet-400/20 dark:bg-violet-500/10">
+                                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-violet-700 dark:text-violet-300">
+                                                <ShieldCheck className="w-3.5 h-3.5" />
+                                                Privileged Sandbox Operations
+                                            </div>
+                                            <p className="text-[11px] leading-relaxed text-violet-700/80 dark:text-violet-200/80">
+                                                These actions require your current password and never change the platform default.
+                                            </p>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => openMerchantReplacement(gw)}
+                                                    disabled={gw.status !== 'inactive' || gw.isDefault}
+                                                    title={gw.status !== 'inactive' || gw.isDefault ? 'Deactivate Monnify and keep it non-default before replacement' : 'Replace the inactive sandbox merchant'}
+                                                    className="px-3 py-2 text-[11px] font-bold rounded-lg border border-violet-300 bg-white text-violet-700 hover:bg-violet-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed dark:border-violet-400/30 dark:bg-slate-900/70 dark:text-violet-200"
+                                                >
+                                                    Replace Merchant
+                                                </button>
+                                                <button
+                                                    onClick={() => openCheckoutTest(gw)}
+                                                    disabled={gw.environment !== 'test' || gw.status !== 'inactive' || (gw.baseUrl || '').replace(/\/+$/, '') !== 'https://sandbox.monnify.com'}
+                                                    title={gw.environment !== 'test' || gw.status !== 'inactive' || (gw.baseUrl || '').replace(/\/+$/, '') !== 'https://sandbox.monnify.com' ? 'Requires the exact inactive Monnify sandbox gateway' : 'Initialize an isolated sandbox checkout'}
+                                                    className="px-3 py-2 text-[11px] font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                >
+                                                    Test Checkout
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
@@ -1070,6 +1230,213 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {replacementGateway && (
+                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 dark:bg-slate-950/85">
+                    <div className="bg-white dark:bg-gradient-to-b dark:from-brand-navy-800 dark:to-brand-navy-900 rounded-3xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[92vh] overflow-y-auto">
+                        <div className="p-6 sm:p-8 space-y-6">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-violet-600 dark:text-violet-300 mb-2">
+                                        <ShieldCheck className="w-4 h-4" />
+                                        Privileged Operation
+                                    </div>
+                                    <h2 className="text-xl font-black text-slate-900 dark:text-white">Replace Monnify Sandbox Merchant</h2>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                        Reuses gateway code <span className="font-mono font-bold">monnify</span> without changing the current default gateway.
+                                    </p>
+                                </div>
+                                <button onClick={closeMerchantReplacement} disabled={replacementSaving} aria-label="Close dialog" className={modalIconButtonClass}>
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-900 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-200">
+                                <strong>Historical isolation:</strong> existing reserved accounts remain bound to the previous merchant snapshot. New credentials are authenticated before the existing gateway is changed. Unresolved payments block replacement.
+                            </div>
+
+                            <form onSubmit={handleMerchantReplacement} className="space-y-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <FieldLabel htmlFor="replacement-api-key">New API Key</FieldLabel>
+                                        <input
+                                            id="replacement-api-key"
+                                            required
+                                            value={replacementCredentials.publicKey}
+                                            onChange={e => setReplacementCredentials(prev => ({ ...prev, publicKey: e.target.value }))}
+                                            className={formMonoInputClass}
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                    <div>
+                                        <FieldLabel htmlFor="replacement-contract">New Contract Code</FieldLabel>
+                                        <input
+                                            id="replacement-contract"
+                                            required
+                                            value={replacementCredentials.contractCode}
+                                            onChange={e => setReplacementCredentials(prev => ({ ...prev, contractCode: e.target.value }))}
+                                            className={formMonoInputClass}
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                    <div>
+                                        <FieldLabel htmlFor="replacement-secret">New Secret Key</FieldLabel>
+                                        <input
+                                            id="replacement-secret"
+                                            type="password"
+                                            required
+                                            value={replacementCredentials.secretKey}
+                                            onChange={e => setReplacementCredentials(prev => ({ ...prev, secretKey: e.target.value }))}
+                                            className={formMonoInputClass}
+                                            autoComplete="new-password"
+                                        />
+                                    </div>
+                                    <div>
+                                        <FieldLabel htmlFor="replacement-webhook">New Webhook Secret</FieldLabel>
+                                        <input
+                                            id="replacement-webhook"
+                                            type="password"
+                                            value={replacementCredentials.webhookSecret}
+                                            onChange={e => setReplacementCredentials(prev => ({ ...prev, webhookSecret: e.target.value }))}
+                                            placeholder="Blank uses the new secret key"
+                                            className={formMonoInputClass}
+                                            autoComplete="new-password"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <FieldLabel htmlFor="replacement-password">Current SuperAdmin Password</FieldLabel>
+                                    <input
+                                        id="replacement-password"
+                                        type="password"
+                                        required
+                                        value={replacementCredentials.currentPassword}
+                                        onChange={e => setReplacementCredentials(prev => ({ ...prev, currentPassword: e.target.value }))}
+                                        className={formInputClass}
+                                        autoComplete="current-password"
+                                    />
+                                </div>
+
+                                <div className="flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-400/20 dark:bg-violet-500/10">
+                                    <Info className="w-4 h-4 text-violet-600 dark:text-violet-300 shrink-0 mt-0.5" />
+                                    <p className="text-xs leading-relaxed text-violet-800 dark:text-violet-200">
+                                        The replacement remains inactive. Initialize a successful sandbox checkout, then use Activate on the gateway card.
+                                    </p>
+                                </div>
+
+                                <label className="flex items-start gap-3 rounded-xl border-2 border-rose-200 bg-rose-50 p-4 dark:border-rose-400/20 dark:bg-rose-500/10">
+                                    <input
+                                        type="checkbox"
+                                        checked={replacementCredentials.confirmed}
+                                        onChange={e => setReplacementCredentials(prev => ({ ...prev, confirmed: e.target.checked }))}
+                                        className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
+                                    />
+                                    <span className="text-xs font-semibold leading-relaxed text-rose-800 dark:text-rose-200">
+                                        I confirm this is an intentional merchant replacement, not an ordinary credential rotation.
+                                    </span>
+                                </label>
+
+                                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
+                                    <button type="button" onClick={closeMerchantReplacement} disabled={replacementSaving} className={modalButtonSecondaryClass}>Cancel</button>
+                                    <button
+                                        type="submit"
+                                        disabled={replacementSaving || !replacementCredentials.confirmed}
+                                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        {replacementSaving && <RefreshCw className="w-4 h-4 animate-spin" />}
+                                        Replace Merchant
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {checkoutGateway && (
+                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 dark:bg-slate-950/85">
+                    <div className="bg-white dark:bg-gradient-to-b dark:from-brand-navy-800 dark:to-brand-navy-900 rounded-3xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <div className="text-xs font-black uppercase tracking-widest text-violet-600 dark:text-violet-300 mb-2">Monnify Sandbox</div>
+                                <h2 className="text-xl font-black text-slate-900 dark:text-white">Hosted Checkout Test</h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Creates an audited no-credit checkout for gateway validation without changing default routing.</p>
+                            </div>
+                            <button onClick={closeCheckoutTest} disabled={checkoutStarting} aria-label="Close dialog" className={modalIconButtonClass}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {checkoutPending ? (
+                            <div className="space-y-5">
+                                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-400/20 dark:bg-amber-500/10">
+                                    <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-200">
+                                        <AlertTriangle className="w-5 h-5" /> Initialization Pending
+                                    </div>
+                                    <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">Do not retry this checkout. Reconcile reference <span className="font-mono font-bold">{checkoutReference}</span>.</p>
+                                </div>
+                                <button type="button" onClick={closeCheckoutTest} className={`${modalButtonSecondaryClass} w-full`}>Close</button>
+                            </div>
+                        ) : !checkoutUrl ? (
+                            <form onSubmit={handleCheckoutTest} className="space-y-5">
+                                <div>
+                                    <FieldLabel htmlFor="checkout-amount">Sandbox Amount</FieldLabel>
+                                    <input
+                                        id="checkout-amount"
+                                        type="number"
+                                        min="50"
+                                        max="5000"
+                                        step="0.01"
+                                        required
+                                        value={checkoutAmount}
+                                        onChange={e => setCheckoutAmount(e.target.value)}
+                                        className={formInputClass}
+                                    />
+                                    <p className={formHintClass}>Allowed range: N50 to N5,000.</p>
+                                </div>
+                                <div>
+                                    <FieldLabel htmlFor="checkout-password">Current SuperAdmin Password</FieldLabel>
+                                    <input
+                                        id="checkout-password"
+                                        type="password"
+                                        required
+                                        value={checkoutPassword}
+                                        onChange={e => setCheckoutPassword(e.target.value)}
+                                        className={formInputClass}
+                                        autoComplete="current-password"
+                                    />
+                                </div>
+                                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                                    <button type="button" onClick={closeCheckoutTest} disabled={checkoutStarting} className={modalButtonSecondaryClass}>Cancel</button>
+                                    <button type="submit" disabled={checkoutStarting} className={modalButtonPrimaryClass}>
+                                        {checkoutStarting && <RefreshCw className="w-4 h-4 animate-spin" />}
+                                        Initialize Checkout
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <div className="space-y-5">
+                                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-400/20 dark:bg-emerald-500/10">
+                                    <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-200">
+                                        <CheckCircle2 className="w-5 h-5" /> Checkout Ready
+                                    </div>
+                                    <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-300">Reference: <span className="font-mono font-bold">{checkoutReference}</span></p>
+                                </div>
+                                <a
+                                    href={checkoutUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`${modalButtonPrimaryClass} w-full`}
+                                >
+                                    Open Monnify Sandbox Checkout
+                                </a>
+                                <button type="button" onClick={closeCheckoutTest} className={`${modalButtonSecondaryClass} w-full`}>Close</button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

@@ -130,8 +130,29 @@ export const testGatewayConnection = async (id: string) => {
     return response.data;
 };
 
+export type MonnifyMerchantReplacement = {
+    publicKey: string;
+    secretKey: string;
+    webhookSecret?: string;
+    contractCode: string;
+    currentPassword: string;
+    confirmation: 'replace-monnify-merchant';
+};
+
+export const replaceMonnifyMerchant = async (id: string, data: MonnifyMerchantReplacement) => {
+    const response = await apiClient.post(`${BASE_URL}/${id}/replace-monnify-merchant`, data);
+    return response.data;
+};
+
+export const testMonnifyHostedCheckout = async (id: string, amount: number, currentPassword: string) => {
+    const response = await apiClient.post(`${BASE_URL}/${id}/test-monnify-checkout`, {
+        amount,
+        currentPassword,
+    });
+    return { ...response.data, httpStatus: response.status };
+};
+
 export const getReconciliationTransactions = async () => {
     const response = await apiClient.get(`${BASE_URL}/reconciliation`);
     return response.data;
 };
-
