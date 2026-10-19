@@ -354,7 +354,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 toast(result.message || 'Checkout initialization is pending. Do not retry this reference.');
                 return;
             }
-            if (!isTrustedHostedCheckoutUrl(result.authorizationUrl || '', 'monnify', 'sandbox.monnify.com')) {
+            if (!isTrustedHostedCheckoutUrl(result.authorizationUrl || '', 'monnify', 'sandbox.sdk.monnify.com')) {
                 setCheckoutUrl('');
                 setCheckoutReference(result.reference || 'Unavailable');
                 setCheckoutPending(true);

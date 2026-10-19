@@ -18,7 +18,7 @@ test('SuperAdmin Monnify replacement uses dedicated confirmed endpoints', () => 
     assert.match(page, /intentional merchant replacement/);
     assert.match(page, /without changing the current default gateway/);
     assert.match(page, /replacement remains inactive/);
-    assert.match(page, /isTrustedHostedCheckoutUrl\(result\.authorizationUrl \|\| '', 'monnify', 'sandbox\.monnify\.com'\)/);
+    assert.match(page, /isTrustedHostedCheckoutUrl\(result\.authorizationUrl \|\| '', 'monnify', 'sandbox\.sdk\.monnify\.com'\)/);
     assert.match(page, /rel="noopener noreferrer"/);
     assert.match(page, /PAYMENT_INITIALIZATION_AMBIGUOUS/);
     assert.match(page, /Do not retry this checkout/);
