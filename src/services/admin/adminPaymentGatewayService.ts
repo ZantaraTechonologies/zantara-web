@@ -11,6 +11,38 @@ import apiClient from "../api/apiClient";
  */
 export type AdapterType = string;
 
+export type MonnifyEnvironment = 'test' | 'live';
+
+export interface MonnifyCheckoutValidation {
+    status: 'initializing' | 'initialized' | 'ambiguous' | 'verified';
+    reference?: string;
+    gatewayId?: string;
+    environment?: MonnifyEnvironment;
+    configurationVersion?: number;
+    amountKobo?: number;
+    currency?: string;
+    initializedAt?: string;
+    verifiedAt?: string;
+    expiresAt?: string;
+}
+
+export interface MonnifyCustomerFundingEligibility {
+    status: 'eligible';
+    reference?: string;
+    gatewayId?: string;
+    environment?: MonnifyEnvironment;
+    configurationVersion?: number;
+    verifiedAt?: string;
+}
+
+export interface PaymentGatewayMetadata {
+    contractCode?: string;
+    administrativeSandboxOnly?: boolean;
+    checkoutValidation?: MonnifyCheckoutValidation;
+    customerFundingEligibility?: MonnifyCustomerFundingEligibility;
+    [key: string]: unknown;
+}
+
 export interface PaymentGatewayItem {
     _id: string;
     name: string;
@@ -23,7 +55,7 @@ export interface PaymentGatewayItem {
     publicKey?: string;
     baseUrl?: string;
     supportedChannels: ('card' | 'bank_transfer' | 'ussd' | 'virtual_account')[];
-    metadata?: Record<string, any>;
+    metadata?: PaymentGatewayMetadata;
     lastHealthCheck?: {
         status: 'online' | 'offline' | 'unknown';
         checkedAt?: string;
@@ -135,8 +167,10 @@ export type MonnifyMerchantReplacement = {
     secretKey: string;
     webhookSecret?: string;
     contractCode: string;
+    environment: MonnifyEnvironment;
+    baseUrl?: string;
     currentPassword: string;
-    confirmation: 'replace-monnify-merchant';
+    confirmation: 'replace-monnify-merchant' | 'replace-monnify-live-merchant';
 };
 
 export const replaceMonnifyMerchant = async (id: string, data: MonnifyMerchantReplacement) => {
@@ -144,11 +178,25 @@ export const replaceMonnifyMerchant = async (id: string, data: MonnifyMerchantRe
     return response.data;
 };
 
-export const testMonnifyHostedCheckout = async (id: string, amount: number, currentPassword: string) => {
-    const response = await apiClient.post(`${BASE_URL}/${id}/test-monnify-checkout`, {
-        amount,
-        currentPassword,
-    });
+export type MonnifyCheckoutRequest = {
+    amount: number;
+    currentPassword: string;
+    confirmation?: 'initialize-monnify-live-validation-checkout';
+};
+
+export const testMonnifyHostedCheckout = async (id: string, data: MonnifyCheckoutRequest) => {
+    const response = await apiClient.post(`${BASE_URL}/${id}/test-monnify-checkout`, data);
+    return { ...response.data, httpStatus: response.status };
+};
+
+export type MonnifyCustomerFundingRequest = {
+    reference: string;
+    currentPassword: string;
+    confirmation: 'enable-monnify-test-customer-funding' | 'enable-monnify-live-customer-funding';
+};
+
+export const enableMonnifyCustomerFunding = async (id: string, data: MonnifyCustomerFundingRequest) => {
+    const response = await apiClient.post(`${BASE_URL}/${id}/enable-monnify-customer-funding`, data);
     return { ...response.data, httpStatus: response.status };
 };
 

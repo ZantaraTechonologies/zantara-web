@@ -32,6 +32,7 @@ import {
     testGatewayConnection,
     replaceMonnifyMerchant,
     testMonnifyHostedCheckout,
+    enableMonnifyCustomerFunding,
     getReconciliationTransactions,
     getAdapterCapabilities,
 } from '../../../services/admin/adminPaymentGatewayService';
@@ -103,6 +104,16 @@ const CHANNEL_DISPLAY: Record<string, string> = {
     virtual_account: 'Virtual Account',
 };
 
+const MONNIFY_API_BASES = {
+    test: 'https://sandbox.monnify.com',
+    live: 'https://api.monnify.com',
+} as const;
+
+const MONNIFY_CHECKOUT_HOSTS = {
+    test: 'sandbox.sdk.monnify.com',
+    live: 'sdk.monnify.com',
+} as const;
+
 // ─── Helper: slugify display name into a safe gateway code ───────────────────
 function slugify(str: string): string {
     return str.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
@@ -129,6 +140,7 @@ const emptyReplacementCredentials = () => ({
     secretKey: '',
     webhookSecret: '',
     contractCode: '',
+    environment: 'test' as 'test' | 'live',
     currentPassword: '',
     confirmed: false,
 });
@@ -173,6 +185,12 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     const [checkoutReference, setCheckoutReference] = useState('');
     const [checkoutPending, setCheckoutPending] = useState(false);
     const [checkoutStarting, setCheckoutStarting] = useState(false);
+    const [checkoutLiveConfirmed, setCheckoutLiveConfirmed] = useState(false);
+    const [eligibilityGateway, setEligibilityGateway] = useState<PaymentGatewayItem | null>(null);
+    const [eligibilityPassword, setEligibilityPassword] = useState('');
+    const [eligibilityConfirmed, setEligibilityConfirmed] = useState(false);
+    const [eligibilitySaving, setEligibilitySaving] = useState(false);
+    const [eligibilityPendingMessage, setEligibilityPendingMessage] = useState('');
 
     // Confirmation dialog
     const [confirmDialog, setConfirmDialog] = useState<{
@@ -185,6 +203,20 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
     // ─── Derived: current adapter spec ──────────────────────────────────────
     const currentSpec = capabilities.find(c => c.code === formAdapterType) ?? null;
+    const formIsCanonicalMonnify = formCode === 'monnify' && formAdapterType === 'monnify';
+    const selectedMonnifyActivationBlocked = Boolean(
+        formIsCanonicalMonnify &&
+        (!selectedGateway ||
+            selectedGateway.metadata?.administrativeSandboxOnly ||
+            selectedGateway.metadata?.customerFundingEligibility?.status !== 'eligible')
+    );
+
+    useEffect(() => {
+        if (!selectedGateway && formIsCanonicalMonnify) {
+            setFormStatus('inactive');
+            setFormIsDefault(false);
+        }
+    }, [selectedGateway, formIsCanonicalMonnify]);
 
     // ─── Data fetching ───────────────────────────────────────────────────────
     const fetchData = useCallback(async () => {
@@ -230,6 +262,14 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     };
 
     const handleSetDefault = (gateway: PaymentGatewayItem) => {
+        if (
+            gateway.code === 'monnify' &&
+            gateway.adapterType === 'monnify' &&
+            (gateway.metadata?.administrativeSandboxOnly || gateway.metadata?.customerFundingEligibility?.status !== 'eligible')
+        ) {
+            toast.error('Complete Monnify customer-funding eligibility and activate the gateway before making it default.');
+            return;
+        }
         if (gateway.status !== 'active') {
             toast.error('Only an ACTIVE gateway can be set as the default fallback.');
             return;
@@ -257,6 +297,14 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     const handleToggleStatus = (gateway: PaymentGatewayItem) => {
         const nextStatus = gateway.status === 'active' ? 'inactive' : 'active';
         const isDeactivating = nextStatus === 'inactive';
+        const isCanonicalMonnify = gateway.code === 'monnify' && gateway.adapterType === 'monnify';
+        if (!isDeactivating && isCanonicalMonnify && (
+            gateway.metadata?.administrativeSandboxOnly ||
+            gateway.metadata?.customerFundingEligibility?.status !== 'eligible'
+        )) {
+            toast.error('Complete paid checkout validation and customer-funding eligibility before activation.');
+            return;
+        }
         setConfirmDialog({
             isOpen: true,
             title: isDeactivating ? `Deactivate ${gateway.name}?` : `Activate ${gateway.name}?`,
@@ -281,7 +329,10 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
     const openMerchantReplacement = (gateway: PaymentGatewayItem) => {
         setReplacementGateway(gateway);
-        setReplacementCredentials(emptyReplacementCredentials());
+        setReplacementCredentials({
+            ...emptyReplacementCredentials(),
+            environment: gateway.environment,
+        });
     };
 
     const closeMerchantReplacement = () => {
@@ -304,10 +355,14 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 secretKey: replacementCredentials.secretKey.trim(),
                 webhookSecret: replacementCredentials.webhookSecret.trim() || undefined,
                 contractCode: replacementCredentials.contractCode.trim(),
+                environment: replacementCredentials.environment,
+                baseUrl: MONNIFY_API_BASES[replacementCredentials.environment],
                 currentPassword: replacementCredentials.currentPassword,
-                confirmation: 'replace-monnify-merchant',
+                confirmation: replacementCredentials.environment === 'live'
+                    ? 'replace-monnify-live-merchant'
+                    : 'replace-monnify-merchant',
             });
-            toast.success('Monnify sandbox merchant replaced after validation');
+            toast.success('Monnify merchant replaced. It remains inactive and admin-isolated until paid validation and eligibility approval are complete.');
             setReplacementGateway(null);
             fetchData();
         } catch (error: any) {
@@ -325,6 +380,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
         setCheckoutUrl('');
         setCheckoutReference('');
         setCheckoutPending(false);
+        setCheckoutLiveConfirmed(false);
     };
 
     const closeCheckoutTest = () => {
@@ -335,26 +391,38 @@ const AdminPaymentGatewaysPage: React.FC = () => {
         setCheckoutUrl('');
         setCheckoutReference('');
         setCheckoutPending(false);
+        setCheckoutLiveConfirmed(false);
     };
 
     const handleCheckoutTest = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!checkoutGateway) return;
+        if (checkoutGateway.environment === 'live' && !checkoutLiveConfirmed) {
+            toast.error('Confirm the live paid validation checkout before continuing.');
+            return;
+        }
         try {
             setCheckoutStarting(true);
-            const result = await testMonnifyHostedCheckout(
-                checkoutGateway._id,
-                Number(checkoutAmount),
-                checkoutPassword,
-            );
+            const result = await testMonnifyHostedCheckout(checkoutGateway._id, {
+                amount: Number(checkoutAmount),
+                currentPassword: checkoutPassword,
+                ...(checkoutGateway.environment === 'live'
+                    ? { confirmation: 'initialize-monnify-live-validation-checkout' as const }
+                    : {}),
+            });
             if (result.httpStatus === 202 || result.code === 'PAYMENT_INITIALIZATION_AMBIGUOUS') {
                 setCheckoutUrl('');
                 setCheckoutReference(result.reference || 'Unavailable');
                 setCheckoutPending(true);
                 toast(result.message || 'Checkout initialization is pending. Do not retry this reference.');
+                fetchData();
                 return;
             }
-            if (!isTrustedHostedCheckoutUrl(result.authorizationUrl || '', 'monnify', 'sandbox.sdk.monnify.com')) {
+            const checkoutHost = MONNIFY_CHECKOUT_HOSTS[checkoutGateway.environment];
+            if (
+                result.environment !== checkoutGateway.environment ||
+                !isTrustedHostedCheckoutUrl(result.authorizationUrl || '', 'monnify', checkoutHost)
+            ) {
                 setCheckoutUrl('');
                 setCheckoutReference(result.reference || 'Unavailable');
                 setCheckoutPending(true);
@@ -364,25 +432,77 @@ const AdminPaymentGatewaysPage: React.FC = () => {
             setCheckoutUrl(result.authorizationUrl || '');
             setCheckoutReference(result.reference || '');
             setCheckoutPending(false);
-            toast.success('Sandbox checkout initialized');
+            toast.success(`${checkoutGateway.environment.toUpperCase()} validation checkout initialized`);
+            fetchData();
         } catch (error: any) {
             const failure = error.response?.data;
-            if (failure?.reference && ['PAYMENT_INITIALIZATION_AMBIGUOUS', 'MONNIFY_SANDBOX_CHECKOUT_CONFIGURATION_CHANGED'].includes(failure.code)) {
+            if (failure?.reference && ['PAYMENT_INITIALIZATION_AMBIGUOUS', 'MONNIFY_VALIDATION_CHECKOUT_CONFIGURATION_CHANGED'].includes(failure.code)) {
                 setCheckoutUrl('');
                 setCheckoutReference(failure.reference);
                 setCheckoutPending(true);
                 toast(failure.message || 'Checkout initialization is pending. Do not retry this reference.');
+                fetchData();
             } else if (!error.response) {
                 setCheckoutUrl('');
                 setCheckoutReference('Unavailable');
                 setCheckoutPending(true);
                 toast.error('The checkout response was lost. Do not retry until the attempt is reconciled.');
             } else {
-                toast.error(failure?.message || error.message || 'Sandbox checkout test failed');
+                toast.error(failure?.message || error.message || 'Monnify validation checkout failed');
             }
         } finally {
             setCheckoutPassword('');
             setCheckoutStarting(false);
+        }
+    };
+
+    const openEligibilityReview = (gateway: PaymentGatewayItem) => {
+        setEligibilityGateway(gateway);
+        setEligibilityPassword('');
+        setEligibilityConfirmed(false);
+        setEligibilityPendingMessage('');
+    };
+
+    const closeEligibilityReview = () => {
+        if (eligibilitySaving) return;
+        setEligibilityGateway(null);
+        setEligibilityPassword('');
+        setEligibilityConfirmed(false);
+        setEligibilityPendingMessage('');
+    };
+
+    const handleEligibilityReview = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const reference = eligibilityGateway?.metadata?.checkoutValidation?.reference;
+        if (!eligibilityGateway || !reference) return;
+        if (!eligibilityConfirmed) {
+            toast.error('Confirm the customer-funding eligibility check before continuing.');
+            return;
+        }
+        try {
+            setEligibilitySaving(true);
+            setEligibilityPendingMessage('');
+            const result = await enableMonnifyCustomerFunding(eligibilityGateway._id, {
+                reference,
+                currentPassword: eligibilityPassword,
+                confirmation: eligibilityGateway.environment === 'live'
+                    ? 'enable-monnify-live-customer-funding'
+                    : 'enable-monnify-test-customer-funding',
+            });
+            if (result.httpStatus === 202) {
+                const message = result.message || 'Monnify has not conclusively verified the validation payment.';
+                setEligibilityPendingMessage(`${message} Do not retry automatically; check again manually later.`);
+                toast(message);
+                return;
+            }
+            toast.success('Customer funding is eligible. The gateway remains inactive; activate it separately when ready.');
+            setEligibilityGateway(null);
+            fetchData();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || error.message || 'Customer-funding eligibility check failed');
+        } finally {
+            setEligibilityPassword('');
+            setEligibilitySaving(false);
         }
     };
 
@@ -456,6 +576,10 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
     // ─── Default guard: if status is not active, cannot be default ───────────
     const handleStatusChange = (status: 'active' | 'inactive' | 'maintenance') => {
+        if (status === 'active' && selectedMonnifyActivationBlocked) {
+            toast.error('Complete paid checkout validation and customer-funding eligibility before activation.');
+            return;
+        }
         setFormStatus(status);
         if (status !== 'active') setFormIsDefault(false);
     };
@@ -464,11 +588,13 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        let confirmEnvironmentChange: 'create-live' | 'test-to-live' | undefined;
         if (formEnvironment === 'live' && (!selectedGateway || selectedGateway.environment !== 'live')) {
             const confirmed = window.confirm(
                 `CONFIRMATION REQUIRED:\nYou are setting ${formName || 'this gateway'} to LIVE mode.\nReal money payments will be debited from customers using production credentials.\n\nDo you wish to proceed?`
             );
             if (!confirmed) return;
+            confirmEnvironmentChange = selectedGateway ? 'test-to-live' : 'create-live';
         }
 
         try {
@@ -493,6 +619,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 publicKey: (formCredentials.publicKey || '').trim(),
                 supportedChannels: formChannels,
                 metadata: metadataPayload,
+                ...(confirmEnvironmentChange ? { confirmEnvironmentChange } : {}),
             };
 
             // Only send secrets if non-empty (blank = retain existing)
@@ -643,11 +770,28 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
             {/* ── Tab 1: Gateway Cards ── */}
             {activeTab === 'gateways' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-4">
+                    <div className="flex items-start gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sky-900">
+                        <Info className="mt-0.5 h-4 w-4 shrink-0" />
+                        <p className="text-xs leading-relaxed">
+                            Gateway records are retained permanently for transaction verification, webhook history, and reconciliation. Use <strong>Deactivate</strong> to archive a gateway from new customer payment routing; hard deletion is disabled.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {gateways.map(gw => {
                         const isTesting = testingId === gw._id;
                         const isActionBusy = actionLoadingId === gw._id;
                         const healthStatus = gw.lastHealthCheck?.status || 'unknown';
+                        const isCanonicalMonnify = gw.code === 'monnify' && gw.adapterType === 'monnify';
+                        const isAdminIsolated = gw.metadata?.administrativeSandboxOnly === true;
+                        const isCustomerEligible = gw.metadata?.customerFundingEligibility?.status === 'eligible';
+                        const hasExactMonnifyBase = isCanonicalMonnify && gw.baseUrl === MONNIFY_API_BASES[gw.environment];
+                        const checkoutEvidence = gw.metadata?.checkoutValidation;
+                        const canReviewEligibility = Boolean(
+                            hasExactMonnifyBase && isAdminIsolated && gw.status === 'inactive' && !gw.isDefault &&
+                            checkoutEvidence?.reference && ['initialized', 'ambiguous'].includes(checkoutEvidence.status)
+                        );
+                        const monnifyActivationBlocked = isCanonicalMonnify && (isAdminIsolated || !isCustomerEligible);
                         return (
                             <div
                                 key={gw._id}
@@ -673,6 +817,24 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                             </span>
                                         </div>
                                     </div>
+
+                                    {isCanonicalMonnify && (
+                                        <div className="mb-4 flex flex-wrap gap-2">
+                                            {isAdminIsolated && (
+                                                <span className="px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
+                                                    Admin Isolated
+                                                </span>
+                                            )}
+                                            <span className={`px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider border ${isCustomerEligible ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`}>
+                                                Customer Funding: {isCustomerEligible ? 'Eligible' : 'Ineligible'}
+                                            </span>
+                                            {checkoutEvidence?.status && (
+                                                <span className="px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider bg-violet-50 text-violet-700 border border-violet-200">
+                                                    Validation: {checkoutEvidence.status}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div className="mb-4">
                                         <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Supported Channels</div>
@@ -734,32 +896,40 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         </button>
                                     </div>
 
-                                    {gw.code === 'monnify' && gw.adapterType === 'monnify' && (
+                                    {isCanonicalMonnify && (
                                         <div className="mb-5 rounded-xl border border-violet-200 bg-violet-50/70 p-3 space-y-2 dark:border-violet-400/20 dark:bg-violet-500/10">
                                             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-violet-700 dark:text-violet-300">
                                                 <ShieldCheck className="w-3.5 h-3.5" />
-                                                Privileged Sandbox Operations
+                                                Privileged Monnify Lifecycle
                                             </div>
                                             <p className="text-[11px] leading-relaxed text-violet-700/80 dark:text-violet-200/80">
-                                                These actions require your current password and never change the platform default.
+                                                Validation is administrative and non-creditable. Customer funding stays unavailable while admin isolation is present.
                                             </p>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                 <button
                                                     onClick={() => openMerchantReplacement(gw)}
                                                     disabled={gw.status !== 'inactive' || gw.isDefault}
-                                                    title={gw.status !== 'inactive' || gw.isDefault ? 'Deactivate Monnify and keep it non-default before replacement' : 'Replace the inactive sandbox merchant'}
+                                                    title={gw.status !== 'inactive' || gw.isDefault ? 'Deactivate Monnify and keep it non-default before replacement' : 'Replace the inactive Monnify merchant'}
                                                     className="px-3 py-2 text-[11px] font-bold rounded-lg border border-violet-300 bg-white text-violet-700 hover:bg-violet-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed dark:border-violet-400/30 dark:bg-slate-900/70 dark:text-violet-200"
                                                 >
                                                     Replace Merchant
                                                 </button>
                                                 <button
                                                     onClick={() => openCheckoutTest(gw)}
-                                                    disabled={gw.environment !== 'test' || gw.status !== 'inactive' || (gw.baseUrl || '').replace(/\/+$/, '') !== 'https://sandbox.monnify.com'}
-                                                    title={gw.environment !== 'test' || gw.status !== 'inactive' || (gw.baseUrl || '').replace(/\/+$/, '') !== 'https://sandbox.monnify.com' ? 'Requires the exact inactive Monnify sandbox gateway' : 'Initialize an isolated sandbox checkout'}
+                                                    disabled={!hasExactMonnifyBase || !isAdminIsolated || gw.status !== 'inactive' || gw.isDefault}
+                                                    title={!hasExactMonnifyBase || !isAdminIsolated || gw.status !== 'inactive' || gw.isDefault ? 'Requires the exact inactive, non-default, admin-isolated Monnify gateway' : `Initialize an isolated ${gw.environment.toUpperCase()} validation checkout`}
                                                     className="px-3 py-2 text-[11px] font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                                 >
-                                                    Test Checkout
+                                                    Validate {gw.environment.toUpperCase()}
                                                 </button>
+                                                {canReviewEligibility && (
+                                                    <button
+                                                        onClick={() => openEligibilityReview(gw)}
+                                                        className="px-3 py-2 text-[11px] font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 transition-colors"
+                                                    >
+                                                        Check Eligibility
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -769,7 +939,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => handleToggleStatus(gw)}
-                                            disabled={isActionBusy}
+                                            disabled={isActionBusy || (gw.status !== 'active' && monnifyActivationBlocked)}
+                                            title={gw.status !== 'active' && monnifyActivationBlocked ? 'Paid validation and customer-funding eligibility are required before activation' : undefined}
                                             className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${gw.status === 'active' ? 'text-slate-600 bg-slate-100 hover:bg-slate-200' : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'}`}
                                         >
                                             {gw.status === 'active' ? 'Deactivate' : 'Activate'}
@@ -777,8 +948,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         {!gw.isDefault && (
                                             <button
                                                 onClick={() => handleSetDefault(gw)}
-                                                disabled={isActionBusy || gw.status !== 'active'}
-                                                title={gw.status !== 'active' ? 'Gateway must be active to set as default' : 'Set as primary fallback default'}
+                                                disabled={isActionBusy || gw.status !== 'active' || monnifyActivationBlocked}
+                                                title={monnifyActivationBlocked ? 'Customer-funding eligibility and removal of admin isolation are required' : gw.status !== 'active' ? 'Gateway must be active to set as default' : 'Set as primary fallback default'}
                                                 className="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                                             >
                                                 Make Default
@@ -795,6 +966,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                             </div>
                         );
                     })}
+                    </div>
                 </div>
             )}
 
@@ -984,7 +1156,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                     className={formSelectClass}
                                                 >
                                                     <option value="inactive">Inactive — Disabled, not receiving payments</option>
-                                                    <option value="active">Active — Receiving live payments</option>
+                                                    <option value="active" disabled={selectedMonnifyActivationBlocked}>Active — Receiving live payments</option>
                                                     <option value="maintenance">Maintenance — Temporarily suspended</option>
                                                 </select>
                                                 <ChevronDown className={`pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${formIconClass}`} />
@@ -1244,7 +1416,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         <ShieldCheck className="w-4 h-4" />
                                         Privileged Operation
                                     </div>
-                                    <h2 className="text-xl font-black text-slate-900 dark:text-white">Replace Monnify Sandbox Merchant</h2>
+                                    <h2 className="text-xl font-black text-slate-900 dark:text-white">Replace Monnify Merchant</h2>
                                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                         Reuses gateway code <span className="font-mono font-bold">monnify</span> without changing the current default gateway.
                                     </p>
@@ -1259,6 +1431,34 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                             </div>
 
                             <form onSubmit={handleMerchantReplacement} className="space-y-5">
+                                <div>
+                                    <FieldLabel>Target Environment</FieldLabel>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {(['test', 'live'] as const).map(environment => (
+                                            <label key={environment} className={`rounded-xl border-2 p-3 cursor-pointer ${replacementCredentials.environment === environment ? environment === 'live' ? 'border-rose-400 bg-rose-50 dark:bg-rose-500/10' : 'border-violet-400 bg-violet-50 dark:bg-violet-500/10' : 'border-slate-200 dark:border-slate-700'}`}>
+                                                <input
+                                                    type="radio"
+                                                    name="replacement-environment"
+                                                    value={environment}
+                                                    checked={replacementCredentials.environment === environment}
+                                                    onChange={() => setReplacementCredentials(prev => prev.environment === environment
+                                                        ? prev
+                                                        : { ...prev, environment, confirmed: false })}
+                                                    className="mr-2"
+                                                />
+                                                <span className="text-sm font-black uppercase">{environment}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                    <p className={formHintClass}>Exact API base: <span className="font-mono">{MONNIFY_API_BASES[replacementCredentials.environment]}</span></p>
+                                </div>
+
+                                {replacementCredentials.environment === 'live' && (
+                                    <div className="rounded-2xl border border-rose-300 bg-rose-50 p-4 text-xs font-semibold leading-relaxed text-rose-800 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200">
+                                        LIVE replacement uses production credentials and the paid validation checkout will charge real funds.
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <FieldLabel htmlFor="replacement-api-key">New API Key</FieldLabel>
@@ -1324,7 +1524,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                 <div className="flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-400/20 dark:bg-violet-500/10">
                                     <Info className="w-4 h-4 text-violet-600 dark:text-violet-300 shrink-0 mt-0.5" />
                                     <p className="text-xs leading-relaxed text-violet-800 dark:text-violet-200">
-                                        The replacement remains inactive. Initialize a successful sandbox checkout, then use Activate on the gateway card.
+                                        The replacement remains inactive and admin-isolated. It requires a paid validation checkout, customer-funding eligibility approval, then separate activation. It never becomes the default automatically.
                                     </p>
                                 </div>
 
@@ -1336,7 +1536,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
                                     />
                                     <span className="text-xs font-semibold leading-relaxed text-rose-800 dark:text-rose-200">
-                                        I confirm this is an intentional merchant replacement, not an ordinary credential rotation.
+                                        I confirm this is an intentional {replacementCredentials.environment.toUpperCase()} merchant replacement, not an ordinary credential rotation.
                                     </span>
                                 </label>
 
@@ -1362,9 +1562,9 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                     <div className="bg-white dark:bg-gradient-to-b dark:from-brand-navy-800 dark:to-brand-navy-900 rounded-3xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <div className="text-xs font-black uppercase tracking-widest text-violet-600 dark:text-violet-300 mb-2">Monnify Sandbox</div>
-                                <h2 className="text-xl font-black text-slate-900 dark:text-white">Hosted Checkout Test</h2>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Creates an audited no-credit checkout for gateway validation without changing default routing.</p>
+                                <div className={`text-xs font-black uppercase tracking-widest mb-2 ${checkoutGateway.environment === 'live' ? 'text-rose-600 dark:text-rose-300' : 'text-violet-600 dark:text-violet-300'}`}>Monnify {checkoutGateway.environment}</div>
+                                <h2 className="text-xl font-black text-slate-900 dark:text-white">Paid Validation Checkout</h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Creates an audited, non-creditable {checkoutGateway.environment.toUpperCase()} checkout without changing activation or default routing.</p>
                             </div>
                             <button onClick={closeCheckoutTest} disabled={checkoutStarting} aria-label="Close dialog" className={modalIconButtonClass}>
                                 <X className="w-5 h-5" />
@@ -1384,7 +1584,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                         ) : !checkoutUrl ? (
                             <form onSubmit={handleCheckoutTest} className="space-y-5">
                                 <div>
-                                    <FieldLabel htmlFor="checkout-amount">Sandbox Amount</FieldLabel>
+                                    <FieldLabel htmlFor="checkout-amount">{checkoutGateway.environment.toUpperCase()} Validation Amount</FieldLabel>
                                     <input
                                         id="checkout-amount"
                                         type="number"
@@ -1397,6 +1597,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         className={formInputClass}
                                     />
                                     <p className={formHintClass}>Allowed range: N50 to N5,000.</p>
+                                    <p className={formHintClass}>Checkout links must use exact trusted host <span className="font-mono">{MONNIFY_CHECKOUT_HOSTS[checkoutGateway.environment]}</span>.</p>
                                 </div>
                                 <div>
                                     <FieldLabel htmlFor="checkout-password">Current SuperAdmin Password</FieldLabel>
@@ -1410,9 +1611,22 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         autoComplete="current-password"
                                     />
                                 </div>
+                                {checkoutGateway.environment === 'live' && (
+                                    <label className="flex items-start gap-3 rounded-xl border-2 border-rose-200 bg-rose-50 p-4 dark:border-rose-400/20 dark:bg-rose-500/10">
+                                        <input
+                                            type="checkbox"
+                                            checked={checkoutLiveConfirmed}
+                                            onChange={e => setCheckoutLiveConfirmed(e.target.checked)}
+                                            className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
+                                        />
+                                        <span className="text-xs font-semibold leading-relaxed text-rose-800 dark:text-rose-200">
+                                            I confirm this LIVE validation checkout charges real funds and remains non-creditable.
+                                        </span>
+                                    </label>
+                                )}
                                 <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
                                     <button type="button" onClick={closeCheckoutTest} disabled={checkoutStarting} className={modalButtonSecondaryClass}>Cancel</button>
-                                    <button type="submit" disabled={checkoutStarting} className={modalButtonPrimaryClass}>
+                                    <button type="submit" disabled={checkoutStarting || (checkoutGateway.environment === 'live' && !checkoutLiveConfirmed)} className={modalButtonPrimaryClass}>
                                         {checkoutStarting && <RefreshCw className="w-4 h-4 animate-spin" />}
                                         Initialize Checkout
                                     </button>
@@ -1432,10 +1646,82 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                     rel="noopener noreferrer"
                                     className={`${modalButtonPrimaryClass} w-full`}
                                 >
-                                    Open Monnify Sandbox Checkout
+                                    Open Monnify {checkoutGateway.environment.toUpperCase()} Checkout
                                 </a>
                                 <button type="button" onClick={closeCheckoutTest} className={`${modalButtonSecondaryClass} w-full`}>Close</button>
                             </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {eligibilityGateway && (
+                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 dark:bg-slate-950/85">
+                    <div className="bg-white dark:bg-gradient-to-b dark:from-brand-navy-800 dark:to-brand-navy-900 rounded-3xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-5">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <div className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-300 mb-2">
+                                    Monnify {eligibilityGateway.environment}
+                                </div>
+                                <h2 className="text-xl font-black text-slate-900 dark:text-white">Customer-Funding Eligibility</h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                    Server-verifies the exact paid, non-creditable gateway_test before removing admin isolation.
+                                </p>
+                            </div>
+                            <button onClick={closeEligibilityReview} disabled={eligibilitySaving} aria-label="Close dialog" className={modalIconButtonClass}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {eligibilityPendingMessage ? (
+                            <div className="space-y-4">
+                                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-800 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-200">
+                                    <strong>Verification pending.</strong> {eligibilityPendingMessage}
+                                </div>
+                                <button type="button" onClick={closeEligibilityReview} className={`${modalButtonSecondaryClass} w-full`}>Close</button>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleEligibilityReview} className="space-y-4">
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/50">
+                                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Validation Reference</div>
+                                    <div className="mt-1 break-all font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                                        {eligibilityGateway.metadata?.checkoutValidation?.reference}
+                                    </div>
+                                </div>
+                                <div>
+                                    <FieldLabel htmlFor="eligibility-password">Current SuperAdmin Password</FieldLabel>
+                                    <input
+                                        id="eligibility-password"
+                                        type="password"
+                                        required
+                                        value={eligibilityPassword}
+                                        onChange={e => setEligibilityPassword(e.target.value)}
+                                        className={formInputClass}
+                                        autoComplete="current-password"
+                                    />
+                                </div>
+                                <label className="flex items-start gap-3 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-400/20 dark:bg-emerald-500/10">
+                                    <input
+                                        type="checkbox"
+                                        checked={eligibilityConfirmed}
+                                        onChange={e => setEligibilityConfirmed(e.target.checked)}
+                                        className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+                                    />
+                                    <span className="text-xs font-semibold leading-relaxed text-emerald-800 dark:text-emerald-200">
+                                        I confirm eligibility should be enabled only if this exact {eligibilityGateway.environment.toUpperCase()} validation payment is conclusively successful.
+                                    </span>
+                                </label>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    Approval leaves the gateway inactive and non-default. Separate activation is still required.
+                                </p>
+                                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                                    <button type="button" onClick={closeEligibilityReview} disabled={eligibilitySaving} className={modalButtonSecondaryClass}>Cancel</button>
+                                    <button type="submit" disabled={eligibilitySaving || !eligibilityConfirmed} className={modalButtonPrimaryClass}>
+                                        {eligibilitySaving && <RefreshCw className="w-4 h-4 animate-spin" />}
+                                        Verify Eligibility
+                                    </button>
+                                </div>
+                            </form>
                         )}
                     </div>
                 </div>
