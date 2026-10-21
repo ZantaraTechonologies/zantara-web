@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
     CreditCard,
     ShieldCheck,
@@ -155,6 +155,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     const [capabilitiesError, setCapabilitiesError] = useState<string | null>(null);
     const [testingId, setTestingId] = useState<string | null>(null);
     const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+    const [checkoutClock, setCheckoutClock] = useState(Date.now());
+    const fetchRequestId = useRef(0);
 
     // Modal state
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -220,6 +222,8 @@ const AdminPaymentGatewaysPage: React.FC = () => {
 
     // ─── Data fetching ───────────────────────────────────────────────────────
     const fetchData = useCallback(async () => {
+        const requestId = ++fetchRequestId.current;
+        let gatewaysLoaded = false;
         try {
             setLoading(true);
             const [gwRes, recRes, capRes] = await Promise.allSettled([
@@ -227,7 +231,13 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 getReconciliationTransactions(),
                 getAdapterCapabilities(),
             ]);
-            if (gwRes.status === 'fulfilled' && gwRes.value.success) setGateways(gwRes.value.data || []);
+            if (requestId !== fetchRequestId.current) return false;
+            if (gwRes.status === 'fulfilled' && gwRes.value.success) {
+                setGateways(gwRes.value.data || []);
+                gatewaysLoaded = true;
+            } else {
+                setGateways([]);
+            }
             if (recRes.status === 'fulfilled' && recRes.value.success) setReconciliations(recRes.value.data || []);
             if (capRes.status === 'fulfilled' && capRes.value.success && capRes.value.data?.length) {
                 setCapabilities(capRes.value.data);
@@ -237,14 +247,37 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 setCapabilitiesError('Adapter capabilities could not be loaded from the backend registry.');
             }
         } catch (error: any) {
-            setCapabilitiesError('Adapter capabilities could not be loaded from the backend registry.');
-            toast.error(error.message || 'Failed to load payment gateway data');
+            if (requestId === fetchRequestId.current) {
+                setGateways([]);
+                setCapabilitiesError('Adapter capabilities could not be loaded from the backend registry.');
+                toast.error(error.message || 'Failed to load payment gateway data');
+            }
         } finally {
-            setLoading(false);
+            if (requestId === fetchRequestId.current) setLoading(false);
         }
+        return gatewaysLoaded;
     }, []);
 
     useEffect(() => { fetchData(); }, [fetchData]);
+
+    useEffect(() => {
+        setCheckoutClock(Date.now());
+    }, [gateways]);
+
+    useEffect(() => {
+        const now = Date.now();
+        const nextExpiry = Math.min(
+            ...gateways
+                .map(gateway => Date.parse(gateway.metadata?.checkoutValidation?.expiresAt || ''))
+                .filter(expiry => Number.isFinite(expiry) && expiry > now),
+        );
+        if (!Number.isFinite(nextExpiry)) return;
+        const timer = window.setTimeout(
+            () => setCheckoutClock(Date.now()),
+            Math.max(0, nextExpiry - now + 50),
+        );
+        return () => window.clearTimeout(timer);
+    }, [gateways, checkoutClock]);
 
     // ─── Action handlers ─────────────────────────────────────────────────────
     const handleTestConnection = async (gateway: PaymentGatewayItem) => {
@@ -495,11 +528,48 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                 toast(message);
                 return;
             }
+            if (result.success !== true || (result.status && result.status !== 'success')) {
+                toast.error(result.message || 'Monnify did not confirm customer-funding eligibility.');
+                await fetchData();
+                return;
+            }
             toast.success('Customer funding is eligible. The gateway remains inactive; activate it separately when ready.');
             setEligibilityGateway(null);
-            fetchData();
+            setGateways([]);
+            const refreshed = await fetchData();
+            if (!refreshed) {
+                toast.error('Customer funding was enabled, but the gateway could not be refreshed. Reload this page before continuing.');
+            }
         } catch (error: any) {
-            toast.error(error.response?.data?.message || error.message || 'Customer-funding eligibility check failed');
+            const failure = error.response?.data;
+            if (failure?.refreshRequired === true) {
+                setEligibilityGateway(null);
+                setEligibilityConfirmed(false);
+                setEligibilityPendingMessage('');
+                setGateways([]);
+                const refreshed = await fetchData();
+                toast.error(refreshed
+                    ? (failure.message || 'The validation state changed. Review the refreshed gateway before continuing.')
+                    : 'The validation state changed, but the gateway could not be refreshed. Reload this page before continuing.');
+                return;
+            }
+            if (
+                failure?.attemptReleased === true &&
+                failure?.retryAllowed === true &&
+                ['FAILED', 'EXPIRED'].includes(failure.providerStatus)
+            ) {
+                toast(`${failure.providerStatus} validation attempt retained. A new ${eligibilityGateway.environment.toUpperCase()} checkout may now be started explicitly.`);
+                setEligibilityGateway(null);
+                setEligibilityConfirmed(false);
+                setEligibilityPendingMessage('');
+                setGateways([]);
+                const refreshed = await fetchData();
+                if (!refreshed) {
+                    toast.error('The attempt was released, but the gateway could not be refreshed. Reload this page before starting another checkout.');
+                }
+                return;
+            }
+            toast.error(failure?.message || error.message || 'Customer-funding eligibility check failed');
         } finally {
             setEligibilityPassword('');
             setEligibilitySaving(false);
@@ -787,9 +857,21 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                         const isCustomerEligible = gw.metadata?.customerFundingEligibility?.status === 'eligible';
                         const hasExactMonnifyBase = isCanonicalMonnify && gw.baseUrl === MONNIFY_API_BASES[gw.environment];
                         const checkoutEvidence = gw.metadata?.checkoutValidation;
+                        const checkoutExpiresAt = checkoutEvidence?.expiresAt
+                            ? Date.parse(checkoutEvidence.expiresAt)
+                            : Number.NaN;
+                        const checkoutEvidenceExpired = Number.isFinite(checkoutExpiresAt) && checkoutExpiresAt <= checkoutClock;
+                        const checkoutEvidenceMatchesGateway = Boolean(
+                            checkoutEvidence?.gatewayId === gw._id &&
+                            checkoutEvidence?.environment === gw.environment
+                        );
+                        const checkoutRetryBlocked = Boolean(
+                            checkoutEvidence && !checkoutEvidenceExpired
+                        );
                         const canReviewEligibility = Boolean(
                             hasExactMonnifyBase && isAdminIsolated && gw.status === 'inactive' && !gw.isDefault &&
-                            checkoutEvidence?.reference && ['initialized', 'ambiguous'].includes(checkoutEvidence.status)
+                            checkoutEvidenceMatchesGateway && checkoutEvidence?.reference && !checkoutEvidenceExpired &&
+                            ['initialized', 'ambiguous'].includes(checkoutEvidence.status)
                         );
                         const monnifyActivationBlocked = isCanonicalMonnify && (isAdminIsolated || !isCustomerEligible);
                         return (
@@ -830,7 +912,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                             </span>
                                             {checkoutEvidence?.status && (
                                                 <span className="px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider bg-violet-50 text-violet-700 border border-violet-200">
-                                                    Validation: {checkoutEvidence.status}
+                                                    Validation: {checkoutEvidenceExpired ? 'expired locally' : checkoutEvidence.status}
                                                 </span>
                                             )}
                                         </div>
@@ -905,6 +987,19 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                             <p className="text-[11px] leading-relaxed text-violet-700/80 dark:text-violet-200/80">
                                                 Validation is administrative and non-creditable. Customer funding stays unavailable while admin isolation is present.
                                             </p>
+                                            {checkoutRetryBlocked ? (
+                                                <p className="text-[11px] leading-relaxed text-amber-700 dark:text-amber-200">
+                                                    This validation attempt is still protected. Use Check Eligibility for the same reference. A new checkout is allowed only after Monnify confirms FAILED or EXPIRED, or after the local evidence expires{checkoutEvidence?.expiresAt ? ` at ${new Date(checkoutEvidence.expiresAt).toLocaleString()}` : ''}.
+                                                </p>
+                                            ) : isAdminIsolated && checkoutEvidenceExpired ? (
+                                                <p className="text-[11px] leading-relaxed text-emerald-700 dark:text-emerald-200">
+                                                    The previous validation evidence expired locally. Validate {gw.environment.toUpperCase()} can be used for a deliberate fresh checkout.
+                                                </p>
+                                            ) : isAdminIsolated && !checkoutEvidence ? (
+                                                <p className="text-[11px] leading-relaxed text-emerald-700 dark:text-emerald-200">
+                                                    No validation attempt is active. Validate {gw.environment.toUpperCase()} can be used.
+                                                </p>
+                                            ) : null}
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                 <button
                                                     onClick={() => openMerchantReplacement(gw)}
@@ -916,11 +1011,15 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => openCheckoutTest(gw)}
-                                                    disabled={!hasExactMonnifyBase || !isAdminIsolated || gw.status !== 'inactive' || gw.isDefault}
-                                                    title={!hasExactMonnifyBase || !isAdminIsolated || gw.status !== 'inactive' || gw.isDefault ? 'Requires the exact inactive, non-default, admin-isolated Monnify gateway' : `Initialize an isolated ${gw.environment.toUpperCase()} validation checkout`}
+                                                    disabled={!hasExactMonnifyBase || !isAdminIsolated || gw.status !== 'inactive' || gw.isDefault || checkoutRetryBlocked}
+                                                    title={checkoutRetryBlocked
+                                                        ? 'The current attempt must be checked; only provider-confirmed FAILED or EXPIRED, or local evidence expiry, permits a fresh checkout'
+                                                        : !hasExactMonnifyBase || !isAdminIsolated || gw.status !== 'inactive' || gw.isDefault
+                                                            ? 'Requires the exact inactive, non-default, admin-isolated Monnify gateway'
+                                                            : `Initialize an isolated ${gw.environment.toUpperCase()} validation checkout`}
                                                     className="px-3 py-2 text-[11px] font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                                 >
-                                                    Validate {gw.environment.toUpperCase()}
+                                                    {checkoutRetryBlocked ? `${gw.environment.toUpperCase()} Attempt Locked` : `Validate ${gw.environment.toUpperCase()}`}
                                                 </button>
                                                 {canReviewEligibility && (
                                                     <button

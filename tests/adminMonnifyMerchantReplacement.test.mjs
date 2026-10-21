@@ -20,6 +20,9 @@ test('SuperAdmin Monnify lifecycle service uses typed metadata and dedicated end
     assert.match(service, /initialize-monnify-live-validation-checkout/);
     assert.match(service, /enable-monnify-customer-funding/);
     assert.match(service, /'enable-monnify-test-customer-funding' \| 'enable-monnify-live-customer-funding'/);
+    assert.match(service, /attemptReleased\?: boolean/);
+    assert.match(service, /retryAllowed\?: boolean/);
+    assert.match(service, /providerStatus\?: 'FAILED' \| 'EXPIRED'/);
 });
 
 test('merchant replacement is environment-specific and remains isolated', () => {
@@ -62,13 +65,38 @@ test('eligibility action and card routing controls honor administrative isolatio
 
     assert.match(page, /Admin Isolated/);
     assert.match(page, /Customer Funding: \{isCustomerEligible \? 'Eligible' : 'Ineligible'\}/);
+    assert.match(page, /checkoutEvidenceExpired/);
+    assert.match(page, /checkoutEvidenceMatchesGateway/);
+    assert.match(page, /checkoutRetryBlocked/);
+    assert.match(page, /checkoutEvidence && !checkoutEvidenceExpired/);
+    assert.match(page, /checkoutEvidence\?\.gatewayId === gw\._id/);
+    assert.match(page, /checkoutEvidence\?\.environment === gw\.environment/);
     assert.match(page, /\['initialized', 'ambiguous'\]\.includes\(checkoutEvidence\.status\)/);
     assert.match(page, /canReviewEligibility &&/);
     assert.match(page, /disabled=\{isActionBusy \|\| \(gw\.status !== 'active' && monnifyActivationBlocked\)\}/);
     assert.match(page, /disabled=\{isActionBusy \|\| gw\.status !== 'active' \|\| monnifyActivationBlocked\}/);
     assert.match(page, /\? 'enable-monnify-live-customer-funding'\s*: 'enable-monnify-test-customer-funding'/);
     assert.match(page, /result\.httpStatus === 202/);
+    assert.match(page, /result\.success !== true/);
+    assert.match(page, /result\.status && result\.status !== 'success'/);
     assert.match(page, /Do not retry automatically/);
+    assert.match(page, /failure\?\.attemptReleased === true/);
+    assert.match(page, /failure\?\.retryAllowed === true/);
+    assert.match(page, /failure\?\.refreshRequired === true/);
+    assert.match(page, /The validation state changed\. Review the refreshed gateway before continuing/);
+    assert.match(page, /await fetchData\(\)/);
+    assert.match(page, /requestId !== fetchRequestId\.current/);
+    assert.match(page, /requestId !== fetchRequestId\.current\) return false/);
+    assert.match(page, /setGateways\(\[\]\)/);
+    assert.match(page, /setCheckoutClock\(Date\.now\(\)\)/);
+    assert.match(page, /\['FAILED', 'EXPIRED'\]\.includes\(failure\.providerStatus\)/);
+    assert.match(page, /A new \$\{eligibilityGateway\.environment\.toUpperCase\(\)\} checkout may now be started explicitly/);
+    assert.match(page, /Attempt Locked/);
+    assert.match(page, /only after Monnify confirms FAILED or EXPIRED/);
+    assert.doesNotMatch(
+        page.slice(page.indexOf('failure?.attemptReleased === true'), page.indexOf('// ─── Modal open')),
+        /testMonnifyHostedCheckout\(/,
+    );
     assert.match(page, /gateway remains inactive; activate it separately/);
     assert.match(page, /eligibilityConfirmed/);
     assert.match(page, /const formIsCanonicalMonnify = formCode === 'monnify' && formAdapterType === 'monnify'/);

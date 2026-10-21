@@ -195,7 +195,22 @@ export type MonnifyCustomerFundingRequest = {
     confirmation: 'enable-monnify-test-customer-funding' | 'enable-monnify-live-customer-funding';
 };
 
-export const enableMonnifyCustomerFunding = async (id: string, data: MonnifyCustomerFundingRequest) => {
+export interface MonnifyCustomerFundingResult {
+    success: boolean;
+    httpStatus: number;
+    status?: 'success' | 'failed' | 'pending' | 'processing' | 'settlement_pending';
+    reference?: string;
+    providerStatus?: 'FAILED' | 'EXPIRED';
+    attemptReleased?: boolean;
+    retryAllowed?: boolean;
+    message?: string;
+    eligibility?: MonnifyCustomerFundingEligibility;
+}
+
+export const enableMonnifyCustomerFunding = async (
+    id: string,
+    data: MonnifyCustomerFundingRequest,
+): Promise<MonnifyCustomerFundingResult> => {
     const response = await apiClient.post(`${BASE_URL}/${id}/enable-monnify-customer-funding`, data);
     return { ...response.data, httpStatus: response.status };
 };
