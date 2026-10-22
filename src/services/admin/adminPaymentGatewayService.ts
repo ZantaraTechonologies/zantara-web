@@ -71,7 +71,10 @@ export interface ReconciliationTransaction {
     _id: string;
     reference: string;
     gateway: string;
-    status: 'processing' | 'reconciliation_required';
+    gatewayId: string | null;
+    type: string;
+    status: 'processing' | 'settlement_pending' | 'reconciliation_required';
+    recoveryAvailable: boolean;
     user?: {
         _id: string;
         name: string;
@@ -198,11 +201,13 @@ export type MonnifyCustomerFundingRequest = {
 export interface MonnifyCustomerFundingResult {
     success: boolean;
     httpStatus: number;
-    status?: 'success' | 'failed' | 'pending' | 'processing' | 'settlement_pending';
+    status?: 'success' | 'failed' | 'pending' | 'processing' | 'settlement_pending' | 'reconciliation_required';
     reference?: string;
+    code?: string;
     providerStatus?: 'FAILED' | 'EXPIRED';
     attemptReleased?: boolean;
     retryAllowed?: boolean;
+    refreshRequired?: boolean;
     message?: string;
     eligibility?: MonnifyCustomerFundingEligibility;
 }
@@ -212,6 +217,72 @@ export const enableMonnifyCustomerFunding = async (
     data: MonnifyCustomerFundingRequest,
 ): Promise<MonnifyCustomerFundingResult> => {
     const response = await apiClient.post(`${BASE_URL}/${id}/enable-monnify-customer-funding`, data);
+    return { ...response.data, httpStatus: response.status };
+};
+
+export type MonnifyGatewayTestRecoveryRequest = {
+    reference: string;
+    currentPassword: string;
+    confirmation: 'recover-monnify-test-gateway-payment';
+    note?: string;
+};
+
+export interface MonnifyGatewayTestRecoveryResult {
+    success: boolean;
+    httpStatus: number;
+    code?: string;
+    status?: 'success' | 'processing';
+    reference?: string;
+    recovered?: boolean;
+    alreadyRecovered?: boolean;
+    credited?: false;
+    retryAllowed?: boolean;
+    nextAction?: 'check_eligibility';
+    refreshRequired?: boolean;
+    message?: string;
+}
+
+export type MonnifyGatewayTestRecoverySuccessResult = {
+    success: true;
+    httpStatus: 200;
+    status: 'success';
+    reference: string;
+    recovered: true;
+    credited: false;
+    nextAction: 'check_eligibility';
+} & (
+    | {
+        code: 'MONNIFY_GATEWAY_TEST_RECOVERED';
+        alreadyRecovered: false;
+    }
+    | {
+        code: 'MONNIFY_GATEWAY_TEST_ALREADY_RECOVERED';
+        alreadyRecovered: true;
+    }
+);
+
+export const isValidMonnifyGatewayTestRecoverySuccess = (
+    result: MonnifyGatewayTestRecoveryResult,
+    expectedReference: string,
+): result is MonnifyGatewayTestRecoverySuccessResult => (
+    result.httpStatus === 200 &&
+    result.success === true &&
+    result.status === 'success' &&
+    result.reference === expectedReference &&
+    result.recovered === true &&
+    result.credited === false &&
+    result.nextAction === 'check_eligibility' &&
+    (
+        (result.code === 'MONNIFY_GATEWAY_TEST_RECOVERED' && result.alreadyRecovered === false) ||
+        (result.code === 'MONNIFY_GATEWAY_TEST_ALREADY_RECOVERED' && result.alreadyRecovered === true)
+    )
+);
+
+export const recoverMonnifyGatewayTest = async (
+    id: string,
+    data: MonnifyGatewayTestRecoveryRequest,
+): Promise<MonnifyGatewayTestRecoveryResult> => {
+    const response = await apiClient.post(`${BASE_URL}/${id}/recover-monnify-gateway-test`, data);
     return { ...response.data, httpStatus: response.status };
 };
 

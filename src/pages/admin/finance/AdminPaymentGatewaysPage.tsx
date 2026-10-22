@@ -33,11 +33,14 @@ import {
     replaceMonnifyMerchant,
     testMonnifyHostedCheckout,
     enableMonnifyCustomerFunding,
+    recoverMonnifyGatewayTest,
+    isValidMonnifyGatewayTestRecoverySuccess,
     getReconciliationTransactions,
     getAdapterCapabilities,
 } from '../../../services/admin/adminPaymentGatewayService';
 import { toast } from 'react-hot-toast';
 import { isTrustedHostedCheckoutUrl } from '../../../utils/hostedCheckout';
+import { useAuthStore } from '../../../store/auth/authStore';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PILOT FORM STYLE SYSTEM  ─  Payment Gateway modal
@@ -147,6 +150,7 @@ const emptyReplacementCredentials = () => ({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const AdminPaymentGatewaysPage: React.FC = () => {
+    const currentAdminId = useAuthStore(state => String(state.user?.id || state.user?._id || ''));
     const [activeTab, setActiveTab] = useState<'gateways' | 'reconciliation'>('gateways');
     const [loading, setLoading] = useState(true);
     const [gateways, setGateways] = useState<PaymentGatewayItem[]>([]);
@@ -193,6 +197,15 @@ const AdminPaymentGatewaysPage: React.FC = () => {
     const [eligibilityConfirmed, setEligibilityConfirmed] = useState(false);
     const [eligibilitySaving, setEligibilitySaving] = useState(false);
     const [eligibilityPendingMessage, setEligibilityPendingMessage] = useState('');
+    const [recoveryTarget, setRecoveryTarget] = useState<{
+        transaction: ReconciliationTransaction;
+        gateway: PaymentGatewayItem;
+    } | null>(null);
+    const [recoveryPassword, setRecoveryPassword] = useState('');
+    const [recoveryNote, setRecoveryNote] = useState('');
+    const [recoveryConfirmed, setRecoveryConfirmed] = useState(false);
+    const [recoverySaving, setRecoverySaving] = useState(false);
+    const [recoveryMessage, setRecoveryMessage] = useState('');
 
     // Confirmation dialog
     const [confirmDialog, setConfirmDialog] = useState<{
@@ -238,7 +251,11 @@ const AdminPaymentGatewaysPage: React.FC = () => {
             } else {
                 setGateways([]);
             }
-            if (recRes.status === 'fulfilled' && recRes.value.success) setReconciliations(recRes.value.data || []);
+            if (recRes.status === 'fulfilled' && recRes.value.success) {
+                setReconciliations(recRes.value.data || []);
+            } else {
+                setReconciliations([]);
+            }
             if (capRes.status === 'fulfilled' && capRes.value.success && capRes.value.data?.length) {
                 setCapabilities(capRes.value.data);
                 setCapabilitiesError(null);
@@ -573,6 +590,127 @@ const AdminPaymentGatewaysPage: React.FC = () => {
         } finally {
             setEligibilityPassword('');
             setEligibilitySaving(false);
+        }
+    };
+
+    const recoveryGatewayFor = (transaction: ReconciliationTransaction) =>
+        gateways.find(candidate => candidate._id === transaction.gatewayId);
+
+    const isRecoveryActionAvailable = (transaction: ReconciliationTransaction) => {
+        const gateway = recoveryGatewayFor(transaction);
+        return Boolean(
+            transaction.recoveryAvailable &&
+            transaction.status === 'reconciliation_required' &&
+            transaction.type === 'gateway_test' &&
+            transaction.gateway === 'monnify' &&
+            transaction.user?._id === currentAdminId &&
+            gateway?.code === 'monnify' &&
+            gateway.adapterType === 'monnify' &&
+            gateway.environment === 'test' &&
+            gateway.baseUrl === MONNIFY_API_BASES.test &&
+            gateway.status === 'inactive' &&
+            !gateway.isDefault &&
+            gateway.metadata?.administrativeSandboxOnly === true
+        );
+    };
+
+    const openGatewayTestRecovery = (transaction: ReconciliationTransaction) => {
+        const gateway = recoveryGatewayFor(transaction);
+        if (
+            !isRecoveryActionAvailable(transaction) ||
+            !gateway
+        ) {
+            toast.error('This manual-review transaction is not eligible for Monnify gateway-test recovery.');
+            return;
+        }
+        setRecoveryTarget({ transaction, gateway });
+        setRecoveryPassword('');
+        setRecoveryNote('');
+        setRecoveryConfirmed(false);
+        setRecoveryMessage('');
+    };
+
+    const closeGatewayTestRecovery = () => {
+        if (recoverySaving) return;
+        setRecoveryTarget(null);
+        setRecoveryPassword('');
+        setRecoveryNote('');
+        setRecoveryConfirmed(false);
+        setRecoveryMessage('');
+    };
+
+    const handleGatewayTestRecovery = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!recoveryTarget || !recoveryConfirmed) return;
+        try {
+            setRecoverySaving(true);
+            setRecoveryMessage('');
+            const result = await recoverMonnifyGatewayTest(recoveryTarget.gateway._id, {
+                reference: recoveryTarget.transaction.reference,
+                currentPassword: recoveryPassword,
+                confirmation: 'recover-monnify-test-gateway-payment',
+                ...(recoveryNote.trim() ? { note: recoveryNote.trim() } : {}),
+            });
+            if (result.httpStatus === 202 || result.status === 'processing') {
+                if (
+                    result.httpStatus !== 202 ||
+                    result.success !== false ||
+                    result.code !== 'MONNIFY_GATEWAY_TEST_RECOVERY_IN_PROGRESS' ||
+                    result.status !== 'processing' ||
+                    result.reference !== recoveryTarget.transaction.reference ||
+                    result.recovered !== false ||
+                    result.credited !== false ||
+                    result.retryAllowed !== true
+                ) {
+                    toast.error('The recovery status response could not be safely matched to this payment.');
+                    setRecoveryTarget(null);
+                    setRecoveryNote('');
+                    setRecoveryConfirmed(false);
+                    setRecoveryMessage('');
+                    setReconciliations([]);
+                    await fetchData();
+                    return;
+                }
+                const message = result.message || 'Recovery verification is already in progress.';
+                setRecoveryMessage(message);
+                toast(message);
+                return;
+            }
+            if (!isValidMonnifyGatewayTestRecoverySuccess(
+                result,
+                recoveryTarget.transaction.reference,
+            )) {
+                toast.error(result.message || 'The gateway-test payment was not safely recovered.');
+                setRecoveryTarget(null);
+                setRecoveryNote('');
+                setRecoveryConfirmed(false);
+                setRecoveryMessage('');
+                setReconciliations([]);
+                await fetchData();
+                return;
+            }
+            toast.success(result.alreadyRecovered
+                ? 'Payment was already recovered. Continue with Check Eligibility.'
+                : 'Paid gateway test recovered without wallet credit. Continue with Check Eligibility.');
+            setRecoveryTarget(null);
+            setRecoveryConfirmed(false);
+            setActiveTab('gateways');
+            setGateways([]);
+            await fetchData();
+        } catch (error: any) {
+            const failure = error.response?.data;
+            if (failure?.refreshRequired === true) {
+                setRecoveryTarget(null);
+                setRecoveryConfirmed(false);
+                setGateways([]);
+                await fetchData();
+                toast.error(failure.message || 'Recovery state changed. Review the refreshed gateway before retrying.');
+                return;
+            }
+            toast.error(failure?.message || error.message || 'Monnify gateway-test recovery failed');
+        } finally {
+            setRecoveryPassword('');
+            setRecoverySaving(false);
         }
     };
 
@@ -1076,7 +1214,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                         <div>
                             <h2 className="text-lg font-black text-slate-900">Funding Reconciliation &amp; In-Flight Audit</h2>
                             <p className="text-xs text-slate-600 mt-0.5">
-                                Transactions in <span className="font-bold text-amber-700">processing</span> or <span className="font-bold text-rose-700">reconciliation_required</span> state.
+                                Transactions in <span className="font-bold text-amber-700">processing</span>, <span className="font-bold text-sky-700">settlement_pending</span>, or <span className="font-bold text-rose-700">reconciliation_required</span> state.
                             </p>
                         </div>
                         <span className="px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 rounded-xl">{reconciliations.length} Total</span>
@@ -1111,6 +1249,7 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                         <th className="pb-3">Confirmed</th>
                                         <th className="pb-3">Status</th>
                                         <th className="pb-3">Elapsed / Issue</th>
+                                        <th className="pb-3 text-right">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -1131,12 +1270,25 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                             <td className="py-3.5">
                                                 {tx.status === 'processing'
                                                     ? <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200">PROCESSING</span>
-                                                    : <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">RECONCILE</span>}
+                                                    : tx.status === 'settlement_pending'
+                                                        ? <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-50 text-sky-700 border border-sky-200">SETTLING</span>
+                                                        : <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">RECONCILE</span>}
                                             </td>
                                             <td className="py-3.5 max-w-xs">
-                                                {tx.status === 'processing'
-                                                    ? <div className="flex items-center gap-1.5 text-amber-700 font-medium"><Clock className="w-3.5 h-3.5 shrink-0" /><span>{tx.elapsedMinutes} mins in-flight</span></div>
-                                                    : <div className="text-rose-700 font-medium text-[11px]">{tx.reconciliationReason || 'Audit mismatch'}</div>}
+                                                {tx.status === 'reconciliation_required'
+                                                    ? <div className="text-rose-700 font-medium text-[11px]">{tx.reconciliationReason || 'Audit mismatch'}</div>
+                                                    : <div className="flex items-center gap-1.5 text-amber-700 font-medium"><Clock className="w-3.5 h-3.5 shrink-0" /><span>{tx.elapsedMinutes} mins in-flight</span></div>}
+                                            </td>
+                                            <td className="py-3.5 text-right">
+                                                {isRecoveryActionAvailable(tx) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openGatewayTestRecovery(tx)}
+                                                        className="rounded-lg border border-violet-300 bg-violet-50 px-3 py-1.5 text-[10px] font-bold text-violet-700 transition-colors hover:bg-violet-100"
+                                                    >
+                                                        Recover Gateway Test
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -1749,6 +1901,96 @@ const AdminPaymentGatewaysPage: React.FC = () => {
                                 </a>
                                 <button type="button" onClick={closeCheckoutTest} className={`${modalButtonSecondaryClass} w-full`}>Close</button>
                             </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {recoveryTarget && (
+                <div className="fixed inset-0 z-50 flex min-h-full items-center justify-center overflow-y-auto bg-slate-900/60 backdrop-blur-md p-4 dark:bg-slate-950/85">
+                    <div className="max-h-[calc(100vh-2rem)] max-w-lg w-full overflow-y-auto bg-white dark:bg-gradient-to-b dark:from-brand-navy-800 dark:to-brand-navy-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 space-y-5">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <div className="text-xs font-black uppercase tracking-widest text-violet-600 dark:text-violet-300 mb-2">
+                                    SuperAdmin Recovery
+                                </div>
+                                <h2 className="text-xl font-black text-slate-900 dark:text-white">Recover Monnify Gateway Test</h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                    Freshly verifies the pinned TEST merchant snapshot and preserves the original manual-review evidence.
+                                </p>
+                            </div>
+                            <button onClick={closeGatewayTestRecovery} disabled={recoverySaving} aria-label="Close recovery dialog" className={modalIconButtonClass}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/50 space-y-2">
+                            <div>
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Validation Reference</div>
+                                <div className="mt-1 break-all font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                                    {recoveryTarget.transaction.reference}
+                                </div>
+                            </div>
+                            <div className="text-xs text-rose-700 dark:text-rose-300">
+                                {recoveryTarget.transaction.reconciliationReason || 'Manual review evidence retained'}
+                            </div>
+                        </div>
+
+                        {recoveryMessage ? (
+                            <div className="space-y-4">
+                                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-800 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-200">
+                                    <strong>Recovery in progress.</strong> {recoveryMessage}
+                                </div>
+                                <button type="button" onClick={closeGatewayTestRecovery} className={`${modalButtonSecondaryClass} w-full`}>Close</button>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleGatewayTestRecovery} className="space-y-4">
+                                <div>
+                                    <FieldLabel htmlFor="recovery-password">Current SuperAdmin Password</FieldLabel>
+                                    <input
+                                        id="recovery-password"
+                                        type="password"
+                                        required
+                                        value={recoveryPassword}
+                                        onChange={e => setRecoveryPassword(e.target.value)}
+                                        className={formInputClass}
+                                        autoComplete="current-password"
+                                    />
+                                </div>
+                                <div>
+                                    <FieldLabel htmlFor="recovery-note">Audit Note</FieldLabel>
+                                    <textarea
+                                        id="recovery-note"
+                                        value={recoveryNote}
+                                        onChange={e => setRecoveryNote(e.target.value)}
+                                        maxLength={500}
+                                        rows={3}
+                                        className={formInputClass}
+                                        placeholder="Optional operational context"
+                                    />
+                                </div>
+                                <label className="flex items-start gap-3 rounded-xl border-2 border-violet-200 bg-violet-50 p-4 dark:border-violet-400/20 dark:bg-violet-500/10">
+                                    <input
+                                        type="checkbox"
+                                        checked={recoveryConfirmed}
+                                        onChange={e => setRecoveryConfirmed(e.target.checked)}
+                                        className="mt-0.5 rounded text-violet-600 focus:ring-violet-500"
+                                    />
+                                    <span className="text-xs font-semibold leading-relaxed text-violet-800 dark:text-violet-200">
+                                        I confirm recovery is limited to this exact TEST gateway payment and must not credit a wallet, activate Monnify, or change the default gateway.
+                                    </span>
+                                </label>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    A successful recovery only restores authoritative transaction evidence. Run Check Eligibility separately afterward.
+                                </p>
+                                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+                                    <button type="button" onClick={closeGatewayTestRecovery} disabled={recoverySaving} className={modalButtonSecondaryClass}>Cancel</button>
+                                    <button type="submit" disabled={recoverySaving || !recoveryConfirmed} className={modalButtonPrimaryClass}>
+                                        {recoverySaving && <RefreshCw className="w-4 h-4 animate-spin" />}
+                                        Recover Paid Gateway Test
+                                    </button>
+                                </div>
+                            </form>
                         )}
                     </div>
                 </div>
